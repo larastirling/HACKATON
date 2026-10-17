@@ -10,6 +10,8 @@ export type Rol = 'abuelo' | 'familiar'
 export interface Sesion {
   codigoFamilia: string
   rol: Rol
+  /** Con qué mail entró el familiar (las sesiones de antes no lo tienen). */
+  mail?: string
 }
 
 const NOMBRE_COOKIE = 'sesion'

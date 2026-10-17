@@ -85,6 +85,7 @@ p { margin: 0; }
   text-transform: uppercase;
 }
 .campo input::placeholder { text-transform: none; color: #6b6b6b; font-size: 1.1rem; }
+.campo-mail input { text-transform: none; } /* mail y nombre: como se escriben */
 
 .boton {
   min-height: 72px;

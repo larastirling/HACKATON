@@ -3,9 +3,10 @@
 import { leerConfiguracion, type ConfiguracionAbuelo } from '@/lib/datos'
 import { charlarConLaIA, type RespuestaIA } from '@/lib/ia'
 import { leerSesion } from '@/lib/sesion'
+import { guardarAbuelo, HERRAMIENTA_GUARDAR_ABUELO } from './abuelo'
 import { guardarComercio, HERRAMIENTA_GUARDAR_COMERCIO } from './comercios'
 import { guardarFamiliar, HERRAMIENTA_GUARDAR_FAMILIAR } from './familiares'
-import { guardadoParaLaIA, INSTRUCCIONES_FAMILIA } from './instrucciones'
+import { guardadoParaLaIA, INSTRUCCIONES_FAMILIA, quienEscribeParaLaIA } from './instrucciones'
 import { guardarLugar, HERRAMIENTA_GUARDAR_LUGAR } from './lugares'
 import { guardarReglas, HERRAMIENTA_GUARDAR_REGLAS, HERRAMIENTA_MOSTRAR_REGLAS, mostrarReglas, type TablaReglas } from './reglas'
 
@@ -20,7 +21,7 @@ export interface MensajeCharla {
 }
 
 /** Lo que muestran los recuadros de /familia. */
-export type Guardado = Pick<ConfiguracionAbuelo, 'lugares' | 'comercios' | 'familiares' | 'reglas'>
+export type Guardado = Pick<ConfiguracionAbuelo, 'codigoFamilia' | 'abuelo' | 'lugares' | 'comercios' | 'familiares' | 'reglas'>
 
 export type RespuestaFamilia = RespuestaIA & { guardado?: Guardado; tabla?: TablaReglas }
 
@@ -43,11 +44,13 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
   }
 
   // La IA ve lo que ya está guardado, así no lo repite y puede corregirlo.
-  const instrucciones = `${INSTRUCCIONES_FAMILIA}\n\n${guardadoParaLaIA(configuracion)}`
+  const instrucciones = `${INSTRUCCIONES_FAMILIA}\n\n${quienEscribeParaLaIA(configuracion, sesion.mail)}\n\n${guardadoParaLaIA(configuracion)}`
   let respuesta = await charlarConLaIA(instrucciones, mensajes.map(paraLaIA), {
-    tools: [HERRAMIENTA_GUARDAR_LUGAR, HERRAMIENTA_GUARDAR_COMERCIO, HERRAMIENTA_GUARDAR_FAMILIAR, HERRAMIENTA_MOSTRAR_REGLAS, HERRAMIENTA_GUARDAR_REGLAS],
+    tools: [HERRAMIENTA_GUARDAR_ABUELO, HERRAMIENTA_GUARDAR_LUGAR, HERRAMIENTA_GUARDAR_COMERCIO, HERRAMIENTA_GUARDAR_FAMILIAR, HERRAMIENTA_MOSTRAR_REGLAS, HERRAMIENTA_GUARDAR_REGLAS],
     usarHerramienta: (bloque) => {
       switch (bloque.name) {
+        case HERRAMIENTA_GUARDAR_ABUELO.name:
+          return guardarAbuelo(codigo, bloque.input)
         case HERRAMIENTA_GUARDAR_LUGAR.name:
           return guardarLugar(codigo, bloque.input)
         case HERRAMIENTA_GUARDAR_COMERCIO.name:
@@ -102,8 +105,8 @@ async function dejarUnaSolaPregunta(respuesta: Extract<RespuestaIA, { ok: true }
   return quedaUna ? reescrita : respuesta
 }
 
-function soloGuardado({ lugares, comercios, familiares, reglas }: ConfiguracionAbuelo): Guardado {
-  return { lugares, comercios, familiares, reglas }
+function soloGuardado({ codigoFamilia, abuelo, lugares, comercios, familiares, reglas }: ConfiguracionAbuelo): Guardado {
+  return { codigoFamilia, abuelo, lugares, comercios, familiares, reglas }
 }
 
 function esCharlaValida(mensajes: unknown): mensajes is MensajeCharla[] {

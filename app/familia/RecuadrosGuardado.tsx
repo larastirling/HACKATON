@@ -8,10 +8,27 @@ const PENDIENTE = 'PENDIENTE' // igual que en lib/datos.ts (ese archivo solo cor
 const apodos = (lista: string[]) => lista.map((a) => `“${a}”`).join(', ')
 
 export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) {
-  const { lugares, comercios, familiares, reglas } = guardado
+  const { codigoFamilia, abuelo, lugares, comercios, familiares, reglas } = guardado
   const conPermiso = lugares.filter((l) => l.necesitaPermiso).map((l) => l.nombre)
   return (
     <>
+      <p className={estilos.codigo}>
+        Código para el celular del abuelo: <strong>{codigoFamilia}</strong>
+        <span>Entra con «Soy el abuelo» y este código.</span>
+      </p>
+
+      <Recuadro titulo={`👴 ${abuelo.nombre === PENDIENTE ? 'Persona mayor (todavía sin nombre)' : abuelo.nombre}`} cantidad={-1}>
+        <li>
+          <Estado ok={abuelo.comoLeGustaQueLeHablen !== PENDIENTE} si={`Trato: ${abuelo.comoLeGustaQueLeHablen}`} no="Falta cómo le gusta que le hablen" />
+        </li>
+        <li>
+          <Estado ok={abuelo.telefono !== PENDIENTE} si={`Teléfono ${abuelo.telefono}`} no="Falta su teléfono" />
+        </li>
+        <li>
+          <Estado ok={abuelo.direccion !== PENDIENTE} si={`Vive en ${abuelo.direccion}`} no="Falta su dirección (va en los pedidos)" />
+        </li>
+      </Recuadro>
+
       <Recuadro titulo={`⚖️ Nivel: ${reglas.nivel}`} cantidad={-1}>
         <li>
           <strong>🔒 Se aprueba:</strong>{' '}
@@ -63,7 +80,7 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
             <strong>
               {f.orden}º para llamar: {f.nombre}
             </strong>{' '}
-            ({f.relacion})
+            ({f.relacion === PENDIENTE ? 'falta qué es de la persona mayor' : f.relacion})
             <br />
             <Estado ok={f.mail !== PENDIENTE} si={`Mail ${f.mail}`} no="Falta el mail" />
             <br />

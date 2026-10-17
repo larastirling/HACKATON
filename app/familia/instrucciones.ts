@@ -15,8 +15,8 @@ Cómo hablás:
 - Texto simple: la pantalla no muestra formato, así que nada de asteriscos, negritas ni títulos. Si hace falta una lista corta, usá guiones.
 
 Qué necesitás saber, más o menos en este orden:
-1. Cómo se llama la persona mayor.
-2. Cómo le gusta que le hablen (por ejemplo "Don Carlos, de usted").
+1. Cómo se llama la persona mayor (nombre y apellido).
+2. Cómo le gusta que le hablen (por ejemplo "Don Carlos, de usted"). Después, su teléfono y dónde vive (la dirección va en los pedidos de comida).
 3. Cómo se lleva con la tecnología y el celular.
 4. Cómo maneja la plata (si se confunde, si le pidieron plata alguna vez, etc.).
 5. Lugares a los que va seguido, con el apodo con el que los nombra (por ejemplo "lo de la nena" = casa de su hija) y la dirección.
@@ -25,6 +25,14 @@ Qué necesitás saber, más o menos en este orden:
 8. El nivel de ayuda y las reglas: qué se aprueba, qué solo se avisa y qué es libre.
 
 Cada punto puede llevar varias preguntas, pero siempre de a una: por ejemplo, para un lugar primero el apodo, después la dirección.
+
+Familia nueva (en LO QUE YA ESTÁ GUARDADO la persona mayor figura como PENDIENTE):
+- El hijo acaba de crear la familia: no hay nada cargado salvo él mismo como primer familiar. Saludalo por su nombre y arrancá por el punto 1.
+- Los datos de la persona mayor (nombre, trato, teléfono, dirección) se guardan con guardar_abuelo, apenas te dice cada uno.
+- En el punto 7, el que escribe ya es el primer familiar: preguntale qué es de la persona mayor (hijo, hija…) y su teléfono, y guardalo con guardar_familiar con su mismo nombre y mail. Después pedí los datos del segundo familiar.
+- Al terminar las reglas, contale que en el celular de la persona mayor tiene que entrar con "Soy el abuelo" y el código de la familia, que ve arriba en la pantalla.
+
+Quién te escribe: mirá QUIÉN ESCRIBE, abajo. Si ya sabés quién es, no le preguntes "¿quién sos?".
 
 Cómo guardar los lugares (punto 5):
 - Por cada lugar averiguá: qué lugar es (ej. la casa de su hija Laura), cómo lo nombra la persona mayor (los apodos, tal cual: "lo de la nena") y la dirección con calle y número.
@@ -87,7 +95,8 @@ Empezá saludando y preguntando cómo se llama su papá o mamá.`
 const listaDeApodos = (apodos: string[]) => (apodos.length ? apodos.map((a) => `"${a}"`).join(', ') : 'ninguno')
 
 /** Resumen de lo que ya está guardado (sin coordenadas: la IA nunca las necesita). */
-export function guardadoParaLaIA({ abuelo, lugares, comercios, familiares, reglas }: ConfiguracionAbuelo): string {
+export function guardadoParaLaIA(configuracion: ConfiguracionAbuelo): string {
+  const { abuelo, lugares, comercios, familiares, reglas } = configuracion
   const lineasLugares = lugares.map(
     (l) =>
       `- "${l.nombre}" | apodos: ${listaDeApodos(l.apodos)} | dirección: ${l.direccion} | ` +
@@ -104,11 +113,24 @@ export function guardadoParaLaIA({ abuelo, lugares, comercios, familiares, regla
 
   return [
     'LO QUE YA ESTÁ GUARDADO (confirmado por el sistema AHORA. Si algo figura acá, se guardó de verdad; lo que dijiste antes sobre guardarlo es cierto):',
-    `Persona mayor: ${abuelo.nombre} (le gusta que le hablen: ${abuelo.comoLeGustaQueLeHablen})`,
+    `Persona mayor: ${abuelo.nombre} | le gusta que le hablen: ${abuelo.comoLeGustaQueLeHablen} | teléfono: ${abuelo.telefono} | dirección: ${abuelo.direccion}`,
     seccion('Lugares', lineasLugares),
     seccion('Comercios', lineasComercios),
     seccion('Familiares de contacto', lineasFamiliares),
-    `Reglas guardadas: nivel ${reglas.nivel} | se aprueba: ${reglas.seAprueba.join('; ') || 'nada'} | solo se avisa: ${reglas.seAvisa.join('; ') || 'nada'}` +
-      ` | el abuelo ${reglas.abueloAceptoAvisos ? 'ya aceptó' : 'todavía no aceptó'} los avisos`,
+    reglasSinElegir(configuracion)
+      ? 'Reglas guardadas: todavía no se eligió el nivel ni las reglas (punto 8).'
+      : `Reglas guardadas: nivel ${reglas.nivel} | se aprueba: ${reglas.seAprueba.join('; ') || 'nada'} | solo se avisa: ${reglas.seAvisa.join('; ') || 'nada'}` +
+        ` | el abuelo ${reglas.abueloAceptoAvisos ? 'ya aceptó' : 'todavía no aceptó'} los avisos`,
   ].join('\n\n')
+}
+
+/** Familia recién creada: el nivel que trae es solo el de arranque, nadie lo eligió todavía. */
+const reglasSinElegir = ({ lugares, reglas }: ConfiguracionAbuelo) =>
+  reglas.seAprueba.length === 0 && reglas.seAvisa.length === 0 && !reglas.abueloAceptoAvisos && !lugares.some((l) => l.necesitaPermiso)
+
+/** Quién está escribiendo, según el mail con el que entró. */
+export function quienEscribeParaLaIA({ familiares }: ConfiguracionAbuelo, mail: string | undefined): string {
+  const familiar = mail ? familiares.find((f) => f.mail.toLowerCase() === mail.toLowerCase()) : undefined
+  if (!familiar) return 'QUIÉN ESCRIBE: no se sabe. Si hace falta, preguntale su nombre.'
+  return `QUIÉN ESCRIBE: ${familiar.nombre} (${familiar.relacion === 'PENDIENTE' ? 'todavía no dijo qué es de la persona mayor' : familiar.relacion}), mail ${familiar.mail}, ${familiar.orden}º para llamar.`
 }

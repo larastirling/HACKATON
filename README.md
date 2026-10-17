@@ -33,12 +33,14 @@ Archivos compartidos (avisar al equipo antes de cambiarlos):
 
 ## Cómo entrar
 
-1. Escribir el **código de familia**. Para probar: `DEMO`.
-2. Tocar **"Soy el abuelo"** o **"Soy familiar"**.
+- **Familiar:** tocar **"Soy familiar"** y escribir su mail.
+  - Si el mail es de un familiar de alguna familia, entra a `/familia` de esa familia. Para probar: el mail de Inés o de Lara entra a la familia `DEMO`.
+  - Si no está en ninguna familia, se ofrece **crear una nueva**: queda como primer familiar y en `/familia` la IA le pregunta todo lo del abuelo charlando.
+- **Abuelo:** tocar **"Soy el abuelo"** y escribir el **código de la familia**, que el familiar ve arriba en `/familia`. Para probar: `DEMO`. Una familia recién creada no deja entrar al abuelo hasta que tenga el nombre cargado.
 
 El abuelo solo puede ver `/abuelo` y el familiar solo `/familia`. La sesión dura un año, así que un familiar puede iniciar sesión una vez en el celular del abuelo y queda abierta.
 
-> Es un login simple para la hackatón: quien sepa el código puede elegir cualquiera de los dos roles.
+> Es un login simple para la hackatón: no se verifica el mail (quien escriba el mail de un familiar entra a su familia) y quien sepa el código entra como abuelo.
 
 ---
 

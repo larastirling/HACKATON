@@ -17,6 +17,8 @@ export default async function PaginaFamilia() {
         <p className="subtitulo">Contame de tu papá o tu mamá y armamos juntos su asistente.</p>
         <Charla
           guardadoInicial={{
+            codigoFamilia: configuracion.codigoFamilia,
+            abuelo: configuracion.abuelo,
             lugares: configuracion.lugares,
             comercios: configuracion.comercios,
             familiares: configuracion.familiares,

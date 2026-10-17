@@ -64,7 +64,10 @@ export async function guardarFamiliar(codigoFamilia: string, dato: unknown): Pro
   let movido: Familiar | undefined
   let yaExistia = false
   const error = await cambiarConfiguracion(codigoFamilia, (c) => {
-    const anterior = c.familiares.find((f) => mismoNombre(f.nombre, familiar.nombre))
+    // Mismo nombre o mismo mail = la misma persona (ej. "Inés" que después se carga como "Inés Bertolotti").
+    const anterior = c.familiares.find(
+      (f) => mismoNombre(f.nombre, familiar.nombre) || (mail !== PENDIENTE && mismoNombre(f.mail, mail)),
+    )
     yaExistia = !!anterior
     let familiares = anterior
       ? c.familiares.map((f) => (f === anterior ? familiar : f))
