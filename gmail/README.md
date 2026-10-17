@@ -49,3 +49,21 @@ Script `etiquetar-mails.gs`: crea las etiquetas **ESTAFA** (roja) y **DUDOSO** (
 5. Abrí Gmail y fijate que a la izquierda aparezcan ESTAFA en rojo y DUDOSO en amarillo.
 6. Mandate un mail trucho al Gmail de la demo (por ejemplo, uno que imite al BROU pidiendo la clave).
 7. Elegí **etiquetarUltimosMails** y clic en **Ejecutar**. Revisa los últimos 5 mails: en el registro se ve el resultado de cada uno, y en Gmail el mail trucho tiene que quedar con la etiqueta roja.
+
+# Gmail: proteger (sacar estafas de la bandeja y avisar al abuelo)
+
+Script `proteger-mails.gs`: hace todo junto con cada mail.
+
+- **ESTAFA:** etiqueta roja, lo saca de la bandeja (lo archiva, nunca lo borra) y le manda al dueño de la cuenta un mail con letra grande que explica por qué es falso y qué hacer. Ese aviso no incluye links, mails ni teléfonos del mail falso.
+- **DUDOSO:** etiqueta amarilla, queda en la bandeja.
+- **LEGITIMO:** no hace nada.
+
+Los avisos que manda el script llevan la etiqueta "Avisos del asistente" y nunca se analizan, para que no se arme un círculo. Si un mail falla, lo anota en el registro y sigue con el siguiente. Usa funciones de `clasificar-mail.gs` y `etiquetar-mails.gs`: los tres archivos van en el mismo proyecto.
+
+## Cómo usarlo
+
+1. En el mismo proyecto de Apps Script, clic en el **+** al lado de "Archivos" → **Secuencia de comandos** y llamalo `proteger-mails`.
+2. Pegá el contenido de `proteger-mails.gs` y guardá.
+3. Elegí **protegerUltimosMails** y clic en **Ejecutar**. Aceptá los permisos nuevos (ahora también manda mails).
+4. En el registro se ve qué hizo con cada uno de los últimos 5 mails.
+5. En Gmail: el mail trucho ya no está en Recibidos (aparece buscando `label:ESTAFA`) y llegó el aviso "⚠️ Cuidado: le llegó un mail falso".
