@@ -159,6 +159,24 @@ async function guardar(clave: string, valor: unknown): Promise<void> {
   else memoria.set(clave, valor)
 }
 
+async function borrar(clave: string): Promise<void> {
+  if (redis) await redis.del(clave)
+  else memoria.delete(clave)
+}
+
+/** Todas las claves guardadas que empiezan con `prefijo` (por ejemplo "aprobacion:"). */
+async function clavesQueEmpiezanCon(prefijo: string): Promise<string[]> {
+  if (!redis) return [...memoria.keys()].filter((clave) => clave.startsWith(prefijo))
+  const claves: string[] = []
+  let cursor = '0'
+  do {
+    const [siguiente, lote] = await redis.scan(cursor, { match: `${prefijo}*`, count: 200 })
+    cursor = String(siguiente)
+    claves.push(...lote)
+  } while (cursor !== '0')
+  return claves
+}
+
 // ── Configuración de cada abuelo ────────────────────────────
 
 const claveConfiguracion = (codigoFamilia: string) => `configuracion:${normalizarCodigo(codigoFamilia)}`
@@ -535,6 +553,32 @@ export async function guardarUltimaEmergencia(codigoFamilia: string, loQueDijo: 
 
 export async function leerUltimaEmergencia(codigoFamilia: string): Promise<AvisoDeEmergencia | null> {
   return leer<AvisoDeEmergencia>(claveEmergencia(codigoFamilia))
+}
+
+// ── Restaurar la familia DEMO (para usar antes de la demo) ──
+
+/**
+ * Deja la familia DEMO como al principio: datos originales (FAMILIA_DEMO), los mails de sus familiares
+ * apuntando a DEMO, sin pedidos de aprobación pendientes y con el aviso de emergencia listo para salir.
+ * No toca los celulares que activaron los avisos.
+ */
+export async function restaurarFamiliaDemo(): Promise<{ pendientesBorrados: number }> {
+  const codigo = FAMILIA_DEMO.codigoFamilia
+  // Guarda los datos originales y vuelve a asociar los mails de Inés y Lara a DEMO.
+  await guardarConfiguracion(FAMILIA_DEMO)
+
+  let pendientesBorrados = 0
+  for (const clave of await clavesQueEmpiezanCon('aprobacion:')) {
+    const aprobacion = await leer<PedidoDeAprobacion>(clave)
+    if (aprobacion?.codigoFamilia !== codigo || aprobacion.estado !== 'esperando') continue
+    for (const pregunta of aprobacion.preguntadoA) await borrar(claveToken(pregunta.token)) // los links dejan de servir
+    await borrar(clave)
+    pendientesBorrados++
+  }
+  await borrar(claveUltima(codigo)) // la pantalla del abuelo no retoma nada viejo
+  await borrar(claveEmergencia(codigo))
+  await soltarCandado(`emergencia:${codigo}`) // el próximo "me siento mal" avisa de nuevo
+  return { pendientesBorrados }
 }
 
 // ── Solo para la página /prueba ─────────────────────────────

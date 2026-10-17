@@ -367,3 +367,7 @@ a.boton {
 }
 .boton-voz { align-self: flex-end; margin-top: -12px; }
 .boton-repetir { align-self: flex-start; margin-top: -8px; }
+
+/* ── /prueba: herramientas para la demo (plegadas) ── */
+.herramientas-demo summary { font-weight: 700; cursor: pointer; min-height: 48px; display: flex; align-items: center; }
+.herramientas-demo .campo input { text-transform: none; font-size: 1.1rem; }
