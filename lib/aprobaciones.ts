@@ -12,13 +12,15 @@ import {
   type QueSePidio,
 } from './datos'
 import { enviarMail } from './mail'
+import { notificarAFamiliar } from './notificaciones'
 
 // Pedidos de aprobación a la familia.
 // El SERVIDOR (no la IA) decide si algo necesita permiso, con estas reglas:
 //   - Viaje: si el lugar tiene necesitaPermiso: true.
 //   - Pedido de comida: si NO es el pedido habitual del comercio.
 //
-// Se les pregunta a TODOS los familiares a la vez, cada uno con su propio link. Gana el primero
+// Se les pregunta a TODOS los familiares a la vez (por mail y por notificación en el celular),
+// cada uno con su propio link. Gana el primero
 // que contesta. Si nadie contesta en MINUTOS_PARA_CONTESTAR, el pedido queda "sin-respuesta".
 // No hace falta ningún proceso aparte: cada vez que alguien consulta el pedido,
 // actualizarSiVencio() revisa el reloj.
@@ -49,7 +51,7 @@ export type ResultadoPermiso =
   | { ok: true; aprobacion: PedidoDeAprobacion; familiares: string[] }
   | { ok: false; motivo: string }
 
-/** Guarda el pedido de aprobación y se lo manda a TODOS los familiares a la vez. */
+/** Guarda el pedido de aprobación y se lo manda a TODOS los familiares a la vez (mail + notificación). */
 export async function pedirPermiso(
   configuracion: ConfiguracionAbuelo,
   descripcion: string,
@@ -64,8 +66,18 @@ export async function pedirPermiso(
   for (const familiar of familiares) {
     const token = crearToken()
     const otros = familiares.filter((f) => f !== familiar).map((f) => f.nombre)
-    const llego = tieneMail(familiar) && (await mandarMailDeAprobacion(descripcion, familiar, otros, token, urlApp))
-    if (llego) {
+    // Mail y notificación salen juntos; si la notificación falla, el mail sale igual (y al revés).
+    const [porMail, porNotificacion] = await Promise.all([
+      tieneMail(familiar) ? mandarMailDeAprobacion(descripcion, familiar, otros, token, urlApp) : false,
+      notificarAFamiliar(configuracion.codigoFamilia, familiar.nombre, {
+        titulo: '¿Lo aprobás?',
+        cuerpo: `${descripcion}. Tocá para aprobar o rechazar.`,
+        url: `/aprobacion/${token}`,
+        etiqueta: `aprobacion-${aprobacion.id}`,
+        segundosDeVida: MINUTOS_PARA_CONTESTAR * 60,
+      }),
+    ])
+    if (porMail || porNotificacion) {
       await anotarPregunta(aprobacion.id, { nombre: familiar.nombre, mail: familiar.mail }, token)
       preguntados.push(familiar.nombre)
     }

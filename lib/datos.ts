@@ -427,6 +427,68 @@ export async function marcarAvisadoAlAbuelo(id: string): Promise<void> {
   if (aprobacion && !aprobacion.avisadoAlAbuelo) await guardar(claveAprobacion(id), { ...aprobacion, avisadoAlAbuelo: true })
 }
 
+// ── Avisos en el celular de la familia (Web Push) ───────────
+// Cada familiar puede activar los avisos en uno o más celulares (página /avisos).
+
+/** Lo que guarda el navegador al activar los avisos (formato estándar de Web Push). */
+export interface SuscripcionPush {
+  endpoint: string
+  keys: { p256dh: string; auth: string }
+}
+
+const claveSuscripciones = (codigoFamilia: string, familiar: string) =>
+  `avisos:${normalizarCodigo(codigoFamilia)}:${familiar}`
+
+export async function leerSuscripciones(codigoFamilia: string, familiar: string): Promise<SuscripcionPush[]> {
+  return (await leer<SuscripcionPush[]>(claveSuscripciones(codigoFamilia, familiar))) ?? []
+}
+
+/** Guarda el celular para ese familiar (y lo saca de los otros familiares, si estaba). */
+export async function guardarSuscripcion(
+  configuracion: ConfiguracionAbuelo,
+  familiar: string,
+  suscripcion: SuscripcionPush,
+): Promise<void> {
+  for (const otro of configuracion.familiares) {
+    if (otro.nombre !== familiar) await quitarSuscripcion(configuracion.codigoFamilia, otro.nombre, suscripcion.endpoint)
+  }
+  const actuales = await leerSuscripciones(configuracion.codigoFamilia, familiar)
+  const sinRepetir = actuales.filter((s) => s.endpoint !== suscripcion.endpoint)
+  await guardar(claveSuscripciones(configuracion.codigoFamilia, familiar), [...sinRepetir, suscripcion])
+}
+
+export async function quitarSuscripcion(codigoFamilia: string, familiar: string, endpoint: string): Promise<void> {
+  const actuales = await leerSuscripciones(codigoFamilia, familiar)
+  const quedan = actuales.filter((s) => s.endpoint !== endpoint)
+  if (quedan.length !== actuales.length) await guardar(claveSuscripciones(codigoFamilia, familiar), quedan)
+}
+
+/** ¿De qué familiar es este celular? (null si no tiene los avisos activados). */
+export async function buscarFamiliarDelCelular(configuracion: ConfiguracionAbuelo, endpoint: string): Promise<string | null> {
+  for (const familiar of configuracion.familiares) {
+    const suscripciones = await leerSuscripciones(configuracion.codigoFamilia, familiar.nombre)
+    if (suscripciones.some((s) => s.endpoint === endpoint)) return familiar.nombre
+  }
+  return null
+}
+
+// ── Último aviso de emergencia (para la página que abre la notificación) ──
+
+export interface AvisoDeEmergencia {
+  loQueDijo: string
+  cuando: string
+}
+
+const claveEmergencia = (codigoFamilia: string) => `emergencia-ultima:${normalizarCodigo(codigoFamilia)}`
+
+export async function guardarUltimaEmergencia(codigoFamilia: string, loQueDijo: string): Promise<void> {
+  await guardar(claveEmergencia(codigoFamilia), { loQueDijo, cuando: new Date().toISOString() } satisfies AvisoDeEmergencia)
+}
+
+export async function leerUltimaEmergencia(codigoFamilia: string): Promise<AvisoDeEmergencia | null> {
+  return leer<AvisoDeEmergencia>(claveEmergencia(codigoFamilia))
+}
+
 // ── Solo para la página /prueba ─────────────────────────────
 
 export async function probarAlmacenamiento(): Promise<string | null> {

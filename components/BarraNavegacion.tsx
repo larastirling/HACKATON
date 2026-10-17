@@ -11,6 +11,12 @@ export default function BarraNavegacion({ rol }: { rol: Rol }) {
         Inicio
       </Link>
       {rol === 'familiar' && (
+        <Link href="/avisos" className="barra-boton">
+          <span aria-hidden="true">🔔</span>
+          Avisos
+        </Link>
+      )}
+      {rol === 'familiar' && (
         <Link href="/prueba" className="barra-boton">
           <span aria-hidden="true">🧪</span>
           Prueba
