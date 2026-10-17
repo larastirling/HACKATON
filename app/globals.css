@@ -238,7 +238,7 @@ p { margin: 0; }
 .charla-caja::placeholder { color: #6b6b6b; }
 
 /* Al bajar la charla, dejar lugar para la caja de escribir y la barra (que tapan el final) */
-.charla-fin { scroll-margin-bottom: calc(var(--alto-barra) + 240px + env(safe-area-inset-bottom)); }
+.charla-fin { scroll-margin-bottom: calc(var(--alto-barra) + 280px + env(safe-area-inset-bottom)); }
 
 /* ── Tarjetas de viaje (Uber) y pedido (WhatsApp) ── */
 .tarjeta-viaje {
@@ -327,3 +327,42 @@ a.boton {
   text-align: center;
   text-decoration: none;
 }
+
+/* ── Voz: hablar y escuchar ── */
+.charla-botones { display: flex; gap: 12px; align-items: center; }
+.boton-enviar { flex: 1; }
+
+.boton-hablar {
+  flex: 2;
+  min-height: 96px;
+  font-size: 1.5rem;
+  background: #5b21b6;              /* violeta oscuro: contraste 8.9:1 con blanco */
+  color: #fff;
+  border: 3px solid #5b21b6;
+}
+.boton-hablar.escuchando {
+  background: var(--error);
+  border-color: var(--error);
+  font-size: 1.15rem;
+  animation: halo-escuchando 1.4s ease-in-out infinite; /* late alrededor, sin perder contraste */
+}
+@keyframes halo-escuchando { 50% { box-shadow: 0 0 0 10px rgb(165 14 14 / 0.3); } }
+@media (prefers-reduced-motion: reduce) { .boton-hablar.escuchando { animation: none; } }
+
+.charla-aviso { font-size: 1.1rem; font-weight: 700; color: var(--texto-suave); text-align: center; }
+
+.boton-voz,
+.boton-repetir {
+  min-height: 48px;
+  padding: 6px 14px;
+  border: 2px solid var(--principal);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--principal);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.boton-voz { align-self: flex-end; margin-top: -12px; }
+.boton-repetir { align-self: flex-start; margin-top: -8px; }

@@ -40,8 +40,17 @@ export default function Respuesta({
   if (resultado.estado !== pedida || !resultado.fuisteVos) {
     return (
       <p className="tarjeta">
-        Este pedido ya lo <strong>{resultado.estado === 'aprobado' ? 'aprobó' : 'rechazó'}</strong>{' '}
-        {resultado.fuisteVos ? 'usted' : (resultado.respondidoPor ?? 'otro familiar')}. No se cambió nada.
+        {resultado.fuisteVos ? (
+          <>
+            Este pedido ya lo <strong>{resultado.estado === 'aprobado' ? 'aprobaste' : 'rechazaste'}</strong> vos.
+          </>
+        ) : (
+          <>
+            Este pedido ya lo <strong>{resultado.estado === 'aprobado' ? 'aprobó' : 'rechazó'}</strong>{' '}
+            {resultado.respondidoPor ?? 'otro familiar'}.
+          </>
+        )}{' '}
+        No se cambió nada.
       </p>
     )
   }
