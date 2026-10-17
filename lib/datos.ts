@@ -1,5 +1,5 @@
 import 'server-only'
-import { randomBytes } from 'node:crypto'
+import { randomBytes, randomInt } from 'node:crypto'
 import { Redis } from '@upstash/redis'
 import type { Viaje } from './uber'
 import type { Pedido } from './whatsapp'
@@ -197,12 +197,60 @@ export async function guardarConfiguracion(configuracion: ConfiguracionAbuelo): 
     throw new Error(`La configuración no respeta el formato:\n- ${errores.join('\n- ')}`)
   }
   const { fijas: _ignoradas, ...reglasEditables } = configuracion.reglas
-  await guardar(claveConfiguracion(configuracion.codigoFamilia), {
-    ...configuracion,
-    codigoFamilia: normalizarCodigo(configuracion.codigoFamilia),
-    reglas: reglasEditables,
-  })
+  const codigo = normalizarCodigo(configuracion.codigoFamilia)
+  await guardar(claveConfiguracion(codigo), { ...configuracion, codigoFamilia: codigo, reglas: reglasEditables })
+  // Cada familiar con mail puede entrar con su mail a esta familia.
+  for (const familiar of configuracion.familiares) {
+    if (familiar.mail.includes('@')) await guardar(claveMail(familiar.mail), codigo)
+  }
 }
+
+// ── Familias por mail (login de los familiares) ─────────────
+
+const claveMail = (mail: string) => `familia-de-mail:${normalizarMail(mail)}`
+
+export function normalizarMail(mail: string): string {
+  return mail.trim().toLowerCase()
+}
+
+/** La familia donde este mail figura como familiar (también la DEMO), o null. */
+export async function buscarFamiliaPorMail(mail: string): Promise<ConfiguracionAbuelo | null> {
+  const buscado = normalizarMail(mail)
+  const codigos = new Set([await leer<string>(claveMail(buscado)), FAMILIA_DEMO.codigoFamilia].filter((c): c is string => !!c))
+  for (const codigo of codigos) {
+    const configuracion = await leerConfiguracion(codigo)
+    // Se revisa que siga siendo familiar: si le cambiaron el mail, la lista vieja no vale.
+    if (configuracion?.familiares.some((f) => normalizarMail(f.mail) === buscado)) return configuracion
+  }
+  return null
+}
+
+const LETRAS_DEL_CODIGO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // sin 0/O ni 1/I, que se confunden
+
+/**
+ * Crea una familia nueva: quien la crea queda como primer familiar, y lo demás queda PENDIENTE
+ * hasta que lo complete charlando en /familia. Devuelve la configuración con su código nuevo.
+ */
+export async function crearFamilia(familiar: { nombre: string; mail: string }): Promise<ConfiguracionAbuelo> {
+  let codigo = ''
+  do {
+    codigo = Array.from({ length: 6 }, () => LETRAS_DEL_CODIGO.charAt(randomInt(LETRAS_DEL_CODIGO.length))).join('')
+  } while (await leerConfiguracion(codigo))
+
+  const configuracion: ConfiguracionAbuelo = {
+    codigoFamilia: codigo,
+    abuelo: { nombre: PENDIENTE, comoLeGustaQueLeHablen: PENDIENTE, telefono: PENDIENTE, direccion: PENDIENTE },
+    lugares: [],
+    comercios: [],
+    familiares: [{ nombre: familiar.nombre.trim(), relacion: PENDIENTE, mail: normalizarMail(familiar.mail), telefono: PENDIENTE, orden: 1 }],
+    reglas: { nivel: 'Acompañado', seAvisa: [], seAprueba: [], abueloAceptoAvisos: false, fijas: REGLAS_FIJAS },
+  }
+  await guardarConfiguracion(configuracion)
+  return configuracion
+}
+
+/** Una familia recién creada todavía no tiene el nombre del abuelo. */
+export const estaSinConfigurar = (configuracion: ConfiguracionAbuelo) => configuracion.abuelo.nombre === PENDIENTE
 
 // ── Validación del formato ──────────────────────────────────
 // Devuelve una lista de problemas en español. Lista vacía = está todo bien.
