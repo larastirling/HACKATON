@@ -105,3 +105,28 @@ Script `revisar-automatico.gs`. Un activador corre `revisarMailsNuevos` cada min
 - Si una corrida empieza antes de que termine la anterior, no hace nada.
 
 Funciones: `instalarActivador` (no crea dos), `sacarActivador`, y `revisarMailsNuevos` para correrla a mano.
+
+# Gmail: prueba de calidad de la IA
+
+Script `evaluar-calidad.gs`. La función `evaluarCalidad` le pasa a la IA cada mail de la planilla de prueba (Google Sheets), compara lo que dice con la respuesta correcta y escribe en la hoja **Resultados IA** de la misma planilla:
+
+- Aciertos (cantidad y porcentaje).
+- Estafas detectadas (de las que eran estafa, cuántas marcó como ESTAFA).
+- Mails legítimos marcados como ESTAFA (falsas alarmas).
+- El detalle de cada mail: qué se esperaba, qué dijo la IA, si acertó (verde/rojo) y su motivo.
+
+## Formato de la planilla
+
+En la **primera hoja**, la primera fila con estos títulos (en cualquier orden; no importan mayúsculas ni tildes):
+
+| Remitente | Asunto (opcional) | Texto | Esperado |
+|---|---|---|---|
+| BROU Seguridad &lt;avisos@...&gt; | Su cuenta será bloqueada | Estimado cliente... | ESTAFA |
+
+"Esperado" tiene que decir ESTAFA, DUDOSO o LEGITIMO (también acepta "Estafa", "legítimo", etc.). También reconoce "Categoría" o "Clasificación" en vez de "Esperado", y "Cuerpo" en vez de "Texto".
+
+## Cómo usarlo
+
+1. Compartí la planilla con la cuenta de Gmail de la demo (puede ser solo lectura, pero para escribir los resultados necesita poder editar).
+2. En Propiedades del script, agregá `PLANILLA_PRUEBA` con el link de la planilla.
+3. Ejecutá **evaluarCalidad**. Con 20 mails tarda unos 2 minutos.
