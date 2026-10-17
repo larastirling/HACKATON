@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from 'react'
-import type { MensajeCharla } from '@/lib/ia'
+import { Fragment, useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from 'react'
+import type { MensajeCharla, Viaje } from '@/lib/ia'
 import { responderAlAbuelo } from './acciones'
 
 export default function Charla() {
@@ -29,7 +29,7 @@ export default function Charla() {
     empezar(async () => {
       try {
         const respuesta = await responderAlAbuelo(nuevaCharla)
-        if (respuesta.ok) setCharla([...nuevaCharla, { de: 'ia', texto: respuesta.texto }])
+        if (respuesta.ok) setCharla([...nuevaCharla, { de: 'ia', texto: respuesta.texto, viaje: respuesta.viaje }])
         else setHayError(true)
       } catch {
         setHayError(true)
@@ -51,10 +51,13 @@ export default function Charla() {
         {charla.length === 0 && <p className="charla-vacia">Escriba abajo lo que necesita y toque Enviar.</p>}
 
         {charla.map((mensaje, i) => (
-          <p key={i} className={`burbuja burbuja-${mensaje.de}`}>
-            <span className="burbuja-quien">{mensaje.de === 'abuelo' ? 'Usted' : 'Asistente'}</span>
-            {mensaje.texto}
-          </p>
+          <Fragment key={i}>
+            <p className={`burbuja burbuja-${mensaje.de}`}>
+              <span className="burbuja-quien">{mensaje.de === 'abuelo' ? 'Usted' : 'Asistente'}</span>
+              {mensaje.texto}
+            </p>
+            {mensaje.viaje && <TarjetaViaje viaje={mensaje.viaje} />}
+          </Fragment>
         ))}
 
         {pensando && (
@@ -91,5 +94,19 @@ export default function Charla() {
         </button>
       </form>
     </>
+  )
+}
+
+// Tarjeta con el destino y el botón de Uber. El auto lo pide el abuelo al tocar el botón.
+function TarjetaViaje({ viaje }: { viaje: Viaje }) {
+  return (
+    <section className="tarjeta-viaje" aria-label={`Viaje a ${viaje.nombre}`}>
+      <p className="tarjeta-viaje-titulo">🚗 Viaje a</p>
+      <p className="tarjeta-viaje-destino">{viaje.nombre}</p>
+      <p className="tarjeta-viaje-direccion">{viaje.direccion}</p>
+      <a className="boton boton-uber" href={viaje.link} target="_blank" rel="noopener noreferrer">
+        Abrir Uber
+      </a>
+    </section>
   )
 }
