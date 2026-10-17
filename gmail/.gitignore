@@ -1,0 +1,4 @@
+# Login de clasp (tiene credenciales de Google): NUNCA subirlo al repo.
+.clasprc.json
+# Variables de entorno y claves
+.env*
