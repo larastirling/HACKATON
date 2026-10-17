@@ -8,7 +8,7 @@ Hoy la protección de mail funciona **solo en el Gmail de la demo**: es un Googl
 
 | Quién | Qué | Dónde en el código |
 |---|---|---|
-| **Lara** | Crear el proyecto en Google Cloud (pantalla de permiso, credenciales) y cargar las variables en Vercel. Decidir cómo se corre la revisión cada minuto (ver "Cada cuánto se revisa"). | Google Cloud, Vercel, `.env.example` |
+| **Lara** | Crear el proyecto en Google Cloud (pantalla de permiso, credenciales) y cargar las variables en Vercel. Confirmar si Vercel deja revisar cada minuto en nuestro plan (ver "Cada cuánto se revisa"). | Google Cloud, Vercel, `.env.example` |
 | **Felipe** | Botón **"Conectar Gmail"** en `/familia`: manda al abuelo a Google, recibe la vuelta, guarda el permiso. También "Desconectar" y mostrar si está conectado. | `app/api/gmail/conectar/`, `app/api/gmail/vuelta/`, `app/api/gmail/desconectar/`, `app/familia/` |
 | **Inés** | El **motor**: cada minuto, para cada familia conectada, busca mails nuevos, los clasifica con la IA, etiqueta, saca de la bandeja y avisa. | `lib/gmail.ts`, `lib/proteccion-mail.ts`, `app/api/gmail/revisar/`, funciones nuevas en `lib/datos.ts` y `lib/ia.ts` |
 
@@ -119,7 +119,7 @@ La lógica es **la misma**. Cambia por dónde se habla con Gmail: en vez de `Gma
 | `hilo.moveToArchive()` | Sacar la etiqueta `INBOX` del hilo | Sale de la bandeja, **no se borra**. En Spam no se toca. |
 | `esAvisoPropio` | Igual | Por etiqueta `Avisos del asistente`, o porque lo mandó el propio abuelo con uno de los dos asuntos. |
 | `mandarExplicacion` (aviso al abuelo) | `mandarAvisoAlAbuelo(...)` | Se manda **desde el Gmail del abuelo a sí mismo** (como hoy) y se le pone `Avisos del asistente`. Mismo texto, letra grande, sin links, mails ni teléfonos (`quitarDatosDeContacto`, `nombreDelRemitente`, `escaparHtml` se copian igual). |
-| `avisarFamilia` + `leer-configuracion.gs` | `avisarALaFamilia(...)` | Los familiares salen directo de `leerConfiguracion(codigo)`, sin pasar por `/api/configuracion`. Los 2 primeros según `orden`, salteando los `PENDIENTE` (como hoy). **Recomiendo** mandar este aviso con `enviarMail` de `lib/mail.ts` (el Gmail de la demo, el mismo que manda los pedidos de aprobación), porque así a la familia no le llega un mail "del abuelo" que él no escribió. |
+| `avisarFamilia` + `leer-configuracion.gs` | `avisarALaFamilia(...)` | Los familiares salen directo de `leerConfiguracion(codigo)`, sin pasar por `/api/configuracion`. Los 2 primeros según `orden`, salteando los `PENDIENTE` (como hoy). **Decidido:** este aviso sale del **Gmail del producto** (`enviarMail` de `lib/mail.ts`, con `GMAIL_USUARIO`, el mismo que manda los pedidos de aprobación), **no** del Gmail del abuelo. Así a la familia no le llega un mail "del abuelo" que él no escribió. |
 | Respaldo `FAMILIAR_1` / `FAMILIAR_2` | Se borra | Ya no hace falta: la configuración siempre está en la base. |
 | `marcarRevisado`, `anotarFallo` (3 intentos) | Igual | Etiqueta `IA-revisado` + `gmail-fallos:...` en la base. |
 | `REVISAR_DESDE` | `revisarDesde` dentro de `ConexionGmail` | Uno por familia. |
@@ -143,8 +143,21 @@ La lógica es **la misma**. Cambia por dónde se habla con Gmail: en vez de `Gma
 
 El motor es una dirección (`/api/gmail/revisar`) que alguien tiene que llamar cada minuto.
 
-- **Cron de Vercel** (agregar `vercel.json`): es lo más simple, pero en el plan gratis Vercel lo deja correr **una vez por día**, no cada minuto. Lara: confirmarlo en el plan que tengamos.
-- **Si estamos en el plan gratis**, recomiendo un servicio gratis que llame a la dirección cada minuto (por ejemplo cron-job.org) con el encabezado `Authorization: Bearer <CRON_SECRET>`. Es lo más rápido para la hackatón.
+**Decidido:**
+
+- **Si Vercel lo permite cada minuto** en nuestro plan: se usa el **cron de Vercel** (agregar `vercel.json`).
+- **Si no lo permite** (creemos que el plan gratis lo deja correr solo una vez por día): se usa el **activador de Apps Script que ya tenemos** para que llame a la app cada minuto.
+- **Lara confirma** cuál de los dos según el plan de Vercel que tengamos.
+
+Si es Apps Script, así queda (lo hace Inés en `gmail/`):
+
+1. Una función nueva `llamarALaApp` en `gmail/llamar-a-la-app.gs`. Lo único que hace es llamar a `<URL_APP>/api/gmail/revisar` con el encabezado `Authorization: Bearer <CRON_SECRET>` y anotar en el registro qué respondió la app. No lee ni toca ningún mail.
+2. Propiedades del script que usa: `URL_APP` (ya existe) y `CRON_SECRET` nueva (la misma que está en Vercel; pedírsela a Lara en privado).
+3. Un activador cada minuto para `llamarALaApp`, con funciones para instalarlo y sacarlo, igual que `instalarActivador` y `sacarActivador`.
+4. Cuando el Gmail de la demo se conecte por la app, se saca el activador viejo (`revisarMailsNuevos`) y queda solo el de `llamarALaApp`. Si quedan los dos, el Gmail de la demo se revisaría dos veces (ver sección 5).
+
+Este activador corre en la cuenta de la demo, pero sirve para **todas** las familias: solo despierta a la app, y la app revisa cada Gmail conectado con su propio permiso.
+
 - Para más adelante existe que Google le avise a la app apenas llega un mail (*push*), pero es bastante más trabajo. No para ahora.
 
 ---
@@ -173,13 +186,14 @@ El motor es una dirección (`/api/gmail/revisar`) que alguien tiene que llamar c
 3. En `lib/ia.ts`: `clasificarMail`, con las mismas instrucciones de `clasificar-mail.gs`.
 4. `lib/proteccion-mail.ts`: `protegerMail(...)` con las reglas de la sección 2, y `revisarFamilia(codigo)`.
 5. `app/api/gmail/revisar/route.ts`: chequea `CRON_SECRET` y llama a `revisarFamilia` para cada familia.
-6. Probar en la compu con un Gmail de prueba (no el del abuelo real), cuando el botón de Felipe y las credenciales de Lara estén listos:
-   - mandar un mail trucho y uno normal, llamar a `/api/gmail/revisar` y ver que el trucho sale de la bandeja con ESTAFA y llegan los dos avisos;
+6. Según lo que confirme Lara: `vercel.json` con el cron, o `gmail/llamar-a-la-app.gs` con su activador (sección 3).
+7. Probar en la compu con un Gmail de prueba (no el del abuelo real), cuando el botón de Felipe y las credenciales de Lara estén listos:
+   - mandar un mail trucho y uno normal, llamar a `/api/gmail/revisar` y ver que el trucho sale de la bandeja con ESTAFA y llegan los dos avisos (el del abuelo desde su propio Gmail, el de la familia desde el Gmail del producto);
    - volver a llamar y ver que **no** se repite nada;
    - probar uno en Spam;
    - sacar el permiso desde la cuenta de Google y ver que aparece `ultimoError` y no se cae nada.
 
 ## 7. Qué necesito de cada uno para poder probar
 
-- **Lara:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GMAIL_CLAVE_CIFRADO`, `CRON_SECRET` (en privado), y mi Gmail de prueba cargado como usuario de prueba.
+- **Lara:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GMAIL_CLAVE_CIFRADO`, `CRON_SECRET` (en privado), mi Gmail de prueba cargado como usuario de prueba, y si Vercel deja revisar cada minuto o usamos Apps Script.
 - **Felipe:** el botón andando y guardando con `guardarConexionGmail` y `cifrarPermiso`.
