@@ -17,7 +17,7 @@ En el código, el formato está en `lib/datos.ts`. Ese archivo es el único que 
 - **Obligatorio = Sí**: el campo tiene que estar siempre.
 - Cuando todavía no se conoce un dato, se escribe **`"PENDIENTE"`** (así, en mayúsculas). Sirve para textos, teléfonos, mails y coordenadas.
 - `true` significa **sí** y `false` significa **no**.
-- Una **lista** va entre corchetes: `["lo de Laura", "lo de la nena"]`.
+- Una **lista** va entre corchetes: `["lo de Inés", "lo de la nena"]`.
 
 ---
 
@@ -41,8 +41,8 @@ Lugares a los que el abuelo suele ir.
 
 | Campo | Qué significa | Obligatorio | Ejemplo |
 |---|---|---|---|
-| `nombre` | Nombre claro del lugar. | Sí | `"Casa de Laura"` |
-| `apodos` | Otras formas en que el abuelo lo llama. Puede tener varios. Si dos lugares comparten un apodo, la IA tiene que preguntar cuál. | Sí (puede ser `[]`) | `["lo de Laura", "lo de la nena"]` |
+| `nombre` | Nombre claro del lugar. | Sí | `"Casa de Inés"` |
+| `apodos` | Otras formas en que el abuelo lo llama. Puede tener varios. Si dos lugares comparten un apodo, la IA tiene que preguntar cuál. | Sí (puede ser `[]`) | `["lo de Inés", "lo de la nena"]` |
 | `direccion` | Calle, número y barrio. | Sí (puede ser `"PENDIENTE"`) | `"Av. Luis Alberto de Herrera 1290, Buceo, Montevideo"` |
 | `latitud` | Coordenada del mapa (número con punto decimal). **Sacarla de un mapa real, no inventarla.** | Sí (puede ser `"PENDIENTE"`) | `-34.9030628` |
 | `longitud` | Coordenada del mapa (número con punto decimal). **Sacarla de un mapa real, no inventarla.** | Sí (puede ser `"PENDIENTE"`) | `-56.1363655` |
@@ -65,7 +65,7 @@ Comercios a los que el abuelo les pide cosas.
 |---|---|---|---|
 | `nombre` | Nombre del familiar. | Sí | `"Inés"` |
 | `relacion` | Qué es del abuelo. | Sí | `"Hija"` |
-| `mail` | Su mail. Lo usa el script de Gmail. | Sí (puede ser `"PENDIENTE"`) | `"laura@example.com"` |
+| `mail` | Su mail. Lo usa el script de Gmail. | Sí (puede ser `"PENDIENTE"`) | `"ines@example.com"` |
 | `telefono` | Su teléfono, con código de país. | Sí (puede ser `"PENDIENTE"`) | `"+598 9X XXX XXX"` |
 | `orden` | A quién se le pregunta primero: `1` es el primero, `2` el segundo, etc. | Sí | `1` |
 
@@ -104,16 +104,16 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
   },
   "lugares": [
     {
-      "nombre": "Casa de Laura",
-      "apodos": ["lo de Laura", "lo de la nena"],
+      "nombre": "Casa de Inés",
+      "apodos": ["lo de Inés", "lo de la nena"],
       "direccion": "Av. Sarmiento 2640, Montevideo",
       "latitud": -34.914315,
       "longitud": -56.1553672,
       "necesitaPermiso": false
     },
     {
-      "nombre": "Casa de Sofía",
-      "apodos": ["lo de Sofía", "lo de la nena"],
+      "nombre": "Casa de Lara",
+      "apodos": ["lo de Lara", "lo de la nena"],
       "direccion": "José Ellauri 407, 11300 Montevideo",
       "latitud": -34.9226593,
       "longitud": -56.1591087,
@@ -132,7 +132,7 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
     {
       "nombre": "Pizzería Don José",
       "apodos": ["lo de siempre"],
-      "whatsapp": "PENDIENTE",
+      "whatsapp": "+598 92 625 554",
       "pedidoHabitual": "Una muzzarella grande y una fainá"
     }
   ],
@@ -155,11 +155,10 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
 }
 ```
 
-**Para probar a la IA:** "lo de la nena" es apodo de **dos** lugares (Casa de Laura y Casa de Sofía). Si el abuelo dice "llevame a lo de la nena", la IA tiene que preguntarle a cuál.
+**Para probar a la IA:** "lo de la nena" es apodo de **dos** lugares (Casa de Inés y Casa de Lara). Si el abuelo dice "llevame a lo de la nena", la IA tiene que preguntarle a cuál.
 
 ### De dónde salieron los datos del ejemplo
 
 - **Montevideo Shopping:** dirección y coordenadas de OpenStreetMap, buscadas con Nominatim ([objeto 37684509](https://www.openstreetmap.org/way/37684509)).
-- **Casa de Laura** (Av. Sarmiento 2640) y **Casa de Sofía** (José Ellauri 407): las direcciones las pasó el equipo. Las coordenadas son de OpenStreetMap, buscadas con Nominatim, que encontró el número de puerta exacto ([objeto 944843090](https://www.openstreetmap.org/node/944843090) y [objeto 944322391](https://www.openstreetmap.org/node/944322391)).
-- **Teléfono del abuelo** y **mails y teléfonos de los familiares**: los pasó el equipo.
-- **WhatsApp** de la pizzería: `"PENDIENTE"`. Se completa con datos del equipo.
+- **Casa de Inés** (Av. Sarmiento 2640) y **Casa de Lara** (José Ellauri 407): las direcciones las pasó el equipo. Las coordenadas son de OpenStreetMap, buscadas con Nominatim, que encontró el número de puerta exacto ([objeto 944843090](https://www.openstreetmap.org/node/944843090) y [objeto 944322391](https://www.openstreetmap.org/node/944322391)).
+- **Teléfono del abuelo**, **mails y teléfonos de los familiares** y **WhatsApp** de la pizzería: los pasó el equipo.

@@ -81,8 +81,8 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
   },
   lugares: [
     {
-      nombre: 'Casa de Laura',
-      apodos: ['lo de Laura', 'lo de la nena'],
+      nombre: 'Casa de Inés',
+      apodos: ['lo de Inés', 'lo de la nena'],
       direccion: 'Av. Sarmiento 2640, Montevideo',
       // Fuente: OpenStreetMap (Nominatim), objeto node 944843090
       latitud: -34.914315,
@@ -90,8 +90,8 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
       necesitaPermiso: false,
     },
     {
-      nombre: 'Casa de Sofía',
-      apodos: ['lo de Sofía', 'lo de la nena'],
+      nombre: 'Casa de Lara',
+      apodos: ['lo de Lara', 'lo de la nena'],
       direccion: 'José Ellauri 407, 11300 Montevideo',
       // Fuente: OpenStreetMap (Nominatim), objeto node 944322391
       latitud: -34.9226593,
@@ -112,7 +112,7 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
     {
       nombre: 'Pizzería Don José',
       apodos: ['lo de siempre'],
-      whatsapp: PENDIENTE,
+      whatsapp: '+598 92 625 554',
       pedidoHabitual: 'Una muzzarella grande y una fainá',
     },
   ],
