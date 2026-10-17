@@ -125,10 +125,24 @@ function enviarAviso(destinatario, asunto, textoPlano, html) {
 }
 
 /**
- * Lee los mails de los familiares de Propiedades del script.
- * Si falta alguno, lo anota en el registro y sigue con los que haya.
+ * Devuelve { mails, fuente }: primero intenta leer los familiares de la
+ * configuración de la app (leer-configuracion.gs); si no puede, usa
+ * FAMILIAR_1 y FAMILIAR_2 de Propiedades del script como respaldo.
  */
 function leerFamiliares() {
+  try {
+    return { mails: leerFamiliaresDeLaApp(), fuente: 'configuración de la app' };
+  } catch (error) {
+    console.log('No pude leer los familiares de la app (' + error.message + '): uso FAMILIAR_1 y FAMILIAR_2.');
+    return { mails: leerFamiliaresDeRespaldo(), fuente: 'respaldo (FAMILIAR_1 y FAMILIAR_2)' };
+  }
+}
+
+/**
+ * Lee los mails de los familiares de Propiedades del script (respaldo).
+ * Si falta alguno, lo anota en el registro y sigue con los que haya.
+ */
+function leerFamiliaresDeRespaldo() {
   var propiedades = PropertiesService.getScriptProperties();
   var familiares = [];
   for (var i = 0; i < PROPIEDADES_FAMILIARES.length; i++) {
@@ -147,9 +161,10 @@ function leerFamiliares() {
  * Devuelve una línea por familiar diciendo si se le mandó o por qué falló.
  */
 function avisarFamilia(remitenteFalso, asuntoFalso, motivo) {
-  var familiares = leerFamiliares();
+  var leidos = leerFamiliares();
+  var familiares = leidos.mails;
   if (familiares.length === 0) {
-    return ['No avisé a ningún familiar: no hay ninguno cargado.'];
+    return ['No avisé a ningún familiar: no hay ninguno cargado (fuente: ' + leidos.fuente + ').'];
   }
 
   var deQuien = quitarDatosDeContacto(nombreDelRemitente(remitenteFalso));
@@ -176,7 +191,7 @@ function avisarFamilia(remitenteFalso, asuntoFalso, motivo) {
     '<p style="font-weight: bold; margin: 0;">Le sugerimos llamar a su familiar para ver si está bien y preguntarle si llegó a tocar algo del mail (un link, una respuesta o algún dato).</p>' +
     '</div>';
 
-  var resultados = [];
+  var resultados = ['Familiares leídos de: ' + leidos.fuente + '.'];
   for (var i = 0; i < familiares.length; i++) {
     try {
       enviarAviso(familiares[i], ASUNTO_FAMILIA, textoPlano, html);

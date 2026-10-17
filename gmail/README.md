@@ -130,3 +130,19 @@ En la **primera hoja**, la primera fila con estos títulos (en cualquier orden; 
 1. Compartí la planilla con la cuenta de Gmail de la demo (puede ser solo lectura, pero para escribir los resultados necesita poder editar).
 2. En Propiedades del script, agregá `PLANILLA_PRUEBA` con el link de la planilla.
 3. Ejecutá **evaluarCalidad**. Con 20 mails tarda unos 2 minutos.
+
+# Gmail: familiares desde la configuración de la app
+
+Script `leer-configuracion.gs`. Cuando hay una ESTAFA, el aviso a la familia va a los familiares de la configuración de la app (los que se cargan en `/familia`), leídos de `/api/configuracion`. Se avisa a los 2 primeros según `orden`, salteando los que tienen mail `PENDIENTE`.
+
+**Respaldo:** si la app no responde, el token está mal, la familia no existe o no hay ningún familiar con mail, se usan `FAMILIAR_1` y `FAMILIAR_2` como antes. El registro dice de dónde salieron los familiares.
+
+Propiedades del script nuevas:
+
+| Propiedad | Valor |
+|---|---|
+| `URL_APP` | dirección pública de la app, por ejemplo `https://algo.vercel.app` |
+| `CONFIG_API_TOKEN` | la contraseña de `/api/configuracion` (la misma que está en Vercel; pedirla en privado) |
+| `CODIGO_FAMILIA` | el código de la familia (si falta, se usa `DEMO`) |
+
+Para probar sin mandar mails: ejecutar **probarLeerFamiliares**.
