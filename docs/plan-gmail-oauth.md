@@ -10,9 +10,9 @@ Hoy la protección de mail funciona **solo en el Gmail de la demo**: es un Googl
 |---|---|---|
 | **Lara** | Crear el proyecto en Google Cloud (pantalla de permiso, credenciales) y cargar las variables en Vercel. Confirmar si Vercel deja revisar cada minuto en nuestro plan (ver "Cada cuánto se revisa"). | Google Cloud, Vercel, `.env.example` |
 | **Felipe** | Botón **"Conectar Gmail"** en `/familia`: manda al abuelo a Google, recibe la vuelta, guarda el permiso. También "Desconectar" y mostrar si está conectado. | `app/api/gmail/conectar/`, `app/api/gmail/vuelta/`, `app/api/gmail/desconectar/`, `app/familia/` |
-| **Inés** | El **motor**: cada minuto, para cada familia conectada, busca mails nuevos, los clasifica con la IA, etiqueta, saca de la bandeja y avisa. | `lib/gmail.ts`, `lib/proteccion-mail.ts`, `app/api/gmail/revisar/`, funciones nuevas en `lib/datos.ts` y `lib/ia.ts` |
+| **Inés** | El **motor**: cada minuto, para cada familia conectada, busca mails nuevos, los clasifica con la IA, etiqueta, saca de la bandeja y avisa. | `lib/gmail.ts`, `lib/proteccion-mail.ts`, `app/api/gmail/revisar/`, `lib/gmail-datos.ts`, función nueva en `lib/ia.ts` |
 
-Las funciones de guardar y leer la conexión (en `lib/datos.ts`) las escribe **Inés primero**, así Felipe ya las puede usar.
+Las funciones de guardar y leer la conexión están en **`lib/gmail-datos.ts`** (ya hechas por Inés), así Felipe ya las puede usar.
 
 ---
 
@@ -20,7 +20,7 @@ Las funciones de guardar y leer la conexión (en `lib/datos.ts`) las escribe **I
 
 ### 1.1 Lo que se guarda en la base, por familia
 
-Va en `lib/datos.ts`, que es el **único** lugar que lee y guarda datos (como dice ese archivo). Mismo estilo que `configuracion:DEMO`.
+Va en `lib/gmail-datos.ts`, que guarda y lee con las funciones `leer`, `guardar` y `borrar` de `lib/datos.ts` (Lara aprobó exportarlas). `lib/datos.ts` no tiene nada de Gmail. Mismo estilo de claves que `configuracion:DEMO`.
 
 | Clave en la base | Qué guarda | Lo escribe | Lo lee |
 |---|---|---|---|
@@ -32,7 +32,7 @@ Va en `lib/datos.ts`, que es el **único** lugar que lee y guarda datos (como di
 
 `<CODIGO>` siempre pasado por `normalizarCodigo` (mayúsculas), como el resto.
 
-### 1.2 El tipo `ConexionGmail` (en `lib/datos.ts`)
+### 1.2 El tipo `ConexionGmail` (en `lib/gmail-datos.ts`)
 
 ```ts
 export interface ConexionGmail {
@@ -49,7 +49,7 @@ export interface ConexionGmail {
 }
 ```
 
-### 1.3 Funciones de `lib/datos.ts` (las escribe Inés, las usan los dos)
+### 1.3 Funciones de `lib/gmail-datos.ts` (las escribió Inés, las usan los dos)
 
 | Función | Qué hace |
 |---|---|
@@ -181,7 +181,7 @@ Este activador corre en la cuenta de la demo, pero sirve para **todas** las fami
 
 ## 6. Pasos de Inés, en orden
 
-1. En `lib/datos.ts`: el tipo `ConexionGmail` y las 4 funciones. Avisar a Felipe apenas esté en GitHub, porque las necesita.
+1. ✅ En `lib/gmail-datos.ts`: el tipo `ConexionGmail` y las 4 funciones (y `cifrarPermiso` / `descifrarPermiso` en `lib/gmail.ts`). Hecho y avisado a Felipe.
 2. `lib/gmail.ts`: cifrar/descifrar el permiso, pedir el pase de 1 hora, buscar, leer, etiquetar, sacar de la bandeja, mandar.
 3. En `lib/ia.ts`: `clasificarMail`, con las mismas instrucciones de `clasificar-mail.gs`.
 4. `lib/proteccion-mail.ts`: `protegerMail(...)` con las reglas de la sección 2, y `revisarFamilia(codigo)`.

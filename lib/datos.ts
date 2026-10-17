@@ -149,6 +149,10 @@ const memoria = (global.memoriaAsistente ??= new Map<string, unknown>())
 
 export const modoAlmacenamiento: 'redis' | 'memoria' = redis ? 'redis' : 'memoria'
 
+// leer, guardar y borrar se exportan solo para datos nuevos que viven en otro archivo
+// (como la conexión de Gmail, en lib/gmail-datos.ts). La configuración se guarda
+// SIEMPRE con guardarConfiguracion, que controla el formato.
+
 export async function leer<T>(clave: string): Promise<T | null> {
   if (redis) return redis.get<T>(clave)
   return (memoria.get(clave) as T | undefined) ?? null
