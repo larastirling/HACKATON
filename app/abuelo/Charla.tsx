@@ -48,7 +48,7 @@ export default function Charla() {
   return (
     <>
       <div className="charla" aria-live="polite">
-        {charla.length === 0 && <p className="charla-vacia">Escribí abajo lo que necesitás y tocá Enviar.</p>}
+        {charla.length === 0 && <p className="charla-vacia">Escriba abajo lo que necesita y toque Enviar.</p>}
 
         {charla.map((mensaje, i) => (
           <p key={i} className={`burbuja burbuja-${mensaje.de}`}>
@@ -65,7 +65,7 @@ export default function Charla() {
 
         {hayError && (
           <p className="mensaje-error charla-error" role="alert">
-            No pude responder, probá de nuevo.
+            No pude responder, pruebe de nuevo.
           </p>
         )}
         <div ref={final} className="charla-fin" />
@@ -73,13 +73,13 @@ export default function Charla() {
 
       <form className="charla-formulario" onSubmit={enviar}>
         <label htmlFor="mensaje" className="sr-only">
-          Escribí tu mensaje
+          Escriba su mensaje
         </label>
         <textarea
           id="mensaje"
           className="charla-caja"
           rows={2}
-          placeholder="Escribí acá…"
+          placeholder="Escriba acá…"
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           onKeyDown={alApretarTecla}
