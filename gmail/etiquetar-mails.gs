@@ -58,7 +58,18 @@ function colorearEtiqueta(datos) {
       'me',
       id
     );
-    console.log('Color puesto a ' + datos.nombre + ' (' + datos.fondo + ').');
+
+    // Le preguntamos a Gmail qué color quedó guardado, para estar seguros
+    var guardada = Gmail.Users.Labels.get('me', id);
+    var colorGuardado = guardada.color ? guardada.color.backgroundColor : 'ninguno';
+    if (colorGuardado === datos.fondo) {
+      console.log('Color puesto a ' + datos.nombre + ' (' + datos.fondo + '). Recargá Gmail para verlo.');
+    } else {
+      console.log(
+        'No pude poner el color a ' + datos.nombre + ': Gmail dice que quedó con color ' +
+        colorGuardado + ' en vez de ' + datos.fondo + '.'
+      );
+    }
   } catch (error) {
     console.log('No pude poner el color a ' + datos.nombre + ': ' + error.message);
   }

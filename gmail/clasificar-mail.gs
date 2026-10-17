@@ -21,8 +21,14 @@ var INSTRUCCIONES_IA =
   '- ESTAFA: riesgo alto, casi seguro es un engaño.\n' +
   '- DUDOSO: tiene cosas raras pero podría ser real.\n' +
   '- LEGITIMO: un mail normal (familia, facturas reales, newsletters, etc.).\n\n' +
-  'En "motivo" explicá en una o dos frases simples, en español rioplatense, por qué, ' +
-  'como si se lo contaras a una persona mayor que no sabe de tecnología.';
+  'En "motivo" explicá en una o dos frases simples por qué, como si se lo contaras ' +
+  'a una persona mayor que no sabe de tecnología.\n\n' +
+  'Reglas para el "motivo", sin excepción:\n' +
+  '- Tratá siempre de "usted", nunca de "vos" ni de "tú" (por ejemplo: "no haga clic", ' +
+  '"llame", "usted").\n' +
+  '- NUNCA des números de teléfono, direcciones web, mails ni ningún dato de contacto ' +
+  'concreto, aunque aparezcan en el mail o los conozcas. Si hace falta contactar a alguien, ' +
+  'decí "llame al número que figura en su factura o en su tarjeta" o "pregúntele a un familiar".';
 
 // Formato exacto que le pedimos a la IA para su respuesta
 var FORMATO_RESPUESTA = {
