@@ -16,3 +16,20 @@ Script de Google Apps Script que muestra en el registro los 5 hilos más recient
    - Si aparece "Google no verificó esta app", clic en **Configuración avanzada** → **Ir a (nombre del proyecto)**.
    - Clic en **Permitir**.
 9. Abajo se abre el **Registro de ejecución** con los mails. Si la bandeja está vacía, lo dice ahí.
+
+# Gmail: clasificar un mail con IA
+
+Script `clasificar-mail.gs`: le pasa un mail a la IA (Claude, de Anthropic) y muestra en el registro si es **ESTAFA**, **DUDOSO** o **LEGITIMO**, y por qué. Todavía no etiqueta ni mueve nada: solo muestra el resultado.
+
+## Cómo usarlo
+
+1. En el mismo proyecto de [script.google.com](https://script.google.com), clic en el **+** al lado de "Archivos" → **Secuencia de comandos** y llamalo `clasificar-mail`.
+2. Pegá el contenido de `clasificar-mail.gs` y guardá.
+3. Cargá la clave de Anthropic (nunca en el código):
+   - Clic en el ícono del engranaje (**Configuración del proyecto**), a la izquierda.
+   - Abajo de todo, **Agregar propiedad de la secuencia de comandos**.
+   - Propiedad: `ANTHROPIC_API_KEY`. Valor: la clave que te pasó Felipe.
+   - **Guardar propiedades de la secuencia de comandos**.
+4. Volvé al editor, elegí **probarConMailTrucho** en el menú de funciones y hacé clic en **Ejecutar**. La primera vez pide permiso para "conectarse a un servicio externo": aceptalo igual que antes.
+5. En el registro tiene que aparecer `Resultado: ESTAFA` y el motivo.
+6. Para probar con un mail real, elegí **clasificarUltimoMail**: clasifica el mail más reciente de la bandeja.
