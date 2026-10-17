@@ -352,8 +352,7 @@ a.boton {
 
 .charla-aviso { font-size: 1.1rem; font-weight: 700; color: var(--texto-suave); text-align: center; }
 
-.boton-voz,
-.boton-repetir {
+.boton-voz {
   min-height: 48px;
   padding: 6px 14px;
   border: 2px solid var(--principal);
@@ -366,7 +365,19 @@ a.boton {
   cursor: pointer;
 }
 .boton-voz { align-self: flex-end; margin-top: -12px; }
-.boton-repetir { align-self: flex-start; margin-top: -8px; }
+
+/* "Escuchar" debajo de cada respuesta: grande, por si no sonó sola */
+.boton-escuchar {
+  align-self: flex-start;
+  width: auto;
+  min-height: 64px;
+  margin-top: -6px;
+  padding: 10px 24px;
+  background: #fff;
+  color: var(--principal);
+  border: 3px solid var(--principal);
+  font-size: 1.25rem;
+}
 
 /* ── /prueba: herramientas para la demo (plegadas) ── */
 .herramientas-demo summary { font-weight: 700; cursor: pointer; min-height: 48px; display: flex; align-items: center; }
