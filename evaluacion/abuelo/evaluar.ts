@@ -55,7 +55,7 @@ console.log = (...partes: unknown[]) => {
 type BotonMostrado =
   | { tipo: 'viaje' | 'aprobacion-viaje' | 'aprobacion-pedido'; destino: string }
   | { tipo: 'pedido'; destino: string; aclaracion?: string }
-  | { tipo: 'emergencia' }
+  | { tipo: 'emergencia'; familiar?: string; avisados?: string[] }
 
 interface Resultado {
   caso: Caso
@@ -90,6 +90,23 @@ function describirMostrado(botones: BotonMostrado[]): string {
       return `⏳ ${b.tipo === 'aprobacion-viaje' ? 'viaje' : 'pedido'} ${b.destino}`
     })
     .join(' + ')
+}
+
+/** Para el juez: lo que el abuelo ve en la pantalla, con todos los detalles. */
+function describirParaElJuez(botones: BotonMostrado[]): string {
+  if (botones.length === 0) return 'ningún botón ni tarjeta'
+  return botones
+    .map((b) => {
+      if (b.tipo === 'emergencia') {
+        const llamar = b.familiar ? `"Llamar al 911" y "Llamar a ${b.familiar}"` : '"Llamar al 911"'
+        const aviso = b.avisados?.length ? ` Además, el sistema ya les avisó por mail a ${b.avisados.join(' y ')}.` : ''
+        return `botones de emergencia: ${llamar}.${aviso}`
+      }
+      if (b.tipo === 'viaje') return `tarjeta con botón "Abrir Uber" hacia ${b.destino}`
+      if (b.tipo === 'pedido') return `tarjeta con botón "Abrir WhatsApp" con el pedido a ${b.destino}${b.aclaracion ? ` (aclaración: ${b.aclaracion})` : ''}`
+      return `ningún botón todavía: el sistema le mandó un mail a la familia pidiendo permiso para ${b.tipo === 'aprobacion-viaje' ? 'ir a' : 'pedir a'} ${b.destino}`
+    })
+    .join('; ')
 }
 
 function botonCoincide(esperado: BotonEsperado, botones: BotonMostrado[]): boolean {
@@ -154,7 +171,7 @@ async function main() {
           role: 'user',
           content:
             `Lo que escribió: "${caso.frase}"\n` +
-            `Botones que mostró la pantalla: ${describirMostrado(botones)}\n` +
+            `Lo que ve en la pantalla debajo del texto: ${describirParaElJuez(botones)}\n` +
             `Texto del asistente: "${texto}"\n\n` +
             `Criterio: ${caso.criterio}`,
         },
@@ -187,7 +204,9 @@ async function main() {
       resultado.texto = r.texto
       if (r.viaje) resultado.botones.push({ tipo: 'viaje', destino: r.viaje.nombre })
       if (r.pedido) resultado.botones.push({ tipo: 'pedido', destino: r.pedido.comercio, aclaracion: r.pedido.aclaracion })
-      if (r.emergencia) resultado.botones.push({ tipo: 'emergencia' })
+      if (r.emergencia) {
+        resultado.botones.push({ tipo: 'emergencia', familiar: r.emergencia.familiar?.nombre, avisados: r.emergencia.avisados })
+      }
       if (r.aprobacion) {
         const guardada = await datos.leerAprobacion(r.aprobacion.id)
         if (guardada?.que.tipo === 'viaje') resultado.botones.push({ tipo: 'aprobacion-viaje', destino: guardada.que.viaje.nombre })
@@ -204,21 +223,38 @@ async function main() {
       resultado.error = (error as Error).message
     }
     resultados.push(resultado)
-    logOriginal(aprobo(resultado) ? '✅' : '❌')
+    logOriginal(resultado.error ? '⚠️ no se pudo probar' : aprobo(resultado) ? '✅' : '❌')
+
+    // Si la IA falla varias veces seguidas (por ejemplo, sin crédito), se corta: seguir sería gastar sin probar nada.
+    if (resultados.slice(-ERRORES_SEGUIDOS_PARA_CORTAR).filter((x) => x.error).length === ERRORES_SEGUIDOS_PARA_CORTAR) {
+      logOriginal(`\n⚠️  La IA falló ${ERRORES_SEGUIDOS_PARA_CORTAR} veces seguidas (${resultado.error}). Se corta la prueba.`)
+      logOriginal('   Si dice "Error de la IA (400)", lo más probable es que se haya terminado el crédito de Anthropic.')
+      break
+    }
   }
 
   mostrarTabla(resultados)
   guardarInforme(resultados)
 }
 
+const ERRORES_SEGUIDOS_PARA_CORTAR = 3
+
 function aprobo(r: Resultado): boolean {
   return !r.error && r.botonOk && r.textoOk !== false
 }
 
+/** Las frases que no se pudieron probar (error de la IA) no cuentan ni como acierto ni como falla. */
 function porcentaje(lista: Resultado[]): string {
-  if (lista.length === 0) return '-'
-  const bien = lista.filter(aprobo).length
-  return `${Math.round((bien / lista.length) * 100)}% (${bien} de ${lista.length})`
+  const probadas = lista.filter((r) => !r.error)
+  const sinProbar = lista.length - probadas.length
+  const nota = sinProbar > 0 ? ` — ${sinProbar} sin probar por error` : ''
+  if (probadas.length === 0) return `-${nota}`
+  const bien = probadas.filter(aprobo).length
+  return `${Math.round((bien / probadas.length) * 100)}% (${bien} de ${probadas.length})${nota}`
+}
+
+function marca(r: Resultado): string {
+  return r.error ? '⚠️' : aprobo(r) ? '✅' : '❌'
 }
 
 function cortar(texto: string, largo: number): string {
@@ -233,7 +269,7 @@ function mostrarTabla(resultados: Resultado[]) {
   for (const r of resultados) {
     const obtenido = r.error ? `ERROR: ${r.error}` : describirMostrado(r.botones)
     logOriginal(
-      `${String(r.caso.numero).padEnd(4)}${cortar(r.caso.frase, 50)}  ${cortar(describirEsperado(r.caso.boton), 32)}  ${cortar(obtenido, 32)}  ${aprobo(r) ? '✅' : '❌'}`,
+      `${String(r.caso.numero).padEnd(4)}${cortar(r.caso.frase, 50)}  ${cortar(describirEsperado(r.caso.boton), 32)}  ${cortar(obtenido, 32)}  ${marca(r)}`,
     )
   }
   logOriginal(linea)
@@ -268,12 +304,12 @@ function guardarInforme(resultados: Resultado[]) {
       escapar(r.caso.frase),
       describirEsperado(r.caso.boton),
       r.error ? `ERROR: ${escapar(r.error)}` : describirMostrado(r.botones),
-      aprobo(r) ? '✅' : '❌',
+      marca(r),
     ].join(' | '),
   )
   const detalle = resultados.map(
     (r) =>
-      `### ${r.caso.numero}. "${r.caso.frase}" ${aprobo(r) ? '✅' : '❌'}\n` +
+      `### ${r.caso.numero}. "${r.caso.frase}" ${marca(r)}\n` +
       `- Esperado: ${describirEsperado(r.caso.boton)}${r.caso.criterio ? ` — ${r.caso.criterio}` : ''}\n` +
       `- Botones: ${r.error ? `ERROR: ${r.error}` : describirMostrado(r.botones)} ${r.botonOk ? '✅' : '❌'}\n` +
       (r.textoOk !== null ? `- Juez: ${r.textoOk ? '✅' : '❌'} ${r.motivoJuez}\n` : '') +
