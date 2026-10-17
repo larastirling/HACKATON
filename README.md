@@ -83,8 +83,17 @@ Son datos secretos que **nunca** se suben a GitHub. En tu compu van en `.env.loc
 | `SESSION_SECRET` | Texto secreto largo inventado (40 letras y números al azar). Protege el login. | Sí en Vercel. En tu compu, opcional |
 | `CONFIG_API_TOKEN` | Otro texto secreto largo inventado. El script de Gmail lo usa para leer la configuración. | Sí, para Gmail |
 | `KV_REST_API_URL` y `KV_REST_API_TOKEN` | Dirección y clave de la base de datos Upstash Redis. **En Vercel se cargan solas.** | En Vercel sí. En tu compu, opcional |
+| `GMAIL_USUARIO` | El Gmail de la demo que manda los pedidos de aprobación a la familia. | Sí en Vercel. En tu compu, opcional (sin esto, el mail se muestra en la Terminal) |
+| `GMAIL_CONTRASENA_APP` | "Contraseña de aplicación" de ese Gmail (16 letras). Ver abajo cómo sacarla. | Igual que la anterior |
+| `URL_APP` | Dirección pública de la app (por ejemplo `https://tu-app.vercel.app`), para los links de los mails. | Recomendada en Vercel |
 
 Si en tu compu no ponés la base de datos, los datos se guardan **en memoria** y se borran al apagar la app.
+
+**Cómo sacar la contraseña de aplicación de Gmail** (con el Gmail de la demo):
+1. Entrá a https://myaccount.google.com/security y activá la **Verificación en dos pasos** (si no está activada).
+2. Entrá a https://myaccount.google.com/apppasswords
+3. En "Nombre de la app" escribí `Asistente de confianza` y tocá **Crear**.
+4. Copiá las 16 letras que aparecen: esa es `GMAIL_CONTRASENA_APP`.
 
 Para inventar un texto secreto largo, en la Terminal:
 ```bash
@@ -128,7 +137,7 @@ Respuestas: `200` con la configuración, `401` si el token está mal, `404` si n
 1. Entrá a https://vercel.com e iniciá sesión con tu cuenta de GitHub.
 2. Tocá **Add New… → Project**, buscá el repo **larastirling/HACKATON** y tocá **Import**. No cambies nada y tocá **Deploy**.
 3. Cuando termine, entrá al proyecto y andá a la pestaña **Storage** → **Create Database** → elegí **Upstash** → **Redis** → seguí los pasos (plan gratis) y conectala a este proyecto. Vercel carga solas las variables de la base de datos.
-4. Andá a **Settings → Environment Variables** y agregá, una por una: `ANTHROPIC_API_KEY`, `SESSION_SECRET` y `CONFIG_API_TOKEN`.
+4. Andá a **Settings → Environment Variables** y agregá, una por una: `ANTHROPIC_API_KEY`, `SESSION_SECRET`, `CONFIG_API_TOKEN`, `GMAIL_USUARIO`, `GMAIL_CONTRASENA_APP` y `URL_APP` (la dirección de tu app en Vercel).
 5. Andá a **Deployments**, tocá los tres puntitos del último y elegí **Redeploy** (para que tome las variables nuevas).
 6. Abrí la dirección de tu app, entrá con `DEMO` como familiar y revisá `/prueba`.
 

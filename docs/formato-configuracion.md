@@ -140,7 +140,7 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
   ],
   "familiares": [
     { "nombre": "Inés", "relacion": "Hija", "mail": "inesbertolotti06@gmail.com", "telefono": "+598 97 412 006", "orden": 1 },
-    { "nombre": "Lara", "relacion": "Hija", "mail": "laristirling29@gmail.com", "telefono": "+598 91 437 402", "orden": 2 }
+    { "nombre": "Lara", "relacion": "Hija", "mail": "larastirlingterra29@gmail.com", "telefono": "+598 91 437 402", "orden": 2 }
   ],
   "reglas": {
     "nivel": "Acompañado",
