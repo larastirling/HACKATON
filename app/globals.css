@@ -148,3 +148,120 @@ p { margin: 0; }
   cursor: pointer;
 }
 .barra-boton span { font-size: 1.8rem; line-height: 1; }
+
+/* ── Charla del abuelo ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.pagina-charla { padding-bottom: calc(var(--alto-barra) + 16px + env(safe-area-inset-bottom)); }
+
+.charla {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 30dvh;
+}
+
+.charla-vacia { font-size: 1.2rem; color: var(--texto-suave); }
+
+.burbuja {
+  max-width: 90%;
+  padding: 14px 18px;
+  border-radius: 18px;
+  font-size: 1.25rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.burbuja-quien {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.burbuja-abuelo {
+  align-self: flex-end;
+  background: var(--principal);
+  color: var(--principal-texto);
+  border-bottom-right-radius: 4px;
+}
+
+.burbuja-ia {
+  align-self: flex-start;
+  background: var(--fondo-tarjeta);
+  color: var(--texto);
+  border: 2px solid #c9ced6;
+  border-bottom-left-radius: 4px;
+}
+
+.burbuja-pensando {
+  font-weight: 700;
+  font-style: italic;
+  animation: latido 1.4s ease-in-out infinite;
+}
+@keyframes latido { 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .burbuja-pensando { animation: none; } }
+
+.charla-error { font-size: 1.2rem; }
+
+/* Caja para escribir: queda fija justo arriba de la barra de navegación */
+.charla-formulario {
+  position: sticky;
+  bottom: calc(var(--alto-barra) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0;
+  background: var(--fondo);
+}
+
+.charla-caja {
+  width: 100%;
+  min-height: 88px;
+  padding: 14px 16px;
+  border: 3px solid var(--borde);
+  border-radius: 14px;
+  font: inherit;
+  font-size: 1.3rem;
+  color: var(--texto);
+  background: #fff;
+  resize: none;
+}
+.charla-caja::placeholder { color: #6b6b6b; }
+
+/* Al bajar la charla, dejar lugar para la caja de escribir y la barra (que tapan el final) */
+.charla-fin { scroll-margin-bottom: calc(var(--alto-barra) + 240px + env(safe-area-inset-bottom)); }
+
+/* ── Tarjeta de viaje (Uber) ── */
+.tarjeta-viaje {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  border: 3px solid var(--ok);
+  border-radius: 18px;
+  background: #eef8f1;
+}
+.tarjeta-viaje-titulo { font-size: 1.1rem; font-weight: 700; color: var(--texto-suave); }
+.tarjeta-viaje-destino { font-size: 1.6rem; font-weight: 800; line-height: 1.2; }
+.tarjeta-viaje-direccion { font-size: 1.2rem; margin-bottom: 10px; }
+
+.boton-uber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ok);            /* verde oscuro: contraste 6.9:1 con blanco */
+  color: #fff;
+  border: 3px solid var(--ok);
+  text-decoration: none;
+  font-size: 1.4rem;
+}
