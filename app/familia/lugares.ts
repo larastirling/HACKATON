@@ -1,7 +1,8 @@
 import 'server-only'
 import type Anthropic from '@anthropic-ai/sdk'
-import { guardarConfiguracion, leerConfiguracion, PENDIENTE, type Lugar } from '@/lib/datos'
+import { PENDIENTE, type Lugar } from '@/lib/datos'
 import { buscarCoordenadas } from '@/lib/mapas'
+import { cambiarConfiguracion, limpiarApodos, mismoNombre, nombreValido } from './guardar'
 
 // Herramienta "guardar_lugar": la IA saca de la charla un lugar con sus apodos y lo guarda
 // en la configuración (formato de docs/formato-configuracion.md). La IA nunca pasa coordenadas:
@@ -57,42 +58,31 @@ function esPedidoValido(dato: unknown): dato is PedidoGuardarLugar {
   )
 }
 
-const mismoNombre = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase()
-
 /** Ejecuta guardar_lugar y le devuelve a la IA, en texto, qué quedó guardado. */
 export async function guardarLugar(codigoFamilia: string, dato: unknown): Promise<string> {
   console.log('[familia] la IA pidió guardar_lugar:', JSON.stringify(dato))
   if (!esPedidoValido(dato)) return 'No se guardó: faltan datos del lugar (nombre, apodos, dirección y si necesita permiso).'
-  if (dato.nombre.replace(/[^\p{L}]/gu, '').length < 3) {
-    return 'No se guardó: ese nombre no parece un lugar real. Guardá solo lugares que el hijo te contó.'
-  }
-
-  const configuracion = await leerConfiguracion(codigoFamilia)
-  if (!configuracion) return 'No se guardó: no encontré la configuración de esta familia.'
+  if (!nombreValido(dato.nombre)) return 'No se guardó: ese nombre no parece un lugar real. Guardá solo lugares que el hijo te contó.'
 
   const direccion = dato.direccion.trim() || PENDIENTE
   const ubicacion = direccion === PENDIENTE ? null : await buscarCoordenadas(direccion)
 
   const lugar: Lugar = {
     nombre: dato.nombre.trim(),
-    apodos: [...new Set(dato.apodos.map((a) => a.trim()).filter(Boolean))],
+    apodos: limpiarApodos(dato.apodos),
     direccion,
     latitud: ubicacion?.latitud ?? PENDIENTE,
     longitud: ubicacion?.longitud ?? PENDIENTE,
     necesitaPermiso: dato.necesitaPermiso,
   }
 
-  const yaExistia = configuracion.lugares.some((l) => mismoNombre(l.nombre, lugar.nombre))
-  const lugares = yaExistia
-    ? configuracion.lugares.map((l) => (mismoNombre(l.nombre, lugar.nombre) ? lugar : l))
-    : [...configuracion.lugares, lugar]
-
-  try {
-    await guardarConfiguracion({ ...configuracion, lugares })
-  } catch (error) {
-    console.error('[familia] no se pudo guardar el lugar:', error)
-    return 'No se pudo guardar el lugar por un error del sistema. Decile al hijo que lo intente de nuevo en un ratito.'
-  }
+  let yaExistia = false
+  const error = await cambiarConfiguracion(codigoFamilia, (c) => {
+    yaExistia = c.lugares.some((l) => mismoNombre(l.nombre, lugar.nombre))
+    const lugares = yaExistia ? c.lugares.map((l) => (mismoNombre(l.nombre, lugar.nombre) ? lugar : l)) : [...c.lugares, lugar]
+    return { ...c, lugares }
+  })
+  if (error) return error
 
   const accion = yaExistia ? 'Actualizado' : 'Guardado'
   if (direccion === PENDIENTE) {
