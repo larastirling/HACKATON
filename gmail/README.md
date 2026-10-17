@@ -33,3 +33,19 @@ Script `clasificar-mail.gs`: le pasa un mail a la IA (Claude, de Anthropic) y mu
 4. Volvé al editor, elegí **probarConMailTrucho** en el menú de funciones y hacé clic en **Ejecutar**. La primera vez pide permiso para "conectarse a un servicio externo": aceptalo igual que antes.
 5. En el registro tiene que aparecer `Resultado: ESTAFA` y el motivo.
 6. Para probar con un mail real, elegí **clasificarUltimoMail**: clasifica el mail más reciente de la bandeja.
+
+# Gmail: etiquetas ESTAFA y DUDOSO
+
+Script `etiquetar-mails.gs`: crea las etiquetas **ESTAFA** (roja) y **DUDOSO** (amarilla) y se las pone a los mails según lo que diga la IA. Los legítimos quedan sin etiqueta. Todavía no saca mails de la bandeja ni avisa a nadie. Usa la función `clasificarConIA` de `clasificar-mail.gs`, así que los dos archivos tienen que estar en el mismo proyecto.
+
+## Cómo usarlo
+
+1. En el mismo proyecto de Apps Script, clic en el **+** al lado de "Archivos" → **Secuencia de comandos** y llamalo `etiquetar-mails`.
+2. Pegá el contenido de `etiquetar-mails.gs` y guardá.
+3. Activá el servicio de Gmail para que las etiquetas tengan color:
+   - A la izquierda, al lado de **Servicios**, clic en el **+**.
+   - Elegí **Gmail API** y clic en **Agregar**.
+4. Elegí **crearEtiquetas** y clic en **Ejecutar**. Aceptá los permisos nuevos si los pide.
+5. Abrí Gmail y fijate que a la izquierda aparezcan ESTAFA en rojo y DUDOSO en amarillo.
+6. Mandate un mail trucho al Gmail de la demo (por ejemplo, uno que imite al BROU pidiendo la clave).
+7. Elegí **etiquetarUltimosMails** y clic en **Ejecutar**. Revisa los últimos 5 mails: en el registro se ve el resultado de cada uno, y en Gmail el mail trucho tiene que quedar con la etiqueta roja.
