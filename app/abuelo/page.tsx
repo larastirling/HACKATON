@@ -34,7 +34,7 @@ function paraRetomar(aprobacion: PedidoDeAprobacion | null): MensajeCharla[] {
     {
       de: 'ia',
       texto: `Le recuerdo que estaba esperando que la familia conteste para ${que}.`,
-      aprobacion: { id: aprobacion.id, familiar: aprobacion.preguntadoA.at(-1)?.nombre ?? 'la familia' },
+      aprobacion: { id: aprobacion.id, familiares: aprobacion.preguntadoA.map((p) => p.nombre) },
     },
   ]
 }
