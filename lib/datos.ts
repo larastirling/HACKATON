@@ -149,17 +149,17 @@ const memoria = (global.memoriaAsistente ??= new Map<string, unknown>())
 
 export const modoAlmacenamiento: 'redis' | 'memoria' = redis ? 'redis' : 'memoria'
 
-async function leer<T>(clave: string): Promise<T | null> {
+export async function leer<T>(clave: string): Promise<T | null> {
   if (redis) return redis.get<T>(clave)
   return (memoria.get(clave) as T | undefined) ?? null
 }
 
-async function guardar(clave: string, valor: unknown): Promise<void> {
+export async function guardar(clave: string, valor: unknown): Promise<void> {
   if (redis) await redis.set(clave, valor)
   else memoria.set(clave, valor)
 }
 
-async function borrar(clave: string): Promise<void> {
+export async function borrar(clave: string): Promise<void> {
   if (redis) await redis.del(clave)
   else memoria.delete(clave)
 }
