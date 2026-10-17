@@ -43,7 +43,7 @@ export async function responderAlAbuelo(charla: MensajeCharla[]): Promise<Respue
 }
 
 export type EstadoDeLaAprobacion =
-  | { estado: 'esperando'; familiar: string; noContestaron: string[] }
+  | { estado: 'esperando'; familiares: string[] }
   | { estado: 'aprobado'; familiar: string; viaje?: Viaje; pedido?: Pedido }
   | { estado: 'rechazado'; familiar: string; llamar?: string }
   | { estado: 'sin-respuesta'; llamarA?: { nombre: string; link: string } }
@@ -51,7 +51,7 @@ export type EstadoDeLaAprobacion =
 
 /**
  * La pantalla del abuelo pregunta esto cada pocos segundos mientras espera a la familia.
- * Cada consulta revisa el reloj: si al familiar se le venció el tiempo, se le pregunta al siguiente.
+ * Cada consulta revisa el reloj: si se venció el tiempo y nadie contestó, queda "sin-respuesta".
  */
 export async function consultarAprobacion(id: string): Promise<EstadoDeLaAprobacion> {
   const sesion = await leerSesion()
@@ -62,14 +62,12 @@ export async function consultarAprobacion(id: string): Promise<EstadoDeLaAprobac
   }
   const configuracion = await leerConfiguracion(sesion.codigoFamilia)
   if (!configuracion) return { estado: 'no-encontrado' }
-  const aprobacion = await actualizarSiVencio(guardada, configuracion, await urlDeLaApp())
+  const aprobacion = await actualizarSiVencio(guardada)
   const nombres = aprobacion.preguntadoA.map((p) => p.nombre)
 
-  if (aprobacion.estado === 'esperando') {
-    return { estado: 'esperando', familiar: nombres.at(-1) ?? '', noContestaron: nombres.slice(0, -1) }
-  }
+  if (aprobacion.estado === 'esperando') return { estado: 'esperando', familiares: nombres }
   await marcarAvisadoAlAbuelo(aprobacion.id)
-  const quien = aprobacion.respondidoPor ?? nombres.at(-1) ?? ''
+  const quien = aprobacion.respondidoPor ?? ''
 
   if (aprobacion.estado === 'aprobado') {
     return aprobacion.que.tipo === 'viaje'

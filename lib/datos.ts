@@ -311,7 +311,7 @@ export async function soltarCandado(clave: string): Promise<void> {
 
 // ── Pedidos de aprobación a la familia ──────────────────────
 // Cuando el abuelo pide algo que necesita permiso, se guarda acá hasta que la familia conteste.
-// Se le pregunta a un familiar por vez (ver lib/aprobaciones.ts); cada uno recibe su propio link.
+// Se les pregunta a todos los familiares a la vez (ver lib/aprobaciones.ts); cada uno recibe su propio link.
 
 export type EstadoAprobacion = 'esperando' | 'aprobado' | 'rechazado' | 'sin-respuesta'
 
@@ -322,7 +322,7 @@ export interface PreguntaAFamiliar {
   nombre: string
   mail: string
   enviadoEl: string
-  /** Código secreto de los links de SU mail. Solo sirve mientras sea la última pregunta. */
+  /** Código secreto de SUS links (mail y notificación). */
   token: string
 }
 
@@ -338,7 +338,7 @@ export interface PedidoDeAprobacion {
   respondidoEl?: string
   /** Quién aprobó o rechazó. */
   respondidoPor?: string
-  /** A quién se le preguntó, en orden. El último es al que se está esperando. */
+  /** A quiénes se les preguntó (a todos a la vez). Gana el primero que contesta. */
   preguntadoA: PreguntaAFamiliar[]
   /** Si el abuelo ya vio el resultado (para no mostrárselo de nuevo al volver a abrir la pantalla). */
   avisadoAlAbuelo?: boolean
@@ -373,26 +373,29 @@ export async function leerUltimaAprobacion(codigoFamilia: string): Promise<Pedid
   return id ? leerAprobacion(id) : null
 }
 
-/** Busca el pedido por el código de un link del mail. `vigente` es false si ese link ya no es el último. */
+/** Busca el pedido por el código de un link (del mail o de la notificación). */
 export async function buscarAprobacionPorToken(
   token: string,
-): Promise<{ aprobacion: PedidoDeAprobacion; pregunta: PreguntaAFamiliar; vigente: boolean } | null> {
+): Promise<{ aprobacion: PedidoDeAprobacion; pregunta: PreguntaAFamiliar } | null> {
   const id = await leer<string>(claveToken(token))
   const aprobacion = id ? await leerAprobacion(id) : null
   const pregunta = aprobacion?.preguntadoA.find((p) => p.token === token)
   if (!aprobacion || !pregunta) return null
-  return { aprobacion, pregunta, vigente: aprobacion.preguntadoA.at(-1)?.token === token }
+  return { aprobacion, pregunta }
 }
 
-/** Anota que se le pregunta a un familiar y devuelve el código secreto para SU mail. */
-export async function anotarPregunta(id: string, familiar: { nombre: string; mail: string }): Promise<string | null> {
+/** Código secreto nuevo para los links de un familiar. Imposible de adivinar. */
+export function crearToken(): string {
+  return randomBytes(32).toString('base64url')
+}
+
+/** Anota que a un familiar ya le llegó la pregunta (por mail y/o notificación), con su código secreto. */
+export async function anotarPregunta(id: string, familiar: { nombre: string; mail: string }, token: string): Promise<void> {
   const aprobacion = await leerAprobacion(id)
-  if (!aprobacion) return null
-  const token = randomBytes(32).toString('base64url') // imposible de adivinar
+  if (!aprobacion) return
   aprobacion.preguntadoA.push({ ...familiar, enviadoEl: new Date().toISOString(), token })
   await guardar(claveAprobacion(id), aprobacion)
   await guardar(claveToken(token), id)
-  return token
 }
 
 /**
@@ -422,6 +425,68 @@ export async function cerrarAprobacion(
 export async function marcarAvisadoAlAbuelo(id: string): Promise<void> {
   const aprobacion = await leerAprobacion(id)
   if (aprobacion && !aprobacion.avisadoAlAbuelo) await guardar(claveAprobacion(id), { ...aprobacion, avisadoAlAbuelo: true })
+}
+
+// ── Avisos en el celular de la familia (Web Push) ───────────
+// Cada familiar puede activar los avisos en uno o más celulares (página /avisos).
+
+/** Lo que guarda el navegador al activar los avisos (formato estándar de Web Push). */
+export interface SuscripcionPush {
+  endpoint: string
+  keys: { p256dh: string; auth: string }
+}
+
+const claveSuscripciones = (codigoFamilia: string, familiar: string) =>
+  `avisos:${normalizarCodigo(codigoFamilia)}:${familiar}`
+
+export async function leerSuscripciones(codigoFamilia: string, familiar: string): Promise<SuscripcionPush[]> {
+  return (await leer<SuscripcionPush[]>(claveSuscripciones(codigoFamilia, familiar))) ?? []
+}
+
+/** Guarda el celular para ese familiar (y lo saca de los otros familiares, si estaba). */
+export async function guardarSuscripcion(
+  configuracion: ConfiguracionAbuelo,
+  familiar: string,
+  suscripcion: SuscripcionPush,
+): Promise<void> {
+  for (const otro of configuracion.familiares) {
+    if (otro.nombre !== familiar) await quitarSuscripcion(configuracion.codigoFamilia, otro.nombre, suscripcion.endpoint)
+  }
+  const actuales = await leerSuscripciones(configuracion.codigoFamilia, familiar)
+  const sinRepetir = actuales.filter((s) => s.endpoint !== suscripcion.endpoint)
+  await guardar(claveSuscripciones(configuracion.codigoFamilia, familiar), [...sinRepetir, suscripcion])
+}
+
+export async function quitarSuscripcion(codigoFamilia: string, familiar: string, endpoint: string): Promise<void> {
+  const actuales = await leerSuscripciones(codigoFamilia, familiar)
+  const quedan = actuales.filter((s) => s.endpoint !== endpoint)
+  if (quedan.length !== actuales.length) await guardar(claveSuscripciones(codigoFamilia, familiar), quedan)
+}
+
+/** ¿De qué familiar es este celular? (null si no tiene los avisos activados). */
+export async function buscarFamiliarDelCelular(configuracion: ConfiguracionAbuelo, endpoint: string): Promise<string | null> {
+  for (const familiar of configuracion.familiares) {
+    const suscripciones = await leerSuscripciones(configuracion.codigoFamilia, familiar.nombre)
+    if (suscripciones.some((s) => s.endpoint === endpoint)) return familiar.nombre
+  }
+  return null
+}
+
+// ── Último aviso de emergencia (para la página que abre la notificación) ──
+
+export interface AvisoDeEmergencia {
+  loQueDijo: string
+  cuando: string
+}
+
+const claveEmergencia = (codigoFamilia: string) => `emergencia-ultima:${normalizarCodigo(codigoFamilia)}`
+
+export async function guardarUltimaEmergencia(codigoFamilia: string, loQueDijo: string): Promise<void> {
+  await guardar(claveEmergencia(codigoFamilia), { loQueDijo, cuando: new Date().toISOString() } satisfies AvisoDeEmergencia)
+}
+
+export async function leerUltimaEmergencia(codigoFamilia: string): Promise<AvisoDeEmergencia | null> {
+  return leer<AvisoDeEmergencia>(claveEmergencia(codigoFamilia))
 }
 
 // ── Solo para la página /prueba ─────────────────────────────

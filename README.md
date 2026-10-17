@@ -86,6 +86,7 @@ Son datos secretos que **nunca** se suben a GitHub. En tu compu van en `.env.loc
 | `GMAIL_USUARIO` | El Gmail de la demo que manda los pedidos de aprobación a la familia. | Sí en Vercel. En tu compu, opcional (sin esto, el mail se muestra en la Terminal) |
 | `GMAIL_CONTRASENA_APP` | "Contraseña de aplicación" de ese Gmail (16 letras). Ver abajo cómo sacarla. | Igual que la anterior |
 | `URL_APP` | Dirección pública de la app (por ejemplo `https://tu-app.vercel.app`), para los links de los mails. | Recomendada en Vercel |
+| `VAPID_PUBLIC_KEY` y `VAPID_PRIVATE_KEY` | Claves para mandar notificaciones al celular de la familia. Se generan una vez con `npx web-push generate-vapid-keys`. | Sí, para las notificaciones (sin esto, solo mails) |
 | `MINUTOS_PARA_CONTESTAR` | Minutos que tiene cada familiar para aprobar un pedido antes de preguntarle al siguiente (si no está: 5). Para la demo se puede poner `1`. | No |
 
 Si en tu compu no ponés la base de datos, los datos se guardan **en memoria** y se borran al apagar la app.

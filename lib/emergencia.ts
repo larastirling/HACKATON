@@ -1,7 +1,16 @@
 import 'server-only'
-import { escapar, familiaresParaPreguntar } from './aprobaciones'
-import { PENDIENTE, primerNombre, soltarCandado, tomarCandado, type ConfiguracionAbuelo, type Familiar } from './datos'
-import { enviarMail } from './mail'
+import { escapar, familiaresConMail, familiaresEnOrden } from './aprobaciones'
+import {
+  guardarUltimaEmergencia,
+  PENDIENTE,
+  primerNombre,
+  soltarCandado,
+  tomarCandado,
+  type ConfiguracionAbuelo,
+  type Familiar,
+} from './datos'
+import { enviarMail, type ResultadoMail } from './mail'
+import { notificarAFamiliar } from './notificaciones'
 
 /** Lo que necesita la pantalla para mostrar los botones de emergencia. */
 export interface Emergencia {
@@ -25,17 +34,19 @@ export function armarEmergencia(familiares: Familiar[]): Emergencia {
 }
 
 /**
- * Manda un mail a los familiares, solo y sin preguntar, contando lo que dijo el abuelo.
- * Si ya se mandó uno en los últimos minutos, no manda otro (para no llenar la casilla).
+ * Les avisa a los familiares, solo y sin preguntar, contando lo que dijo el abuelo:
+ * un mail (a los que tienen mail) y una notificación en el celular (a los que la activaron).
+ * Si ya se avisó en los últimos minutos, no avisa de nuevo (para no llenar la casilla).
  * Devuelve a quiénes se les avisó (ahora o hace poco).
  */
 export async function avisarEmergenciaALaFamilia(configuracion: ConfiguracionAbuelo, loQueDijo: string): Promise<string[]> {
-  const familiares = familiaresParaPreguntar(configuracion)
+  const familiares = familiaresEnOrden(configuracion)
   if (familiares.length === 0) return []
-  const nombres = familiares.map((f) => f.nombre)
 
   const candado = `emergencia:${configuracion.codigoFamilia}`
-  if (!(await tomarCandado(candado, MINUTOS_ENTRE_AVISOS_DE_EMERGENCIA * 60))) return nombres // ya se avisó hace poco
+  if (!(await tomarCandado(candado, MINUTOS_ENTRE_AVISOS_DE_EMERGENCIA * 60))) {
+    return familiares.map((f) => f.nombre) // ya se avisó hace poco
+  }
 
   const nombre = primerNombre(configuracion.abuelo.nombre)
   const cita = loQueDijo.trim().slice(0, MAXIMO_LETRAS_CITA)
@@ -43,7 +54,40 @@ export async function avisarEmergenciaALaFamilia(configuracion: ConfiguracionAbu
   const tieneTelefono = telefono !== PENDIENTE && telefono.replace(/\D/g, '') !== ''
   const llamalo = tieneTelefono ? `Llamalo al ${telefono}.` : 'No tenemos su teléfono guardado: comunicate con él como puedas.'
 
-  const resultado = await enviarMail({
+  await guardarUltimaEmergencia(configuracion.codigoFamilia, cita)
+  const conMail = familiaresConMail(configuracion)
+  // Mail y notificaciones salen juntos; si una falla, la otra sale igual.
+  const [resultado, ...porNotificacion] = await Promise.all([
+    conMail.length > 0 ? mandarMailDeEmergencia(conMail, nombre, cita, llamalo, tieneTelefono ? telefono : null) : sinMail(),
+    ...familiares.map((f) =>
+      notificarAFamiliar(configuracion.codigoFamilia, f.nombre, {
+        titulo: `⚠️ ${nombre} puede necesitar ayuda`,
+        cuerpo: `Dijo: "${cita}". Tocá para llamarlo.`,
+        url: '/emergencia',
+        etiqueta: 'emergencia',
+      }),
+    ),
+  ])
+  const avisados = familiares
+    .filter((f, i) => (resultado.enviado && conMail.includes(f)) || porNotificacion[i])
+    .map((f) => f.nombre)
+  if (avisados.length === 0) await soltarCandado(candado) // así el próximo intento puede volver a probar
+  return avisados
+}
+
+async function sinMail(): Promise<ResultadoMail> {
+  return { enviado: false, error: 'ningún familiar tiene mail' }
+}
+
+function mandarMailDeEmergencia(
+  familiares: Familiar[],
+  nombre: string,
+  cita: string,
+  llamalo: string,
+  telefono: string | null,
+): Promise<ResultadoMail> {
+  const tieneTelefono = telefono !== null
+  return enviarMail({
     para: familiares.map((f) => f.mail).join(', '),
     asunto: `⚠️ ${nombre} puede necesitar ayuda`,
     texto: `${nombre} dijo: "${cita}". Puede necesitar ayuda. ${llamalo}\n\nAsistente de confianza`,
@@ -58,9 +102,4 @@ export async function avisarEmergenciaALaFamilia(configuracion: ConfiguracionAbu
   <p style="font-size:16px;color:#3d3d3d">Asistente de confianza</p>
 </div>`,
   })
-  if (!resultado.enviado) {
-    await soltarCandado(candado) // así el próximo intento puede volver a probar
-    return []
-  }
-  return nombres
 }

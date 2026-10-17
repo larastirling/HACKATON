@@ -31,10 +31,7 @@ export default function Respuesta({
   if ('vencido' in resultado) {
     return (
       <p className="tarjeta">
-        {resultado.ahoraSeLePreguntaA
-          ? `Este link ya no sirve: como pasaron ${resultado.tiempo} sin respuesta, ahora le preguntamos a ${resultado.ahoraSeLePreguntaA}.`
-          : `Este link ya venció: pasaron ${resultado.tiempo} sin respuesta y ${queEs} quedó sin hacer.`}{' '}
-        No se cambió nada.
+        Este link ya venció: pasaron {resultado.tiempo} sin respuesta y {queEs} quedó sin hacer. No se cambió nada.
       </p>
     )
   }
@@ -43,8 +40,8 @@ export default function Respuesta({
   if (resultado.estado !== pedida || !resultado.fuisteVos) {
     return (
       <p className="tarjeta">
-        Este pedido ya había sido <strong>{resultado.estado}</strong>
-        {resultado.respondidoPor ? ` por ${resultado.respondidoPor}` : ''} antes. No se cambió nada.
+        Este pedido ya lo <strong>{resultado.estado === 'aprobado' ? 'aprobó' : 'rechazó'}</strong>{' '}
+        {resultado.fuisteVos ? 'usted' : (resultado.respondidoPor ?? 'otro familiar')}. No se cambió nada.
       </p>
     )
   }

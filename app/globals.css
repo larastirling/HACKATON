@@ -314,3 +314,16 @@ p { margin: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .esperando-aprobacion { animation: none; } }
 .emergencia-avisados { font-size: 1.2rem; font-weight: 700; text-align: center; }
+
+/* ── Página de avisos (familiares) ── */
+.elegir-familiar { display: flex; flex-direction: column; gap: 12px; }
+.pasos { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 10px; }
+
+/* Los links con forma de botón se ven igual que los botones */
+a.boton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+}
