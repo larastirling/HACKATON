@@ -1,13 +1,13 @@
 'use server'
 
 import { leerConfiguracion } from '@/lib/datos'
-import { conversarConElAbuelo, type MensajeCharla } from '@/lib/ia'
+import { conversarConElAbuelo, type MensajeCharla, type Viaje } from '@/lib/ia'
 import { leerSesion } from '@/lib/sesion'
 
 const MAXIMO_MENSAJES = 40
 const MAXIMO_LETRAS = 2000
 
-export type Respuesta = { ok: true; texto: string } | { ok: false }
+export type Respuesta = { ok: true; texto: string; viaje?: Viaje } | { ok: false }
 
 /** Recibe TODA la charla y devuelve lo que contesta la IA. */
 export async function responderAlAbuelo(charla: MensajeCharla[]): Promise<Respuesta> {
@@ -26,7 +26,7 @@ export async function responderAlAbuelo(charla: MensajeCharla[]): Promise<Respue
     console.error('La IA no pudo responder al abuelo:', respuesta.ok ? 'respuesta vacía' : respuesta.error)
     return { ok: false }
   }
-  return { ok: true, texto: respuesta.texto }
+  return { ok: true, texto: respuesta.texto, viaje: respuesta.viaje }
 }
 
 function esCharlaValida(charla: unknown): charla is MensajeCharla[] {

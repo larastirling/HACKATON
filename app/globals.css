@@ -239,3 +239,29 @@ p { margin: 0; }
 
 /* Al bajar la charla, dejar lugar para la caja de escribir y la barra (que tapan el final) */
 .charla-fin { scroll-margin-bottom: calc(var(--alto-barra) + 240px + env(safe-area-inset-bottom)); }
+
+/* ── Tarjeta de viaje (Uber) ── */
+.tarjeta-viaje {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  border: 3px solid var(--ok);
+  border-radius: 18px;
+  background: #eef8f1;
+}
+.tarjeta-viaje-titulo { font-size: 1.1rem; font-weight: 700; color: var(--texto-suave); }
+.tarjeta-viaje-destino { font-size: 1.6rem; font-weight: 800; line-height: 1.2; }
+.tarjeta-viaje-direccion { font-size: 1.2rem; margin-bottom: 10px; }
+
+.boton-uber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ok);            /* verde oscuro: contraste 6.9:1 con blanco */
+  color: #fff;
+  border: 3px solid var(--ok);
+  text-decoration: none;
+  font-size: 1.4rem;
+}
