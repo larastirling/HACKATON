@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { esIphone, estaInstalada } from '@/lib/dispositivo'
 import { activarAvisos, desactivarAvisos, probarAviso, quienEsEsteCelular } from './acciones'
 
 type Estado =
@@ -22,11 +23,8 @@ export default function ActivarAvisos({ familiares, clavePublica }: { familiares
   useEffect(() => {
     revisar().then(setEstado)
     async function revisar(): Promise<Estado> {
-      const esIphone = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-      const instalada =
-        window.matchMedia('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true
       const soporta = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
-      if (!soporta) return esIphone ? (instalada ? { tipo: 'iphone-viejo' } : { tipo: 'iphone-sin-instalar' }) : { tipo: 'no-soportado' }
+      if (!soporta) return esIphone() ? (estaInstalada() ? { tipo: 'iphone-viejo' } : { tipo: 'iphone-sin-instalar' }) : { tipo: 'no-soportado' }
       if (!clavePublica) return { tipo: 'sin-clave' }
       if (Notification.permission === 'denied') return { tipo: 'bloqueado' }
       const registro = await navigator.serviceWorker.register('/sw.js')

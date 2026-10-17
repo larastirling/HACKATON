@@ -4,7 +4,7 @@ import { Fragment, useEffect, useRef, useState, useTransition, type KeyboardEven
 import type { Emergencia, EsperaAprobacion, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
 import { juntarNombres } from '@/lib/texto'
 import { consultarAprobacion, responderAlAbuelo } from './acciones'
-import { callar, decirEnVozAlta, desbloquearVoz, MENSAJE_TECLADO, useDictado, useSilencio } from './voz'
+import { callar, decirEnVozAlta, desbloquearVoz, MENSAJE_TECLADO, prepararVoces, useDictado, useSilencio } from './voz'
 
 export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) {
   const [charla, setCharla] = useState<MensajeCharla[]>(inicial)
@@ -26,11 +26,16 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
     final.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [charla, pensando, hayError])
 
-  // iPhone: la voz se "destraba" con el primer toque en cualquier lugar de la pantalla.
+  // iPhone: la voz se "destraba" con un toque de la persona en cualquier lugar de la pantalla.
+  // (Safari cuenta como toque el click / soltar el dedo / una tecla, no el apoyar el dedo.)
   useEffect(() => {
     setPuedeHablar('speechSynthesis' in window)
-    document.addEventListener('pointerdown', desbloquearVoz, { once: true })
-    return () => document.removeEventListener('pointerdown', desbloquearVoz)
+    prepararVoces()
+    const eventos = ['click', 'touchend', 'keydown'] as const
+    for (const evento of eventos) document.addEventListener(evento, desbloquearVoz)
+    return () => {
+      for (const evento of eventos) document.removeEventListener(evento, desbloquearVoz)
+    }
   }, [])
 
   // Cada respuesta nueva de la IA se lee sola en voz alta (salvo que la voz esté silenciada).
@@ -113,13 +118,10 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
             {mensaje.de === 'ia' && puedeHablar && (
               <button
                 type="button"
-                className="boton-repetir"
-                onClick={() => {
-                  desbloquearVoz()
-                  decirEnVozAlta(mensaje.texto)
-                }}
+                className="boton boton-escuchar"
+                onClick={() => decirEnVozAlta(mensaje.texto, { enEsteToque: true })}
               >
-                🔁 Repetir
+                🔊 Escuchar
               </button>
             )}
             {mensaje.emergencia && <BotonesEmergencia emergencia={mensaje.emergencia} />}
