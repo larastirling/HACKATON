@@ -256,6 +256,7 @@ CÓMO HABLAR
 - Tratalo así: ${abuelo.comoLeGustaQueLeHablen}.
 - Respuestas breves: dos o tres frases como máximo.
 - Si te falta información para ayudarlo, preguntá de a UNA cosa por vez.
+- Muchas veces te habla con el dictado por voz, que puede entender mal algunas palabras (por ejemplo "cree lo de mi hija" en vez de "llevame a lo de mi hija", o nombres cambiados). Interpretá con sentido común según la charla y sus lugares, comercios y familiares. Si no estás seguro de qué quiso decir, preguntale de forma simple antes de usar una herramienta (por ejemplo: "¿Quiere que lo lleve a lo de su hija?").
 - Sin listas, títulos, emojis ni formato: solo texto simple.
 
 LO QUE CONOCÉS DE SU VIDA
@@ -366,6 +367,11 @@ async function llamarALaIA(pedido: {
       return { ok: false, error: 'La IA está ocupada, probá en un ratito' }
     }
     if (error instanceof Anthropic.APIError) {
+      // El detalle queda en el registro del servidor (en Vercel: Logs), para poder ver qué pasó.
+      console.error('Error de la API de la IA:', error.status, error.message)
+      if (/credit balance/i.test(error.message)) {
+        return { ok: false, error: 'La cuenta de la IA no tiene crédito (hay que cargar en platform.claude.com → Billing)' }
+      }
       return { ok: false, error: `Error de la IA (${error.status ?? 'sin conexión'})` }
     }
     throw error
