@@ -1,0 +1,4 @@
+# Qué sube clasp a Apps Script: solo el código (.gs) y appsscript.json.
+**/**
+!*.gs
+!appsscript.json
