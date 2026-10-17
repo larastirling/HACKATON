@@ -142,6 +142,7 @@ export function useDictado(alEscribir: (texto: string) => void, alTerminar: (tex
 
     let texto = ''
     let probarOtroIdioma = false
+    let termino = false // algunos celulares avisan dos veces que terminó: se envía una sola vez
     reconocimiento.onresult = (evento) => {
       texto = Array.from(evento.results, (resultado) => resultado[0]?.transcript ?? '').join('')
       callbacks.current.alEscribir(texto)
@@ -160,6 +161,8 @@ export function useDictado(alEscribir: (texto: string) => void, alTerminar: (tex
       }
     }
     reconocimiento.onend = () => {
+      if (termino) return
+      termino = true
       actual.current = null
       if (probarOtroIdioma) return escucharEn(indiceIdioma + 1)
       setEscuchando(false)

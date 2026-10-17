@@ -13,6 +13,10 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
   const [pensando, empezar] = useTransition()
   const final = useRef<HTMLDivElement>(null)
 
+  // Freno para no mandar dos veces: se marca al instante (el estado de React tarda un momento en cambiar).
+  const enviando = useRef(false)
+  const ultimoEnvio = useRef({ texto: '', cuando: 0 })
+
   const [silenciada, setSilenciada] = useSilencio()
   const [puedeHablar, setPuedeHablar] = useState(false)
   const dictado = useDictado(setTexto, (dicho) => enviar(dicho))
@@ -41,7 +45,11 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
   function enviar(dicho?: string) {
     desbloquearVoz()
     const mensaje = (dicho ?? texto).trim()
-    if (!mensaje || pensando) return
+    if (!mensaje || pensando || enviando.current) return
+    // El mismo texto otra vez a los pocos segundos es un envío repetido (por ejemplo, el dictado avisando dos veces).
+    if (mensaje === ultimoEnvio.current.texto && Date.now() - ultimoEnvio.current.cuando < 5000) return
+    enviando.current = true
+    ultimoEnvio.current = { texto: mensaje, cuando: Date.now() }
 
     const nuevaCharla: MensajeCharla[] = [...charla, { de: 'abuelo', texto: mensaje }]
     setCharla(nuevaCharla)
@@ -57,6 +65,8 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
         } else setHayError(true)
       } catch {
         setHayError(true)
+      } finally {
+        enviando.current = false
       }
     })
   }
