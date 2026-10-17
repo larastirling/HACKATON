@@ -15,6 +15,8 @@ export interface Abuelo {
   nombre: string
   comoLeGustaQueLeHablen: string
   telefono: string
+  /** Dónde vive. Se usa, por ejemplo, en los pedidos por WhatsApp. */
+  direccion: string
 }
 
 export interface Lugar {
@@ -78,6 +80,7 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
     nombre: 'Carlos Pérez',
     comoLeGustaQueLeHablen: 'Don Carlos, de usted',
     telefono: '+598 92 158 202',
+    direccion: 'Costa Rica 621, Montevideo',
   },
   lugares: [
     {
@@ -136,7 +139,10 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
 const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL
 const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN
 const redis = url && token ? new Redis({ url, token }) : null
-const memoria = new Map<string, unknown>()
+// Guardada en globalThis: Next.js carga este archivo por separado para las páginas y para /api,
+// y sin esto cada uno tendría su propia memoria (lo que guarda /familia no lo vería /api/configuracion).
+const global = globalThis as typeof globalThis & { memoriaAsistente?: Map<string, unknown> }
+const memoria = (global.memoriaAsistente ??= new Map<string, unknown>())
 
 export const modoAlmacenamiento: 'redis' | 'memoria' = redis ? 'redis' : 'memoria'
 
@@ -158,14 +164,21 @@ export function normalizarCodigo(codigo: string): string {
   return codigo.trim().toUpperCase()
 }
 
-/** Las reglas fijas siempre se ponen desde el código, nunca desde lo guardado. */
-function conReglasFijas(configuracion: ConfiguracionAbuelo): ConfiguracionAbuelo {
-  return { ...configuracion, reglas: { ...configuracion.reglas, fijas: REGLAS_FIJAS } }
+/**
+ * Las reglas fijas siempre se ponen desde el código, nunca desde lo guardado.
+ * Si la configuración se guardó antes de que existiera abuelo.direccion, queda como PENDIENTE.
+ */
+function completarConfiguracion(configuracion: ConfiguracionAbuelo): ConfiguracionAbuelo {
+  return {
+    ...configuracion,
+    abuelo: { ...configuracion.abuelo, direccion: configuracion.abuelo.direccion ?? PENDIENTE },
+    reglas: { ...configuracion.reglas, fijas: REGLAS_FIJAS },
+  }
 }
 
 export async function leerConfiguracion(codigoFamilia: string): Promise<ConfiguracionAbuelo | null> {
   const guardada = await leer<ConfiguracionAbuelo>(claveConfiguracion(codigoFamilia))
-  if (guardada) return conReglasFijas(guardada)
+  if (guardada) return completarConfiguracion(guardada)
   return normalizarCodigo(codigoFamilia) === FAMILIA_DEMO.codigoFamilia ? FAMILIA_DEMO : null
 }
 
@@ -196,7 +209,7 @@ export function validarConfiguracion(dato: unknown): string[] {
   if (!c.abuelo || typeof c.abuelo !== 'object') {
     errores.push('Falta "abuelo"')
   } else {
-    for (const campo of ['nombre', 'comoLeGustaQueLeHablen', 'telefono'] as const) {
+    for (const campo of ['nombre', 'comoLeGustaQueLeHablen', 'telefono', 'direccion'] as const) {
       if (!esTexto(c.abuelo[campo])) errores.push(`Falta "abuelo.${campo}"`)
     }
   }

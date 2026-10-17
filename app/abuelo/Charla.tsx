@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from 'react'
-import type { MensajeCharla } from '@/lib/ia'
+import { Fragment, useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from 'react'
+import type { Emergencia, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
 import { responderAlAbuelo } from './acciones'
 
 export default function Charla() {
@@ -29,8 +29,10 @@ export default function Charla() {
     empezar(async () => {
       try {
         const respuesta = await responderAlAbuelo(nuevaCharla)
-        if (respuesta.ok) setCharla([...nuevaCharla, { de: 'ia', texto: respuesta.texto }])
-        else setHayError(true)
+        if (respuesta.ok) {
+          const { texto, viaje, emergencia, pedido } = respuesta
+          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, pedido }])
+        } else setHayError(true)
       } catch {
         setHayError(true)
       }
@@ -51,10 +53,15 @@ export default function Charla() {
         {charla.length === 0 && <p className="charla-vacia">Escriba abajo lo que necesita y toque Enviar.</p>}
 
         {charla.map((mensaje, i) => (
-          <p key={i} className={`burbuja burbuja-${mensaje.de}`}>
-            <span className="burbuja-quien">{mensaje.de === 'abuelo' ? 'Usted' : 'Asistente'}</span>
-            {mensaje.texto}
-          </p>
+          <Fragment key={i}>
+            <p className={`burbuja burbuja-${mensaje.de}`}>
+              <span className="burbuja-quien">{mensaje.de === 'abuelo' ? 'Usted' : 'Asistente'}</span>
+              {mensaje.texto}
+            </p>
+            {mensaje.emergencia && <BotonesEmergencia emergencia={mensaje.emergencia} />}
+            {mensaje.viaje && <TarjetaViaje viaje={mensaje.viaje} />}
+            {mensaje.pedido && <TarjetaPedido pedido={mensaje.pedido} />}
+          </Fragment>
         ))}
 
         {pensando && (
@@ -91,5 +98,58 @@ export default function Charla() {
         </button>
       </form>
     </>
+  )
+}
+
+// Tarjeta con el destino y el botón de Uber. El auto lo pide el abuelo al tocar el botón.
+function TarjetaViaje({ viaje }: { viaje: Viaje }) {
+  return (
+    <section className="tarjeta-viaje" aria-label={`Viaje a ${viaje.nombre}`}>
+      <p className="tarjeta-viaje-titulo">🚗 Viaje a</p>
+      <p className="tarjeta-viaje-destino">{viaje.nombre}</p>
+      <p className="tarjeta-viaje-direccion">{viaje.direccion}</p>
+      <a className="boton boton-uber" href={viaje.link} target="_blank" rel="noopener noreferrer">
+        Abrir Uber
+      </a>
+    </section>
+  )
+}
+
+// Botones para llamar. Los teléfonos salen de la configuración, nunca de la IA.
+function BotonesEmergencia({ emergencia }: { emergencia: Emergencia }) {
+  return (
+    <section className="botones-emergencia" aria-label="Botones de emergencia">
+      <a className="boton boton-emergencia boton-911" href="tel:911">
+        📞 Llamar al 911
+      </a>
+      {emergencia.familiar && (
+        <a className="boton boton-emergencia boton-familiar" href={emergencia.familiar.link}>
+          📞 Llamar a {emergencia.familiar.nombre}
+        </a>
+      )}
+    </section>
+  )
+}
+
+// Tarjeta con el pedido y el botón de WhatsApp. El mensaje lo manda el abuelo, nunca se manda solo.
+function TarjetaPedido({ pedido }: { pedido: Pedido }) {
+  return (
+    <section className="tarjeta-viaje" aria-label={`Pedido a ${pedido.comercio}`}>
+      <p className="tarjeta-viaje-titulo">🛵 Pedido a</p>
+      <p className="tarjeta-viaje-destino">{pedido.comercio}</p>
+      <p className="tarjeta-viaje-direccion">
+        {pedido.pedido}
+        {pedido.aclaracion && (
+          <>
+            <br />
+            <strong>Aclaración:</strong> {pedido.aclaracion}
+          </>
+        )}
+      </p>
+      <a className="boton boton-uber" href={pedido.link} target="_blank" rel="noopener noreferrer">
+        Abrir WhatsApp
+      </a>
+      <p className="tarjeta-viaje-ayuda">Después toque “Enviar” en WhatsApp.</p>
+    </section>
   )
 }

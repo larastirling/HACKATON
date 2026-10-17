@@ -56,3 +56,15 @@
 }
 
 .enviar { width: auto; min-height: 64px; }
+
+/* Recuadro "Lugares guardados" */
+.guardado {
+  background: var(--fondo-tarjeta);
+  border-radius: 16px;
+  padding: 14px 18px;
+}
+.guardado summary { font-weight: 700; cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.guardado ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.guardado li { font-size: 0.95rem; }
+.ok { color: var(--ok); font-weight: 700; }
+.falta { color: var(--error); font-weight: 700; }
