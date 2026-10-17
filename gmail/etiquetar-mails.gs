@@ -76,6 +76,19 @@ function colorearEtiqueta(datos) {
 }
 
 /**
+ * Le pone al hilo la etiqueta de esa categoría (ESTAFA o DUDOSO) y le saca
+ * la otra, para que nunca tenga las dos a la vez.
+ */
+function ponerEtiquetaUnica(hilo, categoria) {
+  var otra = categoria === 'ESTAFA' ? 'DUDOSO' : 'ESTAFA';
+  var etiquetaOtra = GmailApp.getUserLabelByName(ETIQUETAS[otra].nombre);
+  if (etiquetaOtra) {
+    hilo.removeLabel(etiquetaOtra);
+  }
+  hilo.addLabel(obtenerEtiqueta(ETIQUETAS[categoria]));
+}
+
+/**
  * Crea las dos etiquetas (si no existen) y les pone su color.
  */
 function crearEtiquetas() {
@@ -105,7 +118,7 @@ function etiquetarUltimosMails() {
     // ESTAFA y DUDOSO llevan etiqueta; LEGITIMO no
     var datos = ETIQUETAS[resultado.categoria];
     if (datos) {
-      hilos[i].addLabel(obtenerEtiqueta(datos));
+      ponerEtiquetaUnica(hilos[i], resultado.categoria);
     }
 
     console.log(

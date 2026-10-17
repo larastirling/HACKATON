@@ -90,3 +90,18 @@ La carpeta `gmail/` está conectada al proyecto de Apps Script de la cuenta de l
 3. `clasp push` sube todo y **reemplaza** el código online por el de `gmail/`. Las Propiedades del script (clave y familiares) no se tocan.
 
 El login queda en `C:\Users\<usuario>\.clasprc.json`, fuera del repo. Nunca subirlo.
+
+# Gmail: revisión automática cada minuto
+
+Script `revisar-automatico.gs`. Un activador corre `revisarMailsNuevos` cada minuto:
+
+- Revisa **todos** los mails nuevos de la bandeja y de **Spam** que todavía no pasaron por la IA. La primera vez, solo los de las últimas 24 horas (la fecha queda guardada en la propiedad `REVISAR_DESDE`).
+- Revisa hasta 10 por corrida (y corta a los 4 minutos); los que quedan se revisan en la siguiente.
+- Marca cada mail revisado con la etiqueta oculta **IA-revisado** (no se ve en la lista de etiquetas). Para verlos: buscar `label:IA-revisado` en Gmail.
+- Bandeja: mismas reglas que `proteger-mails.gs`. Spam: si es ESTAFA, etiqueta y avisa al abuelo y a la familia pero lo deja en Spam; si es DUDOSO o LEGITIMO, no hace nada.
+- Un mail nunca queda con ESTAFA y DUDOSO a la vez.
+- Los avisos del asistente nunca se analizan.
+- Si un mail falla, se reintenta en la próxima corrida; después de 3 fallos se da por revisado.
+- Si una corrida empieza antes de que termine la anterior, no hace nada.
+
+Funciones: `instalarActivador` (no crea dos), `sacarActivador`, y `revisarMailsNuevos` para correrla a mano.

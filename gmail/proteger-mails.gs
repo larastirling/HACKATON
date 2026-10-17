@@ -193,27 +193,42 @@ function avisarFamilia(remitenteFalso, asuntoFalso, motivo) {
  */
 function protegerHilo(hilo) {
   var mensajes = hilo.getMessages();
-  var ultimo = mensajes[mensajes.length - 1];
+  return protegerMensaje(mensajes[mensajes.length - 1]);
+}
 
-  if (esAvisoPropio(hilo, ultimo)) {
+/**
+ * Hace todo con un mail (de la bandeja o de Spam) y devuelve una frase con lo que hizo.
+ * En Spam: si es ESTAFA etiqueta y avisa pero lo deja ahí; si no, no hace nada.
+ */
+function protegerMensaje(mensaje) {
+  var hilo = mensaje.getThread();
+
+  if (esAvisoPropio(hilo, mensaje)) {
     return 'Es un aviso del asistente: no lo analicé.';
   }
 
-  var resultado = clasificarConIA(ultimo.getFrom(), ultimo.getSubject(), ultimo.getPlainBody() || '');
+  var enSpam = hilo.isInSpam();
+  var resultado = clasificarConIA(mensaje.getFrom(), mensaje.getSubject(), mensaje.getPlainBody() || '');
 
   if (resultado.categoria === 'ESTAFA') {
-    hilo.addLabel(obtenerEtiqueta(ETIQUETAS.ESTAFA));
-    hilo.moveToArchive(); // Sale de la bandeja pero no se borra
-    var abuelo = mandarExplicacion(ultimo.getFrom(), ultimo.getSubject(), resultado.motivo);
-    var familia = avisarFamilia(ultimo.getFrom(), ultimo.getSubject(), resultado.motivo);
-    return 'ESTAFA: etiquetado y sacado de la bandeja.\n' +
+    ponerEtiquetaUnica(hilo, 'ESTAFA');
+    if (!enSpam) {
+      hilo.moveToArchive(); // Sale de la bandeja pero no se borra
+    }
+    var abuelo = mandarExplicacion(mensaje.getFrom(), mensaje.getSubject(), resultado.motivo);
+    var familia = avisarFamilia(mensaje.getFrom(), mensaje.getSubject(), resultado.motivo);
+    return 'ESTAFA: etiquetado' + (enSpam ? ', queda en Spam.\n' : ' y sacado de la bandeja.\n') +
       'Explicación enviada al abuelo (' + abuelo + ').\n' +
       familia.join('\n') + '\n' +
       'Por qué: ' + resultado.motivo;
   }
 
+  if (enSpam) {
+    return resultado.categoria + ' (en Spam): no hice nada.\nPor qué: ' + resultado.motivo;
+  }
+
   if (resultado.categoria === 'DUDOSO') {
-    hilo.addLabel(obtenerEtiqueta(ETIQUETAS.DUDOSO));
+    ponerEtiquetaUnica(hilo, 'DUDOSO');
     return 'DUDOSO: etiquetado, queda en la bandeja.\nPor qué: ' + resultado.motivo;
   }
 
@@ -231,10 +246,15 @@ function protegerUltimosMails() {
     return;
   }
 
+  // Los marcamos como revisados para que la revisión automática no los repita
+  var idEtiqueta = idEtiquetaRevisado();
+
   for (var i = 0; i < hilos.length; i++) {
     var asunto = hilos[i].getFirstMessageSubject();
     try {
+      var mensajes = hilos[i].getMessages();
       console.log('Mail ' + (i + 1) + ': ' + asunto + '\n' + protegerHilo(hilos[i]));
+      marcarRevisado(mensajes[mensajes.length - 1].getId(), idEtiqueta);
     } catch (error) {
       console.log('Mail ' + (i + 1) + ': ' + asunto + '\nFALLÓ: ' + error.message + '. Sigo con el siguiente.');
     }
