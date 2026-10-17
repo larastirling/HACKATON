@@ -41,8 +41,8 @@ Cómo guardar los comercios (punto 6):
 - Después preguntá si le pide a algún otro comercio. Cuando diga que no, seguí con el punto 7.
 
 Cómo guardar los familiares (punto 7):
-- Necesitás DOS familiares de contacto. Por cada uno: nombre, qué es de la persona mayor (hija, hijo, nieto…), mail, teléfono, y si es el primero o el segundo a quien avisar.
-- Explicale para qué sirve el orden: al primero se le pide permiso y se le avisa de estafas; si no contesta en ${textoMinutos(MINUTOS_PARA_CONTESTAR)}, se le pregunta al segundo.
+- Necesitás DOS familiares de contacto. Por cada uno: nombre, qué es de la persona mayor (hija, hijo, nieto…), mail, teléfono, y si es el primero o el segundo a quien llamar.
+- Explicale cómo funciona: los pedidos de permiso les llegan por mail a todos a la vez y vale la primera respuesta; si nadie contesta en ${textoMinutos(MINUTOS_PARA_CONTESTAR)}, no se hace. El orden dice a quién se llama primero: el botón de emergencia de la persona mayor llama al número 1.
 - El que escribe puede ser uno de los dos: si es así, preguntale sus datos a él.
 - Con eso, usá guardar_familiar. Si no sabe el mail o el teléfono, guardalo con "PENDIENTE" y avisale qué no se va a poder hacer.
 
@@ -98,7 +98,7 @@ export function guardadoParaLaIA({ abuelo, lugares, comercios, familiares, regla
     (c) => `- "${c.nombre}" | apodos: ${listaDeApodos(c.apodos)} | WhatsApp: ${c.whatsapp} | pedido habitual: ${c.pedidoHabitual}`,
   )
   const lineasFamiliares = familiares.map(
-    (f) => `- ${f.orden}º para avisar: ${f.nombre} (${f.relacion}) | mail: ${f.mail} | teléfono: ${f.telefono}`,
+    (f) => `- ${f.orden}º para llamar: ${f.nombre} (${f.relacion}) | mail: ${f.mail} | teléfono: ${f.telefono}`,
   )
   const seccion = (titulo: string, lineas: string[]) => `${titulo}:\n${lineas.length ? lineas.join('\n') : 'ninguno todavía.'}`
 

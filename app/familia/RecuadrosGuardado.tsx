@@ -61,7 +61,7 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
         {familiares.map((f) => (
           <li key={f.nombre}>
             <strong>
-              {f.orden}º para avisar: {f.nombre}
+              {f.orden}º para llamar: {f.nombre}
             </strong>{' '}
             ({f.relacion})
             <br />

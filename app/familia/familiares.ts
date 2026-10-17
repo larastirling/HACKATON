@@ -3,14 +3,14 @@ import type Anthropic from '@anthropic-ai/sdk'
 import { PENDIENTE, type Familiar } from '@/lib/datos'
 import { cambiarConfiguracion, mismoNombre, nombreValido, normalizarMail, normalizarTelefono } from './guardar'
 
-// Herramienta "guardar_familiar": familiares de contacto. El "orden" dice a quién se le avisa primero:
-// lo usan las aprobaciones de /abuelo y los avisos de estafa del script de Gmail.
+// Herramienta "guardar_familiar": familiares de contacto. Los permisos les llegan a todos a la vez;
+// el "orden" dice a quién se llama primero (botón de emergencia de /abuelo).
 
 export const HERRAMIENTA_GUARDAR_FAMILIAR: Anthropic.Beta.BetaTool = {
   name: 'guardar_familiar',
   description:
     'Guarda (o actualiza, si ya existe uno con el mismo nombre) un familiar de contacto. ' +
-    'Usala cuando sepas nombre, parentesco, mail, teléfono y si es el primero o el segundo en avisar. Solo con datos que dijo el hijo.',
+    'Usala cuando sepas nombre, parentesco, mail, teléfono y si es el primero o el segundo a quien llamar. Solo con datos que dijo el hijo.',
   input_schema: {
     type: 'object',
     properties: {
@@ -18,7 +18,7 @@ export const HERRAMIENTA_GUARDAR_FAMILIAR: Anthropic.Beta.BetaTool = {
       relacion: { type: 'string', description: 'Qué es de la persona MAYOR (no del que escribe), ej. "Hija", "Hijo", "Nieta".' },
       mail: { type: 'string', description: 'El mail tal cual lo dijo el hijo. Si no lo sabe, "PENDIENTE". Nunca lo inventes.' },
       telefono: { type: 'string', description: 'El teléfono tal cual lo dijo el hijo. Si no lo sabe, "PENDIENTE". Nunca lo inventes.' },
-      orden: { type: 'integer', description: '1 = se le avisa primero, 2 = segundo, etc.' },
+      orden: { type: 'integer', description: '1 = se lo llama primero (botón de emergencia), 2 = segundo, etc.' },
     },
     required: ['nombre', 'relacion', 'mail', 'telefono', 'orden'],
     additionalProperties: false,
@@ -82,8 +82,8 @@ export async function guardarFamiliar(codigoFamilia: string, dato: unknown): Pro
 
   const faltan = [mail === PENDIENTE && 'el mail', telefono === PENDIENTE && 'el teléfono'].filter(Boolean)
   return [
-    `${yaExistia ? 'Actualizado' : 'Guardado'} ${familiar.nombre} (${familiar.relacion}), número ${familiar.orden} para avisar, mail ${mail}, teléfono ${telefono}.`,
-    movido && `${movido.nombre} pasó a ser el número ${movido.orden} para avisar. Contáselo al hijo.`,
+    `${yaExistia ? 'Actualizado' : 'Guardado'} ${familiar.nombre} (${familiar.relacion}), número ${familiar.orden} para llamar, mail ${mail}, teléfono ${telefono}.`,
+    movido && `${movido.nombre} pasó a ser el número ${movido.orden} para llamar. Contáselo al hijo.`,
     faltan.length > 0 && `Falta ${faltan.join(' y ')}: decile que sin eso no se le puede avisar por ahí, y que lo puede pasar cuando quiera.`,
     'Repetile el mail y el teléfono para que confirme que están bien.',
   ]
