@@ -15,6 +15,8 @@ export interface Abuelo {
   nombre: string
   comoLeGustaQueLeHablen: string
   telefono: string
+  /** Dónde vive. Se usa, por ejemplo, en los pedidos por WhatsApp. */
+  direccion: string
 }
 
 export interface Lugar {
@@ -78,6 +80,7 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
     nombre: 'Carlos Pérez',
     comoLeGustaQueLeHablen: 'Don Carlos, de usted',
     telefono: '+598 92 158 202',
+    direccion: 'Costa Rica 621, Montevideo',
   },
   lugares: [
     {
@@ -161,14 +164,21 @@ export function normalizarCodigo(codigo: string): string {
   return codigo.trim().toUpperCase()
 }
 
-/** Las reglas fijas siempre se ponen desde el código, nunca desde lo guardado. */
-function conReglasFijas(configuracion: ConfiguracionAbuelo): ConfiguracionAbuelo {
-  return { ...configuracion, reglas: { ...configuracion.reglas, fijas: REGLAS_FIJAS } }
+/**
+ * Las reglas fijas siempre se ponen desde el código, nunca desde lo guardado.
+ * Si la configuración se guardó antes de que existiera abuelo.direccion, queda como PENDIENTE.
+ */
+function completarConfiguracion(configuracion: ConfiguracionAbuelo): ConfiguracionAbuelo {
+  return {
+    ...configuracion,
+    abuelo: { ...configuracion.abuelo, direccion: configuracion.abuelo.direccion ?? PENDIENTE },
+    reglas: { ...configuracion.reglas, fijas: REGLAS_FIJAS },
+  }
 }
 
 export async function leerConfiguracion(codigoFamilia: string): Promise<ConfiguracionAbuelo | null> {
   const guardada = await leer<ConfiguracionAbuelo>(claveConfiguracion(codigoFamilia))
-  if (guardada) return conReglasFijas(guardada)
+  if (guardada) return completarConfiguracion(guardada)
   return normalizarCodigo(codigoFamilia) === FAMILIA_DEMO.codigoFamilia ? FAMILIA_DEMO : null
 }
 
@@ -199,7 +209,7 @@ export function validarConfiguracion(dato: unknown): string[] {
   if (!c.abuelo || typeof c.abuelo !== 'object') {
     errores.push('Falta "abuelo"')
   } else {
-    for (const campo of ['nombre', 'comoLeGustaQueLeHablen', 'telefono'] as const) {
+    for (const campo of ['nombre', 'comoLeGustaQueLeHablen', 'telefono', 'direccion'] as const) {
       if (!esTexto(c.abuelo[campo])) errores.push(`Falta "abuelo.${campo}"`)
     }
   }
