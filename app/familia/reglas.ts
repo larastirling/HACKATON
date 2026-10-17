@@ -35,7 +35,9 @@ const propiedades = {
   nivel: { type: 'string', enum: [...NIVELES], description: 'El nivel propuesto.' },
   motivo: {
     type: 'string',
-    description: 'Por qué ese nivel, en UNA frase simple basada en lo que contó el hijo (tecnología y plata).',
+    description:
+      'Por qué ese nivel, en UNA frase simple, solo con lo que el hijo contó en ESTA charla (tecnología y plata). ' +
+      'Si no contó nada de eso, "Es el nivel que ya tenía". Nunca inventes cómo está la persona mayor.',
   },
   lugaresConPermiso: {
     type: 'array',

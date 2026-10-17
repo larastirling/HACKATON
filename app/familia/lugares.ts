@@ -29,7 +29,9 @@ export const HERRAMIENTA_GUARDAR_LUGAR: Anthropic.Beta.BetaTool = {
       },
       necesitaPermiso: {
         type: 'boolean',
-        description: 'true solo si el hijo dijo que para ir ahí la familia tiene que dar permiso antes. Si no lo dijo, false.',
+        description:
+          'Solo cuenta para lugares NUEVOS: true si el hijo dijo que para ir ahí hace falta permiso, o si el nivel es "Cuidado cercano"; si no, false. ' +
+          'En un lugar que ya existe no cambia nada: los permisos se cambian con mostrar_reglas y guardar_reglas.',
       },
     },
     required: ['nombre', 'apodos', 'direccion', 'necesitaPermiso'],
@@ -79,7 +81,10 @@ export async function guardarLugar(codigoFamilia: string, dato: unknown): Promis
   let yaExistia = false
   const error = await cambiarConfiguracion(codigoFamilia, (c) => {
     yaExistia = c.lugares.some((l) => mismoNombre(l.nombre, lugar.nombre))
-    const lugares = yaExistia ? c.lugares.map((l) => (mismoNombre(l.nombre, lugar.nombre) ? lugar : l)) : [...c.lugares, lugar]
+    // Al corregir un lugar que ya existe se mantiene su permiso: eso solo lo cambia guardar_reglas.
+    const lugares = yaExistia
+      ? c.lugares.map((l) => (mismoNombre(l.nombre, lugar.nombre) ? { ...lugar, necesitaPermiso: l.necesitaPermiso } : l))
+      : [...c.lugares, lugar]
     return { ...c, lugares }
   })
   if (error) return error
