@@ -10,6 +10,12 @@
 // Asunto de los mails de explicación que manda el propio script
 var ASUNTO_AVISO = '⚠️ Cuidado: le llegó un mail falso';
 
+// Asunto del aviso que se manda a los familiares
+var ASUNTO_FAMILIA = '⚠️ Su familiar recibió un mail falso';
+
+// Nombres de las Propiedades del script con los mails de los familiares
+var PROPIEDADES_FAMILIARES = ['FAMILIAR_1', 'FAMILIAR_2'];
+
 // Etiqueta que se le pone a esos mails para no analizarlos nunca
 var ETIQUETA_AVISO = 'Avisos del asistente';
 
@@ -27,8 +33,9 @@ function esAvisoPropio(hilo, mensaje) {
 
   // Por las dudas, también lo reconocemos por remitente y asunto
   var miMail = Session.getEffectiveUser().getEmail().toLowerCase();
+  var asunto = mensaje.getSubject();
   return mensaje.getFrom().toLowerCase().indexOf(miMail) !== -1 &&
-    mensaje.getSubject().indexOf(ASUNTO_AVISO) === 0;
+    (asunto.indexOf(ASUNTO_AVISO) === 0 || asunto.indexOf(ASUNTO_FAMILIA) === 0);
 }
 
 /**
@@ -98,14 +105,87 @@ function mandarExplicacion(remitenteFalso, asuntoFalso, motivo) {
     '</ul>' +
     '</div>';
 
+  enviarAviso(miMail, ASUNTO_AVISO, textoPlano, html);
+  return miMail;
+}
+
+/**
+ * Manda un aviso del asistente y le pone la etiqueta "Avisos del asistente",
+ * para que el script nunca lo analice.
+ */
+function enviarAviso(destinatario, asunto, textoPlano, html) {
   // Lo mandamos como borrador para poder etiquetar el mail enviado
-  var enviado = GmailApp.createDraft(miMail, ASUNTO_AVISO, textoPlano, {
+  var enviado = GmailApp.createDraft(destinatario, asunto, textoPlano, {
     htmlBody: html,
     name: 'Asistente de confianza'
   }).send();
 
   var etiquetaAviso = GmailApp.getUserLabelByName(ETIQUETA_AVISO) || GmailApp.createLabel(ETIQUETA_AVISO);
   enviado.getThread().addLabel(etiquetaAviso);
+}
+
+/**
+ * Lee los mails de los familiares de Propiedades del script.
+ * Si falta alguno, lo anota en el registro y sigue con los que haya.
+ */
+function leerFamiliares() {
+  var propiedades = PropertiesService.getScriptProperties();
+  var familiares = [];
+  for (var i = 0; i < PROPIEDADES_FAMILIARES.length; i++) {
+    var mail = (propiedades.getProperty(PROPIEDADES_FAMILIARES[i]) || '').trim();
+    if (mail) {
+      familiares.push(mail);
+    } else {
+      console.log('Falta ' + PROPIEDADES_FAMILIARES[i] + ' en Propiedades del script: no le aviso a ese familiar.');
+    }
+  }
+  return familiares;
+}
+
+/**
+ * Les manda a los familiares el aviso de que llegó un mail falso.
+ * Devuelve una línea por familiar diciendo si se le mandó o por qué falló.
+ */
+function avisarFamilia(remitenteFalso, asuntoFalso, motivo) {
+  var familiares = leerFamiliares();
+  if (familiares.length === 0) {
+    return ['No avisé a ningún familiar: no hay ninguno cargado.'];
+  }
+
+  var deQuien = quitarDatosDeContacto(nombreDelRemitente(remitenteFalso));
+  var asunto = quitarDatosDeContacto(asuntoFalso || '(sin asunto)');
+  var porQue = quitarDatosDeContacto(motivo);
+
+  var textoPlano =
+    'Su familiar recibió un mail falso.\n\n' +
+    'Decía venir de: ' + deQuien + '\n' +
+    'Asunto: ' + asunto + '\n\n' +
+    'Por qué creemos que es falso: ' + porQue + '\n\n' +
+    'Ya sacamos ese mail de la bandeja de entrada de su familiar, y a su familiar ' +
+    'ya le llegó otro mail explicándole por qué es falso.\n\n' +
+    'Le sugerimos llamar a su familiar para ver si está bien y preguntarle si llegó a tocar ' +
+    'algo del mail (un link, una respuesta o algún dato).';
+
+  var html =
+    '<div style="font-family: Arial, sans-serif; font-size: 18px; line-height: 1.5; color: #000000; max-width: 600px;">' +
+    '<p style="font-size: 24px; font-weight: bold; color: #cc3a21; margin: 0 0 16px;">⚠️ Su familiar recibió un mail falso</p>' +
+    '<p style="margin: 0 0 8px;"><b>Decía venir de:</b> ' + escaparHtml(deQuien) + '</p>' +
+    '<p style="margin: 0 0 16px;"><b>Asunto:</b> ' + escaparHtml(asunto) + '</p>' +
+    '<p style="margin: 0 0 16px;"><b>Por qué creemos que es falso:</b> ' + escaparHtml(porQue) + '</p>' +
+    '<p style="margin: 0 0 16px;">Ya sacamos ese mail de la bandeja de entrada de su familiar, y a su familiar ya le llegó otro mail explicándole por qué es falso.</p>' +
+    '<p style="font-weight: bold; margin: 0;">Le sugerimos llamar a su familiar para ver si está bien y preguntarle si llegó a tocar algo del mail (un link, una respuesta o algún dato).</p>' +
+    '</div>';
+
+  var resultados = [];
+  for (var i = 0; i < familiares.length; i++) {
+    try {
+      enviarAviso(familiares[i], ASUNTO_FAMILIA, textoPlano, html);
+      resultados.push('Aviso a la familia enviado a ' + familiares[i] + '.');
+    } catch (error) {
+      resultados.push('No pude avisar a ' + familiares[i] + ': ' + error.message);
+    }
+  }
+  return resultados;
 }
 
 /**
@@ -124,8 +204,12 @@ function protegerHilo(hilo) {
   if (resultado.categoria === 'ESTAFA') {
     hilo.addLabel(obtenerEtiqueta(ETIQUETAS.ESTAFA));
     hilo.moveToArchive(); // Sale de la bandeja pero no se borra
-    mandarExplicacion(ultimo.getFrom(), ultimo.getSubject(), resultado.motivo);
-    return 'ESTAFA: etiquetado, sacado de la bandeja y aviso enviado.\nPor qué: ' + resultado.motivo;
+    var abuelo = mandarExplicacion(ultimo.getFrom(), ultimo.getSubject(), resultado.motivo);
+    var familia = avisarFamilia(ultimo.getFrom(), ultimo.getSubject(), resultado.motivo);
+    return 'ESTAFA: etiquetado y sacado de la bandeja.\n' +
+      'Explicación enviada al abuelo (' + abuelo + ').\n' +
+      familia.join('\n') + '\n' +
+      'Por qué: ' + resultado.motivo;
   }
 
   if (resultado.categoria === 'DUDOSO') {

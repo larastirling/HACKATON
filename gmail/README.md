@@ -67,3 +67,16 @@ Los avisos que manda el script llevan la etiqueta "Avisos del asistente" y nunca
 3. Elegí **protegerUltimosMails** y clic en **Ejecutar**. Aceptá los permisos nuevos (ahora también manda mails).
 4. En el registro se ve qué hizo con cada uno de los últimos 5 mails.
 5. En Gmail: el mail trucho ya no está en Recibidos (aparece buscando `label:ESTAFA`) y llegó el aviso "⚠️ Cuidado: le llegó un mail falso".
+
+## Aviso a la familia (ESTAFA)
+
+Cuando un mail es ESTAFA, `proteger-mails.gs` además le manda a 2 familiares el aviso "⚠️ Su familiar recibió un mail falso": de quién decía venir, su asunto, por qué la IA cree que es falso, que ya se sacó de la bandeja y que el abuelo ya recibió una explicación, y la sugerencia de llamarlo. No incluye links, mails ni teléfonos del mail falso. DUDOSO y LEGITIMO no avisan a la familia.
+
+Los mails de los familiares no van en el código. Se cargan en **Configuración del proyecto** (engranaje) → **Propiedades de la secuencia de comandos**:
+
+| Propiedad | Valor |
+|---|---|
+| `FAMILIAR_1` | mail del primer familiar |
+| `FAMILIAR_2` | mail del segundo familiar |
+
+Si falta alguno, el registro lo dice y se avisa igual al que esté. El registro también dice a quién se mandó cada aviso.
