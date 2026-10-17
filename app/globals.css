@@ -265,3 +265,32 @@ p { margin: 0; }
   text-decoration: none;
   font-size: 1.4rem;
 }
+
+/* ── Botones de emergencia ── */
+.botones-emergencia {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.boton-emergencia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  text-decoration: none;
+  color: #fff;
+}
+
+.boton-911 {
+  background: var(--error);         /* rojo oscuro: contraste 7.6:1 con blanco */
+  border: 3px solid var(--error);
+}
+
+.boton-familiar {
+  background: var(--principal);
+  border: 3px solid var(--principal);
+}
