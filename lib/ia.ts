@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { pedirPermiso } from './aprobaciones'
 import { primerNombre, type ConfiguracionAbuelo, type QueSePidio } from './datos'
 import { armarEmergencia, avisarEmergenciaALaFamilia, type Emergencia } from './emergencia'
+import { juntarNombres } from './texto'
 import { armarViajeUber, type Viaje } from './uber'
 import { armarPedidoWhatsApp, type Pedido } from './whatsapp'
 
@@ -32,7 +33,8 @@ export interface MensajeCharla {
 /** Lo que necesita la pantalla del abuelo para esperar la respuesta de la familia. */
 export interface EsperaAprobacion {
   id: string
-  familiar: string
+  /** A quiénes se les preguntó (a todos a la vez). */
+  familiares: string[]
 }
 
 export type { Emergencia, Pedido, Viaje }
@@ -80,13 +82,14 @@ export async function conversarConElAbuelo(
 
   /** Pide permiso a la familia (una sola vez por respuesta) y le dice a la IA qué contestar. */
   async function pedirPermisoALaFamilia(descripcion: string, que: QueSePidio): Promise<string> {
-    if (aprobacion) return `Ya le preguntaste a ${aprobacion.familiar} por otra cosa en esta respuesta. No pidas otro permiso ahora.`
+    if (aprobacion) return `Ya le preguntaste a la familia por otra cosa en esta respuesta. No pidas otro permiso ahora.`
     const resultado = await pedirPermiso(configuracion, descripcion, que, urlApp)
     if (!resultado.ok) {
       return `Esto necesita permiso de la familia, pero NO se le pudo preguntar (${resultado.motivo}). No se muestra ningún botón. Decile con calma que no pudiste avisarle a la familia y que es mejor que los llame.`
     }
-    aprobacion = { id: resultado.aprobacion.id, familiar: resultado.familiar }
-    return `Esto necesita permiso de la familia, así que NO se muestra el botón todavía. Ya le mandé un mail a ${resultado.familiar} para preguntarle. Decile con calma, en una o dos frases, que le preguntaste a ${resultado.familiar} y que espere un momento: la pantalla le va a avisar sola cuando conteste. No digas que está aprobado.`
+    aprobacion = { id: resultado.aprobacion.id, familiares: resultado.familiares }
+    const aQuienes = juntarNombres(resultado.familiares)
+    return `Esto necesita permiso de la familia, así que NO se muestra el botón todavía. Ya les pregunté a todos a la vez: a ${aQuienes}. Decile con calma, en una o dos frases, que le preguntaste a ${aQuienes} y que espere un momento: la pantalla le va a avisar sola cuando alguien conteste. No digas que está aprobado.`
   }
 
   async function proponerPedido(comercioId: unknown, aclaracion: unknown, pedidoDistinto: unknown): Promise<string> {

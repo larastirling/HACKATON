@@ -1,5 +1,5 @@
 import 'server-only'
-import { escapar, familiaresParaPreguntar } from './aprobaciones'
+import { escapar, familiaresConMail } from './aprobaciones'
 import { PENDIENTE, primerNombre, soltarCandado, tomarCandado, type ConfiguracionAbuelo, type Familiar } from './datos'
 import { enviarMail } from './mail'
 
@@ -30,7 +30,7 @@ export function armarEmergencia(familiares: Familiar[]): Emergencia {
  * Devuelve a quiénes se les avisó (ahora o hace poco).
  */
 export async function avisarEmergenciaALaFamilia(configuracion: ConfiguracionAbuelo, loQueDijo: string): Promise<string[]> {
-  const familiares = familiaresParaPreguntar(configuracion)
+  const familiares = familiaresConMail(configuracion)
   if (familiares.length === 0) return []
   const nombres = familiares.map((f) => f.nombre)
 

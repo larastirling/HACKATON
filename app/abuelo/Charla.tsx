@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from 'react'
 import type { Emergencia, EsperaAprobacion, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
+import { juntarNombres } from '@/lib/texto'
 import { consultarAprobacion, responderAlAbuelo } from './acciones'
 
 export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) {
@@ -167,7 +168,7 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
 const CADA_CUANTO_CONSULTAR_MS = 4000
 
 // Mientras la familia no contesta, consulta sola cada pocos segundos. Cuando contestan, agrega el mensaje.
-// (El servidor se fija en cada consulta si se le venció el tiempo al familiar y le pregunta al siguiente.)
+// (El servidor se fija en cada consulta si se venció el tiempo sin que nadie conteste.)
 function EsperandoAprobacion({
   aprobacion,
   alContestar,
@@ -176,7 +177,7 @@ function EsperandoAprobacion({
   alContestar: (respuesta: MensajeCharla) => void
 }) {
   const [estado, setEstado] = useState<'esperando' | 'contestaron' | 'error'>('esperando')
-  const [cartel, setCartel] = useState(`Le pregunté a ${aprobacion.familiar}, espere un momento...`)
+  const [cartel, setCartel] = useState(`Le pregunté a ${juntarNombres(aprobacion.familiares)}, espere un momento...`)
   const yaAvise = useRef(false)
   // Se guarda en una referencia para que escribir en la caja no reinicie el reloj de las consultas.
   const avisar = useRef(alContestar)
@@ -189,9 +190,7 @@ function EsperandoAprobacion({
         const resultado = await consultarAprobacion(aprobacion.id)
         if (yaAvise.current) return
         if (resultado.estado === 'esperando') {
-          const noContestaron = resultado.noContestaron.length ? `${resultado.noContestaron.join(' ni ')} no contestó, ` : ''
-          const texto = `${noContestaron}le pregunté a ${resultado.familiar}, espere un momento...`
-          return setCartel(texto.charAt(0).toUpperCase() + texto.slice(1))
+          return setCartel(`Le pregunté a ${juntarNombres(resultado.familiares)}, espere un momento...`)
         }
         yaAvise.current = true
         if (resultado.estado === 'no-encontrado') return setEstado('error')
