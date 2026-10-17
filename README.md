@@ -1,66 +1,135 @@
-# Quick Start — Web app mobile first
+# Asistente de confianza
 
-Plantilla base para arrancar una aplicación web **mobile first** con:
+App web, pensada primero para el celular, que ayuda a **personas mayores que no saben usar tecnología**, con la **familia conectada**.
 
-- **Router** entre páginas (React Router) con rutas protegidas y página 404
-- **Barra de navegación** inferior (estilo app nativa) + barra superior con campana de avisos
-- **Login con usuario y contraseña** (sesión persistida en `localStorage`)
-- **Notificaciones**: toasts en pantalla, centro de notificaciones con contador de no leídas y notificaciones nativas del navegador (Web Notifications API)
+- **/abuelo**: el abuelo le pide cosas a una inteligencia artificial (IA).
+- **/familia**: el hijo o la hija configura todo charlando con una IA.
 
-Stack: React 19 + TypeScript + Vite. Sin librerías de UI: CSS propio con modo oscuro automático.
+La IA es la de Anthropic (Claude). Esta versión es la **plantilla base**: las pantallas del abuelo y de la familia todavía dicen "En construcción".
 
-## Empezar
+---
 
+## Quién toca qué
+
+| Parte | Carpeta | Responsable |
+|---|---|---|
+| Pantalla del abuelo | `app/abuelo/` | **Lara** |
+| Pantalla de la familia | `app/familia/` | **Felipe** |
+| Script de Gmail | `gmail/` | **Inés** |
+
+Archivos compartidos (avisar al equipo antes de cambiarlos):
+
+| Archivo | Para qué sirve |
+|---|---|
+| `lib/datos.ts` | **Único lugar** que lee y guarda la configuración de cada abuelo. |
+| `lib/ia.ts` | **Único lugar** que habla con la IA (solo desde el servidor). |
+| `lib/sesion.ts` | Login: quién entró y si es abuelo o familiar. |
+| `components/BarraNavegacion.tsx` | Barra de botones de abajo. |
+| `app/globals.css` | Diseño: letra grande, botones grandes, mucho contraste. |
+| `app/api/configuracion/` | Ruta que usa el script de Gmail para leer la configuración. |
+| `app/prueba/` | Página para comprobar que todo funciona. |
+
+---
+
+## Cómo entrar
+
+1. Escribir el **código de familia**. Para probar: `DEMO`.
+2. Tocar **"Soy el abuelo"** o **"Soy familiar"**.
+
+El abuelo solo puede ver `/abuelo` y el familiar solo `/familia`. La sesión dura un año, así que un familiar puede iniciar sesión una vez en el celular del abuelo y queda abierta.
+
+> Es un login simple para la hackatón: quien sepa el código puede elegir cualquiera de los dos roles.
+
+---
+
+## Cómo correrla en tu compu (paso a paso)
+
+Solo la primera vez:
+
+1. Instalá **Node.js** (versión 20 o más nueva) desde https://nodejs.org (botón "LTS").
+2. Abrí la app **Terminal** y entrá a la carpeta del proyecto:
+   ```bash
+   cd ruta/a/la/carpeta/HACKATON
+   ```
+3. Instalá lo que necesita la app:
+   ```bash
+   npm install
+   ```
+4. Copiá el archivo de ejemplo de variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+5. Abrí `.env.local` con cualquier editor de texto y completá los valores (ver la sección siguiente). Si dejás alguno vacío, la app igual arranca y `/prueba` te avisa qué falta.
+
+Cada vez que quieras usarla:
+
+6. En la Terminal, dentro de la carpeta:
+   ```bash
+   npm run dev
+   ```
+7. Abrí http://localhost:3000 en el navegador.
+8. Para probarla desde el celular (conectado al mismo Wi‑Fi), usá la dirección que aparece como **Network** en la Terminal.
+9. Para apagarla: en la Terminal, apretá `Ctrl + C`.
+
+---
+
+## Variables de entorno
+
+Son datos secretos que **nunca** se suben a GitHub. En tu compu van en `.env.local`; en Vercel se cargan en la configuración del proyecto.
+
+| Variable | Qué es | ¿Obligatoria? |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Clave de la IA. Se saca en https://platform.claude.com/settings/keys | Sí, para usar la IA |
+| `SESSION_SECRET` | Texto secreto largo inventado (40 letras y números al azar). Protege el login. | Sí en Vercel. En tu compu, opcional |
+| `CONFIG_API_TOKEN` | Otro texto secreto largo inventado. El script de Gmail lo usa para leer la configuración. | Sí, para Gmail |
+| `KV_REST_API_URL` y `KV_REST_API_TOKEN` | Dirección y clave de la base de datos Upstash Redis. **En Vercel se cargan solas.** | En Vercel sí. En tu compu, opcional |
+
+Si en tu compu no ponés la base de datos, los datos se guardan **en memoria** y se borran al apagar la app.
+
+Para inventar un texto secreto largo, en la Terminal:
 ```bash
-npm install
-npm run dev      # http://localhost:5173 (también expuesto en la red local para probar desde el celular)
-npm run build    # build de producción en dist/
-npm run preview  # sirve el build
+openssl rand -hex 24
 ```
 
-**Usuarios de prueba:** `demo` / `demo123` · `admin` / `admin123`
+---
 
-## Estructura
+## Página de prueba: `/prueba`
+
+Entrá como familiar y tocá **Prueba** en la barra de abajo. Ahí se ve:
+
+- si la base de datos está conectada, y un botón que guarda y lee un dato;
+- si está la clave de la IA, y un botón que le hace una pregunta corta. Si falta la clave, dice **"Falta la clave de la IA"**.
+
+---
+
+## Ruta para el script de Gmail
 
 ```
-src/
-├── main.tsx                  # Providers: Router, Auth, Notificaciones
-├── App.tsx                   # Definición de rutas
-├── styles.css                # Estilos globales (tokens, mobile first)
-├── auth/
-│   ├── authService.ts        # login/logout (mock) ← conectar acá tu backend
-│   ├── AuthContext.tsx       # useAuth(): user, login, logout
-│   └── ProtectedRoute.tsx    # Redirige a /login si no hay sesión
-├── notifications/
-│   ├── NotificationsContext.tsx  # useNotifications(): notify, markAsRead, ...
-│   └── Toaster.tsx           # Toasts flotantes
-├── components/
-│   ├── Layout.tsx            # Barra superior + contenido + navegación inferior
-│   ├── BottomNav.tsx         # Ítems de la barra de navegación
-│   └── Icon.tsx              # Íconos SVG inline
-└── pages/                    # Login, Home, Explore, Notifications, Profile, NotFound
+GET https://TU-APP.vercel.app/api/configuracion?codigo=DEMO
+Header:  Authorization: Bearer <CONFIG_API_TOKEN>
 ```
 
-## Cómo extender
-
-**Agregar una página**
-1. Crear `src/pages/MiPagina.tsx`.
-2. Registrarla en `src/App.tsx` dentro del bloque protegido: `<Route path="mi-pagina" element={<MiPagina />} />`.
-3. (Opcional) Agregarla a `items` en `components/BottomNav.tsx` y su título en `components/Layout.tsx`.
-
-**Lanzar una notificación desde cualquier componente**
-```tsx
-const { notify } = useNotifications()
-notify({ title: 'Pago recibido', body: '$ 1.500', type: 'success' })        // toast + centro de avisos
-notify({ title: 'Recordatorio', body: 'Vence hoy', system: true })          // además, notificación nativa
+Ejemplo en Google Apps Script:
+```js
+const respuesta = UrlFetchApp.fetch('https://TU-APP.vercel.app/api/configuracion?codigo=DEMO', {
+  headers: { Authorization: 'Bearer ' + PropertiesService.getScriptProperties().getProperty('CONFIG_API_TOKEN') },
+})
+const configuracion = JSON.parse(respuesta.getContentText())
 ```
-Tipos: `info` | `success` | `warning` | `error`. La notificación nativa requiere que el usuario dé permiso (botón en la página *Notificaciones*) y funciona en `localhost` o HTTPS.
 
-**Conectar un backend real de login**
-Reemplazar el cuerpo de `login()` en `src/auth/authService.ts` por un `fetch` a tu API y guardar el token que devuelva. El resto de la app (`useAuth`, `ProtectedRoute`) no necesita cambios.
+Respuestas: `200` con la configuración, `401` si el token está mal, `404` si no existe esa familia.
 
-## Notas mobile
-- `viewport-fit=cover` + `env(safe-area-inset-*)` para respetar el notch y la barra de gestos de iOS.
-- Áreas táctiles de 44px+ e inputs de 16px (evita el zoom automático de iOS).
-- `manifest.webmanifest` incluido: se puede “Agregar a pantalla de inicio”.
-- En pantallas ≥ 768px la barra inferior pasa a ser flotante y centrada.
+> El formato de la configuración es **un ejemplo mínimo** (`codigoFamilia`, `nombreAbuelo`, `nombreFamilia`). El formato completo se define en la próxima tarea, en `lib/datos.ts`.
+
+---
+
+## Cómo publicarla en Vercel
+
+1. Entrá a https://vercel.com e iniciá sesión con tu cuenta de GitHub.
+2. Tocá **Add New… → Project**, buscá el repo **larastirling/HACKATON** y tocá **Import**. No cambies nada y tocá **Deploy**.
+3. Cuando termine, entrá al proyecto y andá a la pestaña **Storage** → **Create Database** → elegí **Upstash** → **Redis** → seguí los pasos (plan gratis) y conectala a este proyecto. Vercel carga solas las variables de la base de datos.
+4. Andá a **Settings → Environment Variables** y agregá, una por una: `ANTHROPIC_API_KEY`, `SESSION_SECRET` y `CONFIG_API_TOKEN`.
+5. Andá a **Deployments**, tocá los tres puntitos del último y elegí **Redeploy** (para que tome las variables nuevas).
+6. Abrí la dirección de tu app, entrá con `DEMO` como familiar y revisá `/prueba`.
+
+Después de esto, **cada vez que se suba algo a `main`, Vercel publica la nueva versión sola.**
