@@ -313,3 +313,4 @@ p { margin: 0; }
   animation: latido 1.8s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) { .esperando-aprobacion { animation: none; } }
+.emergencia-avisados { font-size: 1.2rem; font-weight: 700; text-align: center; }

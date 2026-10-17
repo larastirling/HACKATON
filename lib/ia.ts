@@ -2,7 +2,7 @@ import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { pedirPermiso } from './aprobaciones'
 import { primerNombre, type ConfiguracionAbuelo, type QueSePidio } from './datos'
-import { armarEmergencia, type Emergencia } from './emergencia'
+import { armarEmergencia, avisarEmergenciaALaFamilia, type Emergencia } from './emergencia'
 import { armarViajeUber, type Viaje } from './uber'
 import { armarPedidoWhatsApp, type Pedido } from './whatsapp'
 
@@ -85,8 +85,8 @@ export async function conversarConElAbuelo(
     if (!resultado.ok) {
       return `Esto necesita permiso de la familia, pero NO se le pudo preguntar (${resultado.motivo}). No se muestra ningún botón. Decile con calma que no pudiste avisarle a la familia y que es mejor que los llame.`
     }
-    aprobacion = { id: resultado.aprobacion.id, familiar: resultado.familiar.nombre }
-    return `Esto necesita permiso de la familia, así que NO se muestra el botón todavía. Ya le mandé un mail a ${resultado.familiar.nombre} para preguntarle. Decile con calma, en una o dos frases, que le preguntaste a ${resultado.familiar.nombre} y que espere un momento: la pantalla le va a avisar sola cuando conteste. No digas que está aprobado.`
+    aprobacion = { id: resultado.aprobacion.id, familiar: resultado.familiar }
+    return `Esto necesita permiso de la familia, así que NO se muestra el botón todavía. Ya le mandé un mail a ${resultado.familiar} para preguntarle. Decile con calma, en una o dos frases, que le preguntaste a ${resultado.familiar} y que espere un momento: la pantalla le va a avisar sola cuando conteste. No digas que está aprobado.`
   }
 
   async function proponerPedido(comercioId: unknown, aclaracion: unknown, pedidoDistinto: unknown): Promise<string> {
@@ -111,12 +111,17 @@ export async function conversarConElAbuelo(
     return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con el pedido a "${comercio.nombre}" (${propuesto.pedido}${propuesto.aclaracion ? `; aclaración: ${propuesto.aclaracion}` : ''}) y un botón verde "Abrir WhatsApp". El mensaje NO está mandado: él toca el botón y después aprieta enviar en WhatsApp. Contáselo en una o dos frases, sin escribir números, links ni precios.`
   }
 
-  function mostrarEmergencia(): string {
-    emergencia = armarEmergencia(configuracion.familiares)
+  async function mostrarEmergencia(): Promise<string> {
+    if (emergencia) return 'Los botones de emergencia ya se están mostrando.'
+    // Además de los botones, el servidor les avisa por mail a los familiares (como máximo uno cada 10 minutos).
+    const loQueDijo = charla.findLast((mensaje) => mensaje.de === 'abuelo')?.texto ?? ''
+    const avisados = await avisarEmergenciaALaFamilia(configuracion, loQueDijo)
+    emergencia = { ...armarEmergencia(configuracion.familiares), ...(avisados.length > 0 && { avisados }) }
     const botones = emergencia.familiar
       ? `dos botones grandes: "Llamar al 911" (rojo) y "Llamar a ${emergencia.familiar.nombre}"`
       : 'un botón grande rojo "Llamar al 911" (no hay teléfono de la familia guardado)'
-    return `Listo: debajo de tu respuesta el abuelo ve ${botones}. Decile en una o dos frases cortas y tranquilas que toque uno de los botones. No des consejos médicos, no nombres remedios y no escribas números de teléfono.`
+    const aviso = avisados.length > 0 ? ` Además, el sistema ya les avisó por mail a ${avisados.join(' y ')}.` : ''
+    return `Listo: debajo de tu respuesta el abuelo ve ${botones}.${aviso} Decile en una o dos frases cortas y tranquilas que toque uno de los botones. No des consejos médicos, no nombres remedios y no escribas números de teléfono.`
   }
 
   async function proponerViaje(lugarId: unknown): Promise<string> {

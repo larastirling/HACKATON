@@ -14,9 +14,9 @@ export default async function PaginaAprobacion({
 }) {
   const { token } = await params
   const { respuesta } = await searchParams
-  const aprobacion = await buscarAprobacionPorToken(token)
+  const encontrado = await buscarAprobacionPorToken(token)
 
-  if (!aprobacion) {
+  if (!encontrado) {
     return (
       <main className="pagina pagina-login">
         <h1>Link no válido</h1>
@@ -25,6 +25,7 @@ export default async function PaginaAprobacion({
     )
   }
 
+  const { aprobacion } = encontrado
   const queEs = aprobacion.que.tipo === 'viaje' ? 'el viaje' : 'el pedido'
   return (
     <main className="pagina pagina-login">
