@@ -80,3 +80,13 @@ Los mails de los familiares no van en el código. Se cargan en **Configuración 
 | `FAMILIAR_2` | mail del segundo familiar |
 
 Si falta alguno, el registro lo dice y se avisa igual al que esté. El registro también dice a quién se mandó cada aviso.
+
+# Subir el código a Apps Script con clasp (sin copiar y pegar)
+
+La carpeta `gmail/` está conectada al proyecto de Apps Script de la cuenta de la demo (`gmail/.clasp.json`). Se suben solo los `.gs` y `appsscript.json` (ver `gmail/.claspignore`).
+
+1. Una sola vez por compu: `npm install -g @google/clasp` y `clasp login` con la cuenta de Gmail de la demo.
+2. Desde la carpeta `gmail/`: `clasp status` muestra qué se va a subir.
+3. `clasp push` sube todo y **reemplaza** el código online por el de `gmail/`. Las Propiedades del script (clave y familiares) no se tocan.
+
+El login queda en `C:\Users\<usuario>\.clasprc.json`, fuera del repo. Nunca subirlo.
