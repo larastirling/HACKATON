@@ -63,7 +63,7 @@ Comercios a los que el abuelo les pide cosas.
 
 | Campo | Qué significa | Obligatorio | Ejemplo |
 |---|---|---|---|
-| `nombre` | Nombre del familiar. | Sí | `"Laura"` |
+| `nombre` | Nombre del familiar. | Sí | `"Inés"` |
 | `relacion` | Qué es del abuelo. | Sí | `"Hija"` |
 | `mail` | Su mail. Lo usa el script de Gmail. | Sí (puede ser `"PENDIENTE"`) | `"laura@example.com"` |
 | `telefono` | Su teléfono, con código de país. | Sí (puede ser `"PENDIENTE"`) | `"+598 9X XXX XXX"` |
@@ -100,23 +100,23 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
   "abuelo": {
     "nombre": "Carlos Pérez",
     "comoLeGustaQueLeHablen": "Don Carlos, de usted",
-    "telefono": "PENDIENTE"
+    "telefono": "+598 92 158 202"
   },
   "lugares": [
     {
       "nombre": "Casa de Laura",
       "apodos": ["lo de Laura", "lo de la nena"],
-      "direccion": "PENDIENTE",
-      "latitud": "PENDIENTE",
-      "longitud": "PENDIENTE",
+      "direccion": "Av. Sarmiento 2640, Montevideo",
+      "latitud": -34.914315,
+      "longitud": -56.1553672,
       "necesitaPermiso": false
     },
     {
       "nombre": "Casa de Sofía",
       "apodos": ["lo de Sofía", "lo de la nena"],
-      "direccion": "PENDIENTE",
-      "latitud": "PENDIENTE",
-      "longitud": "PENDIENTE",
+      "direccion": "José Ellauri 407, 11300 Montevideo",
+      "latitud": -34.9226593,
+      "longitud": -56.1591087,
       "necesitaPermiso": false
     },
     {
@@ -137,8 +137,8 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
     }
   ],
   "familiares": [
-    { "nombre": "Laura", "relacion": "Hija", "mail": "PENDIENTE", "telefono": "PENDIENTE", "orden": 1 },
-    { "nombre": "Sofía", "relacion": "Nieta", "mail": "PENDIENTE", "telefono": "PENDIENTE", "orden": 2 }
+    { "nombre": "Inés", "relacion": "Hija", "mail": "inesbertolotti06@gmail.com", "telefono": "+598 97 412 006", "orden": 1 },
+    { "nombre": "Lara", "relacion": "Hija", "mail": "laristirling29@gmail.com", "telefono": "+598 91 437 402", "orden": 2 }
   ],
   "reglas": {
     "nivel": "Acompañado",
@@ -160,5 +160,6 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
 ### De dónde salieron los datos del ejemplo
 
 - **Montevideo Shopping:** dirección y coordenadas de OpenStreetMap, buscadas con Nominatim ([objeto 37684509](https://www.openstreetmap.org/way/37684509)).
-- **Casa de Laura y Casa de Sofía:** dirección y coordenadas `"PENDIENTE"`. Son casas inventadas para el ejemplo y no tienen una dirección real de la que sacar coordenadas.
-- **Mails y teléfonos** de los familiares, **teléfono** del abuelo y **WhatsApp** de la pizzería: `"PENDIENTE"`. Se completan con datos del equipo.
+- **Casa de Laura** (Av. Sarmiento 2640) y **Casa de Sofía** (José Ellauri 407): las direcciones las pasó el equipo. Las coordenadas son de OpenStreetMap, buscadas con Nominatim, que encontró el número de puerta exacto ([objeto 944843090](https://www.openstreetmap.org/node/944843090) y [objeto 944322391](https://www.openstreetmap.org/node/944322391)).
+- **Teléfono del abuelo** y **mails y teléfonos de los familiares**: los pasó el equipo.
+- **WhatsApp** de la pizzería: `"PENDIENTE"`. Se completa con datos del equipo.

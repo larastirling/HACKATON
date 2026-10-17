@@ -77,23 +77,25 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
   abuelo: {
     nombre: 'Carlos Pérez',
     comoLeGustaQueLeHablen: 'Don Carlos, de usted',
-    telefono: PENDIENTE,
+    telefono: '+598 92 158 202',
   },
   lugares: [
     {
       nombre: 'Casa de Laura',
       apodos: ['lo de Laura', 'lo de la nena'],
-      direccion: PENDIENTE,
-      latitud: PENDIENTE,
-      longitud: PENDIENTE,
+      direccion: 'Av. Sarmiento 2640, Montevideo',
+      // Fuente: OpenStreetMap (Nominatim), objeto node 944843090
+      latitud: -34.914315,
+      longitud: -56.1553672,
       necesitaPermiso: false,
     },
     {
       nombre: 'Casa de Sofía',
       apodos: ['lo de Sofía', 'lo de la nena'],
-      direccion: PENDIENTE,
-      latitud: PENDIENTE,
-      longitud: PENDIENTE,
+      direccion: 'José Ellauri 407, 11300 Montevideo',
+      // Fuente: OpenStreetMap (Nominatim), objeto node 944322391
+      latitud: -34.9226593,
+      longitud: -56.1591087,
       necesitaPermiso: false,
     },
     {
@@ -115,8 +117,8 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
     },
   ],
   familiares: [
-    { nombre: 'Laura', relacion: 'Hija', mail: PENDIENTE, telefono: PENDIENTE, orden: 1 },
-    { nombre: 'Sofía', relacion: 'Nieta', mail: PENDIENTE, telefono: PENDIENTE, orden: 2 },
+    { nombre: 'Inés', relacion: 'Hija', mail: 'inesbertolotti06@gmail.com', telefono: '+598 97 412 006', orden: 1 },
+    { nombre: 'Lara', relacion: 'Hija', mail: 'laristirling29@gmail.com', telefono: '+598 91 437 402', orden: 2 },
   ],
   reglas: {
     nivel: 'Acompañado',
