@@ -1,7 +1,7 @@
 'use server'
 
-import { headers } from 'next/headers'
-import { leerAprobacion, leerConfiguracion } from '@/lib/datos'
+import { actualizarSiVencio } from '@/lib/aprobaciones'
+import { leerAprobacion, leerConfiguracion, marcarAvisadoAlAbuelo } from '@/lib/datos'
 import { armarEmergencia } from '@/lib/emergencia'
 import {
   conversarConElAbuelo,
@@ -12,6 +12,7 @@ import {
   type Viaje,
 } from '@/lib/ia'
 import { leerSesion } from '@/lib/sesion'
+import { urlDeLaApp } from '@/lib/url'
 
 const MAXIMO_MENSAJES = 40
 const MAXIMO_LETRAS = 2000
@@ -42,39 +43,46 @@ export async function responderAlAbuelo(charla: MensajeCharla[]): Promise<Respue
 }
 
 export type EstadoDeLaAprobacion =
-  | { estado: 'esperando' }
-  | { estado: 'aprobado'; viaje?: Viaje; pedido?: Pedido }
+  | { estado: 'esperando'; familiar: string; noContestaron: string[] }
+  | { estado: 'aprobado'; familiar: string; viaje?: Viaje; pedido?: Pedido }
   | { estado: 'rechazado'; familiar: string; llamar?: string }
+  | { estado: 'sin-respuesta'; llamarA?: { nombre: string; link: string } }
   | { estado: 'no-encontrado' }
 
-/** La pantalla del abuelo pregunta esto cada pocos segundos mientras espera a la familia. */
+/**
+ * La pantalla del abuelo pregunta esto cada pocos segundos mientras espera a la familia.
+ * Cada consulta revisa el reloj: si al familiar se le venció el tiempo, se le pregunta al siguiente.
+ */
 export async function consultarAprobacion(id: string): Promise<EstadoDeLaAprobacion> {
   const sesion = await leerSesion()
-  const aprobacion = typeof id === 'string' ? await leerAprobacion(id) : null
+  const guardada = typeof id === 'string' ? await leerAprobacion(id) : null
   // Solo el abuelo de esa familia puede ver su pedido.
-  if (sesion?.rol !== 'abuelo' || !aprobacion || aprobacion.codigoFamilia !== sesion.codigoFamilia) {
+  if (sesion?.rol !== 'abuelo' || !guardada || guardada.codigoFamilia !== sesion.codigoFamilia) {
     return { estado: 'no-encontrado' }
   }
-  if (aprobacion.estado === 'esperando') return { estado: 'esperando' }
+  const configuracion = await leerConfiguracion(sesion.codigoFamilia)
+  if (!configuracion) return { estado: 'no-encontrado' }
+  const aprobacion = await actualizarSiVencio(guardada, configuracion, await urlDeLaApp())
+  const nombres = aprobacion.preguntadoA.map((p) => p.nombre)
+
+  if (aprobacion.estado === 'esperando') {
+    return { estado: 'esperando', familiar: nombres.at(-1) ?? '', noContestaron: nombres.slice(0, -1) }
+  }
+  await marcarAvisadoAlAbuelo(aprobacion.id)
+  const quien = aprobacion.respondidoPor ?? nombres.at(-1) ?? ''
+
   if (aprobacion.estado === 'aprobado') {
     return aprobacion.que.tipo === 'viaje'
-      ? { estado: 'aprobado', viaje: aprobacion.que.viaje }
-      : { estado: 'aprobado', pedido: aprobacion.que.pedido }
+      ? { estado: 'aprobado', familiar: quien, viaje: aprobacion.que.viaje }
+      : { estado: 'aprobado', familiar: quien, pedido: aprobacion.que.pedido }
   }
-  // Rechazado: se le ofrece llamar al familiar al que se le preguntó.
-  const nombre = aprobacion.preguntadoA.at(-1)?.nombre ?? ''
-  const configuracion = await leerConfiguracion(sesion.codigoFamilia)
-  const familiar = configuracion?.familiares.find((f) => f.nombre === nombre)
-  return { estado: 'rechazado', familiar: nombre, llamar: familiar && armarEmergencia([familiar]).familiar?.link }
-}
-
-/** Dirección de la app para los links del mail (URL_APP si está, o la dirección desde donde se abrió). */
-async function urlDeLaApp(): Promise<string> {
-  if (process.env.URL_APP) return process.env.URL_APP
-  const h = await headers()
-  const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000'
-  const protocolo = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https')
-  return `${protocolo}://${host}`
+  if (aprobacion.estado === 'rechazado') {
+    // Se le ofrece llamar al familiar que contestó.
+    const familiar = configuracion.familiares.find((f) => f.nombre === quien)
+    return { estado: 'rechazado', familiar: quien, llamar: familiar && armarEmergencia([familiar]).familiar?.link }
+  }
+  // Nadie contestó a tiempo: se le ofrece llamar al primer familiar.
+  return { estado: 'sin-respuesta', llamarA: armarEmergencia(configuracion.familiares).familiar }
 }
 
 function esCharlaValida(charla: unknown): charla is MensajeCharla[] {

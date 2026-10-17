@@ -4,8 +4,8 @@ import { Fragment, useEffect, useRef, useState, useTransition, type FormEvent, t
 import type { Emergencia, EsperaAprobacion, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
 import { consultarAprobacion, responderAlAbuelo } from './acciones'
 
-export default function Charla() {
-  const [charla, setCharla] = useState<MensajeCharla[]>([])
+export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) {
+  const [charla, setCharla] = useState<MensajeCharla[]>(inicial)
   const [texto, setTexto] = useState('')
   const [hayError, setHayError] = useState(false)
   const [pensando, empezar] = useTransition()
@@ -134,6 +134,9 @@ function BotonesEmergencia({ emergencia }: { emergencia: Emergencia }) {
           📞 Llamar a {emergencia.familiar.nombre}
         </a>
       )}
+      {emergencia.avisados && emergencia.avisados.length > 0 && (
+        <p className="emergencia-avisados">Ya le avisé a {emergencia.avisados.join(' y a ')}.</p>
+      )}
     </section>
   )
 }
@@ -164,6 +167,7 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
 const CADA_CUANTO_CONSULTAR_MS = 4000
 
 // Mientras la familia no contesta, consulta sola cada pocos segundos. Cuando contestan, agrega el mensaje.
+// (El servidor se fija en cada consulta si se le venció el tiempo al familiar y le pregunta al siguiente.)
 function EsperandoAprobacion({
   aprobacion,
   alContestar,
@@ -172,29 +176,48 @@ function EsperandoAprobacion({
   alContestar: (respuesta: MensajeCharla) => void
 }) {
   const [estado, setEstado] = useState<'esperando' | 'contestaron' | 'error'>('esperando')
+  const [cartel, setCartel] = useState(`Le pregunté a ${aprobacion.familiar}, espere un momento...`)
   const yaAvise = useRef(false)
+  // Se guarda en una referencia para que escribir en la caja no reinicie el reloj de las consultas.
+  const avisar = useRef(alContestar)
+  avisar.current = alContestar
 
   useEffect(() => {
     if (estado !== 'esperando') return
     const intervalo = setInterval(async () => {
       try {
         const resultado = await consultarAprobacion(aprobacion.id)
-        if (resultado.estado === 'esperando' || yaAvise.current) return
+        if (yaAvise.current) return
+        if (resultado.estado === 'esperando') {
+          const noContestaron = resultado.noContestaron.length ? `${resultado.noContestaron.join(' ni ')} no contestó, ` : ''
+          const texto = `${noContestaron}le pregunté a ${resultado.familiar}, espere un momento...`
+          return setCartel(texto.charAt(0).toUpperCase() + texto.slice(1))
+        }
         yaAvise.current = true
         if (resultado.estado === 'no-encontrado') return setEstado('error')
         setEstado('contestaron')
-        const quien = aprobacion.familiar
         if (resultado.estado === 'aprobado') {
-          alContestar(
+          const quien = resultado.familiar
+          avisar.current(
             resultado.viaje
               ? { de: 'ia', texto: `${quien} aprobó el viaje. Toque el botón verde para abrir Uber.`, viaje: resultado.viaje }
               : { de: 'ia', texto: `${quien} aprobó el pedido. Toque el botón verde para abrir WhatsApp y después apriete enviar.`, pedido: resultado.pedido },
           )
-        } else {
-          alContestar({
+        } else if (resultado.estado === 'rechazado') {
+          const quien = resultado.familiar
+          avisar.current({
             de: 'ia',
             texto: `${quien} dijo que esta vez no. Quédese tranquilo: si quiere, puede llamar a ${quien} para hablarlo.`,
             ...(resultado.llamar && { llamar: { nombre: quien, link: resultado.llamar } }),
+          })
+        } else {
+          // Nadie contestó a tiempo: no se hace el viaje ni el pedido.
+          avisar.current({
+            de: 'ia',
+            texto: resultado.llamarA
+              ? `Nadie pudo contestar ahora. ¿Quiere llamar a ${resultado.llamarA.nombre}?`
+              : 'Nadie pudo contestar ahora. Pruebe de nuevo en un rato.',
+            ...(resultado.llamarA && { llamar: resultado.llamarA }),
           })
         }
       } catch {
@@ -202,13 +225,13 @@ function EsperandoAprobacion({
       }
     }, CADA_CUANTO_CONSULTAR_MS)
     return () => clearInterval(intervalo)
-  }, [aprobacion, estado, alContestar])
+  }, [aprobacion, estado])
 
   if (estado === 'contestaron') return null
-  if (estado === 'error') return <p className="mensaje-error">No pude saber si {aprobacion.familiar} contestó. Pruebe llamarla.</p>
+  if (estado === 'error') return <p className="mensaje-error">No pude saber si la familia contestó. Pruebe llamarlos.</p>
   return (
     <p className="esperando-aprobacion" role="status">
-      ⏳ Le pregunté a {aprobacion.familiar}, espere un momento...
+      ⏳ {cartel}
     </p>
   )
 }
