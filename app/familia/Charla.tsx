@@ -5,6 +5,7 @@ import { responder, type Guardado, type MensajeCharla } from './acciones'
 import estilos from './charla.module.css'
 import RecuadrosGuardado from './RecuadrosGuardado'
 import TablaReglas from './TablaReglas'
+import BotonConectarGmail from './BotonConectarGmail'
 
 // Primer mensaje (no se muestra): la API necesita que la charla arranque del lado del usuario.
 const INICIO: MensajeCharla = { role: 'user', content: '(Abrí la pantalla para registrar a mi papá o mamá.)' }
@@ -23,7 +24,10 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
     setError(null)
     const r = await responder(historial).catch(() => ({ ok: false as const, error: 'No se pudo hablar con la IA' }))
     if ('guardado' in r && r.guardado) setGuardado(r.guardado)
-    if (r.ok) setMensajes([...historial, { role: 'assistant', content: r.texto, ...('tabla' in r && r.tabla && { tabla: r.tabla }) }])
+    if (r.ok) {
+      const extras = { ...('tabla' in r && r.tabla && { tabla: r.tabla }), ...('gmail' in r && r.gmail && { gmail: r.gmail }) }
+      setMensajes([...historial, { role: 'assistant', content: r.texto, ...extras }])
+    }
     else setError(r.error)
     setPensando(false)
   }
@@ -59,6 +63,7 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
           <Fragment key={i}>
             <p className={`${estilos.burbuja} ${m.role === 'user' ? estilos.yo : estilos.ia}`}>{m.content}</p>
             {m.tabla && <TablaReglas tabla={m.tabla} />}
+            {m.gmail && <BotonConectarGmail texto={`Conectar Gmail de ${m.gmail.mail}`} mail={m.gmail.mail} />}
           </Fragment>
         ))}
         {pensando && <p className={`${estilos.burbuja} ${estilos.ia} ${estilos.pensando}`}>Escribiendo…</p>}

@@ -581,6 +581,34 @@ export async function restaurarFamiliaDemo(): Promise<{ pendientesBorrados: numb
   return { pendientesBorrados }
 }
 
+// ── Conectar Gmail: el viaje a la pantalla de Google (Felipe) ──
+// Clave del plan (docs/plan-gmail-oauth.md): gmail-oauth-estado:<texto al azar>, vence a los 10 minutos.
+// A la vuelta de Google dice de qué familia era, y que nadie la falsificó.
+
+export interface EstadoConexionGmail {
+  codigoFamilia: string
+  /** El Gmail que el hijo dijo en la charla, para avisar si en Google se eligió otro. */
+  mailEsperado?: string
+}
+
+const claveEstadoGmail = (estado: string) => `gmail-oauth-estado:${estado}`
+const DIEZ_MINUTOS_EN_SEGUNDOS = 10 * 60
+
+export async function guardarEstadoConexionGmail(estado: string, datos: EstadoConexionGmail): Promise<void> {
+  const valor = { ...datos, codigoFamilia: normalizarCodigo(datos.codigoFamilia) }
+  if (redis) await redis.set(claveEstadoGmail(estado), valor, { ex: DIEZ_MINUTOS_EN_SEGUNDOS })
+  else memoria.set(claveEstadoGmail(estado), { valor, vence: Date.now() + DIEZ_MINUTOS_EN_SEGUNDOS * 1000 })
+}
+
+/** Lo lee y lo borra: cada estado sirve una sola vez. null si no existe o ya venció. */
+export async function tomarEstadoConexionGmail(estado: string): Promise<EstadoConexionGmail | null> {
+  const clave = claveEstadoGmail(estado)
+  if (redis) return redis.getdel<EstadoConexionGmail>(clave)
+  const guardado = memoria.get(clave) as { valor: EstadoConexionGmail; vence: number } | undefined
+  memoria.delete(clave)
+  return guardado && guardado.vence > Date.now() ? guardado.valor : null
+}
+
 // ── Solo para la página /prueba ─────────────────────────────
 
 export async function probarAlmacenamiento(): Promise<string | null> {
