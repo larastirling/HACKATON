@@ -28,11 +28,23 @@ export default function Respuesta({
   if (!resultado) return <p className="tarjeta">Guardando tu respuesta…</p>
   if (!resultado.ok) return <p className="tarjeta mensaje-error">No se pudo guardar. Probá tocar el botón del mail de nuevo.</p>
 
-  const pedida = respuesta === 'aprobar' ? 'aprobado' : 'rechazado'
-  if (resultado.estado !== pedida) {
+  if ('vencido' in resultado) {
     return (
       <p className="tarjeta">
-        Este pedido ya había sido <strong>{resultado.estado}</strong> antes. No se cambió nada.
+        {resultado.ahoraSeLePreguntaA
+          ? `Este link ya no sirve: como pasaron ${resultado.tiempo} sin respuesta, ahora le preguntamos a ${resultado.ahoraSeLePreguntaA}.`
+          : `Este link ya venció: pasaron ${resultado.tiempo} sin respuesta y ${queEs} quedó sin hacer.`}{' '}
+        No se cambió nada.
+      </p>
+    )
+  }
+
+  const pedida = respuesta === 'aprobar' ? 'aprobado' : 'rechazado'
+  if (resultado.estado !== pedida || !resultado.fuisteVos) {
+    return (
+      <p className="tarjeta">
+        Este pedido ya había sido <strong>{resultado.estado}</strong>
+        {resultado.respondidoPor ? ` por ${resultado.respondidoPor}` : ''} antes. No se cambió nada.
       </p>
     )
   }

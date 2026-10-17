@@ -289,19 +289,46 @@ function revisarLista<T>(
   })
 }
 
+// ── Candados ────────────────────────────────────────────────
+// Para que algo pase UNA sola vez aunque dos pedidos lleguen al mismo tiempo
+// (por ejemplo: dos respuestas al mismo mail, o un aviso de emergencia cada 10 minutos).
+
+/** Devuelve true solo para el primero que lo pide. Si se pasa `segundos`, se libera solo después. */
+export async function tomarCandado(clave: string, segundos?: number): Promise<boolean> {
+  if (redis) {
+    return (await redis.set(`candado:${clave}`, 1, segundos ? { nx: true, ex: segundos } : { nx: true })) === 'OK'
+  }
+  const vence = memoria.get(`candado:${clave}`) as number | undefined
+  if (vence !== undefined && vence > Date.now()) return false
+  memoria.set(`candado:${clave}`, segundos ? Date.now() + segundos * 1000 : Infinity)
+  return true
+}
+
+export async function soltarCandado(clave: string): Promise<void> {
+  if (redis) await redis.del(`candado:${clave}`)
+  else memoria.delete(`candado:${clave}`)
+}
+
 // ── Pedidos de aprobación a la familia ──────────────────────
 // Cuando el abuelo pide algo que necesita permiso, se guarda acá hasta que la familia conteste.
+// Se le pregunta a un familiar por vez (ver lib/aprobaciones.ts); cada uno recibe su propio link.
 
-export type EstadoAprobacion = 'esperando' | 'aprobado' | 'rechazado'
+export type EstadoAprobacion = 'esperando' | 'aprobado' | 'rechazado' | 'sin-respuesta'
 
 /** Lo que queda listo para mostrarle al abuelo si la familia aprueba. */
 export type QueSePidio = { tipo: 'viaje'; viaje: Viaje } | { tipo: 'pedido'; pedido: Pedido }
 
+export interface PreguntaAFamiliar {
+  nombre: string
+  mail: string
+  enviadoEl: string
+  /** Código secreto de los links de SU mail. Solo sirve mientras sea la última pregunta. */
+  token: string
+}
+
 export interface PedidoDeAprobacion {
   /** Id para que la pantalla del abuelo consulte el estado. */
   id: string
-  /** Código secreto de los links del mail (Aprobar / Rechazar). */
-  token: string
   codigoFamilia: string
   /** Frase para el mail, por ejemplo "Carlos quiere ir a Montevideo Shopping". */
   descripcion: string
@@ -309,13 +336,17 @@ export interface PedidoDeAprobacion {
   creadoEl: string
   estado: EstadoAprobacion
   respondidoEl?: string
-  /** A quién se le preguntó, en orden. La tarea 9 suma acá al segundo familiar. */
-  preguntadoA: { nombre: string; mail: string; enviadoEl: string }[]
+  /** Quién aprobó o rechazó. */
+  respondidoPor?: string
+  /** A quién se le preguntó, en orden. El último es al que se está esperando. */
+  preguntadoA: PreguntaAFamiliar[]
+  /** Si el abuelo ya vio el resultado (para no mostrárselo de nuevo al volver a abrir la pantalla). */
+  avisadoAlAbuelo?: boolean
 }
 
 const claveAprobacion = (id: string) => `aprobacion:${id}`
 const claveToken = (token: string) => `aprobacion-token:${token}`
-const claveRespuesta = (id: string) => `aprobacion-respuesta:${id}`
+const claveUltima = (codigoFamilia: string) => `aprobacion-ultima:${normalizarCodigo(codigoFamilia)}`
 
 export async function crearAprobacion(
   datos: Pick<PedidoDeAprobacion, 'codigoFamilia' | 'descripcion' | 'que'>,
@@ -323,13 +354,12 @@ export async function crearAprobacion(
   const aprobacion: PedidoDeAprobacion = {
     ...datos,
     id: randomBytes(16).toString('hex'),
-    token: randomBytes(32).toString('base64url'), // imposible de adivinar
     creadoEl: new Date().toISOString(),
     estado: 'esperando',
     preguntadoA: [],
   }
   await guardar(claveAprobacion(aprobacion.id), aprobacion)
-  await guardar(claveToken(aprobacion.token), aprobacion.id)
+  await guardar(claveUltima(aprobacion.codigoFamilia), aprobacion.id)
   return aprobacion
 }
 
@@ -337,40 +367,61 @@ export async function leerAprobacion(id: string): Promise<PedidoDeAprobacion | n
   return leer<PedidoDeAprobacion>(claveAprobacion(id))
 }
 
-export async function buscarAprobacionPorToken(token: string): Promise<PedidoDeAprobacion | null> {
-  const id = await leer<string>(claveToken(token))
+/** El último pedido de aprobación de la familia (para retomarlo si el abuelo vuelve a abrir la pantalla). */
+export async function leerUltimaAprobacion(codigoFamilia: string): Promise<PedidoDeAprobacion | null> {
+  const id = await leer<string>(claveUltima(codigoFamilia))
   return id ? leerAprobacion(id) : null
 }
 
-/** Anota a quién se le preguntó (y cuándo). */
-export async function anotarPregunta(id: string, familiar: { nombre: string; mail: string }): Promise<void> {
+/** Busca el pedido por el código de un link del mail. `vigente` es false si ese link ya no es el último. */
+export async function buscarAprobacionPorToken(
+  token: string,
+): Promise<{ aprobacion: PedidoDeAprobacion; pregunta: PreguntaAFamiliar; vigente: boolean } | null> {
+  const id = await leer<string>(claveToken(token))
+  const aprobacion = id ? await leerAprobacion(id) : null
+  const pregunta = aprobacion?.preguntadoA.find((p) => p.token === token)
+  if (!aprobacion || !pregunta) return null
+  return { aprobacion, pregunta, vigente: aprobacion.preguntadoA.at(-1)?.token === token }
+}
+
+/** Anota que se le pregunta a un familiar y devuelve el código secreto para SU mail. */
+export async function anotarPregunta(id: string, familiar: { nombre: string; mail: string }): Promise<string | null> {
   const aprobacion = await leerAprobacion(id)
-  if (!aprobacion) return
-  aprobacion.preguntadoA.push({ ...familiar, enviadoEl: new Date().toISOString() })
+  if (!aprobacion) return null
+  const token = randomBytes(32).toString('base64url') // imposible de adivinar
+  aprobacion.preguntadoA.push({ ...familiar, enviadoEl: new Date().toISOString(), token })
   await guardar(claveAprobacion(id), aprobacion)
+  await guardar(claveToken(token), id)
+  return token
 }
 
 /**
- * Guarda la respuesta de la familia. Solo cuenta la PRIMERA respuesta:
- * si tocan el link dos veces (o los dos botones), no cambia nada.
+ * Cierra el pedido: aprobado, rechazado o sin respuesta. Solo cuenta la PRIMERA vez:
+ * si tocan el link dos veces, o justo vence el tiempo, no cambia nada.
  */
-export async function responderAprobacion(
+export async function cerrarAprobacion(
   id: string,
-  respuesta: 'aprobado' | 'rechazado',
+  estado: Exclude<EstadoAprobacion, 'esperando'>,
+  respondidoPor?: string,
 ): Promise<{ aprobacion: PedidoDeAprobacion; cambio: boolean } | null> {
   const aprobacion = await leerAprobacion(id)
   if (!aprobacion) return null
-  if (aprobacion.estado !== 'esperando') return { aprobacion, cambio: false }
+  if (aprobacion.estado !== 'esperando' || !(await tomarCandado(`aprobacion-cierre:${id}`))) {
+    return { aprobacion: (await leerAprobacion(id)) ?? aprobacion, cambio: false }
+  }
+  const cerrada: PedidoDeAprobacion = {
+    ...aprobacion,
+    estado,
+    respondidoEl: new Date().toISOString(),
+    ...(respondidoPor && { respondidoPor }),
+  }
+  await guardar(claveAprobacion(id), cerrada)
+  return { aprobacion: cerrada, cambio: true }
+}
 
-  // Candado: si dos respuestas llegan al mismo tiempo, solo una gana.
-  const gane = redis
-    ? (await redis.set(claveRespuesta(id), respuesta, { nx: true })) === 'OK'
-    : !memoria.has(claveRespuesta(id)) && Boolean(memoria.set(claveRespuesta(id), respuesta))
-  if (!gane) return { aprobacion: (await leerAprobacion(id)) ?? aprobacion, cambio: false }
-
-  const respondida: PedidoDeAprobacion = { ...aprobacion, estado: respuesta, respondidoEl: new Date().toISOString() }
-  await guardar(claveAprobacion(id), respondida)
-  return { aprobacion: respondida, cambio: true }
+export async function marcarAvisadoAlAbuelo(id: string): Promise<void> {
+  const aprobacion = await leerAprobacion(id)
+  if (aprobacion && !aprobacion.avisadoAlAbuelo) await guardar(claveAprobacion(id), { ...aprobacion, avisadoAlAbuelo: true })
 }
 
 // ── Solo para la página /prueba ─────────────────────────────
