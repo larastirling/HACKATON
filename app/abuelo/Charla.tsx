@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from 'react'
-import type { MensajeCharla, Viaje } from '@/lib/ia'
+import type { Emergencia, MensajeCharla, Viaje } from '@/lib/ia'
 import { responderAlAbuelo } from './acciones'
 
 export default function Charla() {
@@ -29,8 +29,10 @@ export default function Charla() {
     empezar(async () => {
       try {
         const respuesta = await responderAlAbuelo(nuevaCharla)
-        if (respuesta.ok) setCharla([...nuevaCharla, { de: 'ia', texto: respuesta.texto, viaje: respuesta.viaje }])
-        else setHayError(true)
+        if (respuesta.ok) {
+          const { texto, viaje, emergencia } = respuesta
+          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia }])
+        } else setHayError(true)
       } catch {
         setHayError(true)
       }
@@ -56,6 +58,7 @@ export default function Charla() {
               <span className="burbuja-quien">{mensaje.de === 'abuelo' ? 'Usted' : 'Asistente'}</span>
               {mensaje.texto}
             </p>
+            {mensaje.emergencia && <BotonesEmergencia emergencia={mensaje.emergencia} />}
             {mensaje.viaje && <TarjetaViaje viaje={mensaje.viaje} />}
           </Fragment>
         ))}
@@ -107,6 +110,22 @@ function TarjetaViaje({ viaje }: { viaje: Viaje }) {
       <a className="boton boton-uber" href={viaje.link} target="_blank" rel="noopener noreferrer">
         Abrir Uber
       </a>
+    </section>
+  )
+}
+
+// Botones para llamar. Los teléfonos salen de la configuración, nunca de la IA.
+function BotonesEmergencia({ emergencia }: { emergencia: Emergencia }) {
+  return (
+    <section className="botones-emergencia" aria-label="Botones de emergencia">
+      <a className="boton boton-emergencia boton-911" href="tel:911">
+        📞 Llamar al 911
+      </a>
+      {emergencia.familiar && (
+        <a className="boton boton-emergencia boton-familiar" href={emergencia.familiar.link}>
+          📞 Llamar a {emergencia.familiar.nombre}
+        </a>
+      )}
     </section>
   )
 }

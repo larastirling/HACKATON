@@ -1,6 +1,7 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import type { ConfiguracionAbuelo } from './datos'
+import { armarEmergencia, type Emergencia } from './emergencia'
 import { armarViajeUber, type Viaje } from './uber'
 
 // ÚNICO lugar donde se habla con la IA. Solo corre en el servidor:
@@ -16,9 +17,11 @@ export interface MensajeCharla {
   texto: string
   /** Si la IA propuso un viaje, la tarjeta con el botón de Uber. */
   viaje?: Viaje
+  /** Si la IA vio un posible problema de salud, los botones para llamar. */
+  emergencia?: Emergencia
 }
 
-export type { Viaje }
+export type { Emergencia, Viaje }
 
 /** Pregunta suelta, sin charla (la usa /prueba). */
 export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
@@ -40,15 +43,25 @@ export async function charlarConLaIA(
 
 /**
  * Charla del abuelo: manda TODA la charla y las instrucciones armadas con su configuración.
- * La IA puede usar la herramienta proponer_viaje: solo elige el id del lugar y el servidor
- * arma el link de Uber con las coordenadas guardadas.
+ * Herramientas de la IA (el servidor arma todo con los datos guardados; la IA solo decide):
+ * - proponer_viaje: elige el id del lugar y el servidor arma el link de Uber.
+ * - mostrar_emergencia: el servidor muestra los botones para llamar al 911 y al primer familiar.
  */
 export async function conversarConElAbuelo(
   configuracion: ConfiguracionAbuelo,
   charla: MensajeCharla[],
-): Promise<RespuestaIA & { viaje?: Viaje }> {
+): Promise<RespuestaIA & { viaje?: Viaje; emergencia?: Emergencia }> {
   const lugares = configuracion.lugares.map((lugar, i) => ({ id: `lugar-${i + 1}`, ...lugar }))
   let viaje: Viaje | undefined
+  let emergencia: Emergencia | undefined
+
+  function mostrarEmergencia(): string {
+    emergencia = armarEmergencia(configuracion.familiares)
+    const botones = emergencia.familiar
+      ? `dos botones grandes: "Llamar al 911" (rojo) y "Llamar a ${emergencia.familiar.nombre}"`
+      : 'un botón grande rojo "Llamar al 911" (no hay teléfono de la familia guardado)'
+    return `Listo: debajo de tu respuesta el abuelo ve ${botones}. Decile en una o dos frases cortas y tranquilas que toque uno de los botones. No des consejos médicos, no nombres remedios y no escribas números de teléfono.`
+  }
 
   function proponerViaje(lugarId: unknown): string {
     const lugar = lugares.find((l) => l.id === lugarId)
@@ -70,13 +83,33 @@ export async function conversarConElAbuelo(
       role: mensaje.de === 'abuelo' ? ('user' as const) : ('assistant' as const),
       content: mensaje.texto,
     })),
-    tools: lugares.length > 0 ? [herramientaProponerViaje(lugares.map((l) => l.id))] : undefined,
-    usarHerramienta: (bloque) =>
-      bloque.name === 'proponer_viaje'
-        ? proponerViaje((bloque.input as { lugar_id?: unknown }).lugar_id)
-        : `No existe la herramienta "${bloque.name}".`,
+    tools: [
+      HERRAMIENTA_MOSTRAR_EMERGENCIA,
+      ...(lugares.length > 0 ? [herramientaProponerViaje(lugares.map((l) => l.id))] : []),
+    ],
+    usarHerramienta: (bloque) => {
+      if (bloque.name === 'mostrar_emergencia') return mostrarEmergencia()
+      if (bloque.name === 'proponer_viaje') return proponerViaje((bloque.input as { lugar_id?: unknown }).lugar_id)
+      return `No existe la herramienta "${bloque.name}".`
+    },
   })
-  return respuesta.ok && viaje ? { ...respuesta, viaje } : respuesta
+  return respuesta.ok ? { ...respuesta, ...(viaje && { viaje }), ...(emergencia && { emergencia }) } : respuesta
+}
+
+const HERRAMIENTA_MOSTRAR_EMERGENCIA: Anthropic.Beta.BetaTool = {
+  name: 'mostrar_emergencia',
+  description:
+    'Muestra al abuelo dos botones grandes: "Llamar al 911" y "Llamar" a su primer familiar (los teléfonos los pone el sistema). ' +
+    'Usala cuando lo que dice PUEDE ser un problema de salud o una emergencia. Ante la duda, usala.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      motivo: { type: 'string', description: 'En pocas palabras, qué le pasa (no se le muestra al abuelo).' },
+    },
+    required: ['motivo'],
+    additionalProperties: false,
+  },
+  strict: true,
 }
 
 function herramientaProponerViaje(ids: string[]): Anthropic.Beta.BetaTool {
@@ -130,12 +163,19 @@ Podés proponerle un viaje en Uber a un lugar GUARDADO con la herramienta propon
 - Si quiere ir a un lugar que no está guardado, no lo busques ni inventes nada: decile que ese lugar no lo tenés anotado y que le pida a la familia que lo agregue.
 - Nunca escribas links ni coordenadas.
 
+SALUD Y EMERGENCIAS
+Pensá en cada mensaje si lo que cuenta PUEDE ser un problema de salud o una emergencia: sentirse mal, una caída, dolor (en el pecho o en cualquier parte), mareos, falta de aire, confusión, un golpe, no poder levantarse, etc. No te guíes por palabras sueltas: razoná qué le está pasando.
+- Si puede serlo, usá la herramienta mostrar_emergencia. Ante la duda, usala: es mejor mostrar los botones de más que de menos.
+- Si dice que se siente bien o habla de otra cosa, no la uses.
+- Cuando la uses, tu respuesta tiene que ser corta y tranquila: decile que toque uno de los botones. No des consejos médicos, no nombres remedios y no escribas números de teléfono (los botones ya los tienen).
+- Si además pide otra cosa (por ejemplo un viaje), podés ayudarlo con eso también.
+
 LO QUE TODAVÍA NO PODÉS HACER
 Todavía no podés pedir el auto vos, mandar mensajes de WhatsApp, mandar mails, llamar por teléfono, hacer pedidos, avisarle a la familia ni pedirle permiso. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
 Nunca ofrezcas ni digas que hiciste algo que no podés hacer desde esta charla (como anotar algo en un papel).
 
 REGLAS QUE NUNCA SE APAGAN
-- Nunca des consejos médicos ni recomiendes remedios o dosis. Sugerí con cariño consultar a un médico o hablar con la familia. Si parece algo grave o urgente, decile que llame al 911 enseguida.
+- Nunca des consejos médicos ni recomiendes remedios o dosis. Si es algo de salud, usá mostrar_emergencia y sugerí con cariño llamar al 911 o a la familia.
 - Nunca ayudes a mandar ni transferir plata. Si alguien le pide plata, decile que es mejor hablarlo primero con la familia.
 - Si algo parece una estafa (alguien que se hace pasar por el banco y pide códigos, claves o datos; premios; urgencias de plata), decile claramente que no dé ningún dato ni código, que corte, y que lo hable con la familia.
 - Nunca inventes direcciones, teléfonos ni coordenadas. Usá solo los que figuran en la configuración; si no está, decí que no lo tenés.
