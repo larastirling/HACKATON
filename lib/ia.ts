@@ -39,8 +39,9 @@ export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
 export async function charlarConLaIA(
   instrucciones: string | undefined,
   mensajes: Anthropic.MessageParam[],
+  herramientas?: Pick<Parameters<typeof llamarALaIA>[0], 'tools' | 'usarHerramienta'>,
 ): Promise<RespuestaIA> {
-  return llamarALaIA({ system: instrucciones, messages: mensajes })
+  return llamarALaIA({ system: instrucciones, messages: mensajes, ...herramientas })
 }
 
 /**
@@ -246,8 +247,8 @@ async function llamarALaIA(pedido: {
   system?: string
   messages: Anthropic.Beta.BetaMessageParam[]
   tools?: Anthropic.Beta.BetaTool[]
-  /** Ejecuta una herramienta que pidió la IA y devuelve el resultado en texto. */
-  usarHerramienta?: (bloque: Anthropic.Beta.BetaToolUseBlock) => string
+  /** Ejecuta una herramienta que pidió la IA y devuelve el resultado en texto (puede tardar, ej. buscar en el mapa). */
+  usarHerramienta?: (bloque: Anthropic.Beta.BetaToolUseBlock) => string | Promise<string>
 }): Promise<RespuestaIA> {
   if (!process.env.ANTHROPIC_API_KEY) {
     return { ok: false, error: 'Falta la clave de la IA' }
@@ -277,12 +278,13 @@ async function llamarALaIA(pedido: {
       if (respuesta.stop_reason === 'tool_use' && pedido.usarHerramienta) {
         const usarHerramienta = pedido.usarHerramienta
         mensajes.push({ role: 'assistant', content: respuesta.content })
-        mensajes.push({
-          role: 'user',
-          content: respuesta.content
-            .filter((bloque) => bloque.type === 'tool_use')
-            .map((bloque) => ({ type: 'tool_result', tool_use_id: bloque.id, content: usarHerramienta(bloque) })),
-        })
+        // De a una, en orden: así dos lugares guardados en la misma vuelta no se pisan.
+        const resultados: Anthropic.Beta.BetaToolResultBlockParam[] = []
+        for (const bloque of respuesta.content) {
+          if (bloque.type !== 'tool_use') continue
+          resultados.push({ type: 'tool_result', tool_use_id: bloque.id, content: await usarHerramienta(bloque) })
+        }
+        mensajes.push({ role: 'user', content: resultados })
         continue
       }
 

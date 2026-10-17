@@ -136,7 +136,10 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
 const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL
 const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN
 const redis = url && token ? new Redis({ url, token }) : null
-const memoria = new Map<string, unknown>()
+// Guardada en globalThis: Next.js carga este archivo por separado para las páginas y para /api,
+// y sin esto cada uno tendría su propia memoria (lo que guarda /familia no lo vería /api/configuracion).
+const global = globalThis as typeof globalThis & { memoriaAsistente?: Map<string, unknown> }
+const memoria = (global.memoriaAsistente ??= new Map<string, unknown>())
 
 export const modoAlmacenamiento: 'redis' | 'memoria' = redis ? 'redis' : 'memoria'
 
