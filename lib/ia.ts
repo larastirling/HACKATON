@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import type { ConfiguracionAbuelo } from './datos'
 import { armarEmergencia, type Emergencia } from './emergencia'
 import { armarViajeUber, type Viaje } from './uber'
+import { armarPedidoWhatsApp, type Pedido } from './whatsapp'
 
 // ÚNICO lugar donde se habla con la IA. Solo corre en el servidor:
 // la clave ANTHROPIC_API_KEY nunca llega al navegador.
@@ -19,9 +20,11 @@ export interface MensajeCharla {
   viaje?: Viaje
   /** Si la IA vio un posible problema de salud, los botones para llamar. */
   emergencia?: Emergencia
+  /** Si la IA propuso un pedido, la tarjeta con el botón de WhatsApp. */
+  pedido?: Pedido
 }
 
-export type { Emergencia, Viaje }
+export type { Emergencia, Pedido, Viaje }
 
 /** Pregunta suelta, sin charla (la usa /prueba). */
 export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
@@ -46,14 +49,28 @@ export async function charlarConLaIA(
  * Herramientas de la IA (el servidor arma todo con los datos guardados; la IA solo decide):
  * - proponer_viaje: elige el id del lugar y el servidor arma el link de Uber.
  * - mostrar_emergencia: el servidor muestra los botones para llamar al 911 y al primer familiar.
+ * - proponer_pedido: elige el id del comercio (y una aclaración) y el servidor arma el link de WhatsApp.
  */
 export async function conversarConElAbuelo(
   configuracion: ConfiguracionAbuelo,
   charla: MensajeCharla[],
-): Promise<RespuestaIA & { viaje?: Viaje; emergencia?: Emergencia }> {
+): Promise<RespuestaIA & { viaje?: Viaje; emergencia?: Emergencia; pedido?: Pedido }> {
   const lugares = configuracion.lugares.map((lugar, i) => ({ id: `lugar-${i + 1}`, ...lugar }))
+  const comercios = configuracion.comercios.map((comercio, i) => ({ id: `comercio-${i + 1}`, ...comercio }))
   let viaje: Viaje | undefined
   let emergencia: Emergencia | undefined
+  let pedido: Pedido | undefined
+
+  function proponerPedido(comercioId: unknown, aclaracion: unknown): string {
+    const comercio = comercios.find((c) => c.id === comercioId)
+    if (!comercio) return 'Ese id no corresponde a ningún comercio guardado. No inventes comercios.'
+    const propuesto = armarPedidoWhatsApp(comercio, configuracion.abuelo, typeof aclaracion === 'string' ? aclaracion : '')
+    if (!propuesto) {
+      return `NO se puede armar el pedido: a "${comercio.nombre}" le falta el número de WhatsApp. Decile que ese comercio no tiene el número anotado y que le pida a la familia que lo agregue.`
+    }
+    pedido = propuesto
+    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con el pedido a "${comercio.nombre}" (${propuesto.pedido}${propuesto.aclaracion ? `; aclaración: ${propuesto.aclaracion}` : ''}) y un botón verde "Abrir WhatsApp". El mensaje NO está mandado: él toca el botón y después aprieta enviar en WhatsApp. Contáselo en una o dos frases, sin escribir números, links ni precios.`
+  }
 
   function mostrarEmergencia(): string {
     emergencia = armarEmergencia(configuracion.familiares)
@@ -78,7 +95,7 @@ export async function conversarConElAbuelo(
   }
 
   const respuesta = await llamarALaIA({
-    system: instruccionesParaElAbuelo(configuracion, lugares),
+    system: instruccionesParaElAbuelo(configuracion, lugares, comercios),
     messages: charla.map((mensaje) => ({
       role: mensaje.de === 'abuelo' ? ('user' as const) : ('assistant' as const),
       content: mensaje.texto,
@@ -86,14 +103,42 @@ export async function conversarConElAbuelo(
     tools: [
       HERRAMIENTA_MOSTRAR_EMERGENCIA,
       ...(lugares.length > 0 ? [herramientaProponerViaje(lugares.map((l) => l.id))] : []),
+      ...(comercios.length > 0 ? [herramientaProponerPedido(comercios.map((c) => c.id))] : []),
     ],
     usarHerramienta: (bloque) => {
       if (bloque.name === 'mostrar_emergencia') return mostrarEmergencia()
       if (bloque.name === 'proponer_viaje') return proponerViaje((bloque.input as { lugar_id?: unknown }).lugar_id)
+      if (bloque.name === 'proponer_pedido') {
+        const { comercio_id, aclaracion } = bloque.input as { comercio_id?: unknown; aclaracion?: unknown }
+        return proponerPedido(comercio_id, aclaracion)
+      }
       return `No existe la herramienta "${bloque.name}".`
     },
   })
-  return respuesta.ok ? { ...respuesta, ...(viaje && { viaje }), ...(emergencia && { emergencia }) } : respuesta
+  if (!respuesta.ok) return respuesta
+  return { ...respuesta, ...(viaje && { viaje }), ...(emergencia && { emergencia }), ...(pedido && { pedido }) }
+}
+
+function herramientaProponerPedido(ids: string[]): Anthropic.Beta.BetaTool {
+  return {
+    name: 'proponer_pedido',
+    description:
+      'Le muestra al abuelo una tarjeta con su pedido habitual a un comercio GUARDADO y un botón para abrir WhatsApp con el mensaje listo. ' +
+      'No manda nada: él toca el botón y aprieta enviar. Usala solo cuando esté claro a qué comercio guardado le quiere pedir.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        comercio_id: { type: 'string', enum: ids, description: 'El id del comercio guardado (por ejemplo "comercio-1").' },
+        aclaracion: {
+          type: 'string',
+          description: 'Un cambio corto que pidió el abuelo sobre su pedido habitual (por ejemplo "sin aceitunas"). Texto vacío si no pidió cambios.',
+        },
+      },
+      required: ['comercio_id', 'aclaracion'],
+      additionalProperties: false,
+    },
+    strict: true,
+  }
 }
 
 const HERRAMIENTA_MOSTRAR_EMERGENCIA: Anthropic.Beta.BetaTool = {
@@ -133,12 +178,14 @@ function herramientaProponerViaje(ids: string[]): Anthropic.Beta.BetaTool {
 function instruccionesParaElAbuelo(
   configuracion: ConfiguracionAbuelo,
   lugares: ({ id: string } & ConfiguracionAbuelo['lugares'][number])[],
+  comercios: ({ id: string } & ConfiguracionAbuelo['comercios'][number])[],
 ): string {
   const { abuelo, reglas } = configuracion
-  // La IA no recibe las coordenadas: nunca las necesita y así no las puede escribir.
+  // La IA no recibe coordenadas ni números de WhatsApp: nunca los necesita y así no los puede escribir.
   const configuracionParaLaIA = {
     ...configuracion,
     lugares: lugares.map(({ id, nombre, apodos, direccion, necesitaPermiso }) => ({ id, nombre, apodos, direccion, necesitaPermiso })),
+    comercios: comercios.map(({ id, nombre, apodos, pedidoHabitual }) => ({ id, nombre, apodos, pedidoHabitual })),
   }
   return `Sos el "Asistente de confianza" de ${abuelo.nombre}, una persona mayor que no sabe usar tecnología. Te escribe desde el celular.
 
@@ -163,6 +210,13 @@ Podés proponerle un viaje en Uber a un lugar GUARDADO con la herramienta propon
 - Si quiere ir a un lugar que no está guardado, no lo busques ni inventes nada: decile que ese lugar no lo tenés anotado y que le pida a la familia que lo agregue.
 - Nunca escribas links ni coordenadas.
 
+PEDIDOS POR WHATSAPP
+Podés proponerle un pedido a un comercio GUARDADO con la herramienta proponer_pedido, pasando el id del comercio y, si pidió algún cambio chico sobre su pedido habitual (por ejemplo "sin aceitunas"), una aclaración corta. La pantalla le muestra una tarjeta con el pedido y un botón "Abrir WhatsApp" con el mensaje listo; él toca el botón y después aprieta enviar en WhatsApp. Vos nunca mandás nada.
+- Usala solo cuando quede claro a qué comercio guardado le quiere pedir (por nombre o apodo, como "lo de siempre"). Si no está claro, preguntale.
+- El pedido es siempre su pedido habitual, con la aclaración si la hay. Respetá las reglas de la configuración: si algo necesita aprobación de la familia, no lo propongas y explicale con amabilidad que primero hay que avisarle a la familia.
+- Si quiere pedir a un comercio que no está guardado (o algo que no vende ninguno de sus comercios), no lo busques ni inventes nada: decile que ese comercio no lo tenés anotado y que le pida a la familia que lo agregue.
+- Nunca escribas números, links ni precios (no los sabemos).
+
 SALUD Y EMERGENCIAS
 Pensá en cada mensaje si lo que cuenta PUEDE ser un problema de salud o una emergencia: sentirse mal, una caída, dolor (en el pecho o en cualquier parte), mareos, falta de aire, confusión, un golpe, no poder levantarse, etc. No te guíes por palabras sueltas: razoná qué le está pasando.
 - Si puede serlo, usá la herramienta mostrar_emergencia. Ante la duda, usala: es mejor mostrar los botones de más que de menos.
@@ -171,7 +225,7 @@ Pensá en cada mensaje si lo que cuenta PUEDE ser un problema de salud o una eme
 - Si además pide otra cosa (por ejemplo un viaje), podés ayudarlo con eso también.
 
 LO QUE TODAVÍA NO PODÉS HACER
-Todavía no podés pedir el auto vos, mandar mensajes de WhatsApp, mandar mails, llamar por teléfono, hacer pedidos, avisarle a la familia ni pedirle permiso. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
+Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails, llamar por teléfono, avisarle a la familia ni pedirle permiso. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
 Nunca ofrezcas ni digas que hiciste algo que no podés hacer desde esta charla (como anotar algo en un papel).
 
 REGLAS QUE NUNCA SE APAGAN

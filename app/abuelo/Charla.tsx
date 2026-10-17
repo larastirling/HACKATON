@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from 'react'
-import type { Emergencia, MensajeCharla, Viaje } from '@/lib/ia'
+import type { Emergencia, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
 import { responderAlAbuelo } from './acciones'
 
 export default function Charla() {
@@ -30,8 +30,8 @@ export default function Charla() {
       try {
         const respuesta = await responderAlAbuelo(nuevaCharla)
         if (respuesta.ok) {
-          const { texto, viaje, emergencia } = respuesta
-          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia }])
+          const { texto, viaje, emergencia, pedido } = respuesta
+          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, pedido }])
         } else setHayError(true)
       } catch {
         setHayError(true)
@@ -60,6 +60,7 @@ export default function Charla() {
             </p>
             {mensaje.emergencia && <BotonesEmergencia emergencia={mensaje.emergencia} />}
             {mensaje.viaje && <TarjetaViaje viaje={mensaje.viaje} />}
+            {mensaje.pedido && <TarjetaPedido pedido={mensaje.pedido} />}
           </Fragment>
         ))}
 
@@ -126,6 +127,29 @@ function BotonesEmergencia({ emergencia }: { emergencia: Emergencia }) {
           📞 Llamar a {emergencia.familiar.nombre}
         </a>
       )}
+    </section>
+  )
+}
+
+// Tarjeta con el pedido y el botón de WhatsApp. El mensaje lo manda el abuelo, nunca se manda solo.
+function TarjetaPedido({ pedido }: { pedido: Pedido }) {
+  return (
+    <section className="tarjeta-viaje" aria-label={`Pedido a ${pedido.comercio}`}>
+      <p className="tarjeta-viaje-titulo">🛵 Pedido a</p>
+      <p className="tarjeta-viaje-destino">{pedido.comercio}</p>
+      <p className="tarjeta-viaje-direccion">
+        {pedido.pedido}
+        {pedido.aclaracion && (
+          <>
+            <br />
+            <strong>Aclaración:</strong> {pedido.aclaracion}
+          </>
+        )}
+      </p>
+      <a className="boton boton-uber" href={pedido.link} target="_blank" rel="noopener noreferrer">
+        Abrir WhatsApp
+      </a>
+      <p className="tarjeta-viaje-ayuda">Después toque “Enviar” en WhatsApp.</p>
     </section>
   )
 }

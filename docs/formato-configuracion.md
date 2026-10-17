@@ -34,6 +34,7 @@ En el código, el formato está en `lib/datos.ts`. Ese archivo es el único que 
 | `nombre` | Nombre y apellido. | Sí | `"Carlos Pérez"` |
 | `comoLeGustaQueLeHablen` | Cómo prefiere que le hable la IA: el nombre que usa y si de "vos" o de "usted". | Sí | `"Don Carlos, de usted"` |
 | `telefono` | Su teléfono, con código de país. | Sí (puede ser `"PENDIENTE"`) | `"+598 9X XXX XXX"` |
+| `direccion` | Dónde vive: calle, número y ciudad. Se pone en los pedidos por WhatsApp para que sepan a dónde llevar. **No inventarla.** | Sí (puede ser `"PENDIENTE"`) | `"Calle 1234, Montevideo"` |
 
 ## 3. Lugares (`lugares`) — una lista
 
@@ -100,7 +101,8 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
   "abuelo": {
     "nombre": "Carlos Pérez",
     "comoLeGustaQueLeHablen": "Don Carlos, de usted",
-    "telefono": "+598 92 158 202"
+    "telefono": "+598 92 158 202",
+    "direccion": "Costa Rica 621, Montevideo"
   },
   "lugares": [
     {
@@ -161,4 +163,4 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
 
 - **Montevideo Shopping:** dirección y coordenadas de OpenStreetMap, buscadas con Nominatim ([objeto 37684509](https://www.openstreetmap.org/way/37684509)).
 - **Casa de Inés** (Av. Sarmiento 2640) y **Casa de Lara** (José Ellauri 407): las direcciones las pasó el equipo. Las coordenadas son de OpenStreetMap, buscadas con Nominatim, que encontró el número de puerta exacto ([objeto 944843090](https://www.openstreetmap.org/node/944843090) y [objeto 944322391](https://www.openstreetmap.org/node/944322391)).
-- **Teléfono del abuelo**, **mails y teléfonos de los familiares** y **WhatsApp** de la pizzería: los pasó el equipo.
+- **Teléfono y dirección del abuelo**, **mails y teléfonos de los familiares** y **WhatsApp** de la pizzería: los pasó el equipo.
