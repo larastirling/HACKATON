@@ -20,6 +20,18 @@ export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
   return llamarALaIA({ messages: [{ role: 'user', content: pregunta }] })
 }
 
+/**
+ * Charla de varios mensajes. `instrucciones` le dice a la IA quién es y cómo hablar;
+ * `mensajes` es toda la charla hasta ahora (la API no recuerda nada entre pedidos).
+ * La usa /familia.
+ */
+export async function charlarConLaIA(
+  instrucciones: string | undefined,
+  mensajes: Anthropic.MessageParam[],
+): Promise<RespuestaIA> {
+  return llamarALaIA({ system: instrucciones, messages: mensajes })
+}
+
 /** Charla del abuelo: manda TODA la charla y las instrucciones armadas con su configuración. */
 export async function conversarConElAbuelo(
   configuracion: ConfiguracionAbuelo,
