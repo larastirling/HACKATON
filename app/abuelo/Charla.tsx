@@ -1,8 +1,8 @@
 'use client'
 
 import { Fragment, useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from 'react'
-import type { Emergencia, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
-import { responderAlAbuelo } from './acciones'
+import type { Emergencia, EsperaAprobacion, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
+import { consultarAprobacion, responderAlAbuelo } from './acciones'
 
 export default function Charla() {
   const [charla, setCharla] = useState<MensajeCharla[]>([])
@@ -30,8 +30,8 @@ export default function Charla() {
       try {
         const respuesta = await responderAlAbuelo(nuevaCharla)
         if (respuesta.ok) {
-          const { texto, viaje, emergencia, pedido } = respuesta
-          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, pedido }])
+          const { texto, viaje, emergencia, pedido, aprobacion } = respuesta
+          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, pedido, aprobacion }])
         } else setHayError(true)
       } catch {
         setHayError(true)
@@ -61,6 +61,13 @@ export default function Charla() {
             {mensaje.emergencia && <BotonesEmergencia emergencia={mensaje.emergencia} />}
             {mensaje.viaje && <TarjetaViaje viaje={mensaje.viaje} />}
             {mensaje.pedido && <TarjetaPedido pedido={mensaje.pedido} />}
+            {mensaje.llamar && <BotonLlamar {...mensaje.llamar} />}
+            {mensaje.aprobacion && (
+              <EsperandoAprobacion
+                aprobacion={mensaje.aprobacion}
+                alContestar={(respuesta) => setCharla((anterior) => [...anterior, respuesta])}
+              />
+            )}
           </Fragment>
         ))}
 
@@ -151,5 +158,65 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
       </a>
       <p className="tarjeta-viaje-ayuda">Después toque “Enviar” en WhatsApp.</p>
     </section>
+  )
+}
+
+const CADA_CUANTO_CONSULTAR_MS = 4000
+
+// Mientras la familia no contesta, consulta sola cada pocos segundos. Cuando contestan, agrega el mensaje.
+function EsperandoAprobacion({
+  aprobacion,
+  alContestar,
+}: {
+  aprobacion: EsperaAprobacion
+  alContestar: (respuesta: MensajeCharla) => void
+}) {
+  const [estado, setEstado] = useState<'esperando' | 'contestaron' | 'error'>('esperando')
+  const yaAvise = useRef(false)
+
+  useEffect(() => {
+    if (estado !== 'esperando') return
+    const intervalo = setInterval(async () => {
+      try {
+        const resultado = await consultarAprobacion(aprobacion.id)
+        if (resultado.estado === 'esperando' || yaAvise.current) return
+        yaAvise.current = true
+        if (resultado.estado === 'no-encontrado') return setEstado('error')
+        setEstado('contestaron')
+        const quien = aprobacion.familiar
+        if (resultado.estado === 'aprobado') {
+          alContestar(
+            resultado.viaje
+              ? { de: 'ia', texto: `${quien} aprobó el viaje. Toque el botón verde para abrir Uber.`, viaje: resultado.viaje }
+              : { de: 'ia', texto: `${quien} aprobó el pedido. Toque el botón verde para abrir WhatsApp y después apriete enviar.`, pedido: resultado.pedido },
+          )
+        } else {
+          alContestar({
+            de: 'ia',
+            texto: `${quien} dijo que esta vez no. Quédese tranquilo: si quiere, puede llamar a ${quien} para hablarlo.`,
+            ...(resultado.llamar && { llamar: { nombre: quien, link: resultado.llamar } }),
+          })
+        }
+      } catch {
+        // Si falla una consulta (por ejemplo, sin internet), se vuelve a probar en la próxima vuelta.
+      }
+    }, CADA_CUANTO_CONSULTAR_MS)
+    return () => clearInterval(intervalo)
+  }, [aprobacion, estado, alContestar])
+
+  if (estado === 'contestaron') return null
+  if (estado === 'error') return <p className="mensaje-error">No pude saber si {aprobacion.familiar} contestó. Pruebe llamarla.</p>
+  return (
+    <p className="esperando-aprobacion" role="status">
+      ⏳ Le pregunté a {aprobacion.familiar}, espere un momento...
+    </p>
+  )
+}
+
+function BotonLlamar({ nombre, link }: { nombre: string; link: string }) {
+  return (
+    <a className="boton boton-emergencia boton-familiar" href={link}>
+      📞 Llamar a {nombre}
+    </a>
   )
 }

@@ -295,3 +295,21 @@ p { margin: 0; }
   background: var(--principal);
   border: 3px solid var(--principal);
 }
+
+/* ── Página de aprobación (la abre el familiar desde el mail) ── */
+.respuesta-aprobacion-titulo { font-size: 1.5rem; font-weight: 800; }
+.respuesta-aprobado { border: 3px solid var(--ok); }
+.respuesta-rechazado { border: 3px solid var(--error); }
+
+/* ── Esperando la respuesta de la familia ── */
+.esperando-aprobacion {
+  align-self: stretch;
+  padding: 18px 20px;
+  border: 3px dashed var(--principal);
+  border-radius: 18px;
+  background: #eef3fb;
+  font-size: 1.3rem;
+  font-weight: 700;
+  animation: latido 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .esperando-aprobacion { animation: none; } }
