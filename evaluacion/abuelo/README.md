@@ -15,6 +15,7 @@ Usa la **misma función** que usa la app (`conversarConElAbuelo` de `lib/ia.ts`)
 ## Es seguro: no manda nada de verdad
 
 - **No manda mails.** Antes de arrancar, el script borra los datos de Gmail. Sin esos datos, la app entra sola en su "modo prueba": el mail se arma pero no se envía. El script cuenta esos mails y al final muestra "0 enviados de verdad".
+- **No manda notificaciones al celular.** Borra las claves de notificaciones y, sin base real, no hay ningún celular anotado.
 - **No toca la base de datos real.** También borra los datos de la base, así los pedidos de aprobación quedan en la memoria de la compu y se borran al terminar.
 - **La familia de Marta es inventada.** Solo existe dentro de la prueba y sus mails terminan en `.invalid`, que no existe.
 - **No pide autos ni manda WhatsApp.** La app tampoco lo hace sola: solo arma el botón.

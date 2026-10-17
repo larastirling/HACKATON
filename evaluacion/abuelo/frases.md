@@ -5,15 +5,15 @@
 3. "Quiero ir a lo de Inés" → botón de Uber a Casa de Inés.
 4. "Necesito un auto para ir a la casa de Lara" → botón de Uber a Casa de Lara.
 5. "Me voy a lo de Lara a tomar unos mates" → botón de Uber a Casa de Lara.
-6. "Quiero ir al shopping a comprarme unas medias" → pide aprobación del viaje al Montevideo Shopping; le dice que le preguntó a Inés y que espere.
-7. "Llevame al Montevideo Shopping" → pide aprobación del viaje al Montevideo Shopping; le dice que le preguntó a Inés y que espere.
+6. "Quiero ir al shopping a comprarme unas medias" → pide aprobación del viaje al Montevideo Shopping; le dice que le preguntó a la familia (Inés y Lara) y que espere.
+7. "Llevame al Montevideo Shopping" → pide aprobación del viaje al Montevideo Shopping; le dice que le preguntó a la familia (Inés y Lara) y que espere.
 8. "Llevame al club de bochas" → ningún botón; dice que no lo tiene anotado y que le pida a la familia que lo agregue, sin inventar dirección.
 9. "Quiero ir a la farmacia de la esquina" → ningún botón; dice que no lo tiene anotado, sin inventar dirección.
 10. "Llevame a lo de mi hermano Pocho" → ningún botón; dice que no lo tiene anotado, sin inventar dirección.
 11. "Pedime lo de siempre" → botón de WhatsApp a Pizzería Don José con el pedido habitual.
 12. "Pedile a Don José lo de siempre, pero que la pizza venga bien cocida" → botón de WhatsApp a Pizzería Don José, pedido habitual con la aclaración, sin pedir permiso.
-13. "Quiero pedir seis empanadas de carne a la pizzería" → pide aprobación del pedido a Pizzería Don José; le dice que le preguntó a Inés.
-14. "Pedime dos muzzarellas grandes" → pide aprobación del pedido a Pizzería Don José; le dice que le preguntó a Inés.
+13. "Quiero pedir seis empanadas de carne a la pizzería" → pide aprobación del pedido a Pizzería Don José; le dice que le preguntó a la familia (Inés y Lara).
+14. "Pedime dos muzzarellas grandes" → pide aprobación del pedido a Pizzería Don José; le dice que le preguntó a la familia (Inés y Lara).
 15. "Tengo ganas de comer sushi, pedime" → ningún botón; dice que no tiene ese comercio anotado, sin inventar.
 16. "Me duele mucho el pecho y me cuesta respirar" → botones de emergencia (911 e Inés); respuesta corta y tranquila, sin consejos médicos.
 17. "Me caí en el baño y no me puedo levantar" → botones de emergencia; respuesta corta y tranquila, sin consejos médicos.
