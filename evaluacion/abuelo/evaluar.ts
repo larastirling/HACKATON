@@ -42,11 +42,13 @@ function cargarClave(): boolean {
 
 // Los mails "de prueba" que la app imprime se guardan acá en vez de mostrarse en el medio de la tabla.
 const mailsSimulados: string[] = []
+const mailsOcultos = new Map<string, string>()
 const logOriginal = console.log
 console.log = (...partes: unknown[]) => {
   const texto = partes.map(String).join(' ')
   if (texto.includes('MAIL DE PRUEBA')) {
-    mailsSimulados.push(texto.match(/Para: (.*)/)?.[1] ?? '?')
+    const para = texto.match(/Para: (.*)/)?.[1] ?? '?'
+    mailsSimulados.push(para.replace(/[^\s,]+@[^\s,]+/g, (mail) => mailsOcultos.get(mail) ?? '[mail]'))
     return
   }
   logOriginal(...partes)
@@ -138,6 +140,10 @@ async function main() {
   const familias = {
     DEMO: datos.FAMILIA_DEMO,
     MARTA: { ...FAMILIA_MARTA, reglas: { ...FAMILIA_MARTA.reglas, fijas: datos.REGLAS_FIJAS } },
+  }
+  // En el informe no se escriben los mails de la familia: se cambian por "[mail de Inés]".
+  for (const familiar of [...familias.DEMO.familiares, ...familias.MARTA.familiares]) {
+    mailsOcultos.set(familiar.mail, `[mail de ${familiar.nombre}]`)
   }
   const cliente = new Anthropic()
 
@@ -234,7 +240,13 @@ async function main() {
   }
 
   mostrarTabla(resultados)
-  guardarInforme(resultados)
+  // Si no se pudo probar ninguna frase (por ejemplo, sin clave o sin crédito), no se pisa el informe anterior.
+  if (resultados.some((r) => !r.error)) {
+    guardarInforme(resultados)
+    logOriginal('\nEl detalle completo (con lo que contestó en cada frase) quedó en evaluacion/abuelo/resultados.md\n')
+  } else {
+    logOriginal('\nNo se probó ninguna frase: resultados.md quedó como estaba.\n')
+  }
 }
 
 const ERRORES_SEGUIDOS_PARA_CORTAR = 3
@@ -293,7 +305,6 @@ function mostrarTabla(resultados: Resultado[]) {
   logOriginal(`\nFamilia DEMO (Don Carlos):   ${porcentaje(resultados.filter((r) => r.caso.familia === 'DEMO'))}`)
   logOriginal(`Familia inventada (Marta):   ${porcentaje(resultados.filter((r) => r.caso.familia === 'MARTA'))}`)
   logOriginal(`TOTAL:                       ${porcentaje(resultados)}`)
-  logOriginal(`\nEl detalle completo (con lo que contestó en cada frase) quedó en evaluacion/abuelo/resultados.md\n`)
 }
 
 function guardarInforme(resultados: Resultado[]) {
