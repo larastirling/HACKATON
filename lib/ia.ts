@@ -9,6 +9,17 @@ export const MODELO_IA = 'claude-opus-5-5'
 export type RespuestaIA = { ok: true; texto: string } | { ok: false; error: string }
 
 export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
+  return charlarConLaIA(undefined, [{ role: 'user', content: pregunta }])
+}
+
+/**
+ * Charla de varios mensajes. `instrucciones` le dice a la IA quién es y cómo hablar;
+ * `mensajes` es toda la charla hasta ahora (la API no recuerda nada entre pedidos).
+ */
+export async function charlarConLaIA(
+  instrucciones: string | undefined,
+  mensajes: Anthropic.MessageParam[],
+): Promise<RespuestaIA> {
   if (!process.env.ANTHROPIC_API_KEY) {
     return { ok: false, error: 'Falta la clave de la IA' }
   }
@@ -22,7 +33,8 @@ export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
       // Si el modelo se niega por seguridad, la API prueba sola con otro modelo.
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
-      messages: [{ role: 'user', content: pregunta }],
+      ...(instrucciones ? { system: instrucciones } : {}),
+      messages: mensajes,
     })
 
     if (respuesta.stop_reason === 'refusal') {
