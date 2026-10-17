@@ -1,9 +1,10 @@
 'use client'
 
-import { Fragment, useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from 'react'
+import { Fragment, useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
 import type { Emergencia, EsperaAprobacion, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
 import { juntarNombres } from '@/lib/texto'
 import { consultarAprobacion, responderAlAbuelo } from './acciones'
+import { callar, decirEnVozAlta, desbloquearVoz, MENSAJE_TECLADO, useDictado, useSilencio } from './voz'
 
 export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) {
   const [charla, setCharla] = useState<MensajeCharla[]>(inicial)
@@ -12,15 +13,43 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
   const [pensando, empezar] = useTransition()
   const final = useRef<HTMLDivElement>(null)
 
+  // Freno para no mandar dos veces: se marca al instante (el estado de React tarda un momento en cambiar).
+  const enviando = useRef(false)
+  const ultimoEnvio = useRef({ texto: '', cuando: 0 })
+
+  const [silenciada, setSilenciada] = useSilencio()
+  const [puedeHablar, setPuedeHablar] = useState(false)
+  const dictado = useDictado(setTexto, (dicho) => enviar(dicho))
+
   // Siempre mostrar lo último de la charla
   useEffect(() => {
     final.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [charla, pensando, hayError])
 
-  function enviar(e?: FormEvent) {
-    e?.preventDefault()
-    const mensaje = texto.trim()
-    if (!mensaje || pensando) return
+  // iPhone: la voz se "destraba" con el primer toque en cualquier lugar de la pantalla.
+  useEffect(() => {
+    setPuedeHablar('speechSynthesis' in window)
+    document.addEventListener('pointerdown', desbloquearVoz, { once: true })
+    return () => document.removeEventListener('pointerdown', desbloquearVoz)
+  }, [])
+
+  // Cada respuesta nueva de la IA se lee sola en voz alta (salvo que la voz esté silenciada).
+  const leidos = useRef(inicial.length)
+  useEffect(() => {
+    const nuevos = charla.slice(leidos.current)
+    leidos.current = charla.length
+    const ultimaDeLaIA = nuevos.findLast((mensaje) => mensaje.de === 'ia')
+    if (ultimaDeLaIA && !silenciada) decirEnVozAlta(ultimaDeLaIA.texto)
+  }, [charla, silenciada])
+
+  function enviar(dicho?: string) {
+    desbloquearVoz()
+    const mensaje = (dicho ?? texto).trim()
+    if (!mensaje || pensando || enviando.current) return
+    // El mismo texto otra vez a los pocos segundos es un envío repetido (por ejemplo, el dictado avisando dos veces).
+    if (mensaje === ultimoEnvio.current.texto && Date.now() - ultimoEnvio.current.cuando < 5000) return
+    enviando.current = true
+    ultimoEnvio.current = { texto: mensaje, cuando: Date.now() }
 
     const nuevaCharla: MensajeCharla[] = [...charla, { de: 'abuelo', texto: mensaje }]
     setCharla(nuevaCharla)
@@ -36,8 +65,18 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
         } else setHayError(true)
       } catch {
         setHayError(true)
+      } finally {
+        enviando.current = false
       }
     })
+  }
+
+  // Botón Hablar: si la IA está hablando, se calla; y empieza (o termina) de escuchar.
+  function tocarHablar() {
+    desbloquearVoz()
+    callar()
+    setHayError(false)
+    dictado.tocar()
   }
 
   // Enter envía. Shift + Enter hace un salto de línea.
@@ -50,8 +89,20 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
 
   return (
     <>
+      {puedeHablar && (
+        <button type="button" className="boton-voz" onClick={() => setSilenciada(!silenciada)} aria-pressed={silenciada}>
+          {silenciada ? '🔊 Activar voz' : '🔇 Silenciar'}
+        </button>
+      )}
+
       <div className="charla" aria-live="polite">
-        {charla.length === 0 && <p className="charla-vacia">Escriba abajo lo que necesita y toque Enviar.</p>}
+        {charla.length === 0 && (
+          <p className="charla-vacia">
+            {dictado.disponible
+              ? 'Toque “Hablar” y dígame lo que necesita, o escríbalo abajo.'
+              : 'Escriba abajo lo que necesita y toque Enviar.'}
+          </p>
+        )}
 
         {charla.map((mensaje, i) => (
           <Fragment key={i}>
@@ -59,6 +110,18 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
               <span className="burbuja-quien">{mensaje.de === 'abuelo' ? 'Usted' : 'Asistente'}</span>
               {mensaje.texto}
             </p>
+            {mensaje.de === 'ia' && puedeHablar && (
+              <button
+                type="button"
+                className="boton-repetir"
+                onClick={() => {
+                  desbloquearVoz()
+                  decirEnVozAlta(mensaje.texto)
+                }}
+              >
+                🔁 Repetir
+              </button>
+            )}
             {mensaje.emergencia && <BotonesEmergencia emergencia={mensaje.emergencia} />}
             {mensaje.viaje && <TarjetaViaje viaje={mensaje.viaje} />}
             {mensaje.pedido && <TarjetaPedido pedido={mensaje.pedido} />}
@@ -86,7 +149,13 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
         <div ref={final} className="charla-fin" />
       </div>
 
-      <form className="charla-formulario" onSubmit={enviar}>
+      <form
+        className="charla-formulario"
+        onSubmit={(e) => {
+          e.preventDefault()
+          enviar()
+        }}
+      >
         <label htmlFor="mensaje" className="sr-only">
           Escriba su mensaje
         </label>
@@ -94,16 +163,33 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
           id="mensaje"
           className="charla-caja"
           rows={2}
-          placeholder="Escriba acá…"
+          placeholder={dictado.disponible ? 'Escriba acá o toque Hablar…' : 'Escriba acá…'}
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           onKeyDown={alApretarTecla}
           maxLength={2000}
           enterKeyHint="send"
         />
-        <button type="submit" className="boton boton-principal" disabled={pensando || !texto.trim()}>
-          Enviar
-        </button>
+        <div className="charla-botones">
+          {dictado.disponible && (
+            <button
+              type="button"
+              className={`boton boton-hablar${dictado.escuchando ? ' escuchando' : ''}`}
+              onClick={tocarHablar}
+              aria-pressed={dictado.escuchando}
+            >
+              {dictado.escuchando ? '🔴 Escuchando... toque para terminar' : '🎤 Hablar'}
+            </button>
+          )}
+          <button type="submit" className="boton boton-principal boton-enviar" disabled={pensando || !texto.trim()}>
+            Enviar
+          </button>
+        </div>
+        {(dictado.aviso || dictado.disponible === false) && (
+          <p className="charla-aviso" role="status">
+            {dictado.aviso ?? MENSAJE_TECLADO}
+          </p>
+        )}
       </form>
     </>
   )

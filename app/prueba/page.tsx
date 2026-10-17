@@ -2,6 +2,7 @@ import BarraNavegacion from '@/components/BarraNavegacion'
 import { modoAlmacenamiento } from '@/lib/datos'
 import { exigirSesion } from '@/lib/sesion'
 import BotonesDePrueba from './BotonesDePrueba'
+import RestaurarDemo from './RestaurarDemo'
 
 // Página para comprobar que la base de datos y la IA funcionan.
 export default async function PaginaPrueba() {
@@ -17,6 +18,7 @@ export default async function PaginaPrueba() {
           <li>Token para Gmail: {process.env.CONFIG_API_TOKEN ? '✅ Cargado' : '❌ Falta CONFIG_API_TOKEN'}</li>
         </ul>
         <BotonesDePrueba />
+        <RestaurarDemo />
       </main>
       <BarraNavegacion rol={sesion.rol} />
     </>
