@@ -108,28 +108,16 @@ Funciones: `instalarActivador` (no crea dos), `sacarActivador`, y `revisarMailsN
 
 # Gmail: prueba de calidad de la IA
 
-Script `evaluar-calidad.gs`. La función `evaluarCalidad` le pasa a la IA cada mail de la planilla de prueba (Google Sheets), compara lo que dice con la respuesta correcta y escribe en la hoja **Resultados IA** de la misma planilla:
+Script `evaluar-calidad.gs`. La función `evaluarCalidad` le pasa a la IA cada mail de la planilla de prueba (Google Sheets, link en la propiedad `PLANILLA_PRUEBA`) y la compara con la respuesta correcta del equipo.
 
-- Aciertos (cantidad y porcentaje).
-- Estafas detectadas (de las que eran estafa, cuántas marcó como ESTAFA).
-- Mails legítimos marcados como ESTAFA (falsas alarmas).
-- El detalle de cada mail: qué se esperaba, qué dijo la IA, si acertó (verde/rojo) y su motivo.
+**Planilla:** hoja "Mails de prueba". El script busca solo la fila de títulos (la que tiene "Texto del mail" y "Respuesta correcta (equipo)"); los datos van debajo. Columnas que usa: "Remitente", "Asunto", "Texto del mail", "Respuesta correcta (equipo)" (ESTAFA, DUDOSO o LEGITIMO; no importan mayúsculas ni tildes) y "Respuesta de la IA".
 
-## Formato de la planilla
+**Qué escribe:**
+- En "Respuesta de la IA", lo que dijo la IA para cada mail (o ERROR si falló).
+- En una columna nueva "Motivo de la IA", al lado, su explicación. Se crea una sola vez; las fórmulas de "¿Acertó?" no se borran (se corren un lugar a la derecha).
+- En la hoja "Resultados IA": aciertos y porcentaje, estafas detectadas, estafas que se le escaparon (dijo LEGITIMO), confusiones entre ESTAFA y DUDOSO, legítimos marcados como ESTAFA, otras confusiones, mails que fallaron, y el detalle de cada mail en verde o rojo.
 
-En la **primera hoja**, la primera fila con estos títulos (en cualquier orden; no importan mayúsculas ni tildes):
-
-| Remitente | Asunto (opcional) | Texto | Esperado |
-|---|---|---|---|
-| BROU Seguridad &lt;avisos@...&gt; | Su cuenta será bloqueada | Estimado cliente... | ESTAFA |
-
-"Esperado" tiene que decir ESTAFA, DUDOSO o LEGITIMO (también acepta "Estafa", "legítimo", etc.). También reconoce "Categoría" o "Clasificación" en vez de "Esperado", y "Cuerpo" en vez de "Texto".
-
-## Cómo usarlo
-
-1. Compartí la planilla con la cuenta de Gmail de la demo (puede ser solo lectura, pero para escribir los resultados necesita poder editar).
-2. En Propiedades del script, agregá `PLANILLA_PRUEBA` con el link de la planilla.
-3. Ejecutá **evaluarCalidad**. Con 20 mails tarda unos 2 minutos.
+La cuenta de Gmail de la demo tiene que poder **editar** la planilla. Con 18 mails tarda unos 2 minutos.
 
 # Gmail: familiares desde la configuración de la app
 
