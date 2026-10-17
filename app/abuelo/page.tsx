@@ -3,6 +3,7 @@ import { leerUltimaAprobacion, type PedidoDeAprobacion } from '@/lib/datos'
 import type { MensajeCharla } from '@/lib/ia'
 import { exigirSesion } from '@/lib/sesion'
 import Charla from './Charla'
+import InvitarAInstalar from './InvitarAInstalar'
 
 const HORAS_PARA_RETOMAR = 2
 
@@ -14,6 +15,7 @@ export default async function PaginaAbuelo() {
   return (
     <>
       <main className="pagina pagina-charla">
+        <InvitarAInstalar />
         <h1>¿En qué lo ayudo?</h1>
         <Charla inicial={paraRetomar(pendiente)} />
       </main>

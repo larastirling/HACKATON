@@ -382,3 +382,36 @@ a.boton {
 /* ── /prueba: herramientas para la demo (plegadas) ── */
 .herramientas-demo summary { font-weight: 700; cursor: pointer; min-height: 48px; display: flex; align-items: center; }
 .herramientas-demo .campo input { text-transform: none; font-size: 1.1rem; }
+
+/* ── /abuelo: invitación a instalar la app ── */
+.invitar-instalar { display: flex; flex-direction: column; gap: 12px; }
+.invitar-cartel {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--principal);
+  border-radius: 14px;
+  background: #eef3fb;
+  color: var(--texto);
+  font: inherit;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+.invitar-cartel strong { color: var(--principal); }
+.invitar-pasos {
+  position: fixed;
+  inset: 0;
+  z-index: 30;                     /* encima de la caja de escribir y la barra de abajo */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  background: var(--fondo);
+  font-size: 1.2rem;              /* 24px: sigue siendo letra grande */
+}
+.invitar-pasos h2 { font-size: 1.45rem; }
+.invitar-pasos .pasos { gap: 6px; }
+.invitar-pasos .boton { min-height: 64px; }
+.invitar-pasos h3 { font-size: 1.3rem; margin: 4px 0 0; }
