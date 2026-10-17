@@ -119,7 +119,7 @@ const configuracion = JSON.parse(respuesta.getContentText())
 
 Respuestas: `200` con la configuración, `401` si el token está mal, `404` si no existe esa familia.
 
-> El formato de la configuración es **un ejemplo mínimo** (`codigoFamilia`, `nombreAbuelo`, `nombreFamilia`). El formato completo se define en la próxima tarea, en `lib/datos.ts`.
+> El formato de la configuración (abuelo, lugares, comercios, familiares y reglas) está explicado en [`docs/formato-configuracion.md`](docs/formato-configuracion.md). Los familiares vienen en `familiares`; el campo `orden` dice a quién se le pregunta primero.
 
 ---
 
