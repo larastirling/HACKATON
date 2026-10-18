@@ -20,6 +20,8 @@ for (const variable of [
   'KV_REST_API_TOKEN',
   'UPSTASH_REDIS_REST_URL',
   'UPSTASH_REDIS_REST_TOKEN',
+  'VAPID_PUBLIC_KEY',
+  'VAPID_PRIVATE_KEY',
 ]) {
   delete process.env[variable]
 }
@@ -106,7 +108,7 @@ function describirParaElJuez(botones: BotonMostrado[]): string {
       }
       if (b.tipo === 'viaje') return `tarjeta con botón "Abrir Uber" hacia ${b.destino}`
       if (b.tipo === 'pedido') return `tarjeta con botón "Abrir WhatsApp" con el pedido a ${b.destino}${b.aclaracion ? ` (aclaración: ${b.aclaracion})` : ''}`
-      return `ningún botón todavía: el sistema le mandó un mail a la familia pidiendo permiso para ${b.tipo === 'aprobacion-viaje' ? 'ir a' : 'pedir a'} ${b.destino}`
+      return `ningún botón todavía: el sistema le pidió permiso a la familia (por mail y notificación) para ${b.tipo === 'aprobacion-viaje' ? 'ir a' : 'pedir a'} ${b.destino}`
     })
     .join('; ')
 }
