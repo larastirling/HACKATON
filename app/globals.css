@@ -1,17 +1,29 @@
 /* Diseño pensado para personas mayores:
-   letra grande, botones grandes, mucho contraste y barra de navegación abajo. */
+   letra grande, botones grandes, mucho contraste y barra de navegación abajo.
+   Estilo: fondo blanco, letra Mulish en marrón y detalles cálidos. */
 
 :root {
-  --texto: #111111;
-  --texto-suave: #3d3d3d;
+  --texto: #4a3123;              /* marrón medio oscuro: contraste 11:1 con blanco */
+  --texto-titulo: #3a2519;
+  --texto-suave: #7a6152;        /* contraste 5.6:1 con blanco */
   --fondo: #ffffff;
-  --fondo-tarjeta: #f2f4f7;
-  --principal: #0b3d91;          /* azul oscuro: contraste 10:1 con blanco */
+  --fondo-tarjeta: #faf6f1;      /* crema muy suave */
+  --fondo-calido: #f4ece3;
+  --linea: #ebe0d5;              /* bordes finos de tarjetas */
+  --linea-fuerte: #c9b5a3;       /* bordes de cajas para escribir */
+  --principal: #6b4226;          /* marrón: contraste 9:1 con blanco */
+  --principal-hover: #57351e;
+  --principal-suave: #f3e9df;
   --principal-texto: #ffffff;
-  --error: #a50e0e;
-  --ok: #0a6b2d;
-  --borde: #111111;
-  --alto-barra: 88px;
+  --error: #a3261b;              /* rojo: contraste 7:1 con blanco */
+  --error-suave: #fbeceb;
+  --ok: #2f6b3f;                 /* verde: contraste 6.6:1 con blanco */
+  --ok-suave: #edf6ef;
+  --borde: var(--linea-fuerte);
+  --sombra: 0 1px 2px rgb(74 49 35 / 0.06), 0 6px 20px rgb(74 49 35 / 0.07);
+  --sombra-boton: 0 2px 6px rgb(74 49 35 / 0.18);
+  --radio: 20px;
+  --alto-barra: 84px;
   color-scheme: light;
 }
 
@@ -23,17 +35,20 @@ body {
   margin: 0;
   background: var(--fondo);
   color: var(--texto);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family: var(--letra), system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 0.5rem; }
-h2 { font-size: 1.3rem; margin: 0; }
+h1, h2, h3 { color: var(--texto-titulo); letter-spacing: -0.01em; }
+h1 { font-size: 1.9rem; font-weight: 800; line-height: 1.2; margin: 0; }
+h2 { font-size: 1.3rem; font-weight: 800; margin: 0; }
 p { margin: 0; }
+strong { font-weight: 800; }
 
 :focus-visible {
-  outline: 4px solid #f5b400;
+  outline: 4px solid #e0a43a;
   outline-offset: 3px;
 }
 
@@ -41,7 +56,7 @@ p { margin: 0; }
 .pagina {
   max-width: 600px;
   margin: 0 auto;
-  padding: 24px 16px calc(var(--alto-barra) + 32px + env(safe-area-inset-bottom));
+  padding: 28px 16px calc(var(--alto-barra) + 32px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -53,15 +68,21 @@ p { margin: 0; }
   padding-bottom: 32px;
 }
 
-.subtitulo { font-size: 1.1rem; color: var(--texto-suave); }
+/* En el inicio, el título va centrado */
+.pagina-login > h1 { text-align: center; }
+.pagina-login > .subtitulo { text-align: center; }
+
+.subtitulo { font-size: 1.1rem; color: var(--texto-suave); margin-top: -8px; }
 
 .tarjeta {
-  background: var(--fondo-tarjeta);
-  border-radius: 16px;
-  padding: 20px;
+  background: var(--fondo);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   margin: 0;
   font-size: 1.1rem;
 }
@@ -72,48 +93,58 @@ p { margin: 0; }
   flex-direction: column;
   gap: 8px;
   font-weight: 700;
+  color: var(--texto-titulo);
 }
 
 .campo input {
   min-height: 64px;
-  padding: 0 16px;
+  padding: 0 18px;
+  font: inherit;
   font-size: 1.4rem;
-  border: 3px solid var(--borde);
-  border-radius: 12px;
+  font-weight: 700;
+  border: 2px solid var(--borde);
+  border-radius: 14px;
   background: #fff;
   color: var(--texto);
   text-transform: uppercase;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.campo input::placeholder { text-transform: none; color: #6b6b6b; font-size: 1.1rem; }
+.campo input:focus { outline: none; border-color: var(--principal); box-shadow: 0 0 0 4px var(--principal-suave); }
+.campo input::placeholder { text-transform: none; color: #9a8475; font-size: 1.1rem; font-weight: 400; }
 .campo-mail input { text-transform: none; } /* mail y nombre: como se escriben */
 
 .boton {
   min-height: 72px;
   width: 100%;
   padding: 12px 20px;
-  border-radius: 14px;
+  border-radius: 16px;
   font: inherit;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s, box-shadow 0.15s;
 }
-.boton:disabled { opacity: 0.6; cursor: wait; }
+.boton:active:not(:disabled) { transform: scale(0.98); }
+.boton:disabled { opacity: 0.5; cursor: wait; box-shadow: none; }
 
 .boton-principal {
   background: var(--principal);
   color: var(--principal-texto);
-  border: 3px solid var(--principal);
+  border: 2px solid var(--principal);
+  box-shadow: var(--sombra-boton);
 }
+.boton-principal:hover:not(:disabled) { background: var(--principal-hover); }
 
 .boton-secundario {
   background: #fff;
   color: var(--principal);
-  border: 3px solid var(--principal);
+  border: 2px solid var(--principal);
 }
+.boton-secundario:hover:not(:disabled) { background: var(--principal-suave); }
 
 .mensaje-error { color: var(--error); font-weight: 700; }
 .mensaje-ok { color: var(--ok); font-weight: 700; }
-.ayuda { text-align: center; color: var(--texto-suave); }
+.ayuda { text-align: center; color: var(--texto-suave); font-size: 1rem; }
 
 .lista-estado { list-style: none; padding: 20px; }
 
@@ -123,11 +154,14 @@ p { margin: 0; }
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 10;
   display: flex;
   height: calc(var(--alto-barra) + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  background: #fff;
-  border-top: 3px solid var(--borde);
+  padding: 0 8px env(safe-area-inset-bottom);
+  background: rgb(255 255 255 / 0.96);
+  border-top: 1px solid var(--linea);
+  box-shadow: 0 -4px 20px rgb(74 49 35 / 0.06);
+  backdrop-filter: blur(8px);
 }
 
 .barra-formulario { flex: 1; display: flex; }
@@ -138,17 +172,21 @@ p { margin: 0; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
+  margin: 8px 4px;
+  border-radius: 16px;
   background: none;
   border: none;
   color: var(--texto);
   font: inherit;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   text-decoration: none;
   cursor: pointer;
+  transition: background-color 0.15s;
 }
-.barra-boton span { font-size: 1.8rem; line-height: 1; }
+.barra-boton:hover, .barra-boton:active { background: var(--fondo-calido); }
+.barra-boton svg { width: 30px; height: 30px; color: var(--principal); }
 
 /* ── Charla del abuelo ── */
 .sr-only {
@@ -169,12 +207,19 @@ p { margin: 0; }
   min-height: 30dvh;
 }
 
-.charla-vacia { font-size: 1.2rem; color: var(--texto-suave); }
+.charla-vacia {
+  font-size: 1.2rem;
+  color: var(--texto-suave);
+  padding: 20px 22px;
+  border-radius: var(--radio);
+  background: var(--fondo-tarjeta);
+  border: 1px dashed var(--linea-fuerte);
+}
 
 .burbuja {
   max-width: 90%;
   padding: 14px 18px;
-  border-radius: 18px;
+  border-radius: 22px;
   font-size: 1.25rem;
   line-height: 1.45;
   white-space: pre-wrap;
@@ -183,24 +228,27 @@ p { margin: 0; }
 
 .burbuja-quien {
   display: block;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
   margin-bottom: 2px;
+  opacity: 0.8;
 }
 
 .burbuja-abuelo {
   align-self: flex-end;
   background: var(--principal);
   color: var(--principal-texto);
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 6px;
+  box-shadow: var(--sombra-boton);
 }
 
 .burbuja-ia {
   align-self: flex-start;
   background: var(--fondo-tarjeta);
   color: var(--texto);
-  border: 2px solid #c9ced6;
-  border-bottom-left-radius: 4px;
+  border: 1px solid var(--linea);
+  border-bottom-left-radius: 6px;
 }
 
 .burbuja-pensando {
@@ -221,22 +269,24 @@ p { margin: 0; }
   flex-direction: column;
   gap: 12px;
   padding: 12px 0;
-  background: var(--fondo);
+  background: linear-gradient(to bottom, rgb(255 255 255 / 0), var(--fondo) 16px);
 }
 
 .charla-caja {
   width: 100%;
   min-height: 88px;
-  padding: 14px 16px;
-  border: 3px solid var(--borde);
-  border-radius: 14px;
+  padding: 14px 18px;
+  border: 2px solid var(--borde);
+  border-radius: 18px;
   font: inherit;
   font-size: 1.3rem;
   color: var(--texto);
   background: #fff;
   resize: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.charla-caja::placeholder { color: #6b6b6b; }
+.charla-caja:focus { outline: none; border-color: var(--principal); box-shadow: 0 0 0 4px var(--principal-suave); }
+.charla-caja::placeholder { color: #9a8475; }
 
 /* Al bajar la charla, dejar lugar para la caja de escribir y la barra (que tapan el final) */
 .charla-fin { scroll-margin-bottom: calc(var(--alto-barra) + 280px + env(safe-area-inset-bottom)); }
@@ -247,25 +297,27 @@ p { margin: 0; }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 20px;
-  border: 3px solid var(--ok);
-  border-radius: 18px;
-  background: #eef8f1;
+  padding: 22px;
+  border: 1px solid #cfe3d4;
+  border-radius: var(--radio);
+  background: var(--ok-suave);
+  box-shadow: var(--sombra);
 }
-.tarjeta-viaje-titulo { font-size: 1.1rem; font-weight: 700; color: var(--texto-suave); }
-.tarjeta-viaje-destino { font-size: 1.6rem; font-weight: 800; line-height: 1.2; }
+.tarjeta-viaje-titulo { font-size: 1rem; font-weight: 800; color: var(--ok); text-transform: uppercase; letter-spacing: 0.04em; }
+.tarjeta-viaje-destino { font-size: 1.6rem; font-weight: 800; line-height: 1.2; color: var(--texto-titulo); }
 .tarjeta-viaje-direccion { font-size: 1.2rem; margin-bottom: 10px; }
-.tarjeta-viaje-ayuda { font-size: 1.1rem; text-align: center; color: var(--texto-suave); }
+.tarjeta-viaje-ayuda { font-size: 1.05rem; text-align: center; color: var(--texto-suave); }
 
 .boton-uber {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ok);            /* verde oscuro: contraste 6.9:1 con blanco */
+  background: var(--ok);
   color: #fff;
-  border: 3px solid var(--ok);
+  border: 2px solid var(--ok);
   text-decoration: none;
   font-size: 1.4rem;
+  box-shadow: var(--sombra-boton);
 }
 
 /* ── Botones de emergencia ── */
@@ -285,30 +337,31 @@ p { margin: 0; }
   font-weight: 800;
   text-decoration: none;
   color: #fff;
+  box-shadow: var(--sombra-boton);
 }
 
 .boton-911 {
-  background: var(--error);         /* rojo oscuro: contraste 7.6:1 con blanco */
-  border: 3px solid var(--error);
+  background: var(--error);
+  border: 2px solid var(--error);
 }
 
 .boton-familiar {
   background: var(--principal);
-  border: 3px solid var(--principal);
+  border: 2px solid var(--principal);
 }
 
 /* ── Página de aprobación (la abre el familiar desde el mail) ── */
-.respuesta-aprobacion-titulo { font-size: 1.5rem; font-weight: 800; }
-.respuesta-aprobado { border: 3px solid var(--ok); }
-.respuesta-rechazado { border: 3px solid var(--error); }
+.respuesta-aprobacion-titulo { font-size: 1.5rem; font-weight: 800; color: var(--texto-titulo); }
+.respuesta-aprobado { border: 2px solid var(--ok); background: var(--ok-suave); }
+.respuesta-rechazado { border: 2px solid var(--error); background: var(--error-suave); }
 
 /* ── Esperando la respuesta de la familia ── */
 .esperando-aprobacion {
   align-self: stretch;
-  padding: 18px 20px;
-  border: 3px dashed var(--principal);
-  border-radius: 18px;
-  background: #eef3fb;
+  padding: 18px 22px;
+  border: 2px dashed var(--linea-fuerte);
+  border-radius: var(--radio);
+  background: var(--fondo-tarjeta);
   font-size: 1.3rem;
   font-weight: 700;
   animation: latido 1.8s ease-in-out infinite;
@@ -319,6 +372,7 @@ p { margin: 0; }
 /* ── Página de avisos (familiares) ── */
 .elegir-familiar { display: flex; flex-direction: column; gap: 12px; }
 .pasos { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 10px; }
+.pasos li::marker { color: var(--principal); font-weight: 800; }
 
 /* Los links con forma de botón se ven igual que los botones */
 a.boton {
@@ -337,9 +391,10 @@ a.boton {
   flex: 2;
   min-height: 96px;
   font-size: 1.5rem;
-  background: #5b21b6;              /* violeta oscuro: contraste 8.9:1 con blanco */
-  color: #fff;
-  border: 3px solid #5b21b6;
+  background: var(--principal);
+  color: var(--principal-texto);
+  border: 2px solid var(--principal);
+  box-shadow: var(--sombra-boton);
 }
 .boton-hablar.escuchando {
   background: var(--error);
@@ -347,21 +402,21 @@ a.boton {
   font-size: 1.15rem;
   animation: halo-escuchando 1.4s ease-in-out infinite; /* late alrededor, sin perder contraste */
 }
-@keyframes halo-escuchando { 50% { box-shadow: 0 0 0 10px rgb(165 14 14 / 0.3); } }
+@keyframes halo-escuchando { 50% { box-shadow: 0 0 0 10px rgb(163 38 27 / 0.25); } }
 @media (prefers-reduced-motion: reduce) { .boton-hablar.escuchando { animation: none; } }
 
 .charla-aviso { font-size: 1.1rem; font-weight: 700; color: var(--texto-suave); text-align: center; }
 
 .boton-voz {
   min-height: 48px;
-  padding: 6px 14px;
-  border: 2px solid var(--principal);
-  border-radius: 12px;
+  padding: 6px 16px;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: 999px;
   background: #fff;
   color: var(--principal);
   font: inherit;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
 }
 .boton-voz { align-self: flex-end; margin-top: -12px; }
@@ -370,27 +425,28 @@ a.boton {
 .boton-escuchar {
   align-self: flex-start;
   width: auto;
-  min-height: 64px;
+  min-height: 60px;
   margin-top: -6px;
   padding: 10px 24px;
   background: #fff;
   color: var(--principal);
-  border: 3px solid var(--principal);
-  font-size: 1.25rem;
+  border: 2px solid var(--principal);
+  border-radius: 999px;
+  font-size: 1.2rem;
 }
 
 /* ── /prueba: herramientas para la demo (plegadas) ── */
-.herramientas-demo summary { font-weight: 700; cursor: pointer; min-height: 48px; display: flex; align-items: center; }
+.herramientas-demo summary { font-weight: 800; cursor: pointer; min-height: 48px; display: flex; align-items: center; }
 .herramientas-demo .campo input { text-transform: none; font-size: 1.1rem; }
 
 /* ── /abuelo: invitación a instalar la app ── */
 .invitar-instalar { display: flex; flex-direction: column; gap: 12px; }
 .invitar-cartel {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid var(--principal);
-  border-radius: 14px;
-  background: #eef3fb;
+  padding: 14px 18px;
+  border: 1px solid var(--linea);
+  border-radius: 16px;
+  background: var(--fondo-tarjeta);
   color: var(--texto);
   font: inherit;
   font-size: 1.05rem;

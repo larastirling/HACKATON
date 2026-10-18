@@ -96,7 +96,7 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
     <>
       {puedeHablar && (
         <button type="button" className="boton-voz" onClick={() => setSilenciada(!silenciada)} aria-pressed={silenciada}>
-          {silenciada ? '🔊 Activar voz' : '🔇 Silenciar'}
+          {silenciada ? 'Activar voz' : 'Silenciar'}
         </button>
       )}
 

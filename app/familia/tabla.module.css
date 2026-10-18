@@ -5,10 +5,11 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 14px;
-  border: 3px solid var(--principal);
-  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
   background: #fff;
+  box-shadow: var(--sombra);
 }
 
 .encabezado { display: flex; flex-direction: column; gap: 2px; }
@@ -17,20 +18,20 @@
 .motivo { font-size: 1rem; color: var(--texto-suave); }
 
 .grupo {
-  border-radius: 12px;
-  padding: 10px 12px;
-  border-left: 6px solid;
+  border-radius: 14px;
+  padding: 12px 14px;
+  border-left: 5px solid;
 }
-.grupo h3 { margin: 0; font-size: 1.05rem; }
+.grupo h3 { margin: 0; font-size: 1.05rem; font-weight: 800; }
 .ayuda { font-size: 0.85rem; color: var(--texto-suave); }
 .grupo ul { margin: 6px 0 0; padding-left: 20px; font-size: 1rem; display: flex; flex-direction: column; gap: 4px; }
 .nada { list-style: none; margin-left: -20px; color: var(--texto-suave); font-style: italic; }
 
-.aprueba { background: #fff4e5; border-color: #b45309; }
-.avisa { background: #e8f0fe; border-color: #1d4ed8; }
-.libre { background: #e7f6ec; border-color: var(--ok); }
-.fijas { background: #f2f4f7; border-color: #3d3d3d; }
+.aprueba { background: #fdf3e6; border-color: #b8661f; }
+.avisa { background: var(--principal-suave); border-color: var(--principal); }
+.libre { background: var(--ok-suave); border-color: var(--ok); }
+.fijas { background: var(--fondo-tarjeta); border-color: var(--texto-suave); }
 
-.nota { font-size: 0.95rem; font-weight: 700; color: #92400e; }
+.nota { font-size: 0.95rem; font-weight: 700; color: #8a4a12; }
 .borrador { font-size: 0.95rem; font-weight: 700; color: var(--texto-suave); }
 .guardada { font-size: 0.95rem; font-weight: 700; color: var(--ok); }

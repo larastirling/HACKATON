@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from 'next'
+import { Mulish } from 'next/font/google'
 import RegistrarServiceWorker from '@/components/RegistrarServiceWorker'
 import './globals.css'
+
+// Tipografía de toda la app: Mulish (redonda y muy fácil de leer).
+const mulish = Mulish({ subsets: ['latin'], display: 'swap', variable: '--letra' })
 
 export const metadata: Metadata = {
   title: 'Asistente de confianza',
@@ -21,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" className={mulish.variable}>
       <body>
         {children}
         <RegistrarServiceWorker />
