@@ -1,5 +1,6 @@
 import BarraNavegacion from '@/components/BarraNavegacion'
-import { leerUltimaAprobacion, type PedidoDeAprobacion } from '@/lib/datos'
+import { leerConfiguracion, leerUltimaAprobacion, type PedidoDeAprobacion } from '@/lib/datos'
+import { contactosParaLlamar } from '@/lib/emergencia'
 import type { MensajeCharla } from '@/lib/ia'
 import { exigirSesion } from '@/lib/sesion'
 import Charla from './Charla'
@@ -10,7 +11,10 @@ const HORAS_PARA_RETOMAR = 2
 // Página del abuelo — responsable: Lara
 export default async function PaginaAbuelo() {
   const sesion = await exigirSesion('abuelo')
-  const pendiente = await leerUltimaAprobacion(sesion.codigoFamilia)
+  const [pendiente, configuracion] = await Promise.all([
+    leerUltimaAprobacion(sesion.codigoFamilia),
+    leerConfiguracion(sesion.codigoFamilia),
+  ])
 
   return (
     <>
@@ -19,7 +23,7 @@ export default async function PaginaAbuelo() {
         <h1>¿En qué lo ayudo?</h1>
         <Charla inicial={paraRetomar(pendiente)} />
       </main>
-      <BarraNavegacion rol={sesion.rol} />
+      <BarraNavegacion rol={sesion.rol} contactos={contactosParaLlamar(configuracion?.familiares ?? [])} />
     </>
   )
 }

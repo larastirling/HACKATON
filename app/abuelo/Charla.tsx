@@ -318,7 +318,7 @@ function EsperandoAprobacion({
   if (estado === 'error') return <p className="mensaje-error">No pude saber si la familia contestó. Pruebe llamarlos.</p>
   return (
     <p className="esperando-aprobacion" role="status">
-      ⏳ {cartel}
+      {cartel}
     </p>
   )
 }

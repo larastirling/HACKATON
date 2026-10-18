@@ -2,7 +2,7 @@
 
 import { actualizarSiVencio } from '@/lib/aprobaciones'
 import { leerAprobacion, leerConfiguracion, marcarAvisadoAlAbuelo } from '@/lib/datos'
-import { armarEmergencia } from '@/lib/emergencia'
+import { armarEmergencia, avisarEmergenciaALaFamilia } from '@/lib/emergencia'
 import {
   conversarConElAbuelo,
   type Emergencia,
@@ -81,6 +81,18 @@ export async function consultarAprobacion(id: string): Promise<EstadoDeLaAprobac
   }
   // Nadie contestó a tiempo: se le ofrece llamar al primer familiar.
   return { estado: 'sin-respuesta', llamarA: armarEmergencia(configuracion.familiares).familiar }
+}
+
+/**
+ * Botón de emergencia: les avisa a todos los familiares (mail y celular) que el abuelo pidió ayuda.
+ * Las llamadas las hace la pantalla. Si ya se avisó hace pocos minutos, no avisa de nuevo.
+ */
+export async function avisarQuePidioAyuda(): Promise<string[]> {
+  const sesion = await leerSesion()
+  if (sesion?.rol !== 'abuelo') return []
+  const configuracion = await leerConfiguracion(sesion.codigoFamilia)
+  if (!configuracion) return []
+  return avisarEmergenciaALaFamilia(configuracion, 'Necesito ayuda (tocó el botón de emergencia)')
 }
 
 function esCharlaValida(charla: unknown): charla is MensajeCharla[] {

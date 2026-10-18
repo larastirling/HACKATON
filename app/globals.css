@@ -208,6 +208,31 @@ strong { font-weight: 800; }
 .barra-boton:hover, .barra-boton:active { background: var(--fondo); }
 .barra-boton svg { width: 30px; height: 30px; color: var(--principal); }
 
+/* Botón Ayuda (emergencia) en el medio de la barra del abuelo: rojo, para que se encuentre enseguida */
+.barra-ayuda { background: var(--error); color: #fff; box-shadow: var(--sombra-boton); }
+.barra-ayuda svg { color: #fff; }
+.barra-ayuda:hover, .barra-ayuda:active { background: #8a1f16; }
+
+/* Pantalla del botón Ayuda: ocupa todo, con los pasos de llamada */
+.ayuda-pantalla {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));
+  background: var(--fondo);
+  text-align: center;
+}
+.ayuda-pantalla h2 { font-size: 1.8rem; color: var(--error); }
+.ayuda-llamando { font-size: 1.5rem; font-weight: 800; color: var(--texto-titulo); }
+.ayuda-pregunta { font-size: 1.3rem; margin-top: 8px; }
+
 /* ── Charla del abuelo ── */
 .sr-only {
   position: absolute;

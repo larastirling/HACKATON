@@ -26,11 +26,16 @@ const MAXIMO_LETRAS_CITA = 300
 
 /** Arma los botones con los teléfonos GUARDADOS en la configuración. El 911 va siempre. */
 export function armarEmergencia(familiares: Familiar[]): Emergencia {
-  const primero = [...familiares]
+  const [primero] = contactosParaLlamar(familiares)
+  return primero ? { familiar: primero } : {}
+}
+
+/** Los familiares con teléfono guardado, en orden ("orden" 1 primero), listos para llamar. */
+export function contactosParaLlamar(familiares: Familiar[]): { nombre: string; link: string }[] {
+  return [...familiares]
     .sort((a, b) => a.orden - b.orden)
-    .find((familiar) => familiar.telefono !== PENDIENTE && familiar.telefono.replace(/\D/g, '') !== '')
-  if (!primero) return {}
-  return { familiar: { nombre: primero.nombre, link: `tel:${primero.telefono.replace(/[^\d+]/g, '')}` } }
+    .filter((familiar) => familiar.telefono !== PENDIENTE && familiar.telefono.replace(/\D/g, '') !== '')
+    .map((familiar) => ({ nombre: familiar.nombre, link: `tel:${familiar.telefono.replace(/[^\d+]/g, '')}` }))
 }
 
 /**
