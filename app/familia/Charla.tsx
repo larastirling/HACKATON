@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useRef, useState, type FormEvent } from 'react'
-import { responder, type Guardado, type MensajeCharla } from './acciones'
+import { responder, type Guardado, type MensajeCharla, type RespuestaFamilia } from './acciones'
 import estilos from './charla.module.css'
 import RecuadrosGuardado from './RecuadrosGuardado'
 import TablaReglas from './TablaReglas'
@@ -23,7 +23,13 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
     setError(null)
     const r = await responder(historial).catch(() => ({ ok: false as const, error: 'No se pudo hablar con la IA' }))
     if ('guardado' in r && r.guardado) setGuardado(r.guardado)
-    if (r.ok) setMensajes([...historial, { role: 'assistant', content: r.texto, ...('tabla' in r && r.tabla && { tabla: r.tabla }) }])
+    if (r.ok) {
+      const { texto, tabla, sugerencias, preguntaPermiso, pedidoBorrar } = r as Extract<RespuestaFamilia, { ok: true }>
+      setMensajes([
+        ...historial,
+        { role: 'assistant', content: texto, ...(tabla && { tabla }), ...(sugerencias && { sugerencias }), ...(preguntaPermiso && { preguntaPermiso }), ...(pedidoBorrar && { pedidoBorrar }) },
+      ])
+    }
     else setError(r.error)
     setPensando(false)
   }
@@ -38,14 +44,19 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
     finRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [mensajes, pensando])
 
+  function mandar(mensaje: MensajeCharla) {
+    if (pensando) return
+    const historial: MensajeCharla[] = [...mensajes, mensaje]
+    setMensajes(historial)
+    pedirRespuesta(historial)
+  }
+
   function enviar(e: FormEvent) {
     e.preventDefault()
     const limpio = texto.trim()
     if (!limpio || pensando) return
-    const historial: MensajeCharla[] = [...mensajes, { role: 'user', content: limpio }]
-    setMensajes(historial)
     setTexto('')
-    pedirRespuesta(historial)
+    mandar({ role: 'user', content: limpio })
   }
 
   const ultimoEsDelUsuario = mensajes[mensajes.length - 1]?.role === 'user'
@@ -59,6 +70,8 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
           <Fragment key={i}>
             <p className={`${estilos.burbuja} ${m.role === 'user' ? estilos.yo : estilos.ia}`}>{m.content}</p>
             {m.tabla && <TablaReglas tabla={m.tabla} />}
+            {/* Los botones solo sirven en el último mensaje: si el hijo escribe otra cosa, quedan atrás sin hacer nada. */}
+            {i === mensajes.length - 2 && !pensando && <Botones mensaje={m} mandar={mandar} />}
           </Fragment>
         ))}
         {pensando && <p className={`${estilos.burbuja} ${estilos.ia} ${estilos.pensando}`}>Escribiendo…</p>}
@@ -89,4 +102,50 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
       </form>
     </>
   )
+}
+
+// Botones debajo del último mensaje de la IA: sugerencias de lugares, "¿solo o con permiso?" y "¿Seguro?".
+function Botones({ mensaje, mandar }: { mensaje: MensajeCharla; mandar: (m: MensajeCharla) => void }) {
+  if (mensaje.sugerencias?.length) {
+    return (
+      <div className={estilos.botones} role="group" aria-label="Lugares sugeridos">
+        {mensaje.sugerencias.map((l) => (
+          <button key={l.id} type="button" className={estilos.sugerencia} onClick={() => mandar({ role: 'user', content: `Va a ${l.nombre}`, eligio: l.id })}>
+            <strong>{l.nombre}</strong>
+            <span>{l.tipo} · {l.direccion}</span>
+          </button>
+        ))}
+        <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'Ninguno de esos' })}>
+          Ninguno
+        </button>
+      </div>
+    )
+  }
+  if (mensaje.preguntaPermiso) {
+    const { id } = mensaje.preguntaPermiso
+    return (
+      <div className={estilos.botones} role="group" aria-label="¿Puede ir solo o necesita permiso?">
+        {/* Los dos botones iguales: ninguno es "la opción recomendada" (nunca libre por defecto). */}
+        <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'Puede ir solo', permiso: { id, necesitaPermiso: false } })}>
+          Puede ir solo
+        </button>
+        <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'Necesita permiso', permiso: { id, necesitaPermiso: true } })}>
+          Necesita permiso
+        </button>
+      </div>
+    )
+  }
+  if (mensaje.pedidoBorrar) {
+    return (
+      <div className={estilos.botones} role="group" aria-label="¿Seguro que lo borro?">
+        <button type="button" className="boton boton-emergencia boton-911" onClick={() => mandar({ role: 'user', content: 'Sí, borrar', confirmaBorrar: true })}>
+          Sí, borrar
+        </button>
+        <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'No, dejarlo', confirmaBorrar: false })}>
+          No, dejarlo
+        </button>
+      </div>
+    )
+  }
+  return null
 }

@@ -55,7 +55,12 @@ function variantes(direccion: string): string[] {
  * Si solo encuentra la calle (o nada), devuelve null y las coordenadas quedan "PENDIENTE".
  */
 export async function buscarCoordenadas(direccion: string): Promise<UbicacionEncontrada | null> {
-  const numero = direccion.match(/\b\d{1,5}\b(?!\d)/g)?.find((n) => n.length < 5)
+  // El número de puerta es el ÚLTIMO número de la calle: en "18 de Julio 1300" es 1300, no 18.
+  const numero = direccion
+    .split(',')[0]
+    .match(/\b\d{1,5}\b(?!\d)/g)
+    ?.filter((n) => n.length < 5)
+    .at(-1)
   for (const texto of variantes(direccion)) {
     let resultado: ResultadoNominatim | null
     try {

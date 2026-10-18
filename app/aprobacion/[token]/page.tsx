@@ -26,7 +26,7 @@ export default async function PaginaAprobacion({
   }
 
   const { aprobacion } = encontrado
-  const queEs = aprobacion.que.tipo === 'viaje' ? 'el viaje' : 'el pedido'
+  const queEs = aprobacion.que.tipo === 'viaje' ? 'el viaje' : aprobacion.que.tipo === 'pedido' ? 'el pedido' : 'lo que pidió'
   return (
     <main className="pagina pagina-login">
       <h1>Pedido de aprobación</h1>

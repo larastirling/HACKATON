@@ -35,7 +35,12 @@ export default async function PaginaAbuelo() {
 function paraRetomar(aprobacion: PedidoDeAprobacion | null): MensajeCharla[] {
   if (!aprobacion || aprobacion.avisadoAlAbuelo) return []
   if (Date.now() - Date.parse(aprobacion.creadoEl) > HORAS_PARA_RETOMAR * 3_600_000) return []
-  const que = aprobacion.que.tipo === 'viaje' ? `ir a ${aprobacion.que.viaje.nombre}` : `su pedido a ${aprobacion.que.pedido.comercio}`
+  const que =
+    aprobacion.que.tipo === 'viaje'
+      ? `ir a ${aprobacion.que.viaje.nombre}`
+      : aprobacion.que.tipo === 'pedido'
+        ? `su pedido a ${aprobacion.que.pedido.comercio}`
+        : aprobacion.que.texto
   return [
     {
       de: 'ia',

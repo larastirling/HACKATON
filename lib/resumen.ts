@@ -28,6 +28,7 @@ const ETIQUETAS: Record<EventoDelDia['tipo'], string> = {
   emergencia: 'SALUD / EMERGENCIA',
   ayuda: 'BOTÓN DE AYUDA',
   estafa: 'POSIBLE ESTAFA',
+  plata: 'QUISO MANDAR PLATA',
 }
 
 /** Escribe el resumen de hoy (no manda nada). */
