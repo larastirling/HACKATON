@@ -158,7 +158,7 @@ export default function ActivarAvisos({ familiares, clavePublica }: { familiares
     case 'activado':
       return (
         <section className="tarjeta">
-          <p className="respuesta-aprobacion-titulo">✅ Los avisos ya están activados en este celular para {estado.familiar}.</p>
+          <p className="respuesta-aprobacion-titulo">Los avisos ya están activados en este celular para {estado.familiar}.</p>
           <button className="boton boton-principal" onClick={probar} disabled={ocupado}>
             Mandarme un aviso de prueba
           </button>
@@ -182,12 +182,12 @@ export default function ActivarAvisos({ familiares, clavePublica }: { familiares
                 className={`boton ${elegido === nombre ? 'boton-principal' : 'boton-secundario'}`}
                 onClick={() => setElegido(nombre)}
               >
-                {elegido === nombre ? '✔ ' : ''}Soy {nombre}
+                Soy {nombre}
               </button>
             ))}
           </div>
           <button className="boton boton-uber" onClick={activar} disabled={!elegido || ocupado}>
-            🔔 Activar avisos en este celular
+            Activar avisos en este celular
           </button>
           {aviso}
         </section>

@@ -15,7 +15,7 @@ export default async function PaginaEmergencia() {
   return (
     <>
       <main className="pagina">
-        <h1>⚠️ {nombre} puede necesitar ayuda</h1>
+        <h1>{nombre} puede necesitar ayuda</h1>
         {aviso ? (
           <p className="tarjeta">
             A las {hora} dijo: <strong>“{aviso.loQueDijo}”</strong>
@@ -25,7 +25,7 @@ export default async function PaginaEmergencia() {
         )}
         {tieneTelefono ? (
           <a className="boton boton-emergencia boton-911" href={`tel:${telefono.replace(/[^\d+]/g, '')}`}>
-            📞 Llamar a {nombre}
+            Llamar a {nombre}
           </a>
         ) : (
           <p className="tarjeta mensaje-error">No tenemos el teléfono de {nombre} guardado.</p>

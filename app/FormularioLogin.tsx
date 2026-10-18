@@ -14,10 +14,10 @@ export default function FormularioLogin() {
   return (
     <div className="tarjeta">
       <button type="button" className="boton boton-principal" onClick={() => setQuien('abuelo')}>
-        👴 Soy el abuelo
+        Soy el abuelo
       </button>
       <button type="button" className="boton boton-secundario" onClick={() => setQuien('familiar')}>
-        👨‍👩‍👧 Soy familiar
+        Soy familiar
       </button>
     </div>
   )

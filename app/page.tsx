@@ -9,7 +9,7 @@ export default async function Inicio() {
 
   return (
     <main className="pagina pagina-login">
-      <h1>Asistente de confianza</h1>
+      <h1 className="marca">Contigo</h1>
       <p className="subtitulo">¿Quién sos?</p>
       <FormularioLogin />
     </main>

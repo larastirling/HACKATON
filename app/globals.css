@@ -1,15 +1,16 @@
 /* Diseño pensado para personas mayores:
    letra grande, botones grandes, mucho contraste y barra de navegación abajo.
-   Estilo: fondo blanco, letra Mulish en marrón y detalles cálidos. */
+   Estilo: fondo marrón clarito, tarjetas blancas y letra Mulish en marrón. */
 
 :root {
   --texto: #4a3123;              /* marrón medio oscuro: contraste 11:1 con blanco */
   --texto-titulo: #3a2519;
   --texto-suave: #7a6152;        /* contraste 5.6:1 con blanco */
-  --fondo: #ffffff;
-  --fondo-tarjeta: #faf6f1;      /* crema muy suave */
-  --fondo-calido: #f4ece3;
-  --linea: #ebe0d5;              /* bordes finos de tarjetas */
+  --fondo: #f3ebe2;              /* marrón clarito: la letra marrón sigue con contraste 9:1 */
+  --blanco: #ffffff;
+  --fondo-tarjeta: #ffffff;
+  --fondo-calido: #e9ddcf;
+  --linea: #e4d6c7;              /* bordes finos de tarjetas */
   --linea-fuerte: #c9b5a3;       /* bordes de cajas para escribir */
   --principal: #6b4226;          /* marrón: contraste 9:1 con blanco */
   --principal-hover: #57351e;
@@ -20,7 +21,7 @@
   --ok: #2f6b3f;                 /* verde: contraste 6.6:1 con blanco */
   --ok-suave: #edf6ef;
   --borde: var(--linea-fuerte);
-  --sombra: 0 1px 2px rgb(74 49 35 / 0.06), 0 6px 20px rgb(74 49 35 / 0.07);
+  --sombra: 0 1px 2px rgb(74 49 35 / 0.05), 0 8px 24px rgb(74 49 35 / 0.08);
   --sombra-boton: 0 2px 6px rgb(74 49 35 / 0.18);
   --radio: 20px;
   --alto-barra: 84px;
@@ -70,12 +71,31 @@ strong { font-weight: 800; }
 
 /* En el inicio, el título va centrado */
 .pagina-login > h1 { text-align: center; }
+
+/* Nombre de la app en el inicio */
+.marca {
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  padding-left: 0.18em;          /* compensa el espacio después de la última letra: queda centrado */
+  text-transform: uppercase;
+  color: var(--principal);
+}
+.marca::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 3px;
+  margin: 14px auto 0;
+  border-radius: 2px;
+  background: var(--linea-fuerte);
+}
 .pagina-login > .subtitulo { text-align: center; }
 
 .subtitulo { font-size: 1.1rem; color: var(--texto-suave); margin-top: -8px; }
 
 .tarjeta {
-  background: var(--fondo);
+  background: var(--blanco);
   border: 1px solid var(--linea);
   border-radius: var(--radio);
   box-shadow: var(--sombra);
@@ -158,7 +178,7 @@ strong { font-weight: 800; }
   display: flex;
   height: calc(var(--alto-barra) + env(safe-area-inset-bottom));
   padding: 0 8px env(safe-area-inset-bottom);
-  background: rgb(255 255 255 / 0.96);
+  background: rgb(255 255 255 / 0.97);
   border-top: 1px solid var(--linea);
   box-shadow: 0 -4px 20px rgb(74 49 35 / 0.06);
   backdrop-filter: blur(8px);
@@ -185,7 +205,7 @@ strong { font-weight: 800; }
   cursor: pointer;
   transition: background-color 0.15s;
 }
-.barra-boton:hover, .barra-boton:active { background: var(--fondo-calido); }
+.barra-boton:hover, .barra-boton:active { background: var(--fondo); }
 .barra-boton svg { width: 30px; height: 30px; color: var(--principal); }
 
 /* ── Charla del abuelo ── */
@@ -212,8 +232,9 @@ strong { font-weight: 800; }
   color: var(--texto-suave);
   padding: 20px 22px;
   border-radius: var(--radio);
-  background: var(--fondo-tarjeta);
-  border: 1px dashed var(--linea-fuerte);
+  background: var(--blanco);
+  border: 1px solid var(--linea);
+  box-shadow: var(--sombra);
 }
 
 .burbuja {
@@ -269,7 +290,7 @@ strong { font-weight: 800; }
   flex-direction: column;
   gap: 12px;
   padding: 12px 0;
-  background: linear-gradient(to bottom, rgb(255 255 255 / 0), var(--fondo) 16px);
+  background: linear-gradient(to bottom, rgb(243 235 226 / 0), var(--fondo) 16px);
 }
 
 .charla-caja {
@@ -443,10 +464,9 @@ a.boton {
 .invitar-instalar { display: flex; flex-direction: column; gap: 12px; }
 .invitar-cartel {
   width: 100%;
-  padding: 14px 18px;
-  border: 1px solid var(--linea);
-  border-radius: 16px;
-  background: var(--fondo-tarjeta);
+  padding: 4px 0;
+  border: none;
+  background: none;
   color: var(--texto);
   font: inherit;
   font-size: 1.05rem;
@@ -454,7 +474,7 @@ a.boton {
   text-align: left;
   cursor: pointer;
 }
-.invitar-cartel strong { color: var(--principal); }
+.invitar-cartel strong { color: var(--principal); text-decoration: underline; text-underline-offset: 3px; }
 .invitar-pasos {
   position: fixed;
   inset: 0;

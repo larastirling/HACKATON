@@ -13,9 +13,9 @@ export default async function PaginaPrueba() {
       <main className="pagina">
         <h1>Prueba</h1>
         <ul className="tarjeta lista-estado">
-          <li>Base de datos: {modoAlmacenamiento === 'redis' ? '✅ Upstash Redis' : '⚠️ En memoria (temporal)'}</li>
-          <li>Clave de la IA: {process.env.ANTHROPIC_API_KEY ? '✅ Cargada' : '❌ Falta la clave de la IA'}</li>
-          <li>Token para Gmail: {process.env.CONFIG_API_TOKEN ? '✅ Cargado' : '❌ Falta CONFIG_API_TOKEN'}</li>
+          <li>Base de datos: {modoAlmacenamiento === 'redis' ? 'Upstash Redis' : 'En memoria (temporal)'}</li>
+          <li>Clave de la IA: {process.env.ANTHROPIC_API_KEY ? 'Cargada' : 'Falta la clave de la IA'}</li>
+          <li>Token para Gmail: {process.env.CONFIG_API_TOKEN ? 'Cargado' : 'Falta CONFIG_API_TOKEN'}</li>
         </ul>
         <BotonesDePrueba />
         <RestaurarDemo />

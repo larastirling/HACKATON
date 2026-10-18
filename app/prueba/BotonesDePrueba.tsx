@@ -49,7 +49,6 @@ function MostrarResultado({ resultado }: { resultado: Resultado }) {
   if (!resultado) return null
   return (
     <p className={resultado.ok ? 'mensaje-ok' : 'mensaje-error'} role="status">
-      {resultado.ok ? '✅ ' : '❌ '}
       {resultado.texto}
     </p>
   )

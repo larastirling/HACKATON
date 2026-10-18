@@ -41,7 +41,7 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 10px 16px;
-  background: linear-gradient(to bottom, rgb(255 255 255 / 0), var(--fondo) 12px);
+  background: linear-gradient(to bottom, rgb(243 235 226 / 0), var(--fondo) 12px);
 }
 
 .entrada {
@@ -62,7 +62,7 @@
 
 /* Recuadro "Lugares guardados" */
 .guardado {
-  background: var(--fondo);
+  background: var(--blanco);
   border: 1px solid var(--linea);
   border-radius: var(--radio);
   box-shadow: var(--sombra);

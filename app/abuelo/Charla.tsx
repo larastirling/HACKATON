@@ -121,7 +121,7 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
                 className="boton boton-escuchar"
                 onClick={() => decirEnVozAlta(mensaje.texto, { enEsteToque: true })}
               >
-                🔊 Escuchar
+                Escuchar
               </button>
             )}
             {mensaje.emergencia && <BotonesEmergencia emergencia={mensaje.emergencia} />}
@@ -180,7 +180,7 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
               onClick={tocarHablar}
               aria-pressed={dictado.escuchando}
             >
-              {dictado.escuchando ? '🔴 Escuchando... toque para terminar' : '🎤 Hablar'}
+              {dictado.escuchando ? 'Escuchando... toque para terminar' : 'Hablar'}
             </button>
           )}
           <button type="submit" className="boton boton-principal boton-enviar" disabled={pensando || !texto.trim()}>
@@ -201,7 +201,7 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
 function TarjetaViaje({ viaje }: { viaje: Viaje }) {
   return (
     <section className="tarjeta-viaje" aria-label={`Viaje a ${viaje.nombre}`}>
-      <p className="tarjeta-viaje-titulo">🚗 Viaje a</p>
+      <p className="tarjeta-viaje-titulo">Viaje a</p>
       <p className="tarjeta-viaje-destino">{viaje.nombre}</p>
       <p className="tarjeta-viaje-direccion">{viaje.direccion}</p>
       <a className="boton boton-uber" href={viaje.link} target="_blank" rel="noopener noreferrer">
@@ -216,11 +216,11 @@ function BotonesEmergencia({ emergencia }: { emergencia: Emergencia }) {
   return (
     <section className="botones-emergencia" aria-label="Botones de emergencia">
       <a className="boton boton-emergencia boton-911" href="tel:911">
-        📞 Llamar al 911
+        Llamar al 911
       </a>
       {emergencia.familiar && (
         <a className="boton boton-emergencia boton-familiar" href={emergencia.familiar.link}>
-          📞 Llamar a {emergencia.familiar.nombre}
+          Llamar a {emergencia.familiar.nombre}
         </a>
       )}
       {emergencia.avisados && emergencia.avisados.length > 0 && (
@@ -234,7 +234,7 @@ function BotonesEmergencia({ emergencia }: { emergencia: Emergencia }) {
 function TarjetaPedido({ pedido }: { pedido: Pedido }) {
   return (
     <section className="tarjeta-viaje" aria-label={`Pedido a ${pedido.comercio}`}>
-      <p className="tarjeta-viaje-titulo">🛵 Pedido a</p>
+      <p className="tarjeta-viaje-titulo">Pedido a</p>
       <p className="tarjeta-viaje-destino">{pedido.comercio}</p>
       <p className="tarjeta-viaje-direccion">
         {pedido.pedido}
@@ -326,7 +326,7 @@ function EsperandoAprobacion({
 function BotonLlamar({ nombre, link }: { nombre: string; link: string }) {
   return (
     <a className="boton boton-emergencia boton-familiar" href={link}>
-      📞 Llamar a {nombre}
+      Llamar a {nombre}
     </a>
   )
 }

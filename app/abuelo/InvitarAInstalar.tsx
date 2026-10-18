@@ -66,7 +66,7 @@ export default function InvitarAInstalar() {
   return (
     <section className="invitar-instalar">
       <button type="button" className="invitar-cartel" onClick={() => setAbierto(!abierto)} aria-expanded={abierto}>
-        📲 ¿Quiere tener el Asistente como una app? <strong>Toque aquí y le mostramos cómo</strong>
+        ¿Quiere tener el Asistente como una app? <strong>Toque aquí y le mostramos cómo</strong>
       </button>
 
       {/* La explicación ocupa toda la pantalla, para que se lean todos los pasos sin bajar. */}
@@ -75,7 +75,7 @@ export default function InvitarAInstalar() {
           <h2>Cómo tener el Asistente como una app</h2>
           {instalarYa && (
             <button type="button" className="boton boton-uber" onClick={instalar}>
-              📲 Instalar ahora
+              Instalar ahora
             </button>
           )}
           {celular !== 'android' && <PasosIphone titulo={celular === 'otro'} />}
