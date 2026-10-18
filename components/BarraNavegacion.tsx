@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { salir } from '@/app/acciones'
 import BotonAyuda from '@/app/abuelo/BotonAyuda'
 import { paginaDeInicio, type Rol } from '@/lib/sesion'
+import BotonSalir from './BotonSalir'
 
 // Barra fija abajo de la pantalla, con botones grandes.
 // Si recibe los contactos de emergencia (pantalla del abuelo), muestra el botón Ayuda en el medio.
@@ -25,12 +25,7 @@ export default function BarraNavegacion({ rol, contactos }: { rol: Rol; contacto
           Prueba
         </Link>
       )}
-      <form action={salir} className="barra-formulario">
-        <button type="submit" className="barra-boton">
-          <Icono trazos="M14 4H6v16h8M10 12h10M17 8.5 20.5 12 17 15.5" />
-          Salir
-        </button>
-      </form>
+      <BotonSalir preguntar={rol === 'abuelo'} icono={<Icono trazos="M14 4H6v16h8M10 12h10M17 8.5 20.5 12 17 15.5" />} />
     </nav>
   )
 }

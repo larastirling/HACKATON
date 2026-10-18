@@ -178,10 +178,9 @@ strong { font-weight: 800; }
   display: flex;
   height: calc(var(--alto-barra) + env(safe-area-inset-bottom));
   padding: 0 8px env(safe-area-inset-bottom);
-  background: rgb(255 255 255 / 0.97);
+  background: #fff; /* sin backdrop-filter: encerraría las pantallas de Ayuda y Salir dentro de la barra */
   border-top: 1px solid var(--linea);
   box-shadow: 0 -4px 20px rgb(74 49 35 / 0.06);
-  backdrop-filter: blur(8px);
 }
 
 .barra-formulario { flex: 1; display: flex; }
@@ -213,8 +212,8 @@ strong { font-weight: 800; }
 .barra-ayuda svg { color: #fff; }
 .barra-ayuda:hover, .barra-ayuda:active { background: #8a1f16; }
 
-/* Pantalla del botón Ayuda: ocupa todo, con los pasos de llamada */
-.ayuda-pantalla {
+/* Pantallas que ocupan todo: el botón Ayuda (pasos de llamada) y "¿Quiere salir?" */
+.ayuda-pantalla, .salir-pantalla {
   position: fixed;
   inset: 0;
   z-index: 40;
@@ -230,6 +229,7 @@ strong { font-weight: 800; }
   text-align: center;
 }
 .ayuda-pantalla h2 { font-size: 1.8rem; color: var(--error); }
+.salir-pantalla h2 { font-size: 1.8rem; }
 .ayuda-llamando { font-size: 1.5rem; font-weight: 800; color: var(--texto-titulo); }
 .ayuda-pregunta { font-size: 1.3rem; margin-top: 8px; }
 

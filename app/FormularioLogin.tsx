@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { crearFamiliaNueva, entrarAbuelo, entrarFamiliar } from './acciones'
 
 // Dos formas de entrar: el abuelo con el código de su familia, el familiar con su mail.
@@ -23,13 +23,41 @@ export default function FormularioLogin() {
   )
 }
 
+// El celular recuerda el último código, así si alguna vez sale, para volver a entrar solo toca "Entrar".
+const CLAVE_CODIGO = 'contigo-codigo-familia'
+
 function EntrarAbuelo({ volver }: { volver: () => void }) {
   const [estado, accion, enviando] = useActionState(entrarAbuelo, null)
+  const [codigo, setCodigo] = useState('')
+
+  useEffect(() => {
+    try {
+      setCodigo(localStorage.getItem(CLAVE_CODIGO) ?? '')
+    } catch {
+      // sin acceso al almacenamiento del navegador: se escribe a mano
+    }
+  }, [])
+
+  function recordar() {
+    try {
+      localStorage.setItem(CLAVE_CODIGO, codigo.trim())
+    } catch {}
+  }
+
   return (
-    <form action={accion} className="tarjeta">
+    <form action={accion} onSubmit={recordar} className="tarjeta">
       <label className="campo">
         Código de su familia
-        <input name="codigo" type="text" autoComplete="off" autoCapitalize="characters" placeholder="Se lo da su familia" required />
+        <input
+          name="codigo"
+          type="text"
+          autoComplete="off"
+          autoCapitalize="characters"
+          placeholder="Se lo da su familia"
+          value={codigo}
+          onChange={(e) => setCodigo(e.target.value)}
+          required
+        />
       </label>
       {estado?.error && <p className="mensaje-error" role="alert">{estado.error}</p>}
       <button type="submit" className="boton boton-principal" disabled={enviando}>
