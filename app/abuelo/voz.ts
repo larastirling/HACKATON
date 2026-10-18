@@ -6,9 +6,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 /** Idiomas para escuchar (dictado), en orden de preferencia. */
 const IDIOMAS = ['es-UY', 'es-AR', 'es-419', 'es-ES']
 /** Voces para leer en voz alta, en orden de preferencia. */
-const IDIOMAS_VOZ = ['es-UY', 'es-AR', 'es-419', 'es-MX', 'es-ES']
-/** Un poco más lento de lo normal (1 = normal). */
-const VELOCIDAD = 0.9
+const IDIOMAS_VOZ = ['es-UY', 'es-AR', 'es-419', 'es-US', 'es-MX', 'es-ES']
+/** Velocidad normal, apenas más pausada (1 = normal). */
+const VELOCIDAD = 0.95
 const CLAVE_SILENCIO = 'asistente-voz-silenciada-v2'
 /** La versión anterior guardaba el silencio con esta clave: se borra para que la voz arranque activada. */
 const CLAVE_SILENCIO_VIEJA = 'asistente-voz-silenciada'
@@ -23,14 +23,30 @@ function hayVoz(): boolean {
 
 let vozElegida: SpeechSynthesisVoice | null = null
 
-/** La mejor voz en español: es-UY, es-AR, es-419, es-MX, es-ES; si no, cualquiera en "es". */
+// Para que suene como un asistente de verdad (tipo Alexa): voz de mujer, natural y clara.
+/** Voces "de juguete" de iPhone y Mac (robots, efectos, abuelos de caricatura): nunca se usan. */
+const VOCES_DE_JUGUETE =
+  /\b(eddy|flo|grandma|grandpa|abuela|abuelo|reed|rocko|sandy|shelley|albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|kathy|ralph)\b/i
+/** Voces naturales conocidas (iPhone, Android/Chrome, Windows/Edge), de mujer. */
+const VOCES_NATURALES =
+  /(paulina|m[oó]nica|marisol|francisca|isabela|angelica|sof[ií]a|elena|dalia|helena|laura|valentina|camila|google|natural|neural|online)/i
+/** Las versiones "mejoradas" o "premium" suenan mucho mejor que las comunes. */
+const VOCES_MEJORADAS = /(premium|enhanced|mejorada|alta calidad|natural|neural|online)/i
+
+/** Elige la voz en español que suene más natural. Devuelve null si el celular no tiene ninguna en español. */
 function elegirVoz(voces: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
   const normalizar = (lang: string) => lang.replace('_', '-').toLowerCase()
-  for (const idioma of IDIOMAS_VOZ) {
-    const voz = voces.find((v) => normalizar(v.lang) === idioma.toLowerCase())
-    if (voz) return voz
+  const puntaje = (voz: SpeechSynthesisVoice) => {
+    const idioma = IDIOMAS_VOZ.findIndex((i) => normalizar(voz.lang) === i.toLowerCase())
+    return (
+      (VOCES_MEJORADAS.test(voz.name) ? 100 : 0) +
+      (VOCES_NATURALES.test(voz.name) ? 50 : 0) +
+      (idioma === -1 ? 0 : 20 - idioma * 3) + // el español de acá suma un poco más
+      (voz.localService ? 1 : 0) // las del celular arrancan más rápido
+    )
   }
-  return voces.find((v) => normalizar(v.lang).startsWith('es')) ?? null
+  const enEspanol = voces.filter((v) => normalizar(v.lang).startsWith('es') && !VOCES_DE_JUGUETE.test(v.name))
+  return enEspanol.sort((a, b) => puntaje(b) - puntaje(a))[0] ?? null
 }
 
 /** Carga las voces del celular (en iPhone llegan un rato después: evento "voiceschanged"). */
