@@ -46,7 +46,7 @@ export async function responderAlAbuelo(charla: MensajeCharla[]): Promise<Respue
 
 export type EstadoDeLaAprobacion =
   | { estado: 'esperando'; familiares: string[] }
-  | { estado: 'aprobado'; familiar: string; viaje?: Viaje; pedido?: Pedido }
+  | { estado: 'aprobado'; familiar: string; viaje?: Viaje; pedido?: Pedido; consulta?: string }
   | { estado: 'rechazado'; familiar: string; llamar?: string }
   | { estado: 'sin-respuesta'; llamarA?: { nombre: string; link: string } }
   | { estado: 'no-encontrado' }
@@ -72,9 +72,9 @@ export async function consultarAprobacion(id: string): Promise<EstadoDeLaAprobac
   const quien = aprobacion.respondidoPor ?? ''
 
   if (aprobacion.estado === 'aprobado') {
-    return aprobacion.que.tipo === 'viaje'
-      ? { estado: 'aprobado', familiar: quien, viaje: aprobacion.que.viaje }
-      : { estado: 'aprobado', familiar: quien, pedido: aprobacion.que.pedido }
+    if (aprobacion.que.tipo === 'viaje') return { estado: 'aprobado', familiar: quien, viaje: aprobacion.que.viaje }
+    if (aprobacion.que.tipo === 'pedido') return { estado: 'aprobado', familiar: quien, pedido: aprobacion.que.pedido }
+    return { estado: 'aprobado', familiar: quien, consulta: aprobacion.que.texto }
   }
   if (aprobacion.estado === 'rechazado') {
     // Se le ofrece llamar al familiar que contestó.

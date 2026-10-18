@@ -87,3 +87,24 @@
 }
 .codigo strong { font-size: 1.6rem; letter-spacing: 0.12em; color: var(--principal); }
 .codigo span { font-size: 0.9rem; color: var(--texto-suave); }
+
+/* Botones debajo del mensaje de la IA (sugerencias, permiso, borrar) */
+.botones { display: flex; flex-direction: column; gap: 10px; }
+.botones :global(.boton) { min-height: 60px; font-size: 1.1rem; }
+.sugerencia {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 14px 18px;
+  border: 2px solid var(--principal);
+  border-radius: 16px;
+  background: var(--blanco);
+  color: var(--texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sugerencia strong { font-size: 1.1rem; color: var(--principal); }
+.sugerencia span { font-size: 0.9rem; color: var(--texto-suave); }
+.sugerencia:hover { background: var(--principal-suave); }

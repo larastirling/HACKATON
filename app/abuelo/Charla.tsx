@@ -311,7 +311,9 @@ function EsperandoAprobacion({
           avisar.current(
             resultado.viaje
               ? { de: 'ia', texto: `${quien} aprobó el viaje. Toque el botón verde para abrir Uber.`, viaje: resultado.viaje }
-              : { de: 'ia', texto: `${quien} aprobó el pedido. Toque el botón verde para abrir WhatsApp y después apriete enviar.`, pedido: resultado.pedido },
+              : resultado.pedido
+                ? { de: 'ia', texto: `${quien} aprobó el pedido. Toque el botón verde para abrir WhatsApp y después apriete enviar.`, pedido: resultado.pedido }
+                : { de: 'ia', texto: `${quien} dijo que sí. Si quiere organizarlo, puede llamar a ${quien}.` },
           )
         } else if (resultado.estado === 'rechazado') {
           const quien = resultado.familiar

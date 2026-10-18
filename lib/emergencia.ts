@@ -178,6 +178,32 @@ export async function avisarEstafaALaFamilia(configuracion: ConfiguracionAbuelo,
   return { ...estafa, ...(avisados.length > 0 && { avisados }) }
 }
 
+/**
+ * Si el abuelo quiere mandar o transferir plata (o alguien se la pide): NO se consulta ni se hace nada,
+ * solo se les avisa a los familiares para que lo llamen. Como máximo un aviso cada 10 minutos.
+ */
+export async function avisarPedidoDePlata(configuracion: ConfiguracionAbuelo, loQueDijo: string): Promise<string[]> {
+  const familiares = familiaresEnOrden(configuracion)
+  if (familiares.length === 0) return []
+  const candado = `plata:${configuracion.codigoFamilia}`
+  if (!(await tomarCandado(candado, MINUTOS_ENTRE_AVISOS_DE_EMERGENCIA * 60))) return familiares.map((f) => f.nombre)
+
+  const nombre = primerNombre(configuracion.abuelo.nombre)
+  const cita = loQueDijo.trim().slice(0, MAXIMO_LETRAS_CITA)
+  const telefono = configuracion.abuelo.telefono
+  const tieneTelefono = telefono !== PENDIENTE && telefono.replace(/\D/g, '') !== ''
+  await anotarEnElDiario(configuracion.codigoFamilia, 'plata', cita)
+  const avisados = await avisarATodos(configuracion, {
+    asunto: `${nombre} quiso mandar plata`,
+    titulo: `${nombre} quiso mandar plata`,
+    parrafo: `Le dijo al asistente: "${cita}". El asistente no manda ni transfiere plata, así que no se hizo nada. Llamalo para ver qué necesita.`,
+    ...(tieneTelefono && { boton: { texto: `Llamar a ${nombre}`, link: `tel:${telefono.replace(/[^\d+]/g, '')}`, color: '#6b4226' } }),
+    notificacion: { titulo: `${nombre} quiso mandar plata`, cuerpo: `Dijo: "${cita}". No se hizo nada. Llamalo.`, url: '/familia', etiqueta: 'plata' },
+  })
+  if (avisados.length === 0) await soltarCandado(candado)
+  return avisados
+}
+
 /** Manda el mismo aviso a todos los familiares: un mail (a los que tienen mail) y una notificación al celular. */
 async function avisarATodos(
   configuracion: ConfiguracionAbuelo,

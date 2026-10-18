@@ -1,8 +1,9 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { pedirPermiso } from './aprobaciones'
-import { primerNombre, type ConfiguracionAbuelo, type QueSePidio } from './datos'
-import { armarEmergencia, avisarEmergenciaALaFamilia, avisarEstafaALaFamilia, type Emergencia, type Estafa } from './emergencia'
+import { primerNombre, ZONA_HORARIA, type ConfiguracionAbuelo, type QueSePidio } from './datos'
+import { armarEmergencia, avisarEmergenciaALaFamilia, avisarEstafaALaFamilia, avisarPedidoDePlata, type Emergencia, type Estafa } from './emergencia'
+import { buscarCoordenadas } from './mapas'
 import { juntarNombres } from './texto'
 import { armarViajeUber, type Viaje } from './uber'
 import { armarPedidoWhatsApp, type Pedido } from './whatsapp'
@@ -65,6 +66,9 @@ export async function charlarConLaIA(
  * - proponer_viaje: elige el id del lugar y el servidor arma el link de Uber.
  * - mostrar_emergencia: el servidor muestra los botones para llamar al 911 y al primer familiar.
  * - alertar_estafa: el servidor muestra un cartel rojo y les avisa a los familiares (mail y celular).
+ * - consultar_a_la_familia: algo fuera de lo común (lugar no guardado, muy lejos, hora rara): en vez de decir
+ *   que no, se le pide aprobación a la familia. Si es un viaje y el mapa encuentra el lugar, al aprobar sale el Uber.
+ * - avisar_pedido_de_plata: quiere mandar plata. No se consulta ni se hace nada: solo se avisa a la familia.
  * - proponer_pedido: elige el id del comercio (y una aclaración, o lo distinto que pidió) y el servidor
  *   arma el link de WhatsApp.
  * Si algo necesita permiso, lo decide el SERVIDOR (lib/aprobaciones.ts): en vez del botón, le pregunta
@@ -139,6 +143,41 @@ export async function conversarConElAbuelo(
     return `Listo: debajo de tu respuesta el abuelo ve un cartel rojo grande que dice que puede ser una estafa.${aviso} Decile en dos o tres frases cortas y claras: que no dé ningún dato, clave ni código, que no mande plata y que corte. Si se avisó a la familia, contale que ya les avisaste. No escribas números de teléfono.`
   }
 
+  /** Algo fuera de lo común: no se rechaza, se le consulta a la familia (igual que un lugar con permiso). */
+  async function consultarALaFamilia(entrada: { descripcion?: unknown; destino?: unknown; lugar_id?: unknown }): Promise<string> {
+    const descripcion = typeof entrada.descripcion === 'string' ? entrada.descripcion.trim().slice(0, 200) : ''
+    if (!descripcion) return 'No se consultó: falta qué quiere hacer.'
+    const lugar = lugares.find((l) => l.id === entrada.lugar_id)
+    if (lugar) {
+      const propuesto = armarViajeUber(lugar)
+      if (propuesto) return pedirPermisoALaFamilia(`${nombreAbuelo} quiere ${descripcion}`, { tipo: 'viaje', viaje: propuesto })
+    }
+    const destino = typeof entrada.destino === 'string' ? entrada.destino.trim().slice(0, 120) : ''
+    if (destino) {
+      // El lugar no está guardado: si el mapa lo encuentra, al aprobar se le muestra el Uber. Nunca se inventa.
+      const ubicacion = await buscarCoordenadas(destino)
+      const propuesto =
+        ubicacion &&
+        armarViajeUber({
+          nombre: destino,
+          apodos: [],
+          direccion: ubicacion.direccionDelMapa.split(',').slice(0, 3).join(',').trim(),
+          latitud: ubicacion.latitud,
+          longitud: ubicacion.longitud,
+          necesitaPermiso: true,
+        })
+      if (propuesto) return pedirPermisoALaFamilia(`${nombreAbuelo} quiere ${descripcion}`, { tipo: 'viaje', viaje: propuesto })
+    }
+    return pedirPermisoALaFamilia(`${nombreAbuelo} quiere ${descripcion}`, { tipo: 'consulta', texto: descripcion })
+  }
+
+  async function avisarPlata(): Promise<string> {
+    const loQueDijo = charla.findLast((mensaje) => mensaje.de === 'abuelo')?.texto ?? ''
+    const avisados = await avisarPedidoDePlata(configuracion, loQueDijo)
+    const aviso = avisados.length > 0 ? `El sistema ya les avisó a ${juntarNombres(avisados)}.` : 'No se le pudo avisar a nadie de la familia.'
+    return `NO se mandó plata ni se le preguntó nada a la familia: el asistente nunca manda ni transfiere plata. ${aviso} Decile con calma, en una o dos frases, que eso no lo podés hacer y que ${avisados.length > 0 ? 'ya le avisaste a la familia para que lo llamen' : 'es mejor que lo hable con la familia'}.`
+  }
+
   async function proponerViaje(lugarId: unknown): Promise<string> {
     const lugar = lugares.find((l) => l.id === lugarId)
     if (!lugar) return 'Ese id no corresponde a ningún lugar guardado. No inventes lugares.'
@@ -163,12 +202,16 @@ export async function conversarConElAbuelo(
     tools: [
       HERRAMIENTA_MOSTRAR_EMERGENCIA,
       HERRAMIENTA_ALERTAR_ESTAFA,
+      herramientaConsultarALaFamilia(lugares.map((l) => l.id)),
+      HERRAMIENTA_AVISAR_PEDIDO_DE_PLATA,
       ...(lugares.length > 0 ? [herramientaProponerViaje(lugares.map((l) => l.id))] : []),
       ...(comercios.length > 0 ? [herramientaProponerPedido(comercios.map((c) => c.id))] : []),
     ],
     usarHerramienta: (bloque) => {
       if (bloque.name === 'mostrar_emergencia') return mostrarEmergencia()
       if (bloque.name === 'alertar_estafa') return alertarEstafa((bloque.input as { motivo?: unknown }).motivo)
+      if (bloque.name === 'consultar_a_la_familia') return consultarALaFamilia(bloque.input as Record<string, unknown>)
+      if (bloque.name === 'avisar_pedido_de_plata') return avisarPlata()
       if (bloque.name === 'proponer_viaje') return proponerViaje((bloque.input as { lugar_id?: unknown }).lugar_id)
       if (bloque.name === 'proponer_pedido') {
         const entrada = bloque.input as { comercio_id?: unknown; aclaracion?: unknown; pedido_distinto?: unknown }
@@ -250,6 +293,50 @@ const HERRAMIENTA_ALERTAR_ESTAFA: Anthropic.Beta.BetaTool = {
   strict: true,
 }
 
+function herramientaConsultarALaFamilia(idsDeLugares: string[]): Anthropic.Beta.BetaTool {
+  return {
+    name: 'consultar_a_la_familia',
+    description:
+      'Para pedidos fuera de lo común (un lugar que no está guardado, un viaje muy lejos, algo a una hora rara): en vez de decirle que no, ' +
+      'le pide aprobación a la familia (por mail y al celular) y la pantalla espera la respuesta. ' +
+      'NUNCA para plata (usá avisar_pedido_de_plata), emergencias (mostrar_emergencia) ni temas de salud.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        descripcion: {
+          type: 'string',
+          description: 'Qué quiere, en pocas palabras y en tercera persona, para el mail a la familia. Ej. "ir a Punta del Este", "ir al casino a las 3 de la mañana".',
+        },
+        destino: {
+          type: 'string',
+          description: 'Si quiere ir a un lugar que NO está guardado: el lugar tal cual lo dijo (ej. "Punta del Este"). Si no, "".',
+        },
+        lugar_id: {
+          type: 'string',
+          description: `Si es un lugar guardado (pero a una hora rara, por ejemplo): su id (${idsDeLugares.join(', ') || 'no hay lugares'}). Si no, "".`,
+        },
+      },
+      required: ['descripcion', 'destino', 'lugar_id'],
+      additionalProperties: false,
+    },
+    strict: true,
+  }
+}
+
+const HERRAMIENTA_AVISAR_PEDIDO_DE_PLATA: Anthropic.Beta.BetaTool = {
+  name: 'avisar_pedido_de_plata',
+  description:
+    'Cuando quiere mandar, depositar o transferir plata a alguien (o alguien le pide plata y no parece una estafa). ' +
+    'No manda nada ni le pregunta a la familia: solo les avisa a los familiares para que lo llamen.',
+  input_schema: {
+    type: 'object',
+    properties: { motivo: { type: 'string', description: 'En pocas palabras, qué quiere hacer con la plata.' } },
+    required: ['motivo'],
+    additionalProperties: false,
+  },
+  strict: true,
+}
+
 function herramientaProponerViaje(ids: string[]): Anthropic.Beta.BetaTool {
   return {
     name: 'proponer_viaje',
@@ -302,7 +389,7 @@ VIAJES EN UBER
 Podés proponerle un viaje en Uber a un lugar GUARDADO con la herramienta proponer_viaje, pasando solo el id del lugar. La pantalla le muestra una tarjeta con un botón "Abrir Uber"; el auto lo pide él al tocarlo, vos nunca lo pedís.
 - Usala solo cuando quede claro a qué lugar guardado quiere ir. Si un nombre o apodo corresponde a más de un lugar, primero preguntale cuál.
 - Si el lugar necesita permiso, usala igual: el sistema le pregunta a la familia por mail y te dice qué contestarle.
-- Si quiere ir a un lugar que no está guardado, no lo busques ni inventes nada: decile que ese lugar no lo tenés anotado y que le pida a la familia que lo agregue.
+- Si quiere ir a un lugar que no está guardado, no le digas que no: usá consultar_a_la_familia con el destino tal cual lo dijo. Nunca inventes direcciones.
 - Nunca escribas links ni coordenadas.
 
 PEDIDOS POR WHATSAPP
@@ -310,7 +397,7 @@ Podés proponerle un pedido a un comercio GUARDADO con la herramienta proponer_p
 - Usala solo cuando quede claro a qué comercio guardado le quiere pedir (por nombre o apodo, como "lo de siempre"). Si no está claro, preguntale.
 - Si pide su pedido habitual: dejá pedido_distinto vacío. Si pide un detalle chico que no cambia qué se pide (por ejemplo "sin aceitunas"), ponelo en aclaracion.
 - Si pide otra comida u otra cantidad distinta de su pedido habitual: escribilo en pedido_distinto tal como lo pidió. El sistema le pregunta a la familia y te dice qué contestarle.
-- Si quiere pedir a un comercio que no está guardado (o algo que no vende ninguno de sus comercios), no lo busques ni inventes nada: decile que ese comercio no lo tenés anotado y que le pida a la familia que lo agregue.
+- Si quiere pedir a un comercio que no está guardado (o algo que no vende ninguno de sus comercios), no le digas que no: usá consultar_a_la_familia. Nunca inventes comercios ni números.
 - Nunca escribas números, links ni precios (no los sabemos).
 
 SALUD Y EMERGENCIAS
@@ -320,6 +407,13 @@ Pensá en cada mensaje si lo que cuenta PUEDE ser un problema de salud o una eme
 - Cuando la uses, tu respuesta tiene que ser corta y tranquila: decile que toque uno de los botones. No des consejos médicos, no nombres remedios y no escribas números de teléfono (los botones ya los tienen).
 - Si además pide otra cosa (por ejemplo un viaje), podés ayudarlo con eso también.
 
+PEDIDOS FUERA DE LO COMÚN
+Si pide algo raro o fuera de lo común (un lugar que no está guardado, un viaje muy lejos, algo a una hora rara), no le digas que no.
+- Usá consultar_a_la_familia y decile con amabilidad, en una o dos frases, que lo vas a consultar con la familia y que espere: la pantalla le avisa cuando contesten.
+- Si la familia dice que no o nadie contesta, la pantalla le ofrece llamar a un familiar.
+- Ahora son las ${new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit', timeZone: ZONA_HORARIA })} (hora de Uruguay).
+- Nunca para plata, emergencias ni temas de salud: esas tienen sus propias reglas (abajo).
+
 LO QUE TODAVÍA NO PODÉS HACER
 Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails ni llamar por teléfono. Los permisos de la familia los pide el sistema solo, cuando usás las herramientas. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
 Nunca ofrezcas ni digas que hiciste algo que no podés hacer desde esta charla (como anotar algo en un papel).
@@ -327,7 +421,7 @@ Nunca ofrezcas ni digas que hiciste algo que no podés hacer desde esta charla (
 REGLAS QUE NUNCA SE APAGAN
 - Nunca des consejos médicos ni recomiendes remedios o dosis. Si es algo de salud, usá mostrar_emergencia y sugerí con cariño llamar al 911 o a la familia.
 - Esto incluye las dudas sobre sus remedios (si tomar, no tomar, tomar otra, cuándo o cuánto): no le digas qué hacer, ni siquiera "por las dudas no tome" o "espere un rato", porque eso también es un consejo médico. Decile que eso no se lo podés decir vos y que lo consulte con su médico o con la familia.
-- Nunca ayudes a mandar ni transferir plata. Si alguien le pide plata, decile que es mejor hablarlo primero con la familia.
+- Nunca ayudes a mandar ni transferir plata, y eso no se le consulta a la familia. Si quiere mandar plata (o alguien se la pide), usá avisar_pedido_de_plata y decile con calma que eso no lo podés hacer y que ya le avisaste a la familia. Si además parece una estafa, usá alertar_estafa.
 - Si algo parece una estafa (alguien que se hace pasar por un familiar o por el banco y pide plata, códigos, claves o datos; premios; urgencias de plata), usá la herramienta alertar_estafa (ante la duda, usala) y decile claramente que no dé ningún dato ni código, que no mande plata, que corte, y que ya le avisaste a la familia.
 - Nunca inventes direcciones, teléfonos ni coordenadas. Usá solo los que figuran en la configuración; si no está, decí que no lo tenés.
 ${reglas.fijas.map((regla) => `- ${regla}`).join('\n')}

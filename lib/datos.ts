@@ -382,7 +382,11 @@ export async function soltarCandado(clave: string): Promise<void> {
 export type EstadoAprobacion = 'esperando' | 'aprobado' | 'rechazado' | 'sin-respuesta'
 
 /** Lo que queda listo para mostrarle al abuelo si la familia aprueba. */
-export type QueSePidio = { tipo: 'viaje'; viaje: Viaje } | { tipo: 'pedido'; pedido: Pedido }
+export type QueSePidio =
+  | { tipo: 'viaje'; viaje: Viaje }
+  | { tipo: 'pedido'; pedido: Pedido }
+  /** Algo fuera de lo común que no se puede armar como viaje ni pedido: si aprueban, solo se le avisa. */
+  | { tipo: 'consulta'; texto: string }
 
 export interface PreguntaAFamiliar {
   nombre: string
@@ -579,7 +583,7 @@ export async function guardarUbicacionDeEmergencia(codigoFamilia: string, ubicac
 export const ZONA_HORARIA = 'America/Montevideo'
 const DIAS_QUE_SE_GUARDA_EL_DIARIO = 3
 
-export type TipoDeEvento = 'charla' | 'viaje' | 'pedido' | 'permiso' | 'emergencia' | 'ayuda' | 'estafa'
+export type TipoDeEvento = 'charla' | 'viaje' | 'pedido' | 'permiso' | 'emergencia' | 'ayuda' | 'estafa' | 'plata'
 
 export interface EventoDelDia {
   cuando: string
