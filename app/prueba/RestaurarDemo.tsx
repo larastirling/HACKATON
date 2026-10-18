@@ -25,7 +25,7 @@ export default function RestaurarDemo() {
 
   return (
     <details className="tarjeta herramientas-demo">
-      <summary>🛠️ Herramientas para la demo</summary>
+      <summary>Herramientas para la demo</summary>
       <p>
         Deja la familia <strong>DEMO</strong> como al principio: Carlos, Inés, Lara, la pizzería, el shopping con permiso y
         nivel Acompañado. También borra los pedidos de aprobación pendientes.
@@ -43,11 +43,10 @@ export default function RestaurarDemo() {
         />
       </label>
       <button type="button" className="boton boton-secundario" onClick={restaurar} disabled={!clave.trim() || restaurando}>
-        {restaurando ? 'Restaurando…' : '♻️ Restaurar familia DEMO'}
+        {restaurando ? 'Restaurando…' : 'Restaurar familia DEMO'}
       </button>
       {resultado && (
         <p className={resultado.ok ? 'mensaje-ok' : 'mensaje-error'} role="status">
-          {resultado.ok ? '✅ ' : '❌ '}
           {resultado.texto}
         </p>
       )}

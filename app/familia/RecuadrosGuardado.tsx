@@ -17,7 +17,7 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
         <span>Entra con «Soy el abuelo» y este código.</span>
       </p>
 
-      <Recuadro titulo={`👴 ${abuelo.nombre === PENDIENTE ? 'Persona mayor (todavía sin nombre)' : abuelo.nombre}`} cantidad={-1}>
+      <Recuadro titulo={abuelo.nombre === PENDIENTE ? 'Persona mayor (todavía sin nombre)' : abuelo.nombre} cantidad={-1}>
         <li>
           <Estado ok={abuelo.comoLeGustaQueLeHablen !== PENDIENTE} si={`Trato: ${abuelo.comoLeGustaQueLeHablen}`} no="Falta cómo le gusta que le hablen" />
         </li>
@@ -29,21 +29,21 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
         </li>
       </Recuadro>
 
-      <Recuadro titulo={`⚖️ Nivel: ${reglas.nivel}`} cantidad={-1}>
+      <Recuadro titulo={`Nivel: ${reglas.nivel}`} cantidad={-1}>
         <li>
-          <strong>🔒 Se aprueba:</strong>{' '}
+          <strong>Se aprueba:</strong>{' '}
           {[...conPermiso.map((n) => `ir a ${n}`), ...reglas.seAprueba.filter((r) => r !== 'Ir a un lugar que necesita permiso')].join(' · ') ||
             'nada'}
         </li>
         <li>
-          <strong>🔔 Solo se avisa:</strong> {reglas.seAvisa.join(' · ') || 'nada'}
+          <strong>Solo se avisa:</strong> {reglas.seAvisa.join(' · ') || 'nada'}
         </li>
         <li>
           <Estado ok={reglas.abueloAceptoAvisos} si="El abuelo aceptó los avisos" no="El abuelo todavía no aceptó los avisos" />
         </li>
       </Recuadro>
 
-      <Recuadro titulo="📍 Lugares guardados" cantidad={lugares.length}>
+      <Recuadro titulo="Lugares guardados" cantidad={lugares.length}>
         {lugares.map((l) => (
           <li key={l.nombre}>
             <strong>{l.nombre}</strong>
@@ -52,12 +52,12 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
             {l.direccion === PENDIENTE ? 'Sin dirección todavía' : l.direccion}
             <br />
             <Estado ok={typeof l.latitud === 'number'} si="Ubicado en el mapa" no="Falta ubicarlo en el mapa (no se puede pedir Uber)" />
-            {l.necesitaPermiso && <span> · 🔒 Necesita permiso</span>}
+            {l.necesitaPermiso && <span> · Necesita permiso</span>}
           </li>
         ))}
       </Recuadro>
 
-      <Recuadro titulo="🛒 Comercios guardados" cantidad={comercios.length}>
+      <Recuadro titulo="Comercios guardados" cantidad={comercios.length}>
         {comercios.map((c) => (
           <li key={c.nombre}>
             <strong>{c.nombre}</strong>
@@ -74,7 +74,7 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
         ))}
       </Recuadro>
 
-      <Recuadro titulo="👨‍👩‍👧 Familiares de contacto" cantidad={familiares.length}>
+      <Recuadro titulo="Familiares de contacto" cantidad={familiares.length}>
         {familiares.map((f) => (
           <li key={f.nombre}>
             <strong>
@@ -105,5 +105,5 @@ function Recuadro({ titulo, cantidad, children }: { titulo: string; cantidad: nu
 }
 
 function Estado({ ok, si, no }: { ok: boolean; si: string; no: string }) {
-  return <span className={ok ? estilos.ok : estilos.falta}>{ok ? `✅ ${si}` : `⚠️ ${no}`}</span>
+  return <span className={ok ? estilos.ok : estilos.falta}>{ok ? si : no}</span>
 }

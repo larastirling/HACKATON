@@ -35,8 +35,8 @@ export default async function PaginaAprobacion({
         <Respuesta token={token} respuesta={respuesta} queEs={queEs} />
       ) : (
         <div className="tarjeta">
-          <a className="boton boton-uber" href={`?respuesta=aprobar`}>✅ Aprobar</a>
-          <a className="boton boton-emergencia boton-911" href={`?respuesta=rechazar`}>❌ Rechazar</a>
+          <a className="boton boton-uber" href={`?respuesta=aprobar`}>Aprobar</a>
+          <a className="boton boton-emergencia boton-911" href={`?respuesta=rechazar`}>Rechazar</a>
         </div>
       )}
     </main>

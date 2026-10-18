@@ -2,7 +2,7 @@ import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { pedirPermiso } from './aprobaciones'
 import { primerNombre, type ConfiguracionAbuelo, type QueSePidio } from './datos'
-import { armarEmergencia, avisarEmergenciaALaFamilia, type Emergencia } from './emergencia'
+import { armarEmergencia, avisarEmergenciaALaFamilia, avisarEstafaALaFamilia, type Emergencia, type Estafa } from './emergencia'
 import { juntarNombres } from './texto'
 import { armarViajeUber, type Viaje } from './uber'
 import { armarPedidoWhatsApp, type Pedido } from './whatsapp'
@@ -22,6 +22,8 @@ export interface MensajeCharla {
   viaje?: Viaje
   /** Si la IA vio un posible problema de salud, los botones para llamar. */
   emergencia?: Emergencia
+  /** Si la IA cree que le quieren hacer una estafa, el cartel rojo (y a quién se avisó). */
+  estafa?: Estafa
   /** Si la IA propuso un pedido, la tarjeta con el botón de WhatsApp. */
   pedido?: Pedido
   /** Si hizo falta permiso, a quién se le preguntó (la pantalla espera la respuesta). */
@@ -37,7 +39,7 @@ export interface EsperaAprobacion {
   familiares: string[]
 }
 
-export type { Emergencia, Pedido, Viaje }
+export type { Emergencia, Estafa, Pedido, Viaje }
 
 /** Pregunta suelta, sin charla (la usa /prueba). */
 export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
@@ -62,6 +64,7 @@ export async function charlarConLaIA(
  * Herramientas de la IA (el servidor arma todo con los datos guardados; la IA solo decide):
  * - proponer_viaje: elige el id del lugar y el servidor arma el link de Uber.
  * - mostrar_emergencia: el servidor muestra los botones para llamar al 911 y al primer familiar.
+ * - alertar_estafa: el servidor muestra un cartel rojo y les avisa a los familiares (mail y celular).
  * - proponer_pedido: elige el id del comercio (y una aclaración, o lo distinto que pidió) y el servidor
  *   arma el link de WhatsApp.
  * Si algo necesita permiso, lo decide el SERVIDOR (lib/aprobaciones.ts): en vez del botón, le pregunta
@@ -71,12 +74,13 @@ export async function conversarConElAbuelo(
   configuracion: ConfiguracionAbuelo,
   charla: MensajeCharla[],
   { urlApp }: { urlApp: string },
-): Promise<RespuestaIA & { viaje?: Viaje; emergencia?: Emergencia; pedido?: Pedido; aprobacion?: EsperaAprobacion }> {
+): Promise<RespuestaIA & { viaje?: Viaje; emergencia?: Emergencia; estafa?: Estafa; pedido?: Pedido; aprobacion?: EsperaAprobacion }> {
   const lugares = configuracion.lugares.map((lugar, i) => ({ id: `lugar-${i + 1}`, ...lugar }))
   const comercios = configuracion.comercios.map((comercio, i) => ({ id: `comercio-${i + 1}`, ...comercio }))
   const nombreAbuelo = primerNombre(configuracion.abuelo.nombre)
   let viaje: Viaje | undefined
   let emergencia: Emergencia | undefined
+  let estafa: Estafa | undefined
   let pedido: Pedido | undefined
   let aprobacion: EsperaAprobacion | undefined
 
@@ -127,6 +131,14 @@ export async function conversarConElAbuelo(
     return `Listo: debajo de tu respuesta el abuelo ve ${botones}.${aviso} Decile en una o dos frases cortas y tranquilas que toque uno de los botones. No des consejos médicos, no nombres remedios y no escribas números de teléfono.`
   }
 
+  async function alertarEstafa(motivo: unknown): Promise<string> {
+    if (estafa) return 'El cartel de posible estafa ya se está mostrando.'
+    const loQueDijo = charla.findLast((mensaje) => mensaje.de === 'abuelo')?.texto ?? ''
+    estafa = await avisarEstafaALaFamilia(configuracion, loQueDijo, typeof motivo === 'string' ? motivo : '')
+    const aviso = estafa.avisados?.length ? ` El sistema ya les avisó a ${juntarNombres(estafa.avisados)} para que lo llamen.` : ''
+    return `Listo: debajo de tu respuesta el abuelo ve un cartel rojo grande que dice que puede ser una estafa.${aviso} Decile en dos o tres frases cortas y claras: que no dé ningún dato, clave ni código, que no mande plata y que corte. Si se avisó a la familia, contale que ya les avisaste. No escribas números de teléfono.`
+  }
+
   async function proponerViaje(lugarId: unknown): Promise<string> {
     const lugar = lugares.find((l) => l.id === lugarId)
     if (!lugar) return 'Ese id no corresponde a ningún lugar guardado. No inventes lugares.'
@@ -150,11 +162,13 @@ export async function conversarConElAbuelo(
     })),
     tools: [
       HERRAMIENTA_MOSTRAR_EMERGENCIA,
+      HERRAMIENTA_ALERTAR_ESTAFA,
       ...(lugares.length > 0 ? [herramientaProponerViaje(lugares.map((l) => l.id))] : []),
       ...(comercios.length > 0 ? [herramientaProponerPedido(comercios.map((c) => c.id))] : []),
     ],
     usarHerramienta: (bloque) => {
       if (bloque.name === 'mostrar_emergencia') return mostrarEmergencia()
+      if (bloque.name === 'alertar_estafa') return alertarEstafa((bloque.input as { motivo?: unknown }).motivo)
       if (bloque.name === 'proponer_viaje') return proponerViaje((bloque.input as { lugar_id?: unknown }).lugar_id)
       if (bloque.name === 'proponer_pedido') {
         const entrada = bloque.input as { comercio_id?: unknown; aclaracion?: unknown; pedido_distinto?: unknown }
@@ -168,6 +182,7 @@ export async function conversarConElAbuelo(
     ...respuesta,
     ...(viaje && { viaje }),
     ...(emergencia && { emergencia }),
+    ...(estafa && { estafa }),
     ...(pedido && { pedido }),
     ...(aprobacion && { aprobacion }),
   }
@@ -211,6 +226,23 @@ const HERRAMIENTA_MOSTRAR_EMERGENCIA: Anthropic.Beta.BetaTool = {
     type: 'object',
     properties: {
       motivo: { type: 'string', description: 'En pocas palabras, qué le pasa (no se le muestra al abuelo).' },
+    },
+    required: ['motivo'],
+    additionalProperties: false,
+  },
+  strict: true,
+}
+
+const HERRAMIENTA_ALERTAR_ESTAFA: Anthropic.Beta.BetaTool = {
+  name: 'alertar_estafa',
+  description:
+    'Muestra al abuelo un cartel rojo grande de "posible estafa" y les avisa a los familiares (por mail y al celular) para que lo llamen. ' +
+    'Usala cuando lo que cuenta PUEDE ser un intento de estafa: alguien que se hace pasar por un familiar, el banco o una empresa y pide plata, ' +
+    'datos, claves o códigos; premios que hay que pagar para cobrar; urgencias de plata. Ante la duda, usala.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      motivo: { type: 'string', description: 'En pocas palabras, por qué parece una estafa (lo lee la familia).' },
     },
     required: ['motivo'],
     additionalProperties: false,
@@ -296,7 +328,7 @@ REGLAS QUE NUNCA SE APAGAN
 - Nunca des consejos médicos ni recomiendes remedios o dosis. Si es algo de salud, usá mostrar_emergencia y sugerí con cariño llamar al 911 o a la familia.
 - Esto incluye las dudas sobre sus remedios (si tomar, no tomar, tomar otra, cuándo o cuánto): no le digas qué hacer, ni siquiera "por las dudas no tome" o "espere un rato", porque eso también es un consejo médico. Decile que eso no se lo podés decir vos y que lo consulte con su médico o con la familia.
 - Nunca ayudes a mandar ni transferir plata. Si alguien le pide plata, decile que es mejor hablarlo primero con la familia.
-- Si algo parece una estafa (alguien que se hace pasar por el banco y pide códigos, claves o datos; premios; urgencias de plata), decile claramente que no dé ningún dato ni código, que corte, y que lo hable con la familia.
+- Si algo parece una estafa (alguien que se hace pasar por un familiar o por el banco y pide plata, códigos, claves o datos; premios; urgencias de plata), usá la herramienta alertar_estafa (ante la duda, usala) y decile claramente que no dé ningún dato ni código, que no mande plata, que corte, y que ya le avisaste a la familia.
 - Nunca inventes direcciones, teléfonos ni coordenadas. Usá solo los que figuran en la configuración; si no está, decí que no lo tenés.
 ${reglas.fijas.map((regla) => `- ${regla}`).join('\n')}
 

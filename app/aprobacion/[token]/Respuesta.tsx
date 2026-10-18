@@ -57,7 +57,7 @@ export default function Respuesta({
   return (
     <div className={`tarjeta respuesta-aprobacion respuesta-${pedida}`} role="status">
       <p className="respuesta-aprobacion-titulo">
-        {pedida === 'aprobado' ? `✅ Listo, aprobaste ${queEs}.` : `❌ Listo, rechazaste ${queEs}.`}
+        {pedida === 'aprobado' ? `Listo, aprobaste ${queEs}.` : `Listo, rechazaste ${queEs}.`}
       </p>
       <p>{pedida === 'aprobado' ? 'Ya le aparece el botón en su pantalla.' : 'Le avisamos con calma en su pantalla.'}</p>
       {!resultado.cambio && <p className="ayuda">(Ya estaba respondido: no cambió nada.)</p>}

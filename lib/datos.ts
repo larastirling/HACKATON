@@ -543,6 +543,13 @@ export async function buscarFamiliarDelCelular(configuracion: ConfiguracionAbuel
 export interface AvisoDeEmergencia {
   loQueDijo: string
   cuando: string
+  /** Dónde estaba el abuelo, si el celular lo pudo saber (botón Ayuda). */
+  ubicacion?: Ubicacion
+}
+
+export interface Ubicacion {
+  latitud: number
+  longitud: number
 }
 
 const claveEmergencia = (codigoFamilia: string) => `emergencia-ultima:${normalizarCodigo(codigoFamilia)}`
@@ -553,6 +560,65 @@ export async function guardarUltimaEmergencia(codigoFamilia: string, loQueDijo: 
 
 export async function leerUltimaEmergencia(codigoFamilia: string): Promise<AvisoDeEmergencia | null> {
   return leer<AvisoDeEmergencia>(claveEmergencia(codigoFamilia))
+}
+
+/** Le agrega la ubicación al último aviso de emergencia (llega unos segundos después del aviso). */
+export async function guardarUbicacionDeEmergencia(codigoFamilia: string, ubicacion: Ubicacion): Promise<void> {
+  const aviso = await leerUltimaEmergencia(codigoFamilia)
+  await guardar(claveEmergencia(codigoFamilia), {
+    loQueDijo: aviso?.loQueDijo ?? 'Pidió ayuda',
+    cuando: aviso?.cuando ?? new Date().toISOString(),
+    ubicacion,
+  } satisfies AvisoDeEmergencia)
+}
+
+// ── Diario del día (para el resumen que le llega a la familia a la noche) ──
+// Se anota lo que pidió el abuelo y lo que pasó (viajes, pedidos, emergencias, estafas).
+// Se guarda por día (hora de Uruguay) y se borra solo a los pocos días.
+
+export const ZONA_HORARIA = 'America/Montevideo'
+const DIAS_QUE_SE_GUARDA_EL_DIARIO = 3
+
+export type TipoDeEvento = 'charla' | 'viaje' | 'pedido' | 'permiso' | 'emergencia' | 'ayuda' | 'estafa'
+
+export interface EventoDelDia {
+  cuando: string
+  tipo: TipoDeEvento
+  texto: string
+}
+
+/** "2026-10-17" en hora de Uruguay. */
+export function fechaDeHoy(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: ZONA_HORARIA }).format(new Date())
+}
+
+const claveDiario = (codigoFamilia: string, fecha: string) => `diario:${fecha}:${normalizarCodigo(codigoFamilia)}`
+
+export async function anotarEnElDiario(codigoFamilia: string, tipo: TipoDeEvento, texto: string): Promise<void> {
+  const clave = claveDiario(codigoFamilia, fechaDeHoy())
+  const evento: EventoDelDia = { cuando: new Date().toISOString(), tipo, texto: texto.trim().slice(0, 300) }
+  try {
+    if (redis) {
+      await redis.rpush(clave, evento)
+      await redis.expire(clave, DIAS_QUE_SE_GUARDA_EL_DIARIO * 86_400)
+    } else {
+      memoria.set(clave, [...((memoria.get(clave) as EventoDelDia[] | undefined) ?? []), evento])
+    }
+  } catch (error) {
+    console.error('No se pudo anotar en el diario:', error) // el diario nunca rompe lo que está haciendo el abuelo
+  }
+}
+
+export async function leerDiario(codigoFamilia: string, fecha = fechaDeHoy()): Promise<EventoDelDia[]> {
+  const clave = claveDiario(codigoFamilia, fecha)
+  if (redis) return redis.lrange<EventoDelDia>(clave, 0, -1)
+  return (memoria.get(clave) as EventoDelDia[] | undefined) ?? []
+}
+
+/** Los códigos de las familias que tienen algo anotado ese día. */
+export async function familiasConDiario(fecha = fechaDeHoy()): Promise<string[]> {
+  const prefijo = `diario:${fecha}:`
+  return (await clavesQueEmpiezanCon(prefijo)).map((clave) => clave.slice(prefijo.length))
 }
 
 // ── Restaurar la familia DEMO (para usar antes de la demo) ──
@@ -578,6 +644,9 @@ export async function restaurarFamiliaDemo(): Promise<{ pendientesBorrados: numb
   await borrar(claveUltima(codigo)) // la pantalla del abuelo no retoma nada viejo
   await borrar(claveEmergencia(codigo))
   await soltarCandado(`emergencia:${codigo}`) // el próximo "me siento mal" avisa de nuevo
+  await soltarCandado(`ubicacion:${codigo}`)
+  await soltarCandado(`estafa:${codigo}`)
+  await borrar(claveDiario(codigo, fechaDeHoy())) // el resumen de hoy arranca de cero
   return { pendientesBorrados }
 }
 

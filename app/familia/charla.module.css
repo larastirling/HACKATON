@@ -10,21 +10,23 @@
 .burbuja {
   max-width: 88%;
   padding: 12px 16px;
-  border-radius: 18px;
+  border-radius: 22px;
   white-space: pre-wrap;
 }
 
 .ia {
   align-self: flex-start;
   background: var(--fondo-tarjeta);
-  border-bottom-left-radius: 4px;
+  border: 1px solid var(--linea);
+  border-bottom-left-radius: 6px;
 }
 
 .yo {
   align-self: flex-end;
   background: var(--principal);
   color: var(--principal-texto);
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 6px;
+  box-shadow: var(--sombra-boton);
 }
 
 .pensando { color: var(--texto-suave); font-style: italic; }
@@ -39,7 +41,7 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 10px 16px;
-  background: var(--fondo);
+  background: linear-gradient(to bottom, rgb(243 235 226 / 0), var(--fondo) 12px);
 }
 
 .entrada {
@@ -49,21 +51,24 @@
   padding: 0 16px;
   font: inherit;
   font-size: 1.1rem;
-  border: 3px solid var(--borde);
-  border-radius: 12px;
+  border: 2px solid var(--borde);
+  border-radius: 16px;
   background: #fff;
   color: var(--texto);
 }
+.entrada:focus { outline: none; border-color: var(--principal); box-shadow: 0 0 0 4px var(--principal-suave); }
 
 .enviar { width: auto; min-height: 64px; }
 
 /* Recuadro "Lugares guardados" */
 .guardado {
-  background: var(--fondo-tarjeta);
-  border-radius: 16px;
-  padding: 14px 18px;
+  background: var(--blanco);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 14px 20px;
 }
-.guardado summary { font-weight: 700; cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.guardado summary { font-weight: 800; color: var(--texto-titulo); cursor: pointer; min-height: 44px; display: flex; align-items: center; }
 .guardado ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .guardado li { font-size: 0.95rem; }
 .ok { color: var(--ok); font-weight: 700; }
@@ -75,8 +80,9 @@
   flex-direction: column;
   gap: 2px;
   padding: 12px 16px;
-  border: 3px solid var(--principal);
-  border-radius: 16px;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  background: var(--fondo-calido);
   font-size: 1rem;
 }
 .codigo strong { font-size: 1.6rem; letter-spacing: 0.12em; color: var(--principal); }

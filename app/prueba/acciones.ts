@@ -1,8 +1,9 @@
 'use server'
 
 import { timingSafeEqual } from 'node:crypto'
-import { modoAlmacenamiento, probarAlmacenamiento, restaurarFamiliaDemo } from '@/lib/datos'
+import { leerConfiguracion, modoAlmacenamiento, probarAlmacenamiento, restaurarFamiliaDemo } from '@/lib/datos'
 import { preguntarALaIA, type RespuestaIA } from '@/lib/ia'
+import { escribirResumenDelDia, mandarResumenDelDia } from '@/lib/resumen'
 import { leerSesion } from '@/lib/sesion'
 
 export async function probarDatos(): Promise<{ ok: boolean; texto: string }> {
@@ -39,4 +40,26 @@ export async function restaurarDemo(clave: string): Promise<{ ok: boolean; texto
     ok: true,
     texto: `Listo: la familia DEMO volvió a sus datos originales (Carlos, Inés, Lara, la pizzería, el shopping con permiso y nivel Acompañado). Se borraron ${pedidos} y el aviso de emergencia quedó listo para salir.`,
   }
+}
+
+/** Resumen del día: lo escribe y lo muestra acá, sin mandar nada. */
+export async function verResumenDeHoy(): Promise<{ ok: boolean; texto: string }> {
+  const sesion = await leerSesion()
+  if (!sesion) return { ok: false, texto: 'Tenés que iniciar sesión' }
+  const configuracion = await leerConfiguracion(sesion.codigoFamilia)
+  if (!configuracion) return { ok: false, texto: 'No encontré tu familia' }
+  const resumen = await escribirResumenDelDia(configuracion)
+  return resumen.ok ? { ok: true, texto: resumen.texto } : { ok: false, texto: resumen.error }
+}
+
+/** Resumen del día: se lo manda ahora a toda la familia (mail y celular), sin esperar a la noche. */
+export async function mandarResumenAhora(): Promise<{ ok: boolean; texto: string }> {
+  const sesion = await leerSesion()
+  if (!sesion) return { ok: false, texto: 'Tenés que iniciar sesión' }
+  const configuracion = await leerConfiguracion(sesion.codigoFamilia)
+  if (!configuracion) return { ok: false, texto: 'No encontré tu familia' }
+  const resultado = await mandarResumenDelDia(configuracion)
+  return resultado.ok
+    ? { ok: true, texto: `Se lo mandé a ${resultado.avisados.join(' y ')}: "${resultado.texto}"` }
+    : { ok: false, texto: resultado.error }
 }
