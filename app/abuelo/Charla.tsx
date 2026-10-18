@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
-import type { Emergencia, EsperaAprobacion, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
+import type { Emergencia, EsperaAprobacion, Estafa, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
 import { juntarNombres } from '@/lib/texto'
 import { consultarAprobacion, responderAlAbuelo } from './acciones'
 import { callar, decirEnVozAlta, desbloquearVoz, MENSAJE_TECLADO, prepararVoces, useDictado, useSilencio } from './voz'
@@ -65,8 +65,8 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
       try {
         const respuesta = await responderAlAbuelo(nuevaCharla)
         if (respuesta.ok) {
-          const { texto, viaje, emergencia, pedido, aprobacion } = respuesta
-          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, pedido, aprobacion }])
+          const { texto, viaje, emergencia, estafa, pedido, aprobacion } = respuesta
+          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, estafa, pedido, aprobacion }])
         } else setHayError(true)
       } catch {
         setHayError(true)
@@ -124,6 +124,7 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
                 Escuchar
               </button>
             )}
+            {mensaje.estafa && <CartelEstafa estafa={mensaje.estafa} />}
             {mensaje.emergencia && <BotonesEmergencia emergencia={mensaje.emergencia} />}
             {mensaje.viaje && <TarjetaViaje viaje={mensaje.viaje} />}
             {mensaje.pedido && <TarjetaPedido pedido={mensaje.pedido} />}
@@ -225,6 +226,28 @@ function BotonesEmergencia({ emergencia }: { emergencia: Emergencia }) {
       )}
       {emergencia.avisados && emergencia.avisados.length > 0 && (
         <p className="emergencia-avisados">Ya le avisé a {emergencia.avisados.join(' y a ')}.</p>
+      )}
+    </section>
+  )
+}
+
+// Cartel rojo grande cuando la IA cree que le quieren hacer una estafa. La familia ya fue avisada.
+function CartelEstafa({ estafa }: { estafa: Estafa }) {
+  return (
+    <section className="cartel-estafa" role="alert" aria-label="Cuidado: puede ser una estafa">
+      <p className="cartel-estafa-titulo">Cuidado: puede ser una estafa</p>
+      <ul>
+        <li>No dé ningún dato, clave ni código.</li>
+        <li>No mande plata.</li>
+        <li>Corte y hable con su familia.</li>
+      </ul>
+      {estafa.avisados && estafa.avisados.length > 0 && (
+        <p className="cartel-estafa-avisados">Ya le avisé a {juntarNombres(estafa.avisados)}.</p>
+      )}
+      {estafa.familiar && (
+        <a className="boton boton-emergencia boton-familiar" href={estafa.familiar.link}>
+          Llamar a {estafa.familiar.nombre}
+        </a>
       )}
     </section>
   )

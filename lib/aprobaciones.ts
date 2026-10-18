@@ -116,7 +116,7 @@ async function mandarMailDeAprobacion(
   const resultado = await enviarMail({
     para: familiar.mail,
     asunto: `${descripcion}. ¿Lo aprobás?`,
-    texto: `Hola ${familiar.nombre}:\n\n${descripcion}. ¿Lo aprobás?\n\nAprobar: ${aprobar}\nRechazar: ${rechazar}\n\n${plazo}\n\nAsistente de confianza`,
+    texto: `Hola ${familiar.nombre}:\n\n${descripcion}. ¿Lo aprobás?\n\nAprobar: ${aprobar}\nRechazar: ${rechazar}\n\n${plazo}\n\nContigo`,
     html: mailHtml(familiar.nombre, descripcion, aprobar, rechazar, plazo),
   })
   return resultado.enviado
@@ -131,7 +131,7 @@ function mailHtml(nombre: string, descripcion: string, aprobar: string, rechazar
   ${boton(aprobar, '✅ Aprobar', '#0a6b2d')}
   ${boton(rechazar, '❌ Rechazar', '#a50e0e')}
   <p style="font-size:16px;color:#3d3d3d">${escapar(plazo)}</p>
-  <p style="font-size:16px;color:#3d3d3d">Asistente de confianza</p>
+  <p style="font-size:16px;color:#3d3d3d">Contigo</p>
 </div>`
 }
 

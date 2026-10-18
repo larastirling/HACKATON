@@ -1,12 +1,13 @@
 'use server'
 
 import { actualizarSiVencio } from '@/lib/aprobaciones'
-import { leerAprobacion, leerConfiguracion, marcarAvisadoAlAbuelo } from '@/lib/datos'
-import { armarEmergencia, avisarEmergenciaALaFamilia } from '@/lib/emergencia'
+import { anotarEnElDiario, leerAprobacion, leerConfiguracion, marcarAvisadoAlAbuelo } from '@/lib/datos'
+import { armarEmergencia, avisarEmergenciaALaFamilia, avisarUbicacionALaFamilia } from '@/lib/emergencia'
 import {
   conversarConElAbuelo,
   type Emergencia,
   type EsperaAprobacion,
+  type Estafa,
   type MensajeCharla,
   type Pedido,
   type Viaje,
@@ -18,7 +19,7 @@ const MAXIMO_MENSAJES = 40
 const MAXIMO_LETRAS = 2000
 
 export type Respuesta =
-  | { ok: true; texto: string; viaje?: Viaje; emergencia?: Emergencia; pedido?: Pedido; aprobacion?: EsperaAprobacion }
+  | { ok: true; texto: string; viaje?: Viaje; emergencia?: Emergencia; estafa?: Estafa; pedido?: Pedido; aprobacion?: EsperaAprobacion }
   | { ok: false }
 
 /** Recibe TODA la charla y devuelve lo que contesta la IA. */
@@ -38,8 +39,9 @@ export async function responderAlAbuelo(charla: MensajeCharla[]): Promise<Respue
     console.error('La IA no pudo responder al abuelo:', respuesta.ok ? 'respuesta vacía' : respuesta.error)
     return { ok: false }
   }
-  const { texto, viaje, emergencia, pedido, aprobacion } = respuesta
-  return { ok: true, texto, viaje, emergencia, pedido, aprobacion }
+  const { texto, viaje, emergencia, estafa, pedido, aprobacion } = respuesta
+  await anotarLoQuePaso(sesion.codigoFamilia, ultimos.at(-1)?.texto ?? '', respuesta)
+  return { ok: true, texto, viaje, emergencia, estafa, pedido, aprobacion }
 }
 
 export type EstadoDeLaAprobacion =
@@ -92,7 +94,31 @@ export async function avisarQuePidioAyuda(): Promise<string[]> {
   if (sesion?.rol !== 'abuelo') return []
   const configuracion = await leerConfiguracion(sesion.codigoFamilia)
   if (!configuracion) return []
+  await anotarEnElDiario(sesion.codigoFamilia, 'ayuda', 'Tocó el botón de ayuda (emergencia)')
   return avisarEmergenciaALaFamilia(configuracion, 'Necesito ayuda (tocó el botón de emergencia)')
+}
+
+/** Botón Ayuda: cuando el celular sabe dónde está, se lo manda a la familia con un link al mapa. */
+export async function mandarUbicacion(latitud: number, longitud: number): Promise<void> {
+  const sesion = await leerSesion()
+  if (sesion?.rol !== 'abuelo') return
+  if (!Number.isFinite(latitud) || !Number.isFinite(longitud) || Math.abs(latitud) > 90 || Math.abs(longitud) > 180) return
+  const configuracion = await leerConfiguracion(sesion.codigoFamilia)
+  if (configuracion) await avisarUbicacionALaFamilia(configuracion, { latitud, longitud })
+}
+
+/** Anota en el diario del día lo que pidió el abuelo y lo que hizo la app (para el resumen de la noche). */
+async function anotarLoQuePaso(
+  codigoFamilia: string,
+  loQueDijo: string,
+  r: { viaje?: Viaje; emergencia?: Emergencia; pedido?: Pedido; aprobacion?: EsperaAprobacion },
+): Promise<void> {
+  await anotarEnElDiario(codigoFamilia, 'charla', loQueDijo)
+  if (r.viaje) await anotarEnElDiario(codigoFamilia, 'viaje', `Se le armó un viaje en Uber a ${r.viaje.nombre}`)
+  if (r.pedido) await anotarEnElDiario(codigoFamilia, 'pedido', `Se le armó un pedido por WhatsApp a ${r.pedido.comercio}: ${r.pedido.pedido}`)
+  if (r.aprobacion) await anotarEnElDiario(codigoFamilia, 'permiso', `Se le pidió permiso a la familia (${r.aprobacion.familiares.join(', ')})`)
+  if (r.emergencia) await anotarEnElDiario(codigoFamilia, 'emergencia', 'Se le mostraron los botones de emergencia')
+  // La estafa la anota lib/emergencia.ts, con el motivo.
 }
 
 function esCharlaValida(charla: unknown): charla is MensajeCharla[] {

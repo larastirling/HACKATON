@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 import { juntarNombres } from '@/lib/texto'
-import { avisarQuePidioAyuda } from './acciones'
+import { avisarQuePidioAyuda, mandarUbicacion } from './acciones'
 
 type Contacto = { nombre: string; link: string }
 
 /**
  * Botón de emergencia de la barra de abajo.
  * Al tocarlo llama enseguida al primer familiar (con teléfono guardado) y les avisa a todos por mail y al celular.
+ * Si el celular sabe dónde está, después les manda también la ubicación con un link al mapa.
  * Una app web no puede saber si atendieron, así que al volver le pregunta al abuelo:
  * si no atendió, llama al siguiente; después de todos, al 911.
  */
@@ -24,8 +25,14 @@ export default function BotonAyuda({ contactos }: { contactos: Contacto[] }) {
 
   function pedirAyuda() {
     setAbierto(true)
+    const avisado = avisarQuePidioAyuda().then(setAvisados, () => {})
+    // La ubicación se pide antes de llamar (el permiso se pregunta con el toque) y se manda después del aviso.
+    navigator.geolocation?.getCurrentPosition(
+      ({ coords }) => avisado.then(() => mandarUbicacion(coords.latitude, coords.longitude)).catch(() => {}),
+      () => {}, // sin permiso o sin señal: la familia recibe el aviso igual, sin el mapa
+      { enableHighAccuracy: true, timeout: 20_000, maximumAge: 60_000 },
+    )
     llamar(0)
-    avisarQuePidioAyuda().then(setAvisados, () => {})
   }
 
   const actual = contactos[paso]

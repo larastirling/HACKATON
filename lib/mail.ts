@@ -29,7 +29,7 @@ export async function enviarMail(mail: Mail): Promise<ResultadoMail> {
   try {
     const transporte = nodemailer.createTransport({ service: 'gmail', auth: { user: usuario, pass: contrasena } })
     await transporte.sendMail({
-      from: `"Asistente de confianza" <${usuario}>`,
+      from: `"Contigo" <${usuario}>`,
       to: mail.para,
       subject: mail.asunto,
       text: mail.texto,

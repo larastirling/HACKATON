@@ -3,6 +3,7 @@ import { modoAlmacenamiento } from '@/lib/datos'
 import { exigirSesion } from '@/lib/sesion'
 import BotonesDePrueba from './BotonesDePrueba'
 import RestaurarDemo from './RestaurarDemo'
+import ResumenDelDia from './ResumenDelDia'
 
 // Página para comprobar que la base de datos y la IA funcionan.
 export default async function PaginaPrueba() {
@@ -18,6 +19,7 @@ export default async function PaginaPrueba() {
           <li>Token para Gmail: {process.env.CONFIG_API_TOKEN ? 'Cargado' : 'Falta CONFIG_API_TOKEN'}</li>
         </ul>
         <BotonesDePrueba />
+        <ResumenDelDia />
         <RestaurarDemo />
       </main>
       <BarraNavegacion rol={sesion.rol} />

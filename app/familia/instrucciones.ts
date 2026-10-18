@@ -2,7 +2,7 @@
 import { MINUTOS_PARA_CONTESTAR, textoMinutos } from '@/lib/aprobaciones'
 import type { ConfiguracionAbuelo } from '@/lib/datos'
 
-export const INSTRUCCIONES_FAMILIA = `Sos el asistente de "Asistente de confianza", un servicio que ayuda a personas mayores que no se llevan bien con la tecnología, con su familia conectada.
+export const INSTRUCCIONES_FAMILIA = `Sos el asistente de "Contigo", un servicio que ayuda a personas mayores que no se llevan bien con la tecnología, con su familia conectada.
 
 Ahora estás hablando con un HIJO o HIJA que quiere registrar a su papá o mamá. Tu trabajo es conocer a esa persona mayor charlando, sin formularios.
 

@@ -396,6 +396,23 @@ strong { font-weight: 800; }
   border: 2px solid var(--principal);
 }
 
+/* ── Cartel de posible estafa ── */
+.cartel-estafa {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  border-radius: var(--radio);
+  background: var(--error);
+  color: #fff;
+  box-shadow: var(--sombra-boton);
+}
+.cartel-estafa-titulo { font-size: 1.6rem; font-weight: 900; line-height: 1.2; }
+.cartel-estafa ul { margin: 0; padding-left: 1.2em; font-size: 1.25rem; font-weight: 700; display: flex; flex-direction: column; gap: 4px; }
+.cartel-estafa-avisados { font-size: 1.15rem; }
+.cartel-estafa .boton-familiar { background: #fff; color: var(--error); border-color: #fff; }
+
 /* ── Página de aprobación (la abre el familiar desde el mail) ── */
 .respuesta-aprobacion-titulo { font-size: 1.5rem; font-weight: 800; color: var(--texto-titulo); }
 .respuesta-aprobado { border: 2px solid var(--ok); background: var(--ok-suave); }
@@ -480,6 +497,9 @@ a.boton {
   border-radius: 999px;
   font-size: 1.2rem;
 }
+
+/* ── /prueba: resumen del día ── */
+.resumen-texto { padding: 16px 18px; border-radius: 14px; background: var(--fondo); white-space: pre-wrap; }
 
 /* ── /prueba: herramientas para la demo (plegadas) ── */
 .herramientas-demo summary { font-weight: 800; cursor: pointer; min-height: 48px; display: flex; align-items: center; }
