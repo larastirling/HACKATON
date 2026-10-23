@@ -1,7 +1,7 @@
 'use server'
 
 import { actualizarSiVencio } from '@/lib/aprobaciones'
-import { anotarEnElDiario, leerAprobacion, leerConfiguracion, marcarAvisadoAlAbuelo } from '@/lib/datos'
+import { anotarEnElDiario, cerrarEstacionamiento, leerAprobacion, leerConfiguracion, leerEstacionamientoAbierto, marcarAvisadoAlAbuelo } from '@/lib/datos'
 import { armarEmergencia, avisarEmergenciaALaFamilia, avisarUbicacionALaFamilia } from '@/lib/emergencia'
 import {
   conversarConElAbuelo,
@@ -9,10 +9,11 @@ import {
   type EsperaAprobacion,
   type Estafa,
   type MensajeCharla,
-  type MensajeDeEstacionamiento,
+  type TarjetaDeEstacionamiento,
   type Pedido,
   type Viaje,
 } from '@/lib/ia'
+import { tarjetaParaTerminar, textoDeMinutos } from '@/lib/estacionamiento'
 import { leerSesion } from '@/lib/sesion'
 import { urlDeLaApp } from '@/lib/url'
 
@@ -29,7 +30,7 @@ export type Respuesta =
       pedido?: Pedido
       aprobacion?: EsperaAprobacion
       llamar?: { nombre: string; link: string }
-      estacionamiento?: MensajeDeEstacionamiento
+      estacionamiento?: TarjetaDeEstacionamiento
     }
   | { ok: false }
 
@@ -97,6 +98,30 @@ export async function consultarAprobacion(id: string): Promise<EstadoDeLaAprobac
 }
 
 /**
+ * Botón "Ya me voy" del aviso de estacionamiento (sin la IA): la tarjeta con WhatsApp y "fin" escrito, y se borra lo
+ * anotado. null si no hay ningún estacionamiento abierto.
+ */
+export async function terminarEstacionamientoAhora(): Promise<TarjetaDeEstacionamiento | null> {
+  const sesion = await leerSesion()
+  if (sesion?.rol !== 'abuelo') return null
+  const abierto = await leerEstacionamientoAbierto(sesion.codigoFamilia)
+  if (!abierto) return null
+  const tarjeta = tarjetaParaTerminar(abierto)
+  await cerrarEstacionamiento(sesion.codigoFamilia)
+  await anotarEstacionamientoEnElDiario(sesion.codigoFamilia, tarjeta)
+  return tarjeta
+}
+
+const anotarEstacionamientoEnElDiario = (codigoFamilia: string, t: TarjetaDeEstacionamiento) =>
+  anotarEnElDiario(
+    codigoFamilia,
+    'pedido',
+    t.accion === 'empezar'
+      ? `Estacionó el auto ${t.matricula}: se le abrió el WhatsApp de la Intendencia para pagar`
+      : `Se fue del estacionamiento (${t.matricula}${t.estuvo !== undefined ? `, estuvo ${textoDeMinutos(t.estuvo)}` : ''})`,
+  )
+
+/**
  * Botón de emergencia: les avisa a todos los familiares (mail y celular) que el abuelo pidió ayuda.
  * Las llamadas las hace la pantalla. Si ya se avisó hace pocos minutos, no avisa de nuevo.
  */
@@ -122,16 +147,14 @@ export async function mandarUbicacion(latitud: number, longitud: number): Promis
 async function anotarLoQuePaso(
   codigoFamilia: string,
   loQueDijo: string,
-  r: { viaje?: Viaje; emergencia?: Emergencia; pedido?: Pedido; aprobacion?: EsperaAprobacion; estacionamiento?: MensajeDeEstacionamiento },
+  r: { viaje?: Viaje; emergencia?: Emergencia; pedido?: Pedido; aprobacion?: EsperaAprobacion; estacionamiento?: TarjetaDeEstacionamiento },
 ): Promise<void> {
   await anotarEnElDiario(codigoFamilia, 'charla', loQueDijo)
   if (r.viaje) await anotarEnElDiario(codigoFamilia, 'viaje', `Se le armó un viaje en Uber a ${r.viaje.nombre}`)
   if (r.pedido) await anotarEnElDiario(codigoFamilia, 'pedido', `Se le armó un pedido ${r.pedido.por === 'llamada' ? 'por teléfono' : 'por WhatsApp'} a ${r.pedido.comercio}: ${r.pedido.pedido}`)
   if (r.aprobacion) await anotarEnElDiario(codigoFamilia, 'permiso', `Se le pidió permiso a la familia (${r.aprobacion.familiares.join(', ')})`)
   if (r.emergencia) await anotarEnElDiario(codigoFamilia, 'emergencia', 'Se le mostraron los botones de emergencia')
-  if (r.estacionamiento) {
-    await anotarEnElDiario(codigoFamilia, 'pedido', `Se le armó el SMS para pagar el estacionamiento (${r.estacionamiento.matricula}, ${r.estacionamiento.minutos} minutos)`)
-  }
+  if (r.estacionamiento) await anotarEstacionamientoEnElDiario(codigoFamilia, r.estacionamiento)
   // La estafa la anota lib/emergencia.ts, con el motivo.
 }
 

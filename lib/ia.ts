@@ -1,7 +1,17 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { pedirPermiso } from './aprobaciones'
-import { formasDeViajarDe, primerNombre, ZONA_HORARIA, type ConfiguracionAbuelo, type FormaDeViajar, type QueSePidio } from './datos'
+import {
+  anotarEstacionamientoAbierto,
+  cerrarEstacionamiento,
+  formasDeViajarDe,
+  leerEstacionamientoAbierto,
+  primerNombre,
+  ZONA_HORARIA,
+  type ConfiguracionAbuelo,
+  type FormaDeViajar,
+  type QueSePidio,
+} from './datos'
 import {
   armarEmergencia,
   avisarDudaALaFamilia,
@@ -12,7 +22,18 @@ import {
   type Emergencia,
   type Estafa,
 } from './emergencia'
-import { armarMensajeDeEstacionamiento, mostrarMatricula, normalizarMatricula, type MensajeDeEstacionamiento } from './estacionamiento'
+import {
+  minutosDesde,
+  mostrarMatricula,
+  normalizarMatricula,
+  pasoElTiempoDeAvisar,
+  tarjetaParaEmpezar,
+  tarjetaParaTerminar,
+  textoDeMinutos,
+  type EstacionamientoAbierto,
+  type TarjetaDeEstacionamiento,
+} from './estacionamiento'
+import { instruccionesDelTrato, palabrasDelOtroTrato, tratoDe } from './trato'
 import { buscarCoordenadas } from './mapas'
 import { juntarNombres } from './texto'
 import { armarViaje, nombresDeFormas, type Viaje } from './viajes'
@@ -42,8 +63,8 @@ export interface MensajeCharla {
   aprobacion?: EsperaAprobacion
   /** Botón para llamar a un familiar (por ejemplo, si rechazó un pedido, o una duda peligrosa como el gas). */
   llamar?: { nombre: string; link: string }
-  /** Si quiere pagar el estacionamiento: la tarjeta con el SMS ya escrito y el botón para abrirlo (lo manda él). */
-  estacionamiento?: MensajeDeEstacionamiento
+  /** Estacionamiento: la tarjeta para empezar o terminar, con el botón de WhatsApp (y el SMS de respaldo). Lo manda él. */
+  estacionamiento?: TarjetaDeEstacionamiento
 }
 
 /** Lo que necesita la pantalla del abuelo para esperar la respuesta de la familia. */
@@ -53,7 +74,7 @@ export interface EsperaAprobacion {
   familiares: string[]
 }
 
-export type { Emergencia, Estafa, MensajeDeEstacionamiento, Pedido, Viaje }
+export type { Emergencia, Estafa, Pedido, TarjetaDeEstacionamiento, Viaje }
 
 /** Pregunta suelta, sin charla (la usa /prueba). */
 export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
@@ -99,7 +120,7 @@ export async function conversarConElAbuelo(
     pedido?: Pedido
     aprobacion?: EsperaAprobacion
     llamar?: { nombre: string; link: string }
-    estacionamiento?: MensajeDeEstacionamiento
+    estacionamiento?: TarjetaDeEstacionamiento
   }
 > {
   const lugares = configuracion.lugares.map((lugar, i) => ({ id: `lugar-${i + 1}`, ...lugar }))
@@ -112,7 +133,9 @@ export async function conversarConElAbuelo(
   let pedido: Pedido | undefined
   let aprobacion: EsperaAprobacion | undefined
   let llamar: { nombre: string; link: string } | undefined
-  let estacionamiento: MensajeDeEstacionamiento | undefined
+  let estacionamiento: TarjetaDeEstacionamiento | undefined
+  // Si ya tiene el estacionamiento abierto (lo anotó la app al empezar).
+  let abierto = await leerEstacionamientoAbierto(configuracion.codigoFamilia)
 
   /** Pide permiso a la familia (una sola vez por respuesta) y le dice a la IA qué contestar. */
   async function pedirPermisoALaFamilia(descripcion: string, que: QueSePidio): Promise<string> {
@@ -213,23 +236,42 @@ export async function conversarConElAbuelo(
     return `NO se mandó plata ni se le preguntó nada a la familia: el asistente nunca manda ni transfiere plata. ${aviso} Decile con calma, en una o dos frases, que eso no lo podés hacer y que ${avisados.length > 0 ? 'ya le avisaste a la familia para que lo llamen' : 'es mejor que lo hable con la familia'}.`
   }
 
-  /** Estacionamiento tarifado: el servidor arma el SMS con la matrícula GUARDADA (o la que dijo, si no hay ninguna). */
-  function pagarEstacionamiento(entrada: { minutos?: unknown; matricula?: unknown }): string {
+  /** Estacionar: WhatsApp de la Intendencia con "estacionamiento" escrito, y se anota desde cuándo. */
+  async function empezarEstacionamiento(entrada: { minutos?: unknown; matricula?: unknown }): Promise<string> {
     if (estacionamiento) return 'La tarjeta del estacionamiento ya se está mostrando.'
+    if (abierto) {
+      return `Ya tiene un estacionamiento abierto desde hace ${textoDeMinutos(minutosDesde(abierto.desde))}. Preguntale si se fue de ahí: si dice que sí, usá terminar_estacionamiento y después, si estacionó en otro lado, empezar_estacionamiento.`
+    }
     const guardada = configuracion.abuelo.matricula
     const dicha = typeof entrada.matricula === 'string' ? normalizarMatricula(entrada.matricula) : null
     const matricula = guardada ?? dicha
     if (!matricula) {
-      return 'NO se armó el mensaje: no hay ninguna matrícula guardada. Preguntale la matrícula del auto (letras y números, por ejemplo SBA 1234) y repetísela para que confirme; o sugerile que le pida a la familia que la cargue en la app. No la inventes.'
+      return 'NO se abrió nada: no hay ninguna matrícula guardada. Preguntale la matrícula del auto (letras y números, por ejemplo SBA 1234) y repetísela para que confirme; o sugerile que le pida a la familia que la cargue en la app. No la inventes.'
     }
-    const minutos = typeof entrada.minutos === 'number' ? Math.round(entrada.minutos) : Number.NaN
-    const armado = armarMensajeDeEstacionamiento(matricula, minutos)
-    if (!armado) return 'NO se armó el mensaje: faltan los minutos (un número entero, por ejemplo 60 para una hora). Preguntale cuánto tiempo va a estar.'
-    estacionamiento = armado
+    const minutos = typeof entrada.minutos === 'number' && entrada.minutos > 0 ? Math.round(entrada.minutos) : undefined
+    const nuevo: EstacionamientoAbierto = { desde: new Date().toISOString(), matricula, ...(minutos && { minutos }) }
+    await anotarEstacionamientoAbierto(configuracion.codigoFamilia, nuevo)
+    abierto = nuevo
+    estacionamiento = tarjetaParaEmpezar(nuevo)
+    const respaldo = estacionamiento.sms
+      ? ` Abajo hay también un botón más chico "Mandar SMS" (por si WhatsApp no anda) con "${estacionamiento.sms.texto}".`
+      : ''
     const nota = guardada
       ? ''
       : ' Como esa matrícula no está guardada, recordale que el auto tiene que estar registrado en el sistema de estacionamiento de la Intendencia (eso lo hace la familia una vez) y que puede pedirle a la familia que la cargue en la app.'
-    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con el mensaje "${armado.texto}" para el ${armado.numero} (auto ${armado.matricula}, ${armado.minutos} minutos) y un botón grande "Abrir mensaje". El SMS NO está mandado: él toca el botón y después aprieta Enviar en los mensajes del celular.${nota} Contáselo en una o dos frases.`
+    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con su matrícula (${estacionamiento.matricula}) y un botón grande "Abrir WhatsApp", que abre el WhatsApp de la Intendencia con la palabra "estacionamiento" escrita. NO está mandado: él aprieta Enviar y sigue lo que le contesten (si le piden la matrícula, está en la tarjeta).${respaldo} Quedó anotado que estacionó ahora: cuando se vaya, que te diga "ya me voy" para terminarlo.${nota} Contáselo en dos o tres frases cortas.`
+  }
+
+  /** Irse: WhatsApp de la Intendencia con "fin" escrito, y se borra lo anotado. */
+  async function terminarEstacionamiento(): Promise<string> {
+    if (estacionamiento?.accion === 'terminar') return 'La tarjeta para terminar el estacionamiento ya se está mostrando.'
+    const matricula = abierto?.matricula ?? configuracion.abuelo.matricula
+    if (!matricula) return 'No hay ningún estacionamiento anotado ni matrícula guardada. Preguntale si estacionó con el WhatsApp de la Intendencia.'
+    estacionamiento = tarjetaParaTerminar(abierto ?? { desde: new Date().toISOString(), matricula })
+    const estuvo = abierto ? ` Estuvo estacionado ${textoDeMinutos(estacionamiento.estuvo ?? 0)}.` : ''
+    await cerrarEstacionamiento(configuracion.codigoFamilia)
+    abierto = null
+    return `Listo: debajo de tu respuesta, el abuelo ve un botón grande "Abrir WhatsApp" que abre el WhatsApp de la Intendencia con la palabra "fin" escrita. NO está mandado: él aprieta Enviar.${estuvo} Contáselo en una o dos frases.`
   }
 
   /** Un botón para llamar al primer familiar con teléfono (por ejemplo, para algo peligroso como el gas). */
@@ -275,7 +317,7 @@ export async function conversarConElAbuelo(
   }
 
   const respuesta = await llamarALaIA({
-    system: instruccionesParaElAbuelo(configuracion, lugares, comercios),
+    system: instruccionesParaElAbuelo(configuracion, lugares, comercios, abierto),
     messages: charla.map((mensaje) => ({
       role: mensaje.de === 'abuelo' ? ('user' as const) : ('assistant' as const),
       content: mensaje.texto,
@@ -287,7 +329,8 @@ export async function conversarConElAbuelo(
       HERRAMIENTA_AVISAR_PEDIDO_DE_PLATA,
       ...(lugares.length > 0 && formasActivas.length > 0 ? [herramientaProponerViaje(lugares.map((l) => l.id), formasActivas)] : []),
       ...(comercios.length > 0 ? [herramientaProponerPedido(comercios.map((c) => c.id))] : []),
-      herramientaPagarEstacionamiento(configuracion.abuelo.matricula),
+      herramientaEmpezarEstacionamiento(configuracion.abuelo.matricula),
+      HERRAMIENTA_TERMINAR_ESTACIONAMIENTO,
       HERRAMIENTA_LLAMAR_A_LA_FAMILIA,
       HERRAMIENTA_PREGUNTARLE_A_LA_FAMILIA,
     ],
@@ -296,7 +339,8 @@ export async function conversarConElAbuelo(
       if (bloque.name === 'alertar_estafa') return alertarEstafa((bloque.input as { motivo?: unknown }).motivo)
       if (bloque.name === 'consultar_a_la_familia') return consultarALaFamilia(bloque.input as Record<string, unknown>)
       if (bloque.name === 'avisar_pedido_de_plata') return avisarPlata()
-      if (bloque.name === 'pagar_estacionamiento') return pagarEstacionamiento(bloque.input as Record<string, unknown>)
+      if (bloque.name === 'empezar_estacionamiento') return empezarEstacionamiento(bloque.input as Record<string, unknown>)
+      if (bloque.name === 'terminar_estacionamiento') return terminarEstacionamiento()
       if (bloque.name === 'ofrecer_llamar_a_la_familia') return ofrecerLlamarALaFamilia()
       if (bloque.name === 'preguntarle_a_la_familia') return preguntarleALaFamilia((bloque.input as { duda?: unknown }).duda)
       if (bloque.name === 'proponer_viaje') {
@@ -311,8 +355,10 @@ export async function conversarConElAbuelo(
     },
   })
   if (!respuesta.ok) return respuesta
+  const texto = await conElTratoCorrecto(respuesta.texto, configuracion.abuelo.comoLeGustaQueLeHablen)
   return {
     ...respuesta,
+    texto,
     ...(viaje && { viaje }),
     ...(emergencia && { emergencia }),
     ...(estafa && { estafa }),
@@ -326,16 +372,34 @@ export async function conversarConElAbuelo(
 // Las tres de abajo van sin strict: Haiku rechaza la charla si hay muchas herramientas strict. Lo que llega lo revisa
 // el servidor igual (los minutos, la matrícula, la duda).
 
-function herramientaPagarEstacionamiento(matriculaGuardada: string | undefined): Anthropic.Beta.BetaTool {
+/**
+ * Si la respuesta usó palabras del otro trato (por ejemplo "salí" o "enciende" cuando es de usted), se le pide a la IA
+ * que la reescriba en el trato correcto. Si igual falla, queda la original (mejor eso que no contestar).
+ */
+async function conElTratoCorrecto(texto: string, comoLeGustaQueLeHablen: string): Promise<string> {
+  const trato = tratoDe(comoLeGustaQueLeHablen)
+  if (!trato || palabrasDelOtroTrato(texto, trato).length === 0) return texto
+  console.log(`[abuelo] la respuesta no respetó el trato (${trato}): ${palabrasDelOtroTrato(texto, trato).join(', ')}. Se reescribe.`)
+  const reescrita = await llamarALaIA({
+    system:
+      `Reescribí el texto que te paso tratando a la persona ${trato === 'usted' ? 'de USTED' : 'de VOS (rioplatense)'} en todas las frases. ` +
+      'No cambies nada más: mismo contenido, mismo orden, mismo largo. Devolvé solo el texto reescrito.',
+    messages: [{ role: 'user', content: texto }],
+  })
+  return reescrita.ok && reescrita.texto ? reescrita.texto : texto
+}
+
+function herramientaEmpezarEstacionamiento(matriculaGuardada: string | undefined): Anthropic.Beta.BetaTool {
   return {
-    name: 'pagar_estacionamiento',
+    name: 'empezar_estacionamiento',
     description:
-      'Estacionamiento tarifado: le muestra al abuelo una tarjeta con el SMS para pagar ya escrito y un botón "Abrir mensaje". ' +
-      'NO manda nada: él aprieta Enviar. Usala recién cuando él confirmó la matrícula y los minutos.',
+      'Estacionamiento tarifado, al estacionar: le muestra al abuelo una tarjeta con su matrícula y un botón que abre el WhatsApp ' +
+      'de la Intendencia con "estacionamiento" escrito (y, si dijo los minutos, un SMS de respaldo). NO manda nada: él aprieta Enviar. ' +
+      'Usala recién cuando confirmó la matrícula. La app anota desde cuándo está estacionado.',
     input_schema: {
       type: 'object',
       properties: {
-        minutos: { type: 'integer', description: 'Cuántos minutos va a estar, en número (una hora = 60, media hora = 30).' },
+        minutos: { type: 'integer', description: 'Cuántos minutos dijo que va a estar (una hora = 60). 0 si no lo dijo.' },
         matricula: {
           type: 'string',
           description: matriculaGuardada
@@ -348,6 +412,15 @@ function herramientaPagarEstacionamiento(matriculaGuardada: string | undefined):
     },
     strict: false,
   }
+}
+
+const HERRAMIENTA_TERMINAR_ESTACIONAMIENTO: Anthropic.Beta.BetaTool = {
+  name: 'terminar_estacionamiento',
+  description:
+    'Estacionamiento tarifado, al irse ("ya me voy", "me voy", "ya saqué el auto"): le muestra un botón que abre el WhatsApp ' +
+    'de la Intendencia con "fin" escrito. NO manda nada: él aprieta Enviar. Borra lo anotado.',
+  input_schema: { type: 'object', properties: {}, additionalProperties: false },
+  strict: false,
 }
 
 const HERRAMIENTA_LLAMAR_A_LA_FAMILIA: Anthropic.Beta.BetaTool = {
@@ -520,6 +593,7 @@ function instruccionesParaElAbuelo(
   configuracion: ConfiguracionAbuelo,
   lugares: ({ id: string } & ConfiguracionAbuelo['lugares'][number])[],
   comercios: ({ id: string } & ConfiguracionAbuelo['comercios'][number])[],
+  abierto: EstacionamientoAbierto | null,
 ): string {
   const { abuelo, reglas } = configuracion
   // La IA no recibe coordenadas ni números de WhatsApp: nunca los necesita y así no los puede escribir.
@@ -532,7 +606,7 @@ function instruccionesParaElAbuelo(
 
 CÓMO HABLAR
 - Hablá en español rioplatense (Uruguay), con frases cortas y palabras simples. Nada técnico.
-- Tratalo así: ${abuelo.comoLeGustaQueLeHablen}.
+- ${instruccionesDelTrato(tratoDe(abuelo.comoLeGustaQueLeHablen), abuelo.comoLeGustaQueLeHablen)}
 - Respuestas breves: dos o tres frases como máximo.
 - Si te falta información para ayudarlo, preguntá de a UNA cosa por vez.
 - Muchas veces te habla con el dictado por voz, que puede entender mal algunas palabras (por ejemplo "cree lo de mi hija" en vez de "llevame a lo de mi hija", o nombres cambiados). Interpretá con sentido común según la charla y sus lugares, comercios y familiares. Si no estás seguro de qué quiso decir, preguntale de forma simple antes de usar una herramienta (por ejemplo: "¿Quiere que lo lleve a lo de su hija?").
@@ -565,17 +639,19 @@ Vos nunca mandás nada ni llamás.
 - Si quiere pedir a un comercio que no está guardado (o algo que no vende ninguno de sus comercios), no le digas que no: usá consultar_a_la_familia. Nunca inventes comercios ni números.
 - Nunca escribas números, links ni precios (no los sabemos).
 
-ESTACIONAMIENTO TARIFADO (PAGAR CON UN SMS)
+ESTACIONAMIENTO TARIFADO (CON EL WHATSAPP DE LA INTENDENCIA)
+${configuracion.abuelo.matricula ? `Matrícula guardada de su auto: ${mostrarMatricula(configuracion.abuelo.matricula)}.` : 'No tiene matrícula guardada.'}
 ${
-  configuracion.abuelo.matricula
-    ? `Matrícula guardada de su auto: ${mostrarMatricula(configuracion.abuelo.matricula)}.`
-    : 'No tiene matrícula guardada.'
+  abierto
+    ? `AHORA TIENE EL ESTACIONAMIENTO ABIERTO desde hace ${textoDeMinutos(minutosDesde(abierto.desde))}${abierto.minutos ? ` (dijo que iba a estar ${textoDeMinutos(abierto.minutos)})` : ''}.${pasoElTiempoDeAvisar(abierto.desde) ? ' Ya pasó más de una hora: al principio de tu respuesta recordáselo con calma y preguntale si ya se va (si dice que sí, usá terminar_estacionamiento).' : ''}`
+    : 'Ahora no tiene ningún estacionamiento abierto.'
 }
-Si cuenta que estacionó y cuánto va a estar (por ejemplo "estacioné en 18 de Julio, voy a estar una hora"):
-- Antes de nada, confirmale en una pregunta la matrícula y los minutos (por ejemplo: "¿Pago para el auto SBA 1234, 60 minutos?"). Si no dijo cuánto tiempo, preguntale.
-- Cuando diga que sí, usá pagar_estacionamiento con los minutos en número. La pantalla le muestra el mensaje ya escrito y un botón para abrirlo; él aprieta Enviar. Vos nunca lo mandás.
+Si cuenta que estacionó (por ejemplo "estacioné en 18 de Julio, voy a estar una hora"):
+- Primero confirmale la matrícula en una pregunta (por ejemplo: "¿Es el auto SBA 1234?").
+- Cuando diga que sí, usá empezar_estacionamiento (con los minutos si los dijo; si no, 0). La pantalla le muestra su matrícula y un botón que abre el WhatsApp de la Intendencia con "estacionamiento" escrito; él aprieta Enviar y sigue lo que le contestan. Si le piden la matrícula, recordásela.
+- Cuando diga que se va ("ya me voy", "saqué el auto"), usá terminar_estacionamiento: el botón abre el WhatsApp con "fin" escrito.
 - Si no hay matrícula guardada: pedile la matrícula y repetísela para que confirme, o sugerile que le pida a la familia que la cargue. Nunca la inventes.
-- No digas precios, horarios ni zonas: no los sabemos.
+- Vos nunca mandás nada. No digas precios, horarios ni zonas: no los sabemos.
 
 DUDAS DEL DÍA A DÍA
 Si pregunta algo práctico (la tele no anda, cómo sacar el silencio del celular, qué cocinar con lo que tiene), ayudalo vos:
@@ -602,7 +678,7 @@ Si pide algo raro o fuera de lo común (un lugar que no está guardado, un viaje
 - Nunca para plata, emergencias ni temas de salud: esas tienen sus propias reglas (abajo).
 
 LO QUE TODAVÍA NO PODÉS HACER
-Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails ni llamar vos por teléfono (a un comercio guardado que se pide llamando, llama él con el botón de proponer_pedido; el SMS del estacionamiento lo manda él con el botón de pagar_estacionamiento). Los permisos de la familia los pide el sistema solo, cuando usás las herramientas. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
+Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails ni llamar vos por teléfono (a un comercio guardado que se pide llamando, llama él con el botón de proponer_pedido; el WhatsApp del estacionamiento lo manda él con los botones de empezar_estacionamiento y terminar_estacionamiento). Los permisos de la familia los pide el sistema solo, cuando usás las herramientas. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
 Nunca ofrezcas ni digas que hiciste algo que no podés hacer desde esta charla (como anotar algo en un papel).
 
 REGLAS QUE NUNCA SE APAGAN

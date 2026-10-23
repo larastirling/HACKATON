@@ -555,3 +555,18 @@ a.boton {
 .boton-caminando { background: var(--principal); border: 3px solid var(--principal); }
 .boton-colectivo { background: #1f4e79; border: 3px solid #1f4e79; }   /* azul oscuro: contraste 8.6:1 con blanco */
 .tarjeta-viaje-explicacion { font-size: 1.3rem; font-weight: 700; line-height: 1.4; margin: 6px 0; }
+
+/* Estacionamiento: aviso arriba de la charla mientras está estacionado (rojo suave pasada una hora) */
+.aviso-estacionamiento {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 2px solid var(--linea-fuerte);
+  border-radius: 16px;
+  background: var(--fondo-tarjeta);
+}
+.aviso-estacionamiento p { margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--texto-titulo); }
+.aviso-estacionamiento-hora { border-color: var(--error); background: var(--error-suave); }
+.boton-sms { font-size: 1rem; }

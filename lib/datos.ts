@@ -1,6 +1,7 @@
 import 'server-only'
 import { randomBytes, randomInt } from 'node:crypto'
 import { Redis } from '@upstash/redis'
+import type { EstacionamientoAbierto } from './estacionamiento'
 import type { Viaje } from './viajes'
 import type { Pedido } from './whatsapp'
 
@@ -723,6 +724,24 @@ export async function familiasConDiario(fecha = fechaDeHoy()): Promise<string[]>
   return (await clavesQueEmpiezanCon(prefijo)).map((clave) => clave.slice(prefijo.length))
 }
 
+// ── Estacionamiento abierto (lib/estacionamiento.ts) ────────
+// Cuando el abuelo estaciona, se anota desde cuándo, para recordarle terminarlo ("ya me voy") y avisarle si pasó
+// más de una hora. Se borra al terminar. No es parte de la configuración.
+
+const claveEstacionamiento = (codigoFamilia: string) => `estacionamiento-abierto:${normalizarCodigo(codigoFamilia)}`
+
+export async function anotarEstacionamientoAbierto(codigoFamilia: string, abierto: EstacionamientoAbierto): Promise<void> {
+  await guardar(claveEstacionamiento(codigoFamilia), abierto)
+}
+
+export async function leerEstacionamientoAbierto(codigoFamilia: string): Promise<EstacionamientoAbierto | null> {
+  return leer<EstacionamientoAbierto>(claveEstacionamiento(codigoFamilia))
+}
+
+export async function cerrarEstacionamiento(codigoFamilia: string): Promise<void> {
+  await borrar(claveEstacionamiento(codigoFamilia))
+}
+
 // ── Números de comercios que no andan (valen para TODAS las familias) ──
 // Cuando un hijo dice que el número de un comercio no anda, ese número deja de sugerirse a todas las familias
 // hasta que alguien del equipo lo revise y lo saque de acá (en /prueba, "Números reportados").
@@ -780,6 +799,7 @@ export async function restaurarFamiliaDemo(): Promise<{ pendientesBorrados: numb
   await soltarCandado(`ubicacion:${codigo}`)
   await soltarCandado(`estafa:${codigo}`)
   await borrar(claveDiario(codigo, fechaDeHoy())) // el resumen de hoy arranca de cero
+  await borrar(claveEstacionamiento(codigo)) // sin estacionamiento abierto
   return { pendientesBorrados }
 }
 

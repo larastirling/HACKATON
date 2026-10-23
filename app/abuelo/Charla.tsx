@@ -2,13 +2,16 @@
 
 import { Fragment, useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
 import type { FormaDeViajar } from '@/lib/datos'
-import type { Emergencia, EsperaAprobacion, Estafa, MensajeCharla, MensajeDeEstacionamiento, Pedido, Viaje } from '@/lib/ia'
+import { minutosDesde, pasoElTiempoDeAvisar, textoDeMinutos } from '@/lib/estacionamiento'
+import type { Emergencia, EsperaAprobacion, Estafa, MensajeCharla, Pedido, TarjetaDeEstacionamiento, Viaje } from '@/lib/ia'
 import { juntarNombres } from '@/lib/texto'
-import { consultarAprobacion, responderAlAbuelo } from './acciones'
+import { consultarAprobacion, responderAlAbuelo, terminarEstacionamientoAhora } from './acciones'
 import { callar, decirEnVozAlta, desbloquearVoz, MENSAJE_TECLADO, prepararVoces, useDictado, useSilencio } from './voz'
 
-export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) {
+export default function Charla({ inicial = [], estacionadoDesde = null }: { inicial?: MensajeCharla[]; estacionadoDesde?: string | null }) {
   const [charla, setCharla] = useState<MensajeCharla[]>(inicial)
+  // Desde cuándo está estacionado (si lo está): para el aviso de arriba y "Ya me voy".
+  const [estacionado, setEstacionado] = useState(estacionadoDesde)
   const [texto, setTexto] = useState('')
   const [hayError, setHayError] = useState(false)
   const [pensando, empezar] = useTransition()
@@ -68,6 +71,7 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
         if (respuesta.ok) {
           const { texto, viaje, emergencia, estafa, pedido, aprobacion, llamar, estacionamiento } = respuesta
           setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, estafa, pedido, aprobacion, llamar, estacionamiento }])
+          if (estacionamiento) setEstacionado(estacionamiento.accion === 'empezar' ? estacionamiento.desde : null)
         } else setHayError(true)
       } catch {
         setHayError(true)
@@ -93,6 +97,25 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
     }
   }
 
+  // "Ya me voy" del aviso: la tarjeta con "fin", sin la IA.
+  function terminarEstacionamiento() {
+    empezar(async () => {
+      try {
+        const tarjeta = await terminarEstacionamientoAhora()
+        setEstacionado(null)
+        setCharla((antes) => [
+          ...antes,
+          { de: 'abuelo', texto: 'Ya me voy' },
+          tarjeta
+            ? { de: 'ia', texto: 'Toque “Abrir WhatsApp” y después apriete Enviar para terminar el estacionamiento.', estacionamiento: tarjeta }
+            : { de: 'ia', texto: 'No tenía ningún estacionamiento abierto.' },
+        ])
+      } catch {
+        setHayError(true)
+      }
+    })
+  }
+
   return (
     <>
       {puedeHablar && (
@@ -100,6 +123,8 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
           {silenciada ? 'Activar voz' : 'Silenciar'}
         </button>
       )}
+
+      {estacionado && <AvisoEstacionamiento desde={estacionado} alTerminar={terminarEstacionamiento} />}
 
       <div className="charla" aria-live="polite">
         {charla.length === 0 && (
@@ -337,24 +362,61 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
   )
 }
 
-// Estacionamiento tarifado: el SMS ya escrito y el botón para abrirlo. Lo manda él (aprieta Enviar): nunca pasa solo.
-function TarjetaEstacionamiento({ estacionamiento }: { estacionamiento: MensajeDeEstacionamiento }) {
-  const horas = estacionamiento.minutos % 60 === 0 ? estacionamiento.minutos / 60 : null
-  const tiempo = horas ? (horas === 1 ? '1 hora' : `${horas} horas`) : `${estacionamiento.minutos} minutos`
+// Estacionamiento tarifado: el WhatsApp de la Intendencia con "estacionamiento" (o "fin") escrito, y su matrícula.
+// Lo manda él (aprieta Enviar): nunca pasa solo. Al empezar, si dijo los minutos, el SMS de respaldo.
+function TarjetaEstacionamiento({ estacionamiento: e }: { estacionamiento: TarjetaDeEstacionamiento }) {
+  const empezar = e.accion === 'empezar'
   return (
-    <section className="tarjeta-viaje" aria-label="Pagar el estacionamiento">
-      <p className="tarjeta-viaje-titulo">Pagar el estacionamiento</p>
-      <p className="tarjeta-viaje-destino">
-        Auto {estacionamiento.matricula} · {tiempo}
-      </p>
+    <section className="tarjeta-viaje" aria-label={empezar ? 'Pagar el estacionamiento' : 'Terminar el estacionamiento'}>
+      <p className="tarjeta-viaje-titulo">{empezar ? 'Pagar el estacionamiento' : 'Terminar el estacionamiento'}</p>
+      <p className="tarjeta-viaje-destino">Su auto: {e.matricula}</p>
       <p className="tarjeta-viaje-direccion">
-        Mensaje al {estacionamiento.numero}: <strong>{estacionamiento.texto}</strong>
+        {empezar ? (
+          <>
+            WhatsApp de la Intendencia, con <strong>“{e.whatsapp.texto}”</strong> escrito. Si le piden la matrícula: <strong>{e.matricula}</strong>.
+          </>
+        ) : (
+          <>
+            WhatsApp de la Intendencia, con <strong>“{e.whatsapp.texto}”</strong> escrito.
+            {e.estuvo !== undefined && <> Estuvo estacionado {textoDeMinutos(e.estuvo)}.</>}
+          </>
+        )}
       </p>
-      <a className="boton boton-uber" href={estacionamiento.link}>
-        Abrir mensaje
+      <a className="boton boton-uber" href={e.whatsapp.link} target="_blank" rel="noopener noreferrer">
+        Abrir WhatsApp
       </a>
       <p className="tarjeta-viaje-ayuda">Después toque “Enviar”. El mensaje no se manda solo.</p>
+      {e.sms && (
+        <a className="boton boton-secundario boton-sms" href={e.sms.link}>
+          Si WhatsApp no anda: mandar SMS
+        </a>
+      )}
     </section>
+  )
+}
+
+/**
+ * Mientras está estacionado: un aviso arriba de la charla. Pasada una hora, avisa que ya pasó más de una hora
+ * (por si se olvidó de terminarlo). "Ya me voy" arma el WhatsApp con "fin" sin la IA.
+ */
+function AvisoEstacionamiento({ desde, alTerminar }: { desde: string; alTerminar: () => void }) {
+  const [ahora, setAhora] = useState(() => Date.now())
+  useEffect(() => {
+    const reloj = setInterval(() => setAhora(Date.now()), 30_000)
+    return () => clearInterval(reloj)
+  }, [])
+  const pasoUnaHora = pasoElTiempoDeAvisar(desde, ahora)
+  return (
+    <div className={`aviso-estacionamiento ${pasoUnaHora ? 'aviso-estacionamiento-hora' : ''}`} role={pasoUnaHora ? 'alert' : 'status'}>
+      <p>
+        {pasoUnaHora
+          ? `Ya pasó más de una hora desde que estacionó (${textoDeMinutos(minutosDesde(desde, ahora))}). ¿Ya se va?`
+          : `Está estacionado hace ${textoDeMinutos(minutosDesde(desde, ahora))}.`}
+      </p>
+      <button type="button" className="boton boton-principal" onClick={alTerminar}>
+        Ya me voy
+      </button>
+    </div>
   )
 }
 
