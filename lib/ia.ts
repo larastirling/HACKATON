@@ -11,7 +11,8 @@ import { armarPedidoWhatsApp, type Pedido } from './whatsapp'
 // ÚNICO lugar donde se habla con la IA. Solo corre en el servidor:
 // la clave ANTHROPIC_API_KEY nunca llega al navegador.
 
-export const MODELO_IA = 'claude-opus-5-5'
+// Haiku 5.5: el modelo más barato (0,10 / 0,50 dólares por millón de tokens de entrada / salida).
+export const MODELO_IA = 'claude-haiku-5-5'
 
 export type RespuestaIA = { ok: true; texto: string } | { ok: false; error: string }
 
@@ -452,10 +453,8 @@ async function llamarALaIA(pedido: {
       const respuesta = await cliente.beta.messages.create({
         model: MODELO_IA,
         max_tokens: 16000,
-        output_config: { effort: 'low' },
-        // Si el modelo se niega por seguridad, la API prueba sola con otro modelo.
-        betas: ['server-side-fallback-2026-07-01'],
-        fallbacks: 'default',
+        output_config: { effort: 'low' }, // el esfuerzo más bajo: más rápido y más barato
+        // Haiku 5.5 no tiene "plan B" si se niega por seguridad (fallbacks): eso se maneja abajo, con stop_reason.
         ...(pedido.system && { system: pedido.system }),
         ...(pedido.tools && { tools: pedido.tools }),
         messages: mensajes,

@@ -168,8 +168,6 @@ async function main() {
           },
         },
       },
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
       system:
         'Sos un evaluador estricto pero justo. Te paso lo que le escribió una persona mayor a su asistente, ' +
         'los botones que le mostró la pantalla y el texto que contestó el asistente. ' +

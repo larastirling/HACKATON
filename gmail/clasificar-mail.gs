@@ -56,14 +56,12 @@ function clasificarConIA(remitente, asunto, texto) {
     'Texto:\n' + texto;
 
   var pedido = {
-    model: 'claude-opus-5-5',
+    model: 'claude-haiku-5-5', // el modelo más barato
     max_tokens: 16000,
     output_config: {
-      effort: 'medium',
+      effort: 'low',
       format: { type: 'json_schema', schema: FORMATO_RESPUESTA }
     },
-    // Si el modelo se niega a responder, la API reintenta sola con otro modelo
-    fallbacks: 'default',
     system: INSTRUCCIONES_IA,
     messages: [{ role: 'user', content: mail }]
   };
@@ -73,8 +71,7 @@ function clasificarConIA(remitente, asunto, texto) {
     contentType: 'application/json',
     headers: {
       'x-api-key': clave,
-      'anthropic-version': '2023-06-01',
-      'anthropic-beta': 'server-side-fallback-2026-07-01'
+      'anthropic-version': '2023-06-01'
     },
     payload: JSON.stringify(pedido),
     muteHttpExceptions: true
