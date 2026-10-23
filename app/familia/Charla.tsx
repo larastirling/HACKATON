@@ -129,7 +129,7 @@ function Botones({ mensaje, mandar }: { mensaje: MensajeCharla; mandar: (m: Mens
   if (mensaje.sugerencias?.length) {
     return (
       <div className={estilos.botones} role="group" aria-label="Lugares sugeridos">
-        <p className={estilos.tituloBotones}>Lugares cerca de su casa</p>
+        <p className={estilos.tituloBotones}>{mensaje.sugerencias[0].id.startsWith('mapa:') ? 'Lo que encontró el mapa' : 'Lugares cerca de su casa'}</p>
         {mensaje.sugerencias.map((l) => (
           <button key={l.id} type="button" className={estilos.sugerencia} onClick={() => mandar({ role: 'user', content: `Va a ${l.nombre}`, eligio: l.id })}>
             <strong>{l.nombre}</strong>
