@@ -18,15 +18,23 @@ import {
   herramientaSugerirLugares,
   preguntarPermiso,
   sugerirLugares,
+  todosLosLugaresCercanos,
   type LugarSugerido,
 } from './sugerencias'
 import {
   catalogoComerciosParaLaIA,
+  confirmadosPorElHijo,
+  esUnNo,
+  esUnSi,
   guardarComercioSugerido,
   HERRAMIENTA_GUARDAR_COMERCIO_SUGERIDO,
+  HERRAMIENTA_REPORTAR_NUMERO,
   herramientaSugerirComercios,
   preguntarPedido,
+  reportarNumeroQueNoAnda,
+  respuestaDelNumero,
   sugerirComercios,
+  todosLosComerciosCercanos,
   type ComercioSugerido,
 } from './sugerencias-comercios'
 import { sugerenciasSolas, sugerirPorBoton } from './sugerencias-solas'
@@ -45,8 +53,18 @@ export interface MensajeCharla {
   preguntaPermiso?: LugarSugerido
   /** IA: botones con comercios del catálogo para sugerir (no se guarda nada si no toca ninguno). */
   comerciosSugeridos?: ComercioSugerido[]
+  /**
+   * "Ver todos los cercanos": todos los lugares / comercios a menos de 10 km, del más cerca al más lejos.
+   * Llegan con las sugerencias y la pantalla los muestra sin preguntarle a nadie; NO se mandan de vuelta al servidor.
+   */
+  todosLosLugares?: LugarSugerido[]
+  todosLosComercios?: ComercioSugerido[]
   /** Sistema: pregunta "¿Qué le pide siempre?" por un comercio sugerido que el hijo tocó. */
   preguntaPedido?: ComercioSugerido
+  /** Sistema: "Este número no está confirmado: ¿ya le pidieron por acá y funciona?" (botones Sí / No). */
+  preguntaNumero?: ComercioSugerido
+  /** Hijo: contestó con un botón si el número sin confirmar funciona. */
+  confirmaNumero?: { id: string; funciona: boolean }
   /** IA: botones "Sí, borrar" / "No" para algo que el hijo pidió borrar. */
   pedidoBorrar?: PedidoBorrar
   /** Hijo: tocó una sugerencia (id del catálogo). */
@@ -70,13 +88,24 @@ export type RespuestaFamilia = RespuestaIA & {
   sugerencias?: LugarSugerido[]
   preguntaPermiso?: LugarSugerido
   comerciosSugeridos?: ComercioSugerido[]
+  todosLosLugares?: LugarSugerido[]
+  todosLosComercios?: ComercioSugerido[]
   preguntaPedido?: ComercioSugerido
+  preguntaNumero?: ComercioSugerido
   pedidoBorrar?: PedidoBorrar
 }
 
-export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFamilia> {
+export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamilia> {
   const sesion = await leerSesion()
   if (sesion?.rol !== 'familiar') return { ok: false, error: 'Tenés que entrar como familiar' }
+  // Las listas de "Ver todos" son solo para la pantalla: si vinieran, no se usan.
+  const mensajes = Array.isArray(charla)
+    ? charla.map((m) => {
+        if (!m || typeof m !== 'object') return m
+        const { todosLosLugares: _lugares, todosLosComercios: _comercios, ...resto } = m
+        return resto as MensajeCharla
+      })
+    : charla
   if (!esCharlaValida(mensajes)) return { ok: false, error: 'La charla es demasiado larga o vino vacía' }
   const codigo = sesion.codigoFamilia
 
@@ -92,13 +121,31 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
     return { ok: true, texto, ...(preguntaPermiso && { preguntaPermiso }), guardado: soloGuardado(configuracion) }
   }
   // Tocó un comercio sugerido: el sistema le dice de dónde salió el número y le pregunta qué pide (sin la IA).
+  // Si el número no está confirmado, antes le pregunta si ya le pidieron por ahí y funciona.
   if (ultimo.eligioComercio) {
-    const { texto, preguntaPedido } = preguntarPedido(configuracion, ultimo.eligioComercio)
-    return { ok: true, texto, ...(preguntaPedido && { preguntaPedido }), guardado: soloGuardado(configuracion) }
+    const { texto, preguntaPedido, preguntaNumero } = await preguntarPedido(configuracion, ultimo.eligioComercio)
+    return {
+      ok: true,
+      texto,
+      ...(preguntaPedido && { preguntaPedido }),
+      ...(preguntaNumero && { preguntaNumero }),
+      guardado: soloGuardado(configuracion),
+    }
+  }
+  // Contestó si el número sin confirmar funciona (con el botón, o escribiendo "sí" / "no"): sigue el sistema, sin la IA.
+  if (anterior?.preguntaNumero) {
+    const id = anterior.preguntaNumero.id
+    const funciona =
+      ultimo.confirmaNumero?.id === id ? ultimo.confirmaNumero.funciona : esUnSi(ultimo.content) ? true : esUnNo(ultimo.content) ? false : undefined
+    if (funciona !== undefined) {
+      const { texto, preguntaPedido } = respuestaDelNumero(id, funciona)
+      return { ok: true, texto, ...(preguntaPedido && { preguntaPedido }), guardado: soloGuardado(configuracion) }
+    }
   }
   // Tocó "Sugerirme lugares" o "Sugerirme comercios": el sistema muestra los cercanos (sin la IA).
   if (ultimo.pidio === 'lugares' || ultimo.pidio === 'comercios') {
-    return { ok: true, ...(await sugerirPorBoton(configuracion, mensajes, ultimo.pidio)), guardado: soloGuardado(configuracion) }
+    const sugeridas = await sugerirPorBoton(configuracion, mensajes, ultimo.pidio)
+    return { ok: true, texto: sugeridas.texto, ...(await conTodosLosCercanos(configuracion, sugeridas)), guardado: soloGuardado(configuracion) }
   }
   // Contestó la pregunta del permiso con un botón: recién ahora se guarda.
   if (ultimo.permiso && anterior?.preguntaPermiso?.id === ultimo.permiso.id) {
@@ -136,6 +183,8 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
   const herramientaSugerirComercio = herramientaSugerirComercios()
   // Del catálogo solo se pueden guardar los comercios que el hijo eligió tocando su botón.
   const comerciosElegidos = mensajes.flatMap((m) => (m.eligioComercio ? [m.eligioComercio] : []))
+  // Los sin confirmar que el hijo dijo que funcionan (solo esos se pueden guardar, y quedan "confirmado por la familia").
+  const comerciosConfirmados = confirmadosPorElHijo(mensajes)
   const usadas = new Set<string>()
   let respuesta =await charlarConLaIA(instrucciones, mensajes.map(paraLaIA), {
     tools: [
@@ -144,6 +193,7 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
       HERRAMIENTA_UBICAR_CON_LINK,
       ...(herramientaSugerir ? [herramientaSugerir, HERRAMIENTA_GUARDAR_LUGAR_SUGERIDO] : []),
       HERRAMIENTA_GUARDAR_COMERCIO,
+      HERRAMIENTA_REPORTAR_NUMERO,
       ...(herramientaSugerirComercio ? [herramientaSugerirComercio, HERRAMIENTA_GUARDAR_COMERCIO_SUGERIDO] : []),
       HERRAMIENTA_GUARDAR_FAMILIAR,
       HERRAMIENTA_PROPONER_BORRAR,
@@ -195,7 +245,9 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
             return resultado.texto
           })
         case HERRAMIENTA_GUARDAR_COMERCIO_SUGERIDO.name:
-          return guardarComercioSugerido(codigo, bloque.input, comerciosElegidos, loQueEscribioElHijo)
+          return guardarComercioSugerido(codigo, bloque.input, comerciosElegidos, comerciosConfirmados, loQueEscribioElHijo)
+        case HERRAMIENTA_REPORTAR_NUMERO.name:
+          return reportarNumeroQueNoAnda(codigo, bloque.input, loQueEscribioElHijo)
         case HERRAMIENTA_GUARDAR_FAMILIAR.name:
           return guardarFamiliar(codigo, bloque.input)
         case HERRAMIENTA_MOSTRAR_REGLAS.name:
@@ -216,14 +268,44 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
     sugerencias = solas.sugerencias
     comerciosSugeridos = solas.comerciosSugeridos
   }
+  const sugeridas = actualizada ? await conTodosLosCercanos(actualizada, { sugerencias, comerciosSugeridos }) : {}
   return {
     ...respuesta,
     ...(tabla && { tabla }),
-    ...(sugerencias && { sugerencias }),
-    ...(comerciosSugeridos && { comerciosSugeridos }),
+    ...sugeridas,
     ...(pedidoBorrar && { pedidoBorrar }),
     guardado: actualizada ? soloGuardado(actualizada) : undefined,
   }
+}
+
+/** Cuántas sugerencias se muestran primero; el resto, con "Ver todos los cercanos". */
+const PRIMERO_SE_MUESTRAN = 4
+
+/**
+ * A las sugerencias les agrega la lista de "Ver todos los cercanos" (todos a menos de 10 km, del más cerca al más lejos).
+ * Lugares: si hay 4 o menos, se muestran todos de entrada y no hace falta el botón.
+ * Comercios: de entrada solo los confirmados; con el botón se ven también los sin confirmar (con el aviso).
+ */
+async function conTodosLosCercanos(
+  configuracion: ConfiguracionAbuelo,
+  { sugerencias, comerciosSugeridos }: { sugerencias?: LugarSugerido[]; comerciosSugeridos?: ComercioSugerido[] },
+): Promise<Pick<RespuestaFamilia, 'sugerencias' | 'todosLosLugares' | 'comerciosSugeridos' | 'todosLosComercios'>> {
+  const resultado: Pick<RespuestaFamilia, 'sugerencias' | 'todosLosLugares' | 'comerciosSugeridos' | 'todosLosComercios'> = {}
+  if (sugerencias?.length) {
+    const todos = await todosLosLugaresCercanos(configuracion)
+    if (todos.length > PRIMERO_SE_MUESTRAN) {
+      resultado.sugerencias = sugerencias
+      resultado.todosLosLugares = todos
+    } else {
+      resultado.sugerencias = todos.length ? todos : sugerencias
+    }
+  }
+  if (comerciosSugeridos?.length) {
+    resultado.comerciosSugeridos = comerciosSugeridos
+    const todos = await todosLosComerciosCercanos(configuracion)
+    if (todos.some((t) => !comerciosSugeridos.some((s) => s.id === t.id))) resultado.todosLosComercios = todos
+  }
+  return resultado
 }
 
 /** La tabla que se mostró va en el texto que lee la IA: así en el próximo mensaje sabe qué propuso. */
@@ -235,6 +317,10 @@ function paraLaIA(mensaje: MensajeCharla) {
     mensaje.comerciosSugeridos &&
       `[Botones de comercios sugeridos que vio el hijo: ${mensaje.comerciosSugeridos.map((c) => `${c.nombre} (${c.id})`).join(', ')} y "Ninguno". Si no toca ninguno, no se guarda nada.]`,
     mensaje.preguntaPedido && `[Pregunta del sistema por el comercio del catálogo ${mensaje.preguntaPedido.id}. Con lo que conteste, usá guardar_comercio_sugerido.]`,
+    mensaje.preguntaNumero &&
+      `[Pregunta del sistema: el número de ${mensaje.preguntaNumero.id} no está confirmado; botones "Sí, funciona" y "No". No lo guardes si el hijo no dice que funciona.]`,
+    mensaje.confirmaNumero &&
+      `[El hijo tocó: ${mensaje.confirmaNumero.funciona ? 'sí, el número funciona (queda confirmado por la familia)' : 'no funciona o no sabe (no se guarda con ese número)'}.]`,
     mensaje.pedidoBorrar && `[Botones "Sí, borrar" y "No" por ${mensaje.pedidoBorrar.tipo} "${mensaje.pedidoBorrar.nombre}". NO está borrado todavía.]`,
     mensaje.eligio && `[El hijo tocó la sugerencia ${mensaje.eligio}.]`,
     mensaje.eligioComercio && `[El hijo tocó el comercio sugerido ${mensaje.eligioComercio}.]`,
@@ -295,6 +381,9 @@ function esCharlaValida(mensajes: unknown): mensajes is MensajeCharla[] {
         (m.comerciosSugeridos === undefined ||
           (Array.isArray(m.comerciosSugeridos) && m.comerciosSugeridos.length <= 10 && m.comerciosSugeridos.every(esLugarSugerido))) &&
         (m.preguntaPedido === undefined || esLugarSugerido(m.preguntaPedido)) &&
+        (m.preguntaNumero === undefined || esLugarSugerido(m.preguntaNumero)) &&
+        (m.confirmaNumero === undefined ||
+          (m.role === 'user' && typeof m.confirmaNumero?.id === 'string' && typeof m.confirmaNumero?.funciona === 'boolean')) &&
         (m.pedidoBorrar === undefined || esPedidoBorrar(m.pedidoBorrar)) &&
         (m.eligio === undefined || (m.role === 'user' && typeof m.eligio === 'string' && m.eligio.length <= 100)) &&
         (m.eligioComercio === undefined || (m.role === 'user' && typeof m.eligioComercio === 'string' && m.eligioComercio.length <= 100)) &&

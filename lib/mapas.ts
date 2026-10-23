@@ -327,8 +327,35 @@ const comoNombre = (texto: string) =>
     .map((p, i) => (i > 0 && PALABRAS_CHICAS.has(p) ? p : p.charAt(0).toUpperCase() + p.slice(1)))
     .join(' ')
 
+/** Palabras que no ayudan a reconocer una calle ("Avenida Italia" es "Italia"; "Bulevar General Artigas" es "Artigas"). */
+const PALABRAS_GENERICAS = new Set([
+  'av', 'avda', 'avenida', 'bv', 'bvar', 'bulevar', 'boulevard', 'calle', 'camino', 'cno', 'pasaje', 'rambla', 'ruta',
+  'dr', 'doctor', 'gral', 'general', 'ing', 'ingeniero', 'pres', 'presidente', 'cnel', 'coronel', 'prof', 'profesor', 'arq', 'arquitecto',
+  'de', 'del', 'la', 'las', 'los', 'y', 'e', 'montevideo', 'uruguay',
+])
+
+/** Las palabras que identifican a la calle: sin tildes, sin números ni palabras genéricas. */
+const palabrasDeLaCalle = (texto: string) =>
+  texto
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .split(/[^a-z0-9ñ]+/)
+    .filter((p) => p && !/^\d+$/.test(p) && !PALABRAS_GENERICAS.has(p))
+
 /**
- * Solo IDE Uruguay. Vale únicamente la coincidencia EXACTA con el mismo número de puerta
+ * Que IDE haya encontrado LA MISMA calle, no otra con el mismo número: todas las palabras de la calle que escribió
+ * el hijo tienen que estar en la que devolvió IDE ("Arocena 1644" → "Avenida Alfredo Arocena 1644" sí;
+ * "San José 1084" → "Doctor José María Muñoz 1084" no, porque falta "san").
+ */
+function esLaMismaCalle(direccion: string, encontrada: string): boolean {
+  const buscadas = palabrasDeLaCalle(direccion.split(',')[0])
+  const enIde = new Set(palabrasDeLaCalle(encontrada))
+  return buscadas.length > 0 && buscadas.every((p) => enIde.has(p))
+}
+
+/**
+ * Solo IDE Uruguay. Vale únicamente la coincidencia EXACTA con el mismo número de puerta y la misma calle
  * ("Aproximado" puede ser otra puerta u otra calle parecida: mejor no encontrada que equivocada).
  * Sin número de puerta no se busca acá (IDE es para direcciones, no para nombres de lugares).
  */
@@ -345,7 +372,12 @@ export async function buscarEnIdeUruguay(direccion: string): Promise<UbicacionEn
     return null
   }
   const exacta = resultados.find(
-    (r) => r.state === 1 && String(r.portalNumber) === numero && Number.isFinite(r.lat) && Number.isFinite(r.lng),
+    (r) =>
+      r.state === 1 &&
+      String(r.portalNumber) === numero &&
+      esLaMismaCalle(direccion, r.address) &&
+      Number.isFinite(r.lat) &&
+      Number.isFinite(r.lng),
   )
   if (!exacta) return null
   const barrio = await barrioDe(exacta.lat, exacta.lng)

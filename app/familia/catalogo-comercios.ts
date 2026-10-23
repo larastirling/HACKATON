@@ -4,13 +4,29 @@
 // Se carga a mano. Reglas para sumar uno:
 //   - Solo comercios que toman pedidos directo (no los que venden solo por PedidosYa, Rappi o app propia, como Ta-Ta).
 //   - Los datos salen de la web o las redes oficiales del comercio (anotar el link). Los de directorio son menos confiables.
-//   - Todos arrancan con verificado: false. SOLO los verificados se sugieren y se pueden guardar:
-//     pasalo a true recién cuando alguien llamó o escribió y confirmó que el número es del comercio y toma pedidos.
+//   - Cada uno tiene su confirmación (ver Confirmacion abajo). Solo los "confirmado por su web" se sugieren solos;
+//     los "sin confirmar" aparecen en "Ver todos los cercanos" con el aviso "número sin confirmar", y para guardarlos
+//     el hijo tiene que decir que ya le pidieron por ahí y funciona (eso vale solo para su familia).
+//   - Un número que un hijo reportó que no anda deja de sugerirse a todas las familias (lib/datos.ts, reportarNumero).
 //   - La zona de envío va solo si la fuente la dice: con zona, no se sugiere a quien vive fuera de ella.
 // Las direcciones de los locales se ubicaron con el mapa (lib/mapas.ts): el barrio y las coordenadas son las del mapa.
 // Cargado el 2026-10-23.
 
 export type TipoDeFuente = 'oficial' | 'redes' | 'directorio' | 'prueba'
+
+/**
+ * Quién confirmó que el número toma pedidos:
+ * - "confirmado por su web": la web oficial del comercio lo dice de forma explícita (se guarda el link, la fecha y la frase).
+ *   Las guías de internet, Tripadvisor o Facebook no cuentan.
+ * - "sin confirmar": no se sugiere solo; aparece en "Ver todos" con el aviso.
+ * - "de prueba": el comercio del equipo, solo para probar en la compu.
+ */
+export type Confirmacion =
+  | { estado: 'confirmado por su web'; link: string; fecha: string; dice: string }
+  | { estado: 'sin confirmar' }
+  | { estado: 'de prueba' }
+
+const SIN_CONFIRMAR: Confirmacion = { estado: 'sin confirmar' }
 
 export interface ComercioDelCatalogo {
   id: string
@@ -31,8 +47,8 @@ export interface ComercioDelCatalogo {
   fuente: { tipo: TipoDeFuente; link: string | null; detalle?: string }
   /** Lo que falta confirmar o hay que saber antes de usarlo. */
   nota?: string
-  /** Si alguien ya confirmó (llamando o escribiendo) que el número es el del comercio y toma pedidos. */
-  verificado: boolean
+  /** Quién confirmó que el número toma pedidos (ver Confirmacion). */
+  confirmacion: Confirmacion
   /** Solo para probar: aparece cuando la app corre en una compu, nunca en la app publicada en Vercel. */
   soloEnLaCompu?: boolean
 }
@@ -53,7 +69,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     zonaDeEnvio: null,
     fuente: { tipo: 'prueba', link: null, detalle: 'número de alguien del equipo' },
     nota: 'Es un comercio de prueba: atiende alguien del equipo.',
-    verificado: true,
+    confirmacion: { estado: 'de prueba' },
     soloEnLaCompu: true,
   },
 
@@ -70,7 +86,12 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     horario: 'de 8 a 20 h, todos los días',
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://discouy.disco.com.uy/contacto', detalle: 'compra telefónica' },
-    verificado: false,
+    confirmacion: {
+      estado: 'confirmado por su web',
+      link: 'https://discouy.disco.com.uy/contacto',
+      fecha: '2026-10-23',
+      dice: 'Compra telefónica: Podés hacer tu pedido llamando al: 0800 4242',
+    },
   },
   {
     id: 'devoto',
@@ -84,7 +105,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://devoto.com.uy/preguntas-frecuentes' },
     nota: 'Es para consultas de pedidos online: falta confirmar si toma pedidos por teléfono.',
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'tienda-inglesa',
@@ -98,7 +119,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://www.tiendainglesa.com.uy', detalle: 'Servicio al Cliente' },
     nota: 'Falta confirmar si toma pedidos por teléfono.',
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'farmashop',
@@ -113,7 +134,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://tienda.farmashop.com.uy/preguntas-frecuentes' },
     nota: 'Falta confirmar si toma pedidos nuevos por WhatsApp.',
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
 
   // Restaurantes con fuente oficial
@@ -121,15 +142,21 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'piazza-italia-centro',
     nombre: 'Piazza Italia (Centro)',
     tipo: 'Restaurante',
-    direccion: 'Soriano 1384, Centro',
-    latitud: -34.9074709,
-    longitud: -56.1857577,
+    // Su web oficial dice "Centro: San José 1084" (antes teníamos Soriano 1384, de otra fuente).
+    direccion: 'San José 1084, Centro',
+    latitud: -34.907076,
+    longitud: -56.1927841,
     whatsapp: '+598 97 213 707',
     llamada: [],
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://piazzaitalia.uy', detalle: 'pedido automático mandando "Hola"' },
     nota: 'El WhatsApp responde con un pedido automático: hay que empezar mandando "Hola".',
-    verificado: false,
+    confirmacion: {
+      estado: 'confirmado por su web',
+      link: 'https://piazzaitalia.uy',
+      fecha: '2026-10-23',
+      dice: 'Pedí por WhatsApp y recibila donde estés. [...] Ambos solo para retiro o delivery. [...] WhatsApp: 097 213 707',
+    },
   },
   {
     id: 'piazza-italia-pocitos',
@@ -143,7 +170,12 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://piazzaitalia.uy', detalle: 'pedido automático mandando "Hola"' },
     nota: 'El WhatsApp responde con un pedido automático: hay que empezar mandando "Hola".',
-    verificado: false,
+    confirmacion: {
+      estado: 'confirmado por su web',
+      link: 'https://piazzaitalia.uy',
+      fecha: '2026-10-23',
+      dice: 'Pedí por WhatsApp y recibila donde estés. [...] Ambos solo para retiro o delivery. [...] WhatsApp: 097 213 707',
+    },
   },
   {
     id: 'fundamento-pizza-ciudad-vieja',
@@ -156,7 +188,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: [],
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://fundamentopizza.com' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'fundamento-pizza-cordon',
@@ -169,7 +201,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: [],
     zonaDeEnvio: ['Punta Carretas', 'Pocitos', 'Cordón'],
     fuente: { tipo: 'oficial', link: 'https://fundamentopizza.com', detalle: 'envíos en Punta Carretas, Pocitos y Cordón' },
-    verificado: false,
+    // Su web solo tiene un botón "WhatsApp" por local, sin decir que sirva para pedir (para pedir ofrece "Pedir online").
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'fundamento-pizza-pocitos',
@@ -183,7 +216,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     // La zona la dice la web de la marca (no la separa por local).
     zonaDeEnvio: ['Punta Carretas', 'Pocitos', 'Cordón'],
     fuente: { tipo: 'oficial', link: 'https://fundamentopizza.com', detalle: 'envíos en Punta Carretas, Pocitos y Cordón' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'pizzeria-el-hidalgo',
@@ -197,7 +230,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     horario: 'delivery propio hasta la 01:30',
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://pizzeriaelhidalgo.com' },
-    verificado: false,
+    // Su web dice "Llámanos o escríbenos por WhatsApp" como contacto, y para pedir enlaza PedidosYa: no lo dice explícito.
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'la-fabrica-empanadas-centro',
@@ -210,7 +244,12 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: [],
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://lafabricaempanadas.com.uy' },
-    verificado: false,
+    confirmacion: {
+      estado: 'confirmado por su web',
+      link: 'https://lafabricaempanadas.com.uy',
+      fecha: '2026-10-23',
+      dice: 'Hacé tu pedido de manera automática a través de WhatsApp. Mandá "Hola" al 094180022',
+    },
   },
   {
     id: 'la-fabrica-empanadas-tres-cruces',
@@ -223,7 +262,12 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: [],
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://lafabricaempanadas.com.uy' },
-    verificado: false,
+    confirmacion: {
+      estado: 'confirmado por su web',
+      link: 'https://lafabricaempanadas.com.uy',
+      fecha: '2026-10-23',
+      dice: 'Hacé tu pedido de manera automática a través de WhatsApp. Mandá "Hola" al 094180022',
+    },
   },
   {
     id: 'pizza-subte',
@@ -236,7 +280,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: ['2902 3050'],
     zonaDeEnvio: null,
     fuente: { tipo: 'redes', link: null, detalle: 'página de Facebook del local' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
 
   // Restaurantes con fuente de directorio (menos confiables)
@@ -251,7 +295,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: [],
     zonaDeEnvio: null,
     fuente: { tipo: 'directorio', link: 'https://1122.com.uy' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'la-pasiva-18-de-julio-899',
@@ -264,7 +308,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: ['2900 4383'],
     zonaDeEnvio: null,
     fuente: { tipo: 'directorio', link: 'https://sucursales24uy.com' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'la-pasiva-plaza-fabini',
@@ -277,7 +321,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: ['2903 1830'],
     zonaDeEnvio: null,
     fuente: { tipo: 'directorio', link: 'https://sucursales24uy.com' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'la-pasiva-18-de-julio-1251',
@@ -290,7 +334,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: ['2903 4444'],
     zonaDeEnvio: null,
     fuente: { tipo: 'directorio', link: 'https://sucursales24uy.com' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'la-pasiva-tres-cruces',
@@ -304,7 +348,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     zonaDeEnvio: null,
     fuente: { tipo: 'directorio', link: 'https://opina.com.uy' },
     nota: 'El WhatsApp es "posible": la fuente no lo asegura.',
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'la-pasiva-carrasco',
@@ -318,7 +362,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: ['2600 6904'],
     zonaDeEnvio: null,
     fuente: { tipo: 'directorio', link: 'https://www.tripadvisor.com', detalle: 'Tripadvisor' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'la-pasiva-general-rivera',
@@ -331,7 +375,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: ['2628 7262'],
     zonaDeEnvio: null,
     fuente: { tipo: 'directorio', link: 'https://www.tripadvisor.com', detalle: 'Tripadvisor' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
   {
     id: 'la-pasiva-nuevocentro',
@@ -345,6 +389,6 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     llamada: ['2201 3201'],
     zonaDeEnvio: null,
     fuente: { tipo: 'redes', link: null, detalle: 'página de Facebook del local' },
-    verificado: false,
+    confirmacion: SIN_CONFIRMAR,
   },
 ]

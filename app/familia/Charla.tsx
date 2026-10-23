@@ -21,10 +21,13 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
   async function pedirRespuesta(historial: MensajeCharla[]) {
     setPensando(true)
     setError(null)
-    const r = await responder(historial).catch(() => ({ ok: false as const, error: 'No se pudo hablar con la IA' }))
+    // Las listas de "Ver todos" se quedan en la pantalla: no se mandan de vuelta (son largas y el servidor no las usa).
+    const paraMandar = historial.map(({ todosLosLugares: _lugares, todosLosComercios: _comercios, ...m }) => m)
+    const r = await responder(paraMandar).catch(() => ({ ok: false as const, error: 'No se pudo hablar con la IA' }))
     if ('guardado' in r && r.guardado) setGuardado(r.guardado)
     if (r.ok) {
-      const { texto, tabla, sugerencias, preguntaPermiso, comerciosSugeridos, preguntaPedido, pedidoBorrar } = r as Extract<RespuestaFamilia, { ok: true }>
+      const { texto, tabla, sugerencias, todosLosLugares, preguntaPermiso, comerciosSugeridos, todosLosComercios, preguntaPedido, preguntaNumero, pedidoBorrar } =
+        r as Extract<RespuestaFamilia, { ok: true }>
       setMensajes([
         ...historial,
         {
@@ -32,9 +35,12 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
           content: texto,
           ...(tabla && { tabla }),
           ...(sugerencias && { sugerencias }),
+          ...(todosLosLugares && { todosLosLugares }),
           ...(preguntaPermiso && { preguntaPermiso }),
           ...(comerciosSugeridos && { comerciosSugeridos }),
+          ...(todosLosComercios && { todosLosComercios }),
           ...(preguntaPedido && { preguntaPedido }),
+          ...(preguntaNumero && { preguntaNumero }),
           ...(pedidoBorrar && { pedidoBorrar }),
         },
       ])
@@ -124,36 +130,104 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
   )
 }
 
-// Botones debajo del último mensaje de la IA: sugerencias de lugares, "¿solo o con permiso?" y "¿Seguro?".
+interface Sugerido {
+  id: string
+  nombre: string
+  tipo: string
+  direccion: string
+  distancia?: string
+  sinConfirmar?: boolean
+}
+
+/**
+ * Las sugerencias: primero las del mensaje (hasta 4) y, si hay más cerca, el botón "Ver todos los cercanos",
+ * que despliega la lista completa ahí mismo (ya vino con el mensaje: no se le pregunta nada a nadie).
+ */
+function ListaDeSugerencias({
+  titulo,
+  primeros,
+  todos,
+  alElegir,
+}: {
+  titulo: string
+  primeros: Sugerido[]
+  todos?: Sugerido[]
+  alElegir: (s: Sugerido) => void
+}) {
+  const [verTodos, setVerTodos] = useState(false)
+  const hayMas = !!todos && todos.some((t) => !primeros.some((p) => p.id === t.id))
+  const Opcion = ({ s, compacta }: { s: Sugerido; compacta?: boolean }) => (
+    <button type="button" className={`${estilos.sugerencia} ${compacta ? estilos.sugerenciaCompacta : ''}`} onClick={() => alElegir(s)}>
+      <strong>{s.nombre}</strong>
+      <span>
+        {s.tipo} · {s.direccion}
+        {s.distancia && ` · ${s.distancia}`}
+      </span>
+      {s.sinConfirmar && <em className={estilos.sinConfirmar}>Número sin confirmar</em>}
+    </button>
+  )
+  return (
+    <>
+      <p className={estilos.tituloBotones}>{titulo}</p>
+      {!verTodos && primeros.map((s) => <Opcion key={s.id} s={s} />)}
+      {verTodos && todos && (
+        <div className={estilos.listaTodos} role="list" aria-label={`Todos los cercanos (${todos.length})`}>
+          {todos.map((s) => (
+            <Opcion key={s.id} s={s} compacta />
+          ))}
+        </div>
+      )}
+      {hayMas && !verTodos && (
+        <button type="button" className={estilos.verTodos} onClick={() => setVerTodos(true)}>
+          Ver todos los cercanos ({todos!.length})
+        </button>
+      )}
+    </>
+  )
+}
+
+// Botones debajo del último mensaje de la IA: sugerencias, "¿funciona el número?", "¿solo o con permiso?" y "¿Seguro?".
 function Botones({ mensaje, mandar }: { mensaje: MensajeCharla; mandar: (m: MensajeCharla) => void }) {
+  const ninguno = (
+    <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'Ninguno de esos' })}>
+      Ninguno
+    </button>
+  )
   if (mensaje.sugerencias?.length) {
     return (
       <div className={estilos.botones} role="group" aria-label="Lugares sugeridos">
-        <p className={estilos.tituloBotones}>Lugares cerca de su casa</p>
-        {mensaje.sugerencias.map((l) => (
-          <button key={l.id} type="button" className={estilos.sugerencia} onClick={() => mandar({ role: 'user', content: `Va a ${l.nombre}`, eligio: l.id })}>
-            <strong>{l.nombre}</strong>
-            <span>{l.tipo} · {l.direccion}{l.distancia && ` · ${l.distancia}`}</span>
-          </button>
-        ))}
-        <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'Ninguno de esos' })}>
-          Ninguno
-        </button>
+        <ListaDeSugerencias
+          titulo="Lugares cerca de su casa"
+          primeros={mensaje.sugerencias}
+          todos={mensaje.todosLosLugares}
+          alElegir={(l) => mandar({ role: 'user', content: `Va a ${l.nombre}`, eligio: l.id })}
+        />
+        {ninguno}
       </div>
     )
   }
   if (mensaje.comerciosSugeridos?.length) {
     return (
       <div className={estilos.botones} role="group" aria-label="Comercios sugeridos">
-        <p className={estilos.tituloBotones}>Comercios confirmados cerca de su casa</p>
-        {mensaje.comerciosSugeridos.map((c) => (
-          <button key={c.id} type="button" className={estilos.sugerencia} onClick={() => mandar({ role: 'user', content: `Le pide a ${c.nombre}`, eligioComercio: c.id })}>
-            <strong>{c.nombre}</strong>
-            <span>{c.tipo} · {c.direccion}{c.distancia && ` · ${c.distancia}`}</span>
-          </button>
-        ))}
-        <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'Ninguno de esos' })}>
-          Ninguno
+        <ListaDeSugerencias
+          titulo="Comercios cerca de su casa"
+          primeros={mensaje.comerciosSugeridos}
+          todos={mensaje.todosLosComercios}
+          alElegir={(c) => mandar({ role: 'user', content: `Le pide a ${c.nombre}`, eligioComercio: c.id })}
+        />
+        {ninguno}
+      </div>
+    )
+  }
+  if (mensaje.preguntaNumero) {
+    const { id } = mensaje.preguntaNumero
+    return (
+      <div className={estilos.botones} role="group" aria-label="¿Ya le pidieron por este número y funciona?">
+        <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'Sí, funciona', confirmaNumero: { id, funciona: true } })}>
+          Sí, ya le pedimos y funciona
+        </button>
+        <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'No, o no sé', confirmaNumero: { id, funciona: false } })}>
+          No, o no sé
         </button>
       </div>
     )
