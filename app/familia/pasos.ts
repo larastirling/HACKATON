@@ -1,17 +1,21 @@
 import 'server-only'
 import {
   COMO_SE_MANEJA,
+  FORMAS_DE_VIAJAR,
+  formasDeViajarDe,
   leerConfiguracion,
   PASOS,
   PENDIENTE,
   primerNombre,
   type ComoEs,
   type ConfiguracionAbuelo,
+  type FormaDeViajar,
   type Nivel,
   type Paso,
 } from '@/lib/datos'
 import { ubicarYGuardarLaCasa } from './abuelo'
 import { guardarFamiliar } from './familiares'
+import { comoPuedeIr, guardarFormas, KM_CAMINANDO, NOMBRES_FORMAS } from './formas-de-viajar'
 import { cambiarConfiguracion, nombreValido, normalizarTelefono } from './guardar'
 import { reglasSinElegir } from './instrucciones'
 import { guardarReglas, mostrarReglas, type TablaReglas } from './reglas'
@@ -48,10 +52,17 @@ export interface EstadoDelArmado {
   paraDespues: Paso[]
 }
 
+/** Un botón de "¿Cómo puede ir?" en la tarjeta de lugares, marcado si ya estaba guardado. */
+export interface FormaEnLaTarjeta {
+  id: FormaDeViajar
+  nombre: string
+  marcada: boolean
+}
+
 export type Tarjeta =
   | { tipo: 'datos'; nombre: string; apodo: string; trato: 'usted' | 'vos' | ''; telefono: string; direccion: string }
   | { tipo: 'como-es'; tecnologia: readonly string[]; plata: readonly string[] }
-  | { tipo: 'lugares'; primeros: LugarSugerido[]; todos: LugarSugerido[]; sinCasa?: boolean }
+  | { tipo: 'lugares'; primeros: LugarSugerido[]; todos: LugarSugerido[]; sinCasa?: boolean; formas: FormaEnLaTarjeta[] }
   | { tipo: 'comercios'; primeros: ComercioSugerido[]; todos: ComercioSugerido[]; sinCasa?: boolean }
   | { tipo: 'familiares'; vos: { nombre: string; relacion: string; telefono: string } }
   | { tipo: 'reglas'; tabla: TablaReglas }
@@ -59,7 +70,7 @@ export type Tarjeta =
 export type RespuestaDeTarjeta =
   | { tipo: 'datos'; nombre: string; apodo: string; trato: 'usted' | 'vos'; telefono: string; direccion: string }
   | { tipo: 'como-es'; tecnologia: string; plata: string }
-  | { tipo: 'lugares'; elegidos: { id: string; vaSolo: boolean }[] }
+  | { tipo: 'lugares'; elegidos: { id: string; vaSolo: boolean }[]; formas: FormaDeViajar[] }
   | { tipo: 'comercios'; elegidos: { id: string; pedido: string; vaSolo: boolean; funciona: boolean }[] }
   | { tipo: 'familiares'; relacion: string; telefono: string; otro?: { nombre: string; relacion: string; mail: string; telefono: string } }
   | { tipo: 'reglas' }
@@ -197,9 +208,12 @@ export async function tarjetaDelPaso(c: ConfiguracionAbuelo, paso: Paso, mail: s
     case 'lugares': {
       const todos = await todosLosLugaresCercanos(c)
       const sinCasa = todos.length === 0
+      // Si nunca se eligió, arranca solo con Uber (formasDeViajarDe).
+      const guardadas = formasDeViajarDe(c)
+      const formas = FORMAS_DE_VIAJAR.map((id) => ({ id, nombre: NOMBRES_FORMAS[id], marcada: guardadas.includes(id) }))
       return {
         texto: sinCasa ? 'Todavía no pude ubicar su casa en el mapa, así que no te puedo mostrar lugares cercanos. ¿A qué lugares va? Escribilos abajo.' : texto,
-        tarjeta: { tipo: 'lugares', primeros: todos.slice(0, PRIMERO_SE_MUESTRAN), todos, ...(sinCasa && { sinCasa }) },
+        tarjeta: { tipo: 'lugares', primeros: todos.slice(0, PRIMERO_SE_MUESTRAN), todos, ...(sinCasa && { sinCasa }), formas },
       }
     }
     case 'comercios': {
@@ -334,6 +348,13 @@ export async function responderTarjeta(
     }
 
     case 'lugares': {
+      // Primero cómo puede ir: si llega mal, se vuelve a mostrar la tarjeta sin guardar nada.
+      const formas = await guardarFormas(codigo, r.formas)
+      if ('problema' in formas) return deNuevo('Elegí cómo puede ir con los botones.')
+      const comoVa =
+        formas.elegidas.length === 0
+          ? 'No se le van a ofrecer viajes.'
+          : `Puede ir ${comoPuedeIr(formas.elegidas)}${formas.elegidas.includes('caminando') ? ` (caminando, solo a lugares a menos de ${KM_CAMINANDO} km)` : ''}.`
       const elegidos = Array.isArray(r.elegidos) ? r.elegidos.slice(0, 50) : []
       const guardados: string[] = []
       for (const e of elegidos) {
@@ -344,7 +365,8 @@ export async function responderTarjeta(
         guardados.push(`${lugar.nombre} (${e.vaSolo ? 'va solo' : 'con permiso'})`)
       }
       await marcar(codigo, 'lugares', 'hecho')
-      return seguir(guardados.length ? `Guardé ${guardados.length === 1 ? 'un lugar' : `${guardados.length} lugares`}: ${guardados.join(', ')}.` : 'No guardé ningún lugar de la lista.')
+      const lugares = guardados.length ? `Guardé ${guardados.length === 1 ? 'un lugar' : `${guardados.length} lugares`}: ${guardados.join(', ')}.` : 'No guardé ningún lugar de la lista.'
+      return seguir(`${lugares} ${comoVa}`)
     }
 
     case 'comercios': {

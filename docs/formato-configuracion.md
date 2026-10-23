@@ -109,6 +109,8 @@ Cómo puede ir la persona mayor a los lugares. La familia activa las que quiera;
 
 - Es una lista, por ejemplo `["uber", "caminando", "colectivo"]`. Puede ir vacía (no se ofrecen viajes).
 - **No es obligatorio:** si falta (familias guardadas antes de que existiera), se toma como `["uber"]`.
+- **Dónde se elige:** en /familia, en la tarjeta de lugares (paso 3, "¿Cómo puede ir?"), con el mismo "Listo". Arranca
+  con lo guardado (o solo Uber). Si el hijo lo cambia escribiendo, la IA usa `guardar_formas_de_viajar`.
 - **Los permisos no cambian:** si un lugar tiene `necesitaPermiso: true`, primero se le pregunta a la familia, vaya como vaya.
 
 ---

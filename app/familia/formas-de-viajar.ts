@@ -38,21 +38,32 @@ export function comoPuedeIr(formas: FormaDeViajar[]): string {
   return lista.length <= 1 ? (lista[0] ?? 'de ninguna forma') : `${lista.slice(0, -1).join(', ')} y ${lista.at(-1)}`
 }
 
-export async function guardarFormasDeViajar(codigoFamilia: string, dato: unknown): Promise<string> {
-  console.log('[familia] la IA pidió guardar_formas_de_viajar:', JSON.stringify(dato))
-  const formas = (dato as { formas?: unknown } | null)?.formas
+export const KM_CAMINANDO = String(KM_MAXIMOS_CAMINANDO).replace('.', ',')
+
+/** Para los botones de la tarjeta de lugares (paso 3). */
+export const NOMBRES_FORMAS: Record<FormaDeViajar, string> = { uber: 'Uber', caminando: `Caminando (hasta ${KM_CAMINANDO} km)`, colectivo: 'Colectivo' }
+
+/** Guarda las formas (desde la tarjeta o la herramienta). Devuelve las guardadas, o el problema. */
+export async function guardarFormas(codigoFamilia: string, formas: unknown): Promise<{ elegidas: FormaDeViajar[] } | { problema: string }> {
   if (!Array.isArray(formas) || !formas.every((f) => FORMAS_DE_VIAJAR.includes(f))) {
-    return `No se guardó: las formas tienen que ser una lista con ${FORMAS_DE_VIAJAR.join(', ')}.`
+    return { problema: `las formas tienen que ser una lista con ${FORMAS_DE_VIAJAR.join(', ')}` }
   }
   // Siempre en el mismo orden (Uber, caminando, colectivo) y sin repetir.
   const elegidas: FormaDeViajar[] = FORMAS_DE_VIAJAR.filter((f) => formas.includes(f))
   const error = await cambiarConfiguracion(codigoFamilia, (c) => ({ ...c, formasDeViajar: elegidas }))
-  if (error) return error
+  return error ? { problema: error } : { elegidas }
+}
+
+export async function guardarFormasDeViajar(codigoFamilia: string, dato: unknown): Promise<string> {
+  console.log('[familia] la IA pidió guardar_formas_de_viajar:', JSON.stringify(dato))
+  const resultado = await guardarFormas(codigoFamilia, (dato as { formas?: unknown } | null)?.formas)
+  if ('problema' in resultado) return `No se guardó: ${resultado.problema}.`
+  const { elegidas } = resultado
   if (elegidas.length === 0) {
     return 'Guardado: no se le ofrece ninguna forma de viajar (el asistente no le va a armar viajes). Contáselo al hijo en una frase.'
   }
   return (
     `Guardado: puede ir ${comoPuedeIr(elegidas)}. Contáselo al hijo en una frase.` +
-    (elegidas.includes('caminando') ? ` Aclarale que caminando solo se le ofrece a lugares a menos de ${String(KM_MAXIMOS_CAMINANDO).replace('.', ',')} km de su casa.` : '')
+    (elegidas.includes('caminando') ? ` Aclarale que caminando solo se le ofrece a lugares a menos de ${KM_CAMINANDO} km de su casa.` : '')
   )
 }

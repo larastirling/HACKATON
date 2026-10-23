@@ -157,6 +157,8 @@ function TarjetaElegir({ t, mandar, despues }: { t: Extract<Tarjeta, { tipo: 'lu
   const esComercio = t.tipo === 'comercios'
   const [marcados, setMarcados] = useState<Record<string, Marcado>>({})
   const [verTodos, setVerTodos] = useState(false)
+  // Solo en lugares: "¿Cómo puede ir?" (varias a la vez), arranca con lo ya guardado.
+  const [formas, setFormas] = useState(() => (t.tipo === 'lugares' ? t.formas.filter((f) => f.marcada).map((f) => f.id) : []))
   const lista = verTodos ? t.todos : t.primeros
   const hayMas = t.todos.some((x) => !t.primeros.some((p) => p.id === x.id))
   const elegidos = Object.entries(marcados)
@@ -186,8 +188,9 @@ function TarjetaElegir({ t, mandar, despues }: { t: Extract<Tarjeta, { tipo: 'lu
     const content = nombres.length ? `Elegí: ${nombres.join(', ')}` : esComercio ? 'No le pide a ninguno de estos' : 'No va a ninguno de estos'
     if (esComercio) {
       responder(mandar, content, { tipo: 'comercios', elegidos: elegidos.map(([id, m]) => ({ id, pedido: m.pedido, vaSolo: m.vaSolo, funciona: m.funciona })) })
-    } else {
-      responder(mandar, content, { tipo: 'lugares', elegidos: elegidos.map(([id, m]) => ({ id, vaSolo: m.vaSolo })) })
+    } else if (t.tipo === 'lugares') {
+      const comoVa = formas.length ? `Puede ir: ${t.formas.filter((f) => formas.includes(f.id)).map((f) => f.nombre).join(', ')}` : 'No se le ofrecen viajes'
+      responder(mandar, `${content}. ${comoVa}`, { tipo: 'lugares', elegidos: elegidos.map(([id, m]) => ({ id, vaSolo: m.vaSolo })), formas })
     }
   }
 
@@ -250,6 +253,27 @@ function TarjetaElegir({ t, mandar, despues }: { t: Extract<Tarjeta, { tipo: 'lu
         </button>
       )}
       <p className={estilos.ayudaTarjeta}>¿Falta alguno? Escribilo abajo.</p>
+      {t.tipo === 'lugares' && (
+        <fieldset className={estilos.grupo}>
+          <legend>¿Cómo puede ir?</legend>
+          <div className={estilos.opciones}>
+            {t.formas.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                className={estilos.opcion}
+                aria-pressed={formas.includes(f.id)}
+                onClick={() => setFormas((antes) => (antes.includes(f.id) ? antes.filter((x) => x !== f.id) : [...antes, f.id]))}
+              >
+                {f.nombre}
+              </button>
+            ))}
+          </div>
+          <small className={estilos.ayudaTarjeta}>
+            {formas.length ? 'Podés marcar varias. El asistente solo le arma viajes de estas formas.' : 'Sin ninguna marcada, el asistente no le arma viajes.'}
+          </small>
+        </fieldset>
+      )}
       {faltan.length > 0 && <p className={estilos.falta}>Falta {faltan.join(' y ')}.</p>}
       <button type="button" className="boton boton-principal" disabled={faltan.length > 0} onClick={listo}>
         {elegidos.length ? `Listo (${elegidos.length} ${elegidos.length === 1 ? 'marcado' : 'marcados'})` : 'Listo, no usa ninguno'}

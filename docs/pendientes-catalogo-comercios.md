@@ -53,10 +53,10 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
 
 ## Pendiente
 
-1. **PR #24 de Lara (formas de viajar en /familia) choca con los pasos guiados.** Ella agrega la pregunta "¿cómo
-   puede ir?" en la charla; con los pasos, va mejor como botones (Uber / Caminando / Colectivo) en la tarjeta de
-   lugares (paso 3), guardados con el mismo "Listo". Además, su rama tiene un commit (a32b4ef) en
-   `sugerencias-solas.ts`, que ya no existe: al juntar, ese archivo se borra. Hay que juntarlo antes de la demo.
+1. **PR #24 de Lara (formas de viajar en /familia): juntado en la rama `felipelyonnet/formas-en-tarjeta`, sin subir a
+   main.** Su commit 98ae78f (sin a32b4ef, que tocaba `sugerencias-solas.ts`) y "¿Cómo puede ir?" como botones (Uber /
+   Caminando / Colectivo) en la tarjeta de lugares (paso 3), guardados con el mismo "Listo". Falta que Felipe lo pruebe,
+   subirlo a main y cerrar el PR #24.
 2. **Cerro y Parque Rodó** tienen pocos lugares en el catálogo (el mapa no devolvió sucursales de cadenas ahí).
 3. **Probar la carga nueva en la app publicada con la IA real**, como un hijo nuevo, de punta a punta. Probado en
    tamaño celular sin la IA (anduvo entero) y con 1 charla real a mitad del paso 3 (anduvo bien); falta una charla
