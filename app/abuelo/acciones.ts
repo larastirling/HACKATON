@@ -3,7 +3,7 @@
 import { actualizarSiVencio } from '@/lib/aprobaciones'
 import { anotarEnElDiario, cerrarEstacionamiento, leerAprobacion, leerConfiguracion, leerEstacionamientoAbierto, marcarAvisadoAlAbuelo } from '@/lib/datos'
 import { armarEmergencia, avisarEmergenciaALaFamilia, avisarUbicacionALaFamilia } from '@/lib/emergencia'
-import { anotarPedido, anotarViaje } from '@/lib/lo-que-paso'
+import { anotarEstacionamiento, anotarPedido, anotarViaje } from '@/lib/lo-que-paso'
 import {
   conversarConElAbuelo,
   type Emergencia,
@@ -113,14 +113,17 @@ export async function terminarEstacionamientoAhora(): Promise<TarjetaDeEstaciona
   return tarjeta
 }
 
-const anotarEstacionamientoEnElDiario = (codigoFamilia: string, t: TarjetaDeEstacionamiento) =>
-  anotarEnElDiario(
+// En el diario (para el resumen de la noche) y en "Lo que pasó" de /familia.
+const anotarEstacionamientoEnElDiario = async (codigoFamilia: string, t: TarjetaDeEstacionamiento) => {
+  await anotarEstacionamiento(codigoFamilia, t)
+  await anotarEnElDiario(
     codigoFamilia,
     'pedido',
     t.accion === 'empezar'
       ? `Estacionó el auto ${t.matricula}: se le abrió el WhatsApp de la Intendencia para pagar`
       : `Se fue del estacionamiento (${t.matricula}${t.estuvo !== undefined ? `, estuvo ${textoDeMinutos(t.estuvo)}` : ''})`,
   )
+}
 
 /**
  * Botón de emergencia: les avisa a todos los familiares (mail y celular) que el abuelo pidió ayuda.

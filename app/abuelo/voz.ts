@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTrato, type T } from './trato'
 
 // Voz del abuelo: dictado (reconocimiento de voz del navegador) y respuestas en voz alta (speechSynthesis).
 // Todo es del navegador: no usa servicios pagos. Si algo no está disponible, no se rompe nada.
@@ -191,7 +192,7 @@ function constructorDeReconocimiento(): (new () => Reconocimiento) | null {
   return (w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null) as (new () => Reconocimiento) | null
 }
 
-export const MENSAJE_TECLADO = 'Para dictar, use el micrófono del teclado.'
+export const mensajeTeclado = (t: T) => t('Para dictar, use el micrófono del teclado.', 'Para dictar, usá el micrófono del teclado.')
 
 /**
  * Dictado: mientras habla, va pasando el texto con `alEscribir`; cuando termina, llama a `alTerminar`.
@@ -201,6 +202,7 @@ export function useDictado(alEscribir: (texto: string) => void, alTerminar: (tex
   const [disponible, setDisponible] = useState<boolean | null>(null)
   const [escuchando, setEscuchando] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
+  const t = useTrato()
   const actual = useRef<Reconocimiento | null>(null)
   const callbacks = useRef({ alEscribir, alTerminar })
   callbacks.current = { alEscribir, alTerminar }
@@ -232,11 +234,11 @@ export function useDictado(alEscribir: (texto: string) => void, alTerminar: (tex
       } else if (evento.error === 'not-allowed' || evento.error === 'service-not-allowed') {
         // Sin permiso, o el navegador no deja usarlo acá (por ejemplo, abierto desde el ícono en iPhone).
         setDisponible(false)
-        setAviso(MENSAJE_TECLADO)
+        setAviso(mensajeTeclado(t))
       } else if (evento.error === 'no-speech') {
-        setAviso('No le escuché. Toque "Hablar" y hable de nuevo.')
+        setAviso(t('No le escuché. Toque "Hablar" y hable de nuevo.', 'No te escuché. Tocá "Hablar" y hablá de nuevo.'))
       } else if (evento.error !== 'aborted') {
-        setAviso(`No pude escuchar. Pruebe de nuevo o ${MENSAJE_TECLADO.charAt(0).toLowerCase()}${MENSAJE_TECLADO.slice(1)}`)
+        setAviso(`${t('No pude escuchar. Pruebe de nuevo o', 'No pude escuchar. Probá de nuevo o')} ${mensajeTeclado(t).charAt(0).toLowerCase()}${mensajeTeclado(t).slice(1)}`)
       }
     }
     reconocimiento.onend = () => {
@@ -259,7 +261,7 @@ export function useDictado(alEscribir: (texto: string) => void, alTerminar: (tex
       actual.current = null
       setEscuchando(false)
       marcarDictado(false)
-      setAviso(MENSAJE_TECLADO)
+      setAviso(mensajeTeclado(t))
     }
   }, [])
 

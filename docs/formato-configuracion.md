@@ -138,13 +138,13 @@ más nueva a la más vieja, con las últimas 300 cosas. "Restaurar DEMO" la vac�
 | Campo | Qué significa | Ejemplo |
 |---|---|---|
 | `cuando` | Fecha y hora (ISO). | `"2026-10-23T18:22:00.000Z"` |
-| `tipo` | `"viaje"`, `"pedido"` (por WhatsApp), `"llamada"` (pedido por teléfono), `"permiso"`, `"aviso"` (a la familia) o `"mail"`. | `"permiso"` |
+| `tipo` | `"viaje"`, `"pedido"` (por WhatsApp), `"llamada"` (pedido por teléfono), `"estacionamiento"` (estacionó o se fue), `"permiso"`, `"aviso"` (a la familia) o `"mail"`. | `"permiso"` |
 | `texto` | Una frase para el hijo. | `"Carlos quiere ir a Montevideo Shopping"` |
 | `detalle` | Opcional: qué pidió, a quién se le preguntó, a quiénes les llegó el aviso. | `"Se les preguntó a Inés y Lara"` |
 | `aprobacionId` | Solo `permiso`: el pedido de aprobación. El estado (aprobado, rechazado, nadie contestó, esperando) se lee de ahí al mostrarlo, así siempre está al día. | `"9f2c…"` |
 | `mail` | Solo `mail`: `categoria` (`"ESTAFA"` o `"DUDOSO"`), `motivo` (por qué, una frase), y opcionales `de` (solo el nombre) y `asunto`. **Nunca** links, mails ni teléfonos del mail: se reemplazan por `[link]`, `[mail]`, `[teléfono]`. | `{ "categoria": "ESTAFA", "motivo": "Pide la clave del banco" }` |
 
-Quién anota cada cosa: viajes y pedidos, `app/abuelo/acciones.ts`; permisos, `lib/aprobaciones.ts`; avisos de
+Quién anota cada cosa: viajes, pedidos y estacionamiento, `app/abuelo/acciones.ts`; permisos, `lib/aprobaciones.ts`; avisos de
 emergencia, ubicación, posible estafa y pedido de plata, `lib/emergencia.ts`; resumen del día, `lib/resumen.ts`
 (un aviso se anota solo si le llegó a alguien). Los mails los manda el script de Gmail
 (`gmail/avisar-a-la-app.gs`) a `POST /api/mail-marcado`, con la misma clave que `/api/configuracion`:

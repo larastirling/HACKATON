@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { esAndroid, esIphone, estaInstalada } from '@/lib/dispositivo'
+import { useTrato } from './trato'
 
 const CLAVE_OCULTO = 'asistente-instalar-oculto'
 
@@ -14,6 +15,7 @@ interface PedidoDeInstalacion extends Event {
 // Cartel chico arriba de /abuelo: si la app está abierta en el navegador (no desde el ícono),
 // le ofrece al abuelo tenerla como una app y le explica cómo.
 export default function InvitarAInstalar() {
+  const t = useTrato()
   const [visible, setVisible] = useState(false)
   const [abierto, setAbierto] = useState(false)
   const [celular, setCelular] = useState<'iphone' | 'android' | 'otro'>('otro')
@@ -66,7 +68,8 @@ export default function InvitarAInstalar() {
   return (
     <section className="invitar-instalar">
       <button type="button" className="invitar-cartel" onClick={() => setAbierto(!abierto)} aria-expanded={abierto}>
-        ¿Quiere tener el Asistente como una app? <strong>Toque aquí y le mostramos cómo</strong>
+        {t('¿Quiere tener el Asistente como una app?', '¿Querés tener el Asistente como una app?')}{' '}
+        <strong>{t('Toque aquí y le mostramos cómo', 'Tocá acá y te mostramos cómo')}</strong>
       </button>
 
       {/* La explicación ocupa toda la pantalla, para que se lean todos los pasos sin bajar. */}
@@ -80,7 +83,7 @@ export default function InvitarAInstalar() {
           )}
           {celular !== 'android' && <PasosIphone titulo={celular === 'otro'} />}
           {celular !== 'iphone' && <PasosAndroid titulo={celular === 'otro'} />}
-          <p>Después, abra el Asistente desde el ícono nuevo: el corazón azul.</p>
+          <p>{t('Después, abra el Asistente desde el ícono nuevo: el corazón azul.', 'Después, abrí el Asistente desde el ícono nuevo: el corazón azul.')}</p>
           <button type="button" className="boton boton-principal" onClick={() => setAbierto(false)}>
             Cerrar
           </button>
@@ -94,21 +97,22 @@ export default function InvitarAInstalar() {
 }
 
 function PasosIphone({ titulo }: { titulo: boolean }) {
+  const t = useTrato()
   return (
     <>
       {titulo && <h3>En iPhone</h3>}
       <ol className="pasos">
         <li>
-          Abra esta página en <strong>Safari</strong>.
+          {t('Abra', 'Abrí')} esta página en <strong>Safari</strong>.
         </li>
         <li>
-          Toque el botón <strong>Compartir</strong> (el cuadrado con una flecha para arriba).
+          {t('Toque', 'Tocá')} el botón <strong>Compartir</strong> (el cuadrado con una flecha para arriba).
         </li>
         <li>
-          Elija <strong>“Agregar a pantalla de inicio”</strong>. Si no lo ve, deslice la lista hacia arriba.
+          {t('Elija', 'Elegí')} <strong>“Agregar a pantalla de inicio”</strong>. {t('Si no lo ve, deslice la lista hacia arriba.', 'Si no lo ves, deslizá la lista hacia arriba.')}
         </li>
         <li>
-          Toque <strong>“Agregar”</strong>.
+          {t('Toque', 'Tocá')} <strong>“Agregar”</strong>.
         </li>
       </ol>
     </>
@@ -116,21 +120,22 @@ function PasosIphone({ titulo }: { titulo: boolean }) {
 }
 
 function PasosAndroid({ titulo }: { titulo: boolean }) {
+  const t = useTrato()
   return (
     <>
       {titulo && <h3>En Android</h3>}
       <ol className="pasos">
         <li>
-          Abra esta página en <strong>Chrome</strong>.
+          {t('Abra', 'Abrí')} esta página en <strong>Chrome</strong>.
         </li>
         <li>
-          Toque los <strong>tres puntitos</strong> (⋮), arriba a la derecha.
+          {t('Toque', 'Tocá')} los <strong>tres puntitos</strong> (⋮), arriba a la derecha.
         </li>
         <li>
-          Elija <strong>“Agregar a pantalla de inicio”</strong> o <strong>“Instalar app”</strong>.
+          {t('Elija', 'Elegí')} <strong>“Agregar a pantalla de inicio”</strong> o <strong>“Instalar app”</strong>.
         </li>
         <li>
-          Toque <strong>“Agregar”</strong> o <strong>“Instalar”</strong>.
+          {t('Toque', 'Tocá')} <strong>“Agregar”</strong> o <strong>“Instalar”</strong>.
         </li>
       </ol>
     </>

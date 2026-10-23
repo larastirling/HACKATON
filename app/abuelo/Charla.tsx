@@ -6,9 +6,11 @@ import { minutosDesde, pasoElTiempoDeAvisar, textoDeMinutos } from '@/lib/estaci
 import type { Emergencia, EsperaAprobacion, Estafa, MensajeCharla, Pedido, TarjetaDeEstacionamiento, Viaje } from '@/lib/ia'
 import { juntarNombres } from '@/lib/texto'
 import { consultarAprobacion, responderAlAbuelo, terminarEstacionamientoAhora } from './acciones'
-import { callar, decirEnVozAlta, desbloquearVoz, MENSAJE_TECLADO, prepararVoces, useDictado, useSilencio } from './voz'
+import { useTrato, type T } from './trato'
+import { callar, decirEnVozAlta, desbloquearVoz, mensajeTeclado, prepararVoces, useDictado, useSilencio } from './voz'
 
 export default function Charla({ inicial = [], estacionadoDesde = null }: { inicial?: MensajeCharla[]; estacionadoDesde?: string | null }) {
+  const t = useTrato()
   const [charla, setCharla] = useState<MensajeCharla[]>(inicial)
   // Desde cuándo está estacionado (si lo está): para el aviso de arriba y "Ya me voy".
   const [estacionado, setEstacionado] = useState(estacionadoDesde)
@@ -107,7 +109,14 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
           ...antes,
           { de: 'abuelo', texto: 'Ya me voy' },
           tarjeta
-            ? { de: 'ia', texto: 'Toque “Abrir WhatsApp” y después apriete Enviar para terminar el estacionamiento.', estacionamiento: tarjeta }
+            ? {
+                de: 'ia',
+                texto: t(
+                  'Toque “Abrir WhatsApp” y después apriete Enviar para terminar el estacionamiento.',
+                  'Tocá “Abrir WhatsApp” y después apretá Enviar para terminar el estacionamiento.',
+                ),
+                estacionamiento: tarjeta,
+              }
             : { de: 'ia', texto: 'No tenía ningún estacionamiento abierto.' },
         ])
       } catch {
@@ -130,15 +139,15 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
         {charla.length === 0 && (
           <p className="charla-vacia">
             {dictado.disponible
-              ? 'Toque “Hablar” y dígame lo que necesita, o escríbalo abajo.'
-              : 'Escriba abajo lo que necesita y toque Enviar.'}
+              ? t('Toque “Hablar” y dígame lo que necesita, o escríbalo abajo.', 'Tocá “Hablar” y decime lo que necesitás, o escribilo abajo.')
+              : t('Escriba abajo lo que necesita y toque Enviar.', 'Escribí abajo lo que necesitás y tocá Enviar.')}
           </p>
         )}
 
         {charla.map((mensaje, i) => (
           <Fragment key={i}>
             <p className={`burbuja burbuja-${mensaje.de}`}>
-              <span className="burbuja-quien">{mensaje.de === 'abuelo' ? 'Usted' : 'Asistente'}</span>
+              <span className="burbuja-quien">{mensaje.de === 'abuelo' ? t('Usted', 'Vos') : 'Asistente'}</span>
               {mensaje.texto}
             </p>
             {mensaje.de === 'ia' && puedeHablar && (
@@ -173,7 +182,7 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
 
         {hayError && (
           <p className="mensaje-error charla-error" role="alert">
-            No pude responder, pruebe de nuevo.
+            {t('No pude responder, pruebe de nuevo.', 'No pude responder, probá de nuevo.')}
           </p>
         )}
         <div ref={final} className="charla-fin" />
@@ -187,13 +196,13 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
         }}
       >
         <label htmlFor="mensaje" className="sr-only">
-          Escriba su mensaje
+          {t('Escriba su mensaje', 'Escribí tu mensaje')}
         </label>
         <textarea
           id="mensaje"
           className="charla-caja"
           rows={2}
-          placeholder={dictado.disponible ? 'Escriba acá o toque Hablar…' : 'Escriba acá…'}
+          placeholder={dictado.disponible ? t('Escriba acá o toque Hablar…', 'Escribí acá o tocá Hablar…') : t('Escriba acá…', 'Escribí acá…')}
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           onKeyDown={alApretarTecla}
@@ -208,7 +217,7 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
               onClick={tocarHablar}
               aria-pressed={dictado.escuchando}
             >
-              {dictado.escuchando ? 'Escuchando... toque para terminar' : 'Hablar'}
+              {dictado.escuchando ? t('Escuchando... toque para terminar', 'Escuchando... tocá para terminar') : 'Hablar'}
             </button>
           )}
           <button type="submit" className="boton boton-principal boton-enviar" disabled={pensando || !texto.trim()}>
@@ -217,7 +226,7 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
         </div>
         {(dictado.aviso || dictado.disponible === false) && (
           <p className="charla-aviso" role="status">
-            {dictado.aviso ?? MENSAJE_TECLADO}
+            {dictado.aviso ?? mensajeTeclado(t)}
           </p>
         )}
       </form>
@@ -233,23 +242,29 @@ const TEXTO_DEL_BOTON: Record<FormaDeViajar, string> = {
 }
 
 /** Lo que se le dice (y se le muestra) antes de abrir el mapa. */
-const ANTES_DE_ABRIR_EL_MAPA: Record<Exclude<FormaDeViajar, 'uber'>, string> = {
-  caminando: 'Le abro el mapa para ir caminando. Cuando se abra, toque "Iniciar" y siga la flecha azul.',
-  colectivo:
-    'Le abro el mapa con los colectivos. Ahí le muestra qué colectivo tomar, dónde está la parada y dónde bajarse.',
-}
+const antesDeAbrirElMapa = (forma: Exclude<FormaDeViajar, 'uber'>, t: T) =>
+  forma === 'caminando'
+    ? t(
+        'Le abro el mapa para ir caminando. Cuando se abra, toque "Iniciar" y siga la flecha azul.',
+        'Te abro el mapa para ir caminando. Cuando se abra, tocá "Iniciar" y seguí la flecha azul.',
+      )
+    : t(
+        'Le abro el mapa con los colectivos. Ahí le muestra qué colectivo tomar, dónde está la parada y dónde bajarse.',
+        'Te abro el mapa con los colectivos. Ahí te muestra qué colectivo tomar, dónde está la parada y dónde bajarte.',
+      )
 
 // Tarjeta del viaje: un botón grande por cada forma de viajar que activó la familia.
 // Uber abre la app (el auto lo pide el abuelo). Caminando y colectivo primero le explican en voz alta
 // qué va a pasar y después abren Google Maps con el destino puesto (en iPhone una app solo se abre con un toque).
 function TarjetaViaje({ viaje }: { viaje: Viaje }) {
+  const t = useTrato()
   const opciones = viaje.opciones ?? (viaje.link ? [{ forma: 'uber' as const, link: viaje.link }] : [])
   const [elegida, setElegida] = useState<(typeof opciones)[number] | null>(null)
 
   function elegir(opcion: (typeof opciones)[number]) {
     if (opcion.forma === 'uber') return
     setElegida(opcion)
-    decirEnVozAlta(ANTES_DE_ABRIR_EL_MAPA[opcion.forma], { enEsteToque: true })
+    decirEnVozAlta(antesDeAbrirElMapa(opcion.forma, t), { enEsteToque: true })
   }
 
   return (
@@ -261,7 +276,7 @@ function TarjetaViaje({ viaje }: { viaje: Viaje }) {
       {elegida && elegida.forma !== 'uber' ? (
         <>
           <p className="tarjeta-viaje-explicacion" role="status">
-            {ANTES_DE_ABRIR_EL_MAPA[elegida.forma]}
+            {antesDeAbrirElMapa(elegida.forma, t)}
           </p>
           <a className={`boton boton-${elegida.forma}`} href={elegida.link} target="_blank" rel="noopener noreferrer">
             Abrir el mapa
@@ -308,13 +323,14 @@ function BotonesEmergencia({ emergencia }: { emergencia: Emergencia }) {
 
 // Cartel rojo grande cuando la IA cree que le quieren hacer una estafa. La familia ya fue avisada.
 function CartelEstafa({ estafa }: { estafa: Estafa }) {
+  const t = useTrato()
   return (
     <section className="cartel-estafa" role="alert" aria-label="Cuidado: puede ser una estafa">
       <p className="cartel-estafa-titulo">Cuidado: puede ser una estafa</p>
       <ul>
-        <li>No dé ningún dato, clave ni código.</li>
-        <li>No mande plata.</li>
-        <li>Corte y hable con su familia.</li>
+        <li>{t('No dé ningún dato, clave ni código.', 'No des ningún dato, clave ni código.')}</li>
+        <li>{t('No mande plata.', 'No mandes plata.')}</li>
+        <li>{t('Corte y hable con su familia.', 'Cortá y hablá con tu familia.')}</li>
       </ul>
       {estafa.avisados && estafa.avisados.length > 0 && (
         <p className="cartel-estafa-avisados">Ya le avisé a {juntarNombres(estafa.avisados)}.</p>
@@ -330,10 +346,11 @@ function CartelEstafa({ estafa }: { estafa: Estafa }) {
 
 // Tarjeta con el pedido y el botón de WhatsApp (o de llamar). El abuelo manda el mensaje o llama: nunca pasa solo.
 function TarjetaPedido({ pedido }: { pedido: Pedido }) {
+  const t = useTrato()
   if (pedido.por === 'llamada') {
     return (
       <section className="tarjeta-viaje" aria-label={`Pedido a ${pedido.comercio}`}>
-        <p className="tarjeta-viaje-titulo">Cuando atiendan, lea esto</p>
+        <p className="tarjeta-viaje-titulo">{t('Cuando atiendan, lea esto', 'Cuando atiendan, leé esto')}</p>
         <p className="tarjeta-para-leer">“{pedido.textoParaLeer}”</p>
         <a className="boton boton-uber boton-llamar-comercio" href={pedido.link}>
           Llamar a {pedido.comercio}
@@ -357,7 +374,7 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
       <a className="boton boton-uber" href={pedido.link} target="_blank" rel="noopener noreferrer">
         Abrir WhatsApp
       </a>
-      <p className="tarjeta-viaje-ayuda">Después toque “Enviar” en WhatsApp.</p>
+      <p className="tarjeta-viaje-ayuda">{t('Después toque “Enviar” en WhatsApp.', 'Después tocá “Enviar” en WhatsApp.')}</p>
     </section>
   )
 }
@@ -365,15 +382,18 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
 // Estacionamiento tarifado: el WhatsApp de la Intendencia con "estacionamiento" (o "fin") escrito, y su matrícula.
 // Lo manda él (aprieta Enviar): nunca pasa solo. Al empezar, si dijo los minutos, el SMS de respaldo.
 function TarjetaEstacionamiento({ estacionamiento: e }: { estacionamiento: TarjetaDeEstacionamiento }) {
+  const t = useTrato()
   const empezar = e.accion === 'empezar'
   return (
     <section className="tarjeta-viaje" aria-label={empezar ? 'Pagar el estacionamiento' : 'Terminar el estacionamiento'}>
       <p className="tarjeta-viaje-titulo">{empezar ? 'Pagar el estacionamiento' : 'Terminar el estacionamiento'}</p>
-      <p className="tarjeta-viaje-destino">Su auto: {e.matricula}</p>
+      <p className="tarjeta-viaje-destino">
+        {t('Su auto', 'Tu auto')}: {e.matricula}
+      </p>
       <p className="tarjeta-viaje-direccion">
         {empezar ? (
           <>
-            WhatsApp de la Intendencia, con <strong>“{e.whatsapp.texto}”</strong> escrito. Si le piden la matrícula: <strong>{e.matricula}</strong>.
+            WhatsApp de la Intendencia, con <strong>“{e.whatsapp.texto}”</strong> escrito. {t('Si le piden la matrícula', 'Si te piden la matrícula')}: <strong>{e.matricula}</strong>.
           </>
         ) : (
           <>
@@ -385,7 +405,7 @@ function TarjetaEstacionamiento({ estacionamiento: e }: { estacionamiento: Tarje
       <a className="boton boton-uber" href={e.whatsapp.link} target="_blank" rel="noopener noreferrer">
         Abrir WhatsApp
       </a>
-      <p className="tarjeta-viaje-ayuda">Después toque “Enviar”. El mensaje no se manda solo.</p>
+      <p className="tarjeta-viaje-ayuda">{t('Después toque “Enviar”. El mensaje no se manda solo.', 'Después tocá “Enviar”. El mensaje no se manda solo.')}</p>
       {e.sms && (
         <a className="boton boton-secundario boton-sms" href={e.sms.link}>
           Si WhatsApp no anda: mandar SMS
@@ -400,6 +420,7 @@ function TarjetaEstacionamiento({ estacionamiento: e }: { estacionamiento: Tarje
  * (por si se olvidó de terminarlo). "Ya me voy" arma el WhatsApp con "fin" sin la IA.
  */
 function AvisoEstacionamiento({ desde, alTerminar }: { desde: string; alTerminar: () => void }) {
+  const t = useTrato()
   const [ahora, setAhora] = useState(() => Date.now())
   useEffect(() => {
     const reloj = setInterval(() => setAhora(Date.now()), 30_000)
@@ -410,8 +431,11 @@ function AvisoEstacionamiento({ desde, alTerminar }: { desde: string; alTerminar
     <div className={`aviso-estacionamiento ${pasoUnaHora ? 'aviso-estacionamiento-hora' : ''}`} role={pasoUnaHora ? 'alert' : 'status'}>
       <p>
         {pasoUnaHora
-          ? `Ya pasó más de una hora desde que estacionó (${textoDeMinutos(minutosDesde(desde, ahora))}). ¿Ya se va?`
-          : `Está estacionado hace ${textoDeMinutos(minutosDesde(desde, ahora))}.`}
+          ? t(
+              `Ya pasó más de una hora desde que estacionó (${textoDeMinutos(minutosDesde(desde, ahora))}). ¿Ya se va?`,
+              `Ya pasó más de una hora desde que estacionaste (${textoDeMinutos(minutosDesde(desde, ahora))}). ¿Ya te vas?`,
+            )
+          : t(`Está estacionado hace ${textoDeMinutos(minutosDesde(desde, ahora))}.`, `Estás estacionado hace ${textoDeMinutos(minutosDesde(desde, ahora))}.`)}
       </p>
       <button type="button" className="boton boton-principal" onClick={alTerminar}>
         Ya me voy
@@ -431,8 +455,11 @@ function EsperandoAprobacion({
   aprobacion: EsperaAprobacion
   alContestar: (respuesta: MensajeCharla) => void
 }) {
+  const t = useTrato()
+  const esperando = (familiares: string[]) =>
+    t(`Le pregunté a ${juntarNombres(familiares)}, espere un momento...`, `Le pregunté a ${juntarNombres(familiares)}, esperá un momento...`)
   const [estado, setEstado] = useState<'esperando' | 'contestaron' | 'error'>('esperando')
-  const [cartel, setCartel] = useState(`Le pregunté a ${juntarNombres(aprobacion.familiares)}, espere un momento...`)
+  const [cartel, setCartel] = useState(esperando(aprobacion.familiares))
   const yaAvise = useRef(false)
   // Se guarda en una referencia para que escribir en la caja no reinicie el reloj de las consultas.
   const avisar = useRef(alContestar)
@@ -445,7 +472,7 @@ function EsperandoAprobacion({
         const resultado = await consultarAprobacion(aprobacion.id)
         if (yaAvise.current) return
         if (resultado.estado === 'esperando') {
-          return setCartel(`Le pregunté a ${juntarNombres(resultado.familiares)}, espere un momento...`)
+          return setCartel(esperando(resultado.familiares))
         }
         yaAvise.current = true
         if (resultado.estado === 'no-encontrado') return setEstado('error')
@@ -454,23 +481,23 @@ function EsperandoAprobacion({
           const quien = resultado.familiar
           avisar.current(
             resultado.viaje
-              ? { de: 'ia', texto: `${quien} aprobó el viaje. Toque cómo quiere ir.`, viaje: resultado.viaje }
+              ? { de: 'ia', texto: `${quien} aprobó el viaje. ${t('Toque cómo quiere ir.', 'Tocá cómo querés ir.')}`, viaje: resultado.viaje }
               : resultado.pedido
                 ? {
                     de: 'ia',
                     texto:
                       resultado.pedido.por === 'llamada'
-                        ? `${quien} aprobó el pedido. Toque el botón verde para llamar y, cuando atiendan, lea el texto.`
-                        : `${quien} aprobó el pedido. Toque el botón verde para abrir WhatsApp y después apriete enviar.`,
+                        ? `${quien} aprobó el pedido. ${t('Toque el botón verde para llamar y, cuando atiendan, lea el texto.', 'Tocá el botón verde para llamar y, cuando atiendan, leé el texto.')}`
+                        : `${quien} aprobó el pedido. ${t('Toque el botón verde para abrir WhatsApp y después apriete enviar.', 'Tocá el botón verde para abrir WhatsApp y después apretá enviar.')}`,
                     pedido: resultado.pedido,
                   }
-                : { de: 'ia', texto: `${quien} dijo que sí. Si quiere organizarlo, puede llamar a ${quien}.` },
+                : { de: 'ia', texto: `${quien} dijo que sí. ${t('Si quiere organizarlo, puede llamar a', 'Si querés organizarlo, podés llamar a')} ${quien}.` },
           )
         } else if (resultado.estado === 'rechazado') {
           const quien = resultado.familiar
           avisar.current({
             de: 'ia',
-            texto: `${quien} dijo que esta vez no. Quédese tranquilo: si quiere, puede llamar a ${quien} para hablarlo.`,
+            texto: `${quien} dijo que esta vez no. ${t('Quédese tranquilo: si quiere, puede llamar a', 'Quedate tranquilo: si querés, podés llamar a')} ${quien} para hablarlo.`,
             ...(resultado.llamar && { llamar: { nombre: quien, link: resultado.llamar } }),
           })
         } else {
@@ -478,8 +505,8 @@ function EsperandoAprobacion({
           avisar.current({
             de: 'ia',
             texto: resultado.llamarA
-              ? `Nadie pudo contestar ahora. ¿Quiere llamar a ${resultado.llamarA.nombre}?`
-              : 'Nadie pudo contestar ahora. Pruebe de nuevo en un rato.',
+              ? `Nadie pudo contestar ahora. ${t('¿Quiere llamar a', '¿Querés llamar a')} ${resultado.llamarA.nombre}?`
+              : t('Nadie pudo contestar ahora. Pruebe de nuevo en un rato.', 'Nadie pudo contestar ahora. Probá de nuevo en un rato.'),
             ...(resultado.llamarA && { llamar: resultado.llamarA }),
           })
         }
@@ -491,7 +518,9 @@ function EsperandoAprobacion({
   }, [aprobacion, estado])
 
   if (estado === 'contestaron') return null
-  if (estado === 'error') return <p className="mensaje-error">No pude saber si la familia contestó. Pruebe llamarlos.</p>
+  if (estado === 'error') {
+    return <p className="mensaje-error">{t('No pude saber si la familia contestó. Pruebe llamarlos.', 'No pude saber si la familia contestó. Probá llamarlos.')}</p>
+  }
   return (
     <p className="esperando-aprobacion" role="status">
       {cartel}

@@ -1,10 +1,12 @@
 import BarraNavegacion from '@/components/BarraNavegacion'
 import { leerConfiguracion, leerEstacionamientoAbierto, leerUltimaAprobacion, type PedidoDeAprobacion } from '@/lib/datos'
 import { contactosParaLlamar } from '@/lib/emergencia'
+import { tratoDe, type Trato } from '@/lib/trato'
 import type { MensajeCharla } from '@/lib/ia'
 import { exigirSesion } from '@/lib/sesion'
 import Charla from './Charla'
 import InvitarAInstalar from './InvitarAInstalar'
+import { ConTrato } from './trato'
 
 const HORAS_PARA_RETOMAR = 2
 
@@ -17,15 +19,18 @@ export default async function PaginaAbuelo() {
     leerEstacionamientoAbierto(sesion.codigoFamilia),
   ])
 
+  // Los textos fijos siguen el trato que eligió la familia (si no eligió, de usted).
+  const trato = tratoDe(configuracion?.abuelo.comoLeGustaQueLeHablen ?? '') ?? 'usted'
+
   return (
-    <>
+    <ConTrato trato={trato}>
       <main className="pagina pagina-charla">
         <InvitarAInstalar />
-        <h1>¿En qué lo ayudo?</h1>
-        <Charla inicial={paraRetomar(pendiente)} estacionadoDesde={estacionamiento?.desde ?? null} />
+        <h1>{trato === 'vos' ? '¿En qué te ayudo?' : '¿En qué lo ayudo?'}</h1>
+        <Charla inicial={paraRetomar(pendiente, trato)} estacionadoDesde={estacionamiento?.desde ?? null} />
       </main>
       <BarraNavegacion rol={sesion.rol} contactos={contactosParaLlamar(configuracion?.familiares ?? [])} />
-    </>
+    </ConTrato>
   )
 }
 
@@ -33,7 +38,7 @@ export default async function PaginaAbuelo() {
  * Si el abuelo cerró la pantalla mientras esperaba a la familia (o le contestaron mientras estaba cerrada),
  * al volver a abrirla se retoma: la pantalla vuelve a consultar el estado guardado.
  */
-function paraRetomar(aprobacion: PedidoDeAprobacion | null): MensajeCharla[] {
+function paraRetomar(aprobacion: PedidoDeAprobacion | null, trato: Trato): MensajeCharla[] {
   if (!aprobacion || aprobacion.avisadoAlAbuelo) return []
   if (Date.now() - Date.parse(aprobacion.creadoEl) > HORAS_PARA_RETOMAR * 3_600_000) return []
   const que =
@@ -45,7 +50,10 @@ function paraRetomar(aprobacion: PedidoDeAprobacion | null): MensajeCharla[] {
   return [
     {
       de: 'ia',
-      texto: `Le recuerdo que estaba esperando que la familia conteste para ${que}.`,
+      texto:
+        trato === 'vos'
+          ? `Te recuerdo que estabas esperando que la familia conteste para ${que}.`
+          : `Le recuerdo que estaba esperando que la familia conteste para ${que}.`,
       aprobacion: { id: aprobacion.id, familiares: aprobacion.preguntadoA.map((p) => p.nombre) },
     },
   ]

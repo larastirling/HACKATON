@@ -1,17 +1,18 @@
 import 'server-only'
 import { actualizarSiVencio } from './aprobaciones'
 import { agregarALoQuePaso, leerAprobacion, leerLoQuePaso, type EstadoAprobacion } from './datos'
+import { textoDeMinutos, type TarjetaDeEstacionamiento } from './estacionamiento'
 import type { Viaje } from './viajes'
 import type { Pedido } from './whatsapp'
 
 // "Lo que pasó": lo que el hijo ve en /familia/lo-que-paso, del más nuevo al más viejo.
-//   - lo que pidió el abuelo: viajes, pedidos de comida (por WhatsApp) y llamadas a comercios;
+//   - lo que pidió el abuelo: viajes, pedidos de comida (por WhatsApp), llamadas a comercios y el estacionamiento;
 //   - los pedidos de permiso (el estado se lee del pedido de aprobación, así siempre está al día);
 //   - los avisos que se le mandaron a la familia (emergencia, ubicación, posible estafa, pedido de plata, resumen);
 //   - los mails que el script de Gmail marcó como ESTAFA o DUDOSO (llegan por /api/mail-marcado).
 // Se guarda en lib/datos.ts (agregarALoQuePaso). Anotar nunca rompe lo que está haciendo el abuelo.
 
-export type TipoDeCosa = 'viaje' | 'pedido' | 'llamada' | 'permiso' | 'aviso' | 'mail'
+export type TipoDeCosa = 'viaje' | 'pedido' | 'llamada' | 'estacionamiento' | 'permiso' | 'aviso' | 'mail'
 export type CategoriaDeMail = 'ESTAFA' | 'DUDOSO'
 
 export interface CosaQuePaso {
@@ -67,6 +68,20 @@ export const anotarPedido = (codigoFamilia: string, pedido: Pedido) =>
     ? anotar(codigoFamilia, { tipo: 'llamada', texto: `Llamó a ${pedido.comercio} para pedir`, detalle: corto(pedido.pedido, 200) })
     : anotar(codigoFamilia, { tipo: 'pedido', texto: `Hizo un pedido a ${pedido.comercio} por WhatsApp`, detalle: corto(pedido.pedido, 200) })
 
+/** Estacionó el auto (se le abrió el WhatsApp de la Intendencia) o se fue (con "fin"). */
+export const anotarEstacionamiento = (codigoFamilia: string, t: TarjetaDeEstacionamiento) =>
+  t.accion === 'empezar'
+    ? anotar(codigoFamilia, {
+        tipo: 'estacionamiento',
+        texto: `Estacionó el auto ${t.matricula}`,
+        detalle: 'Se le abrió el WhatsApp de la Intendencia para pagar (lo manda él)',
+      })
+    : anotar(codigoFamilia, {
+        tipo: 'estacionamiento',
+        texto: `Se fue del estacionamiento (${t.matricula})`,
+        ...(t.estuvo !== undefined && { detalle: `Estuvo estacionado ${textoDeMinutos(t.estuvo)}` }),
+      })
+
 /** Se le pidió permiso a la familia. */
 export const anotarPermiso = (codigoFamilia: string, aprobacionId: string, descripcion: string, preguntados: string[]) =>
   anotar(codigoFamilia, {
@@ -98,7 +113,7 @@ const lista = (nombres: string[]) => (nombres.length <= 1 ? (nombres[0] ?? '') :
 
 // ── Lo que se muestra ───────────────────────────────────────
 
-const TIPOS: readonly TipoDeCosa[] = ['viaje', 'pedido', 'llamada', 'permiso', 'aviso', 'mail']
+const TIPOS: readonly TipoDeCosa[] = ['viaje', 'pedido', 'llamada', 'estacionamiento', 'permiso', 'aviso', 'mail']
 
 function esCosaQuePaso(dato: unknown): dato is CosaQuePaso {
   const c = dato as Partial<CosaQuePaso> | null

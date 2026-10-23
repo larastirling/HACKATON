@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { juntarNombres } from '@/lib/texto'
 import { avisarQuePidioAyuda, mandarUbicacion } from './acciones'
+import { useTrato } from './trato'
 
 type Contacto = { nombre: string; link: string }
 
@@ -14,6 +15,7 @@ type Contacto = { nombre: string; link: string }
  * si no atendió, llama al siguiente; después de todos, al 911.
  */
 export default function BotonAyuda({ contactos }: { contactos: Contacto[] }) {
+  const t = useTrato()
   const [abierto, setAbierto] = useState(false)
   const [paso, setPaso] = useState(0) // índice en contactos; contactos.length = el 911
   const [avisados, setAvisados] = useState<string[]>([])
@@ -54,7 +56,7 @@ export default function BotonAyuda({ contactos }: { contactos: Contacto[] }) {
           {actual ? (
             <>
               <p className="ayuda-llamando">Llamando a {actual.nombre}...</p>
-              <p className="ayuda-pregunta">¿Le atendió?</p>
+              <p className="ayuda-pregunta">{t('¿Le atendió?', '¿Te atendió?')}</p>
               <button type="button" className="boton boton-principal" onClick={() => setAbierto(false)}>
                 Sí, ya hablé
               </button>

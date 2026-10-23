@@ -18,7 +18,7 @@ export default async function PaginaLoQuePaso() {
       <main className="pagina">
         <h1>Lo que pasó</h1>
         <p className="subtitulo">
-          Lo que pidió {nombre}, los permisos, los avisos y los mails raros. Lo más nuevo, arriba.
+          Lo que pidió {nombre} (viajes, pedidos, estacionamiento), los permisos, los avisos y los mails raros. Lo más nuevo, arriba.
         </p>
         {cosas.length === 0 ? (
           <div className={`tarjeta ${estilos.vacio}`}>
@@ -42,6 +42,7 @@ const ICONOS: Record<CosaParaMostrar['tipo'], string> = {
   viaje: '🚕',
   pedido: '🛒',
   llamada: '📞',
+  estacionamiento: '🅿️',
   permiso: '✋',
   aviso: '🔔',
   mail: '✉️',
@@ -50,6 +51,7 @@ const NOMBRE_DEL_TIPO: Record<CosaParaMostrar['tipo'], string> = {
   viaje: 'Viaje',
   pedido: 'Pedido',
   llamada: 'Llamada',
+  estacionamiento: 'Estacionamiento',
   permiso: 'Permiso',
   aviso: 'Aviso a la familia',
   mail: 'Mail',
