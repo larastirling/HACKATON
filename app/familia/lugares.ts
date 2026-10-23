@@ -1,6 +1,6 @@
 import 'server-only'
 import type Anthropic from '@anthropic-ai/sdk'
-import { PENDIENTE, type Lugar } from '@/lib/datos'
+import { leerConfiguracion, PENDIENTE, type Lugar } from '@/lib/datos'
 import { buscarCoordenadas } from '@/lib/mapas'
 import { cambiarConfiguracion, limpiarApodos, mismoNombre, nombreValido } from './guardar'
 
@@ -30,11 +30,17 @@ export const HERRAMIENTA_GUARDAR_LUGAR: Anthropic.Beta.BetaTool = {
       necesitaPermiso: {
         type: 'boolean',
         description:
-          'Solo cuenta para lugares NUEVOS: true si el hijo dijo que para ir ahí hace falta permiso, o si el nivel es "Cuidado cercano"; si no, false. ' +
+          'Solo cuenta para lugares NUEVOS: lo que dijo el hijo (true = necesita permiso, false = puede ir solo). ' +
           'En un lugar que ya existe no cambia nada: los permisos se cambian con mostrar_reglas y guardar_reglas.',
       },
+      fraseDelHijo: {
+        type: 'string',
+        description:
+          'Las palabras EXACTAS que escribió el hijo diciendo si puede ir solo o necesita permiso para este lugar ' +
+          '(ej. "puede ir solo", "que pida permiso"). "" si todavía no lo dijo: un lugar nuevo no se guarda sin eso.',
+      },
     },
-    required: ['nombre', 'apodos', 'direccion', 'necesitaPermiso'],
+    required: ['nombre', 'apodos', 'direccion', 'necesitaPermiso', 'fraseDelHijo'],
     additionalProperties: false,
   },
   strict: true,
@@ -45,6 +51,7 @@ interface PedidoGuardarLugar {
   apodos: string[]
   direccion: string
   necesitaPermiso: boolean
+  fraseDelHijo: string
 }
 
 function esPedidoValido(dato: unknown): dato is PedidoGuardarLugar {
@@ -56,15 +63,43 @@ function esPedidoValido(dato: unknown): dato is PedidoGuardarLugar {
     Array.isArray(d.apodos) &&
     d.apodos.every((a) => typeof a === 'string') &&
     typeof d.direccion === 'string' &&
-    typeof d.necesitaPermiso === 'boolean'
+    typeof d.necesitaPermiso === 'boolean' &&
+    typeof d.fraseDelHijo === 'string'
   )
 }
 
+/** Minúsculas, sin tildes ni signos, espacios simples: para comparar lo que escribió el hijo. */
+const comparable = (texto: string) =>
+  texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()
+
+/** La frase del permiso tiene que estar de verdad en algo que escribió el hijo (que la IA no la invente). */
+function loDijoElHijo(frase: string, loQueEscribioElHijo: string[]): boolean {
+  const buscada = comparable(frase)
+  // Tiene que hablar de ir solo o con permiso (no vale una palabra suelta como "papá").
+  const hablaDelPermiso = /\b(sol[oa]s?|permiso|libre|avis\w*|pregunt\w*|aprob\w*|acompa\w*|autoriz\w*)\b/.test(buscada)
+  return hablaDelPermiso && loQueEscribioElHijo.some((mensaje) => comparable(mensaje).includes(buscada))
+}
+
 /** Ejecuta guardar_lugar y le devuelve a la IA, en texto, qué quedó guardado. */
-export async function guardarLugar(codigoFamilia: string, dato: unknown): Promise<string> {
+export async function guardarLugar(codigoFamilia: string, dato: unknown, loQueEscribioElHijo: string[]): Promise<string> {
   console.log('[familia] la IA pidió guardar_lugar:', JSON.stringify(dato))
   if (!esPedidoValido(dato)) return 'No se guardó: faltan datos del lugar (nombre, apodos, dirección y si necesita permiso).'
   if (!nombreValido(dato.nombre)) return 'No se guardó: ese nombre no parece un lugar real. Guardá solo lugares que el hijo te contó.'
+
+  // Un lugar NUEVO nunca se guarda (ni libre ni con permiso) sin que el hijo haya dicho cuál de las dos.
+  const existente = (await leerConfiguracion(codigoFamilia))?.lugares.some((l) => mismoNombre(l.nombre, dato.nombre))
+  if (!existente && !loDijoElHijo(dato.fraseDelHijo, loQueEscribioElHijo)) {
+    return (
+      `Todavía NO se guardó "${dato.nombre.trim()}": falta que el hijo diga si puede ir solo o necesita permiso. ` +
+      'Preguntáselo ahora, en una sola pregunta. Cuando conteste, volvé a usar guardar_lugar con sus palabras exactas en fraseDelHijo. ' +
+      'No digas que ya está guardado.'
+    )
+  }
 
   const direccion = dato.direccion.trim() || PENDIENTE
   const ubicacion = direccion === PENDIENTE ? null : await buscarCoordenadas(direccion)

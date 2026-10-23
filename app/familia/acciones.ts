@@ -92,6 +92,8 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
   }
 
   // La IA ve lo que ya está guardado, así no lo repite y puede corregirlo.
+  // Lo que escribió el hijo (sin el mensaje oculto del inicio): guardar_lugar verifica ahí lo que dijo del permiso.
+  const loQueEscribioElHijo = mensajes.filter((m) => m.role === 'user' && !m.content.startsWith('(Abrí la pantalla')).map((m) => m.content)
   const instrucciones = [
     INSTRUCCIONES_FAMILIA,
     quienEscribeParaLaIA(configuracionAhora, sesion.mail),
@@ -116,7 +118,7 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
         case HERRAMIENTA_GUARDAR_ABUELO.name:
           return guardarAbuelo(codigo, bloque.input)
         case HERRAMIENTA_GUARDAR_LUGAR.name:
-          return guardarLugar(codigo, bloque.input)
+          return guardarLugar(codigo, bloque.input, loQueEscribioElHijo)
         case 'sugerir_lugares': {
           const resultado = sugerirLugares(configuracionAhora, bloque.input)
           if (resultado.sugerencias) sugerencias = resultado.sugerencias
