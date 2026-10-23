@@ -717,7 +717,7 @@ export async function familiasConDiario(fecha = fechaDeHoy()): Promise<string[]>
 // ── "Lo que pasó" (pantalla /familia/lo-que-paso) ───────────
 // Lo que pidió el abuelo, los pedidos de permiso, los avisos a la familia y los mails marcados, del más nuevo al más
 // viejo. A diferencia del diario, no se borra a los pocos días: se guardan los últimos MAXIMO_EN_LO_QUE_PASO.
-// Qué tiene cada cosa: lib/historial.ts (y docs/formato-configuracion.md, "Lo que pasó").
+// Qué tiene cada cosa: lib/lo-que-paso.ts (y docs/formato-configuracion.md, "Lo que pasó").
 
 const claveLoQuePaso = (codigoFamilia: string) => `lo-que-paso:${normalizarCodigo(codigoFamilia)}`
 export const MAXIMO_EN_LO_QUE_PASO = 300
