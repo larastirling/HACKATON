@@ -34,6 +34,12 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
   falta, correcciones, "quiero cambiar algo"). Con el perfil completo, "Sugerirme lugares / comercios" abre la misma
   tarjeta. Cargar un abuelo: 17 toques y 8 campos, 0 mensajes a la IA (antes, ~17 mensajes escritos y ~22 respuestas
   de la IA). La casa se ubica en el mapa apenas se guarda.
+  Un paso dejado "para después" sigue pendiente aunque después se guarden las reglas (solo las familias de antes de
+  los pasos, con reglas y sin `armado`, cuentan como hechas). Si queda alguno, el cierre no dice "todo cargado": dice
+  "Casi listo: todavía falta …" con un botón "Completar …" (tarjeta `falta`).
+- **Formas de viajar en /familia** (PR #24 de Lara, juntado en main el 2026-10-23): "¿Cómo puede ir?" con botones
+  (Uber / Caminando / Colectivo) en la tarjeta de lugares (paso 3), guardados con el mismo "Listo". Si el hijo lo cambia
+  escribiendo, la IA usa `guardar_formas_de_viajar`. No entró su commit a32b4ef (tocaba `sugerencias-solas.ts`, borrado).
 - **Mapa (`lib/mapas.ts`)**: busca primero en IDE Uruguay (direcciones.ide.uy, solo coincidencias exactas con el mismo
   número de puerta) y, si no, en OpenStreetMap. Si ninguno encuentra la dirección, en /familia la IA ofrece pegar un link
   de Google Maps (herramienta `ubicar_con_link_de_google_maps`; las coordenadas salen del link, y OpenStreetMap confirma que
@@ -53,17 +59,13 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
 
 ## Pendiente
 
-1. **PR #24 de Lara (formas de viajar en /familia): juntado en la rama `felipelyonnet/formas-en-tarjeta`, sin subir a
-   main.** Su commit 98ae78f (sin a32b4ef, que tocaba `sugerencias-solas.ts`) y "¿Cómo puede ir?" como botones (Uber /
-   Caminando / Colectivo) en la tarjeta de lugares (paso 3), guardados con el mismo "Listo". Falta que Felipe lo pruebe,
-   subirlo a main y cerrar el PR #24.
-2. **Cerro y Parque Rodó** tienen pocos lugares en el catálogo (el mapa no devolvió sucursales de cadenas ahí).
-3. **Probar la carga nueva en la app publicada con la IA real**, como un hijo nuevo, de punta a punta. Probado en
+1. **Cerro y Parque Rodó** tienen pocos lugares en el catálogo (el mapa no devolvió sucursales de cadenas ahí).
+2. **Probar la carga nueva en la app publicada con la IA real**, como un hijo nuevo, de punta a punta. Probado en
    tamaño celular sin la IA (anduvo entero) y con 1 charla real a mitad del paso 3 (anduvo bien); falta una charla
    completa con correcciones escritas ("quiero cambiar algo" en las reglas, un lugar que falta).
-4. **Antes de la demo**: "Restaurar DEMO" en /prueba (la DEMO de Redis puede tener datos viejos).
-5. **Comercios**: revisar de vez en cuando las webs de los "confirmado por su web" (la frase puede cambiar) y si algún
+3. **Antes de la demo**: "Restaurar DEMO" en /prueba (la DEMO de Redis puede tener datos viejos).
+4. **Comercios**: revisar de vez en cuando las webs de los "confirmado por su web" (la frase puede cambiar) y si algún
    "sin confirmar" lo empieza a decir. Si alguien ya guardó el "Comercio de prueba (equipo)" en una familia de la app
    publicada, borrarlo desde /familia.
-6. Hay un proceso de **vite** corriendo en esta carpeta desde el 2026-10-17 (`vite --host`) que no levantó esta charla:
+5. Hay un proceso de **vite** corriendo en esta carpeta desde el 2026-10-17 (`vite --host`) que no levantó esta charla:
    ver si alguien lo usa.

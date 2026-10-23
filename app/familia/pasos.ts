@@ -66,6 +66,8 @@ export type Tarjeta =
   | { tipo: 'comercios'; primeros: ComercioSugerido[]; todos: ComercioSugerido[]; sinCasa?: boolean }
   | { tipo: 'familiares'; vos: { nombre: string; relacion: string; telefono: string } }
   | { tipo: 'reglas'; tabla: TablaReglas }
+  /** Al final, si quedaron pasos para después: cuáles y un botón para completarlos. */
+  | { tipo: 'falta'; pasos: string[] }
 
 export type RespuestaDeTarjeta =
   | { tipo: 'datos'; nombre: string; apodo: string; trato: 'usted' | 'vos'; telefono: string; direccion: string }
@@ -84,24 +86,32 @@ export type RespuestaDeTarjeta =
 const quienEscribe = (c: ConfiguracionAbuelo, mail: string | undefined) =>
   (mail && c.familiares.find((f) => f.mail.toLowerCase() === mail.toLowerCase())) || c.familiares.find((f) => f.orden === 1) || c.familiares[0]
 
-/** Los pasos terminados. Las familias cargadas antes de los pasos (con las reglas ya guardadas) cuentan como hechas. */
+/**
+ * Las familias cargadas antes de los pasos: ya tienen las reglas guardadas y nunca usaron los pasos (sin armado).
+ * Para ellas, los pasos que no se miran por los datos cuentan como hechos. Apenas usan los pasos, marcar() los anota
+ * en armado.hechos, así un paso dejado para después sigue pendiente aunque después se guarden las reglas.
+ */
+const esDeAntesDeLosPasos = (c: ConfiguracionAbuelo) => !c.armado && !reglasSinElegir(c)
+const HECHOS_DE_ANTES: Paso[] = ['como-es', 'lugares', 'comercios', 'reglas']
+
+/** Los pasos terminados. */
 function estaHecho(c: ConfiguracionAbuelo, paso: Paso, mail: string | undefined): boolean {
   const marcado = c.armado?.hechos.includes(paso) ?? false
-  const yaTeniaReglas = !reglasSinElegir(c)
+  const deAntes = esDeAntesDeLosPasos(c)
   switch (paso) {
     case 'datos':
       return c.abuelo.nombre !== PENDIENTE && c.abuelo.comoLeGustaQueLeHablen !== PENDIENTE && c.abuelo.direccion !== PENDIENTE
     case 'como-es':
-      return !!c.comoEs || yaTeniaReglas
+      return !!c.comoEs || marcado || deAntes
     case 'lugares':
     case 'comercios':
-      return marcado || yaTeniaReglas
+      return marcado || deAntes
     case 'familiares': {
       const yo = quienEscribe(c, mail)
       return !!yo && yo.relacion !== PENDIENTE && yo.telefono !== PENDIENTE
     }
     case 'reglas':
-      return marcado || yaTeniaReglas
+      return marcado || deAntes
   }
 }
 
@@ -121,7 +131,8 @@ export function estadoDelArmado(c: ConfiguracionAbuelo, mail: string | undefined
 
 async function marcar(codigo: string, paso: Paso, como: 'hecho' | 'despues' | 'retomar') {
   await cambiarConfiguracion(codigo, (c) => {
-    const armado = { hechos: [...(c.armado?.hechos ?? [])], despues: [...(c.armado?.despues ?? [])] }
+    const hechos = c.armado?.hechos ?? (esDeAntesDeLosPasos(c) ? HECHOS_DE_ANTES : [])
+    const armado = { hechos: [...hechos], despues: [...(c.armado?.despues ?? [])] }
     if (como === 'hecho') {
       armado.hechos = [...new Set([...armado.hechos, paso])]
       armado.despues = armado.despues.filter((p) => p !== paso)
@@ -266,12 +277,16 @@ export async function loQueSigue(
     return { texto: con(texto), tarjeta, paso }
   }
   const nombre = primerNombre(c.abuelo.nombre)
+  // Nunca "todo cargado" si quedó algo para después: se dice qué falta y se ofrece completarlo.
   if (paso.paraDespues.length > 0) {
+    const faltan = paso.paraDespues.map((p) => TITULOS[p])
+    const lista = faltan.length === 1 ? faltan[0] : `${faltan.slice(0, -1).join(', ')} y ${faltan.at(-1)}`
     return {
       texto: con(
-        `Listo por ahora. Te quedaron para después: ${paso.paraDespues.map((p) => TITULOS[p]).join(', ')}. ` +
-          `Cuando quieras, tocá "Completar lo que falta" arriba. En el celular de ${nombre}, entrá a la app, tocá "Soy el abuelo" y poné el código ${c.codigoFamilia}.`,
+        `Casi listo: todavía ${faltan.length === 1 ? 'falta' : 'faltan'} ${lista} (${faltan.length === 1 ? 'lo dejaste' : 'los dejaste'} para después). ¿Lo completamos ahora? ` +
+          `Mientras tanto, ${nombre} ya puede usar la app: en su celular, entrá, tocá "Soy el abuelo" y poné el código ${c.codigoFamilia}.`,
       ),
+      tarjeta: { tipo: 'falta', pasos: faltan },
       paso,
     }
   }

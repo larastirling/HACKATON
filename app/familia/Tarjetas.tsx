@@ -54,6 +54,14 @@ export default function TarjetaDelPaso({
           {despues}
         </section>
       )
+    case 'falta':
+      return (
+        <section className={estilos.tarjetaPaso} aria-label="Lo que falta">
+          <button type="button" className="boton boton-principal" onClick={() => responder(mandar, 'Completar lo que falta', { tipo: 'seguir' })}>
+            Completar {tarjeta.pasos.length === 1 ? tarjeta.pasos[0] : 'lo que falta'}
+          </button>
+        </section>
+      )
   }
 }
 

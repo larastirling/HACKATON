@@ -384,7 +384,10 @@ const quienEscribe = ({ familiares }: ConfiguracionAbuelo, mail: string | undefi
 function paraLaIA(mensaje: MensajeCharla) {
   const { role, content, tabla } = mensaje
   const notas = [
-    mensaje.tarjeta && `[El sistema mostró la tarjeta del paso "${TITULOS[mensaje.tarjeta.tipo]}" (el hijo la completa con botones).]`,
+    mensaje.tarjeta &&
+      (mensaje.tarjeta.tipo === 'falta'
+        ? '[El sistema le dijo qué quedó para después y le ofreció completarlo con un botón.]'
+        : `[El sistema mostró la tarjeta del paso "${TITULOS[mensaje.tarjeta.tipo]}" (el hijo la completa con botones).]`),
     mensaje.respuesta && `[El hijo usó los botones de la tarjeta (${mensaje.respuesta.tipo}). El sistema ya lo guardó y contestó.]`,
     mensaje.sugerencias && `[Botones de sugerencia que vio el hijo: ${mensaje.sugerencias.map((l) => `${l.nombre} (${l.id})`).join(', ')} y "Ninguno". Si no toca ninguno, no se guarda nada.]`,
     mensaje.preguntaPermiso && `[Pregunta del sistema por el lugar ${mensaje.preguntaPermiso.id}. Con lo que conteste, usá guardar_lugar_sugerido.]`,
@@ -465,7 +468,7 @@ function esCharlaValida(mensajes: unknown): mensajes is MensajeCharla[] {
           (m.role === 'user' && typeof m.permiso?.id === 'string' && typeof m.permiso?.necesitaPermiso === 'boolean')) &&
         (m.confirmaBorrar === undefined || (m.role === 'user' && typeof m.confirmaBorrar === 'boolean')) &&
         (m.pidio === undefined || (m.role === 'user' && (m.pidio === 'lugares' || m.pidio === 'comercios'))) &&
-        (m.tarjeta === undefined || (m.role === 'assistant' && typeof m.tarjeta?.tipo === 'string' && m.tarjeta.tipo in TITULOS)) &&
+        (m.tarjeta === undefined || (m.role === 'assistant' && typeof m.tarjeta?.tipo === 'string' && (m.tarjeta.tipo in TITULOS || m.tarjeta.tipo === 'falta'))) &&
         (m.respuesta === undefined || (m.role === 'user' && esRespuestaDeTarjeta(m.respuesta) && JSON.stringify(m.respuesta).length <= 20_000)),
     ) &&
     mensajes.at(-1)?.role === 'user'
