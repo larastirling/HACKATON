@@ -1,7 +1,15 @@
 'use server'
 
 import { timingSafeEqual } from 'node:crypto'
-import { leerConfiguracion, modoAlmacenamiento, probarAlmacenamiento, restaurarFamiliaDemo } from '@/lib/datos'
+import {
+  leerConfiguracion,
+  leerNumerosReportados,
+  modoAlmacenamiento,
+  probarAlmacenamiento,
+  quitarReporteDeNumero,
+  restaurarFamiliaDemo,
+  type NumeroReportado,
+} from '@/lib/datos'
 import { preguntarALaIA, type RespuestaIA } from '@/lib/ia'
 import { escribirResumenDelDia, mandarResumenDelDia } from '@/lib/resumen'
 import { leerSesion } from '@/lib/sesion'
@@ -62,4 +70,26 @@ export async function mandarResumenAhora(): Promise<{ ok: boolean; texto: string
   return resultado.ok
     ? { ok: true, texto: `Se lo mandé a ${resultado.avisados.join(' y ')}: "${resultado.texto}"` }
     : { ok: false, texto: resultado.error }
+}
+
+/** Los números de comercios que algún hijo reportó que no andan (no se sugieren a ninguna familia). */
+export async function verNumerosReportados(): Promise<NumeroReportado[]> {
+  if (!(await leerSesion())) return []
+  return leerNumerosReportados()
+}
+
+/**
+ * Alguien del equipo revisó el número (llamó o escribió y anda, o se corrigió en el catálogo): vuelve a sugerirse.
+ * Protegido con la clave CONFIG_API_TOKEN, igual que restaurar la familia DEMO.
+ */
+export async function yaRevisamosElNumero(numero: string, clave: string): Promise<{ ok: boolean; texto: string }> {
+  if (!(await leerSesion())) return { ok: false, texto: 'Tenés que iniciar sesión' }
+  const esperada = process.env.CONFIG_API_TOKEN
+  if (!esperada) return { ok: false, texto: 'Falta configurar CONFIG_API_TOKEN en la app' }
+  const a = Buffer.from(typeof clave === 'string' ? clave.trim() : '')
+  const b = Buffer.from(esperada)
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return { ok: false, texto: 'La clave no es correcta. No se cambió nada.' }
+  if (typeof numero !== 'string' || !numero.trim()) return { ok: false, texto: 'Falta el número.' }
+  await quitarReporteDeNumero(numero)
+  return { ok: true, texto: `Listo: el ${numero} vuelve a sugerirse.` }
 }

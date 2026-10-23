@@ -4,9 +4,21 @@ Trabajo de la rama `felipelyonnet/catalogo-comercios`, ya subido a main. Notas d
 
 ## Qué está hecho
 
-- **Catálogo de comercios** (`app/familia/catalogo-comercios.ts`): 21 comercios cargados, todos con `verificado: false`, salvo el
-  "Comercio de prueba (equipo)" (+598 92 625 554, se pide llamando). Solo se sugieren y se guardan los verificados.
-  El de prueba tiene `soloEnLaCompu`: aparece al correr la app en una compu, nunca en la app publicada en Vercel.
+- **Catálogo de comercios** (`app/familia/catalogo-comercios.ts`): 21 comercios, cada uno con su confirmación:
+  - "confirmado por su web" (su web oficial dice explícitamente que toman pedidos; con link, fecha y la frase): Disco,
+    Piazza Italia (Centro y Pocitos), La Fábrica (Centro y Tres Cruces) y El Hidalgo (delivery propio y "Llámanos o
+    escríbenos por WhatsApp"), revisados el 2026-10-23. Solo estos se sugieren solos.
+  - "sin confirmar": todos los demás. Fundamento también: no encontramos en su web las preguntas frecuentes que dirían
+    que se pide por WhatsApp (no están en el sitemap, /preguntas-frecuentes y /faq dan 404, y las páginas de cada local
+    solo tienen un botón de WhatsApp sin texto). Si aparece el link, revisarlo y marcarlo. Aparecen en
+    "Ver todos los cercanos" con el aviso "Número sin confirmar". Si el hijo elige uno, el sistema pregunta si ya le pidieron
+    por ahí y funciona: solo con un "sí" se guarda, como "confirmado por la familia" (vale solo para esa familia).
+  - El "Comercio de prueba (equipo)" (+598 92 625 554, se pide llamando) tiene `soloEnLaCompu`: aparece al correr la app
+    en una compu, nunca en la app publicada en Vercel.
+- **"El número no anda"**: el hijo lo puede decir en /familia (`reportar_numero_que_no_anda`). El número deja de sugerirse
+  a todas las familias hasta que alguien lo revise en /prueba → "Números reportados" (con la clave CONFIG_API_TOKEN).
+- **"Ver todos los cercanos"**: debajo de las sugerencias (lugares y comercios), muestra todos los que están a menos de
+  10 km, del más cerca al más lejos, sin preguntarle nada a la IA ni al servidor (la lista llega con las sugerencias).
 - **/abuelo: "Llamar a [comercio]"**: para los comercios de tipo llamada, la tarjeta muestra el texto para leer
   ("Hola, quiero pedir … para …") y un botón grande para llamar. La IA nunca llama.
 - **Permiso por comercio**: al guardar un comercio nuevo hay que decir si puede pedir solo o necesita permiso
@@ -44,7 +56,8 @@ Trabajo de la rama `felipelyonnet/catalogo-comercios`, ya subido a main. Notas d
    (elegir "Comercio de prueba (equipo)" en /familia y pedirle "lo de siempre" en /abuelo).
 4. **Avisarle a Lara** que cambió la familia DEMO en `lib/datos.ts` (dirección de Don Carlos, `necesitaPermiso: false`
    en la pizzería, campos nuevos `pedidoPor` y `telefono`). Si la DEMO en Redis tiene la dirección vieja: "Restaurar DEMO" en /prueba.
-5. **Comercios reales**: verificar (llamando) los que se quieran sugerir y ponerles `verificado: true`. Si alguien ya
-   guardó el "Comercio de prueba (equipo)" en una familia de la app publicada, borrarlo desde /familia.
+5. **Comercios**: revisar de vez en cuando las webs de los "confirmado por su web" (la frase puede cambiar) y si algún
+   "sin confirmar" lo empieza a decir. Si alguien ya guardó el "Comercio de prueba (equipo)" en una familia de la app
+   publicada, borrarlo desde /familia.
 6. Hay un proceso de **vite** corriendo en esta carpeta desde el 2026-10-17 (`vite --host`) que no levantó esta charla:
    ver si alguien lo usa.

@@ -53,6 +53,11 @@ async function disponibles(configuracion: ConfiguracionAbuelo): Promise<Disponib
     .sort((a, b) => a.km - b.km)
 }
 
+/** Para "Ver todos los cercanos": todos los del catálogo a menos de KM_MAXIMOS (no guardados), del más cerca al más lejos. */
+export async function todosLosLugaresCercanos(configuracion: ConfiguracionAbuelo): Promise<LugarSugerido[]> {
+  return ((await disponibles(configuracion)) ?? []).map((d) => paraMostrar(d.lugar, d.km))
+}
+
 /** Al elegir solos (sin la IA), los tipos que más le pueden servir van primero. */
 const TIPOS_PRIMERO = ['Salud', 'Farmacia', 'Supermercado', 'Banco', 'Trámites', 'Plaza', 'Shopping', 'Paseo', 'Club']
 

@@ -63,6 +63,8 @@ Comercios a los que el abuelo les pide cosas.
 | `telefono` | Teléfono para llamar. | Solo si `pedidoPor` es `"llamada"` (puede ser `"PENDIENTE"`) | `"0800 4242"` |
 | `pedidoHabitual` | Lo que pide siempre ("lo de siempre"). | Sí | `"Una muzzarella grande y una fainá"` |
 | `necesitaPermiso` | `true` si la familia tiene que aprobar cada pedido. | No (si falta, se toma como `true`: nunca libre por defecto) | `false` |
+| `confirmacion` | Solo en los que salieron del catálogo: quién confirmó que el número toma pedidos. `estado`: `"confirmado por su web"` (con `link`) o `"confirmado por la familia"` (vale solo para esta familia), y `fecha`. | No | `{ "estado": "confirmado por la familia", "fecha": "2026-10-23" }` |
+| `numeroNoAnda` | Fecha en que el hijo avisó que el número no anda: no se le arman pedidos hasta que pase otro número. | No | `"2026-10-23"` |
 
 ## 5. Familiares (`familiares`) — una lista, mínimo uno
 
