@@ -90,10 +90,10 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
   const ultimoEsDelUsuario = mensajes[mensajes.length - 1]?.role === 'user'
   const ultimo = mensajes[mensajes.length - 1]
   const cargando = !!paso?.actual
-  // "Quiero cambiar algo": a escribir.
-  const quererCambiar = () => {
+  // "Quiero cambiar algo" (o "Escribirlo a mano" en el buscador): a escribir.
+  const quererCambiar = (placeholder = 'Escribí qué querés cambiar…') => {
     entradaRef.current?.focus()
-    entradaRef.current?.setAttribute('placeholder', 'Escribí qué querés cambiar…')
+    entradaRef.current?.setAttribute('placeholder', placeholder)
   }
 
   return (

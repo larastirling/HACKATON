@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type ReactNode } from 'react'
 import type { MensajeCharla } from './acciones'
+import { categoriasDe, CATEGORIAS_PRINCIPALES, filtrar } from './buscar'
 import estilos from './charla.module.css'
 import type { RespuestaDeTarjeta, Tarjeta } from './pasos'
 import TablaReglas from './TablaReglas'
@@ -23,8 +24,8 @@ export default function TarjetaDelPaso({
   /** Si el paso se puede dejar para después (muestra "Completar después"). */
   opcional: boolean
   mandar: Mandar
-  /** "Quiero cambiar algo": lleva al hijo a escribir. */
-  quererCambiar: () => void
+  /** Lleva al hijo a escribir abajo ("Quiero cambiar algo", o un lugar que no encontró en la lista). */
+  quererCambiar: (placeholder?: string) => void
 }) {
   const despues = opcional ? (
     <button type="button" className={estilos.despues} onClick={() => responder(mandar, 'Lo completo después', { tipo: 'despues' })}>
@@ -38,7 +39,7 @@ export default function TarjetaDelPaso({
       return <TarjetaComoEs t={tarjeta} mandar={mandar} despues={despues} />
     case 'lugares':
     case 'comercios':
-      return <TarjetaElegir t={tarjeta} mandar={mandar} despues={despues} />
+      return <TarjetaElegir t={tarjeta} mandar={mandar} despues={despues} escribirAMano={quererCambiar} />
     case 'familiares':
       return <TarjetaFamiliares t={tarjeta} mandar={mandar} />
     case 'reglas':
@@ -48,7 +49,7 @@ export default function TarjetaDelPaso({
           <button type="button" className="boton boton-principal" onClick={() => responder(mandar, 'Guardar así', { tipo: 'reglas' })}>
             Guardar así
           </button>
-          <button type="button" className="boton boton-secundario" onClick={quererCambiar}>
+          <button type="button" className="boton boton-secundario" onClick={() => quererCambiar()}>
             Quiero cambiar algo
           </button>
           {despues}
@@ -175,13 +176,32 @@ interface Marcado {
   funciona: boolean
 }
 
-function TarjetaElegir({ t, mandar, despues }: { t: Extract<Tarjeta, { tipo: 'lugares' | 'comercios' }>; mandar: Mandar; despues: ReactNode }) {
+function TarjetaElegir({
+  t,
+  mandar,
+  despues,
+  escribirAMano,
+}: {
+  t: Extract<Tarjeta, { tipo: 'lugares' | 'comercios' }>
+  mandar: Mandar
+  despues: ReactNode
+  escribirAMano: (placeholder?: string) => void
+}) {
   const esComercio = t.tipo === 'comercios'
   const [marcados, setMarcados] = useState<Record<string, Marcado>>({})
   const [verTodos, setVerTodos] = useState(false)
+  // El buscador de "Ver todos": filtra al instante en el navegador (sin la IA ni el servidor). Ver buscar.ts.
+  const [busqueda, setBusqueda] = useState('')
+  const [categoria, setCategoria] = useState<string | null>(null)
+  const [todasLasCategorias, setTodasLasCategorias] = useState(false)
   // Solo en lugares: "¿Cómo puede ir?" (varias a la vez), arranca con lo ya guardado.
   const [formas, setFormas] = useState(() => (t.tipo === 'lugares' ? t.formas.filter((f) => f.marcada).map((f) => f.id) : []))
-  const lista = verTodos ? t.todos : t.primeros
+  const lista = verTodos ? filtrar(t.todos, busqueda, categoria) : t.primeros
+  const categorias = categoriasDe(t.todos)
+  // Primero las principales (Salud, Farmacias, Súper…); el resto con "Más tipos…", así no ocupan media pantalla.
+  const principales = categorias.filter((c) => CATEGORIAS_PRINCIPALES.includes(c.nombre) || c.nombre === categoria)
+  const categoriasALaVista = todasLasCategorias || principales.length === categorias.length ? categorias : principales
+  const buscando = verTodos && (busqueda.trim() !== '' || categoria !== null)
   const hayMas = t.todos.some((x) => !t.primeros.some((p) => p.id === x.id))
   const elegidos = Object.entries(marcados)
   const porId = (id: string) => t.todos.find((x) => x.id === id) ?? t.primeros.find((x) => x.id === id)
@@ -218,6 +238,67 @@ function TarjetaElegir({ t, mandar, despues }: { t: Extract<Tarjeta, { tipo: 'lu
 
   return (
     <section className={estilos.tarjetaPaso} aria-label={esComercio ? 'Comercios cerca de su casa' : 'Lugares cerca de su casa'}>
+      {verTodos && (
+        <div className={estilos.buscador} role="search">
+          <label className={estilos.cajaBuscar}>
+            <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+              <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="2.5" />
+              <path d="M15.5 15.5 21 21" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+            <input
+              type="search"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder={esComercio ? 'Buscar: pizza, farmacia, súper…' : 'Buscar: farmacia, Rivera, pagar cuentas…'}
+              aria-label={esComercio ? 'Buscar comercios' : 'Buscar lugares'}
+              autoComplete="off"
+              enterKeyHint="search"
+            />
+            {busqueda && (
+              <button type="button" className={estilos.borrarBusqueda} onClick={() => setBusqueda('')} aria-label="Borrar la búsqueda">
+                ×
+              </button>
+            )}
+          </label>
+          {categorias.length > 1 && (
+            <div className={estilos.categorias} role="group" aria-label="Filtrar por tipo">
+              {categoriasALaVista.map((c) => (
+                <button
+                  key={c.nombre}
+                  type="button"
+                  className={estilos.opcion}
+                  aria-pressed={categoria === c.nombre}
+                  onClick={() => setCategoria(categoria === c.nombre ? null : c.nombre)}
+                >
+                  {c.nombre}
+                </button>
+              ))}
+              {categoriasALaVista.length < categorias.length && (
+                <button type="button" className={estilos.masCategorias} onClick={() => setTodasLasCategorias(true)}>
+                  Más tipos…
+                </button>
+              )}
+            </div>
+          )}
+          {buscando && (
+            <p className={estilos.ayudaTarjeta} aria-live="polite">
+              {lista.length === 0 ? '' : lista.length === 1 ? 'Encontré 1.' : `Encontré ${lista.length}.`}
+            </p>
+          )}
+        </div>
+      )}
+      {verTodos && lista.length === 0 && (
+        <div className={estilos.sinResultados}>
+          <p>No encontré nada con eso.</p>
+          <button
+            type="button"
+            className="boton boton-secundario"
+            onClick={() => escribirAMano(esComercio ? 'Escribí el comercio: nombre y teléfono…' : 'Escribí el lugar: nombre y dirección…')}
+          >
+            Escribirlo a mano
+          </button>
+        </div>
+      )}
       {lista.length > 0 && (
         <ul className={estilos.elegibles}>
           {lista.map((x) => {

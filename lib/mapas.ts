@@ -54,6 +54,8 @@ interface ResultadoNominatim {
   type: string
   name?: string
   display_name: string
+  /** Solo si se pidió (buscarVarios con zona): quién lo atiende, la marca, etc. */
+  extratags?: Record<string, string> | null
   address?: {
     house_number?: string
     road?: string
@@ -219,11 +221,21 @@ async function pedir<T>(servicio: Servicio, clave: string, url: URL): Promise<T[
 }
 
 // ── OpenStreetMap (Nominatim) ───────────────────────────────
-function buscarEnNominatim(texto: string, limite: number): Promise<ResultadoNominatim[]> {
+/** Una zona del mapa: oeste, norte, este, sur (grados). Con zona, se busca solo adentro de ella. */
+export type Zona = readonly [oeste: number, norte: number, este: number, sur: number]
+
+function buscarEnNominatim(texto: string, limite: number, zona?: Zona): Promise<ResultadoNominatim[]> {
   const url = new URL('https://nominatim.openstreetmap.org/search')
-  url.search = new URLSearchParams({ q: texto, format: 'jsonv2', addressdetails: '1', limit: String(limite), countrycodes: 'uy' }).toString()
+  url.search = new URLSearchParams({
+    q: texto,
+    format: 'jsonv2',
+    addressdetails: '1',
+    limit: String(limite),
+    countrycodes: 'uy',
+    ...(zona && { viewbox: zona.join(','), bounded: '1', extratags: '1' }),
+  }).toString()
   // La clave de caché es la de antes (sin el servicio adelante), así sirve lo que ya está guardado.
-  return pedir<ResultadoNominatim>('osm', `${limite}|${normalizar(texto)}`, url)
+  return pedir<ResultadoNominatim>('osm', `${limite}|${normalizar(texto)}${zona ? `|${zona.join(',')}` : ''}`, url)
 }
 
 /** Qué hay en un punto, según OpenStreetMap: el barrio (para la zona de envío de los comercios) y si es de Uruguay. */
@@ -241,6 +253,9 @@ async function queHayEn(latitud: number, longitud: number): Promise<{ barrio?: s
 
 const barrioDe = async (latitud: number, longitud: number) => (await queHayEn(latitud, longitud))?.barrio
 
+/** El barrio de un punto según el mapa (para armar catálogos). */
+export const barrioEnElMapa = barrioDe
+
 /** Un lugar tal cual lo tiene el mapa (para armar catálogos, ver scripts/verificar-catalogo.ts). */
 export interface LugarDelMapa {
   nombre: string
@@ -252,6 +267,8 @@ export interface LugarDelMapa {
   numero?: string
   barrio?: string
   ciudad?: string
+  /** Quién lo atiende (operator) o de qué marca es, si el mapa lo dice. Solo en las búsquedas con zona. */
+  quienAtiende?: string
 }
 
 /**
@@ -259,8 +276,8 @@ export interface LugarDelMapa {
  * Para armar catálogos desde un script, y en /familia con buscar_lugar_en_el_mapa (una búsqueda cuando el hijo nombra
  * un lugar, nunca mientras escribe: el mapa no permite autocompletar). Las dos van a la caché y respetan 1 por segundo.
  */
-export async function buscarVarios(texto: string): Promise<LugarDelMapa[]> {
-  const resultados = await buscarEnNominatim(texto, 40)
+export async function buscarVarios(texto: string, zona?: Zona): Promise<LugarDelMapa[]> {
+  const resultados = await buscarEnNominatim(texto, 40, zona)
   return resultados
     .filter((r) => r.address?.country_code === 'uy' && r.name)
     .map((r) => ({
@@ -272,6 +289,7 @@ export async function buscarVarios(texto: string): Promise<LugarDelMapa[]> {
       numero: r.address?.house_number?.split(/[,;]/)[0],
       barrio: r.address?.suburb ?? r.address?.neighbourhood ?? r.address?.city_district,
       ciudad: r.address?.city,
+      ...((r.extratags?.operator ?? r.extratags?.brand) && { quienAtiende: r.extratags?.operator ?? r.extratags?.brand }),
     }))
 }
 
