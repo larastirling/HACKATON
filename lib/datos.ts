@@ -714,6 +714,31 @@ export async function familiasConDiario(fecha = fechaDeHoy()): Promise<string[]>
   return (await clavesQueEmpiezanCon(prefijo)).map((clave) => clave.slice(prefijo.length))
 }
 
+// ── "Lo que pasó" (pantalla /familia/lo-que-paso) ───────────
+// Lo que pidió el abuelo, los pedidos de permiso, los avisos a la familia y los mails marcados, del más nuevo al más
+// viejo. A diferencia del diario, no se borra a los pocos días: se guardan los últimos MAXIMO_EN_LO_QUE_PASO.
+// Qué tiene cada cosa: lib/historial.ts (y docs/formato-configuracion.md, "Lo que pasó").
+
+const claveLoQuePaso = (codigoFamilia: string) => `lo-que-paso:${normalizarCodigo(codigoFamilia)}`
+export const MAXIMO_EN_LO_QUE_PASO = 300
+
+/** Agrega una cosa adelante (la más nueva primero) y deja solo las últimas MAXIMO_EN_LO_QUE_PASO. */
+export async function agregarALoQuePaso(codigoFamilia: string, cosa: unknown): Promise<void> {
+  const clave = claveLoQuePaso(codigoFamilia)
+  if (redis) {
+    await redis.lpush(clave, cosa)
+    await redis.ltrim(clave, 0, MAXIMO_EN_LO_QUE_PASO - 1)
+  } else {
+    memoria.set(clave, [cosa, ...((memoria.get(clave) as unknown[] | undefined) ?? [])].slice(0, MAXIMO_EN_LO_QUE_PASO))
+  }
+}
+
+export async function leerLoQuePaso(codigoFamilia: string): Promise<unknown[]> {
+  const clave = claveLoQuePaso(codigoFamilia)
+  if (redis) return redis.lrange<unknown>(clave, 0, -1)
+  return (memoria.get(clave) as unknown[] | undefined) ?? []
+}
+
 // ── Números de comercios que no andan (valen para TODAS las familias) ──
 // Cuando un hijo dice que el número de un comercio no anda, ese número deja de sugerirse a todas las familias
 // hasta que alguien del equipo lo revise y lo saque de acá (en /prueba, "Números reportados").
@@ -771,6 +796,7 @@ export async function restaurarFamiliaDemo(): Promise<{ pendientesBorrados: numb
   await soltarCandado(`ubicacion:${codigo}`)
   await soltarCandado(`estafa:${codigo}`)
   await borrar(claveDiario(codigo, fechaDeHoy())) // el resumen de hoy arranca de cero
+  await borrar(claveLoQuePaso(codigo)) // "Lo que pasó" arranca vacío
   return { pendientesBorrados }
 }
 

@@ -206,6 +206,13 @@ strong { font-weight: 800; }
 }
 .barra-boton:hover, .barra-boton:active { background: var(--fondo); }
 .barra-boton svg { width: 30px; height: 30px; color: var(--principal); }
+/* Celulares angostos con 5 botones (familia): "Lo que pasó" en dos renglones, sin bajar la letra de 18px. */
+.barra-boton { text-align: center; line-height: 1.05; }
+@media (max-width: 359px) {
+  .barra-navegacion { padding-left: 2px; padding-right: 2px; }
+  .barra-boton { margin: 6px 1px; gap: 2px; font-size: 0.9rem; }
+  .barra-boton svg { width: 26px; height: 26px; }
+}
 
 /* Botón Ayuda (emergencia) en el medio de la barra del abuelo: rojo, para que se encuentre enseguida */
 .barra-ayuda { background: var(--error); color: #fff; box-shadow: var(--sombra-boton); }

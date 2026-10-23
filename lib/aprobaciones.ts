@@ -11,6 +11,7 @@ import {
   type PedidoDeAprobacion,
   type QueSePidio,
 } from './datos'
+import { anotarPermiso } from './lo-que-paso'
 import { enviarMail } from './mail'
 import { notificarAFamiliar } from './notificaciones'
 
@@ -83,6 +84,8 @@ export async function pedirPermiso(
     }
   }
 
+  // Para "Lo que pasó" de /familia: el estado (aprobado, rechazado, sin respuesta) se lee después del pedido.
+  await anotarPermiso(configuracion.codigoFamilia, aprobacion.id, descripcion, preguntados)
   if (preguntados.length === 0) {
     await cerrarAprobacion(aprobacion.id, 'sin-respuesta')
     return { ok: false, motivo: 'no se le pudo avisar a ningún familiar' }

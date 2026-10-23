@@ -11,6 +11,7 @@ import {
   type EventoDelDia,
 } from './datos'
 import { charlarConLaIA } from './ia'
+import { anotarAviso } from './lo-que-paso'
 import { enviarMail } from './mail'
 import { notificarAFamiliar } from './notificaciones'
 
@@ -101,5 +102,6 @@ export async function mandarResumenDelDia(configuracion: ConfiguracionAbuelo, { 
     if (unaVezPorDia) await soltarCandado(candado)
     return { ok: false, error: 'No se pudo mandar ni el mail ni el aviso al celular' }
   }
+  await anotarAviso(configuracion.codigoFamilia, `Resumen del día de ${nombre}`, avisados)
   return { ok: true, texto: resumen.texto, avisados }
 }
