@@ -63,6 +63,8 @@ Comercios a los que el abuelo les pide cosas.
 | `telefono` | Teléfono para llamar. | Solo si `pedidoPor` es `"llamada"` (puede ser `"PENDIENTE"`) | `"0800 4242"` |
 | `pedidoHabitual` | Lo que pide siempre ("lo de siempre"). | Sí | `"Una muzzarella grande y una fainá"` |
 | `necesitaPermiso` | `true` si la familia tiene que aprobar cada pedido. | No (si falta, se toma como `true`: nunca libre por defecto) | `false` |
+| `confirmacion` | Solo en los que salieron del catálogo: quién confirmó que el número toma pedidos. `estado`: `"confirmado por su web"` (con `link`) o `"confirmado por la familia"` (vale solo para esta familia), y `fecha`. | No | `{ "estado": "confirmado por la familia", "fecha": "2026-10-23" }` |
+| `numeroNoAnda` | Fecha en que el hijo avisó que el número no anda: no se le arman pedidos hasta que pase otro número. | No | `"2026-10-23"` |
 
 ## 5. Familiares (`familiares`) — una lista, mínimo uno
 
@@ -92,6 +94,22 @@ Estas reglas valen para **todos** los abuelos y no se pueden apagar. Aunque algu
 2. Nunca se manda ni se transfiere plata.
 3. Si algo parece una estafa, siempre se avisa a la familia.
 4. Nunca se dan consejos médicos: se sugiere hablar con un médico o con la familia.
+
+---
+
+## 7. Formas de viajar (`formasDeViajar`)
+
+Cómo puede ir la persona mayor a los lugares. La familia activa las que quiera; el asistente **solo ofrece las activadas**.
+
+| Valor | Qué hace el asistente |
+|---|---|
+| `"uber"` | Botón **"Ir en Uber"**: abre Uber con el destino puesto. El auto lo pide la persona mayor. |
+| `"caminando"` | Botón **"Ir caminando"**: le explica en voz alta y abre Google Maps caminando con el destino puesto. Solo se ofrece si el lugar queda a menos de 1,5 km de su casa. |
+| `"colectivo"` | Botón **"Ir en colectivo"**: le explica en voz alta y abre Google Maps en modo colectivo (muestra qué colectivo tomar, la parada y dónde bajarse). |
+
+- Es una lista, por ejemplo `["uber", "caminando", "colectivo"]`. Puede ir vacía (no se ofrecen viajes).
+- **No es obligatorio:** si falta (familias guardadas antes de que existiera), se toma como `["uber"]`.
+- **Los permisos no cambian:** si un lugar tiene `necesitaPermiso: true`, primero se le pregunta a la familia, vaya como vaya.
 
 ---
 
@@ -158,7 +176,8 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
       "Si algo parece una estafa, siempre se avisa a la familia.",
       "Nunca se dan consejos médicos: se sugiere hablar con un médico o con la familia."
     ]
-  }
+  },
+  "formasDeViajar": ["uber", "caminando", "colectivo"]
 }
 ```
 

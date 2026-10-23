@@ -1,11 +1,11 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { pedirPermiso } from './aprobaciones'
-import { primerNombre, ZONA_HORARIA, type ConfiguracionAbuelo, type QueSePidio } from './datos'
+import { formasDeViajarDe, primerNombre, ZONA_HORARIA, type ConfiguracionAbuelo, type FormaDeViajar, type QueSePidio } from './datos'
 import { armarEmergencia, avisarEmergenciaALaFamilia, avisarEstafaALaFamilia, avisarPedidoDePlata, type Emergencia, type Estafa } from './emergencia'
 import { buscarCoordenadas } from './mapas'
 import { juntarNombres } from './texto'
-import { armarViajeUber, type Viaje } from './uber'
+import { armarViaje, nombresDeFormas, type Viaje } from './viajes'
 import { armarPedido, type Pedido } from './whatsapp'
 
 // ÚNICO lugar donde se habla con la IA. Solo corre en el servidor:
@@ -64,7 +64,7 @@ export async function charlarConLaIA(
 /**
  * Charla del abuelo: manda TODA la charla y las instrucciones armadas con su configuración.
  * Herramientas de la IA (el servidor arma todo con los datos guardados; la IA solo decide):
- * - proponer_viaje: elige el id del lugar y el servidor arma el link de Uber.
+ * - proponer_viaje: elige el id del lugar (y cómo quiere ir) y el servidor arma los botones: Uber, caminando, colectivo.
  * - mostrar_emergencia: el servidor muestra los botones para llamar al 911 y al primer familiar.
  * - alertar_estafa: el servidor muestra un cartel rojo y les avisa a los familiares (mail y celular).
  * - consultar_a_la_familia: algo fuera de lo común (lugar no guardado, muy lejos, hora rara): en vez de decir
@@ -81,6 +81,7 @@ export async function conversarConElAbuelo(
   { urlApp }: { urlApp: string },
 ): Promise<RespuestaIA & { viaje?: Viaje; emergencia?: Emergencia; estafa?: Estafa; pedido?: Pedido; aprobacion?: EsperaAprobacion }> {
   const lugares = configuracion.lugares.map((lugar, i) => ({ id: `lugar-${i + 1}`, ...lugar }))
+  const formasActivas = formasDeViajarDe(configuracion)
   const comercios = configuracion.comercios.map((comercio, i) => ({ id: `comercio-${i + 1}`, ...comercio }))
   const nombreAbuelo = primerNombre(configuracion.abuelo.nombre)
   let viaje: Viaje | undefined
@@ -104,6 +105,9 @@ export async function conversarConElAbuelo(
   async function proponerPedido(comercioId: unknown, aclaracion: unknown, pedidoDistinto: unknown): Promise<string> {
     const comercio = comercios.find((c) => c.id === comercioId)
     if (!comercio) return 'Ese id no corresponde a ningún comercio guardado. No inventes comercios.'
+    if (comercio.numeroNoAnda) {
+      return `NO se puede armar el pedido: la familia avisó que el número de "${comercio.nombre}" no anda. Decile con calma que ese número no funciona y que le pida a la familia el número nuevo (o usá consultar_a_la_familia).`
+    }
     const distinto = typeof pedidoDistinto === 'string' ? pedidoDistinto.trim() : ''
     const propuesto = armarPedido(comercio, configuracion.abuelo, {
       aclaracion: typeof aclaracion === 'string' ? aclaracion : '',
@@ -155,24 +159,25 @@ export async function conversarConElAbuelo(
     if (!descripcion) return 'No se consultó: falta qué quiere hacer.'
     const lugar = lugares.find((l) => l.id === entrada.lugar_id)
     if (lugar) {
-      const propuesto = armarViajeUber(lugar)
-      if (propuesto) return pedirPermisoALaFamilia(`${nombreAbuelo} quiere ${descripcion}`, { tipo: 'viaje', viaje: propuesto })
+      const armado = await armarViaje(lugar, configuracion)
+      if (armado.ok) return pedirPermisoALaFamilia(`${nombreAbuelo} quiere ${descripcion}`, { tipo: 'viaje', viaje: armado.viaje })
     }
     const destino = typeof entrada.destino === 'string' ? entrada.destino.trim().slice(0, 120) : ''
     if (destino) {
-      // El lugar no está guardado: si el mapa lo encuentra, al aprobar se le muestra el Uber. Nunca se inventa.
+      // El lugar no está guardado: si el mapa lo encuentra, al aprobar se le muestra cómo ir. Nunca se inventa.
       const ubicacion = await buscarCoordenadas(destino)
-      const propuesto =
+      const armado =
         ubicacion &&
-        armarViajeUber({
-          nombre: destino,
-          apodos: [],
-          direccion: ubicacion.direccionDelMapa.split(',').slice(0, 3).join(',').trim(),
-          latitud: ubicacion.latitud,
-          longitud: ubicacion.longitud,
-          necesitaPermiso: true,
-        })
-      if (propuesto) return pedirPermisoALaFamilia(`${nombreAbuelo} quiere ${descripcion}`, { tipo: 'viaje', viaje: propuesto })
+        (await armarViaje(
+          {
+            nombre: destino,
+            direccion: ubicacion.direccionDelMapa.split(',').slice(0, 3).join(',').trim(),
+            latitud: ubicacion.latitud,
+            longitud: ubicacion.longitud,
+          },
+          configuracion,
+        ))
+      if (armado && armado.ok) return pedirPermisoALaFamilia(`${nombreAbuelo} quiere ${descripcion}`, { tipo: 'viaje', viaje: armado.viaje })
     }
     return pedirPermisoALaFamilia(`${nombreAbuelo} quiere ${descripcion}`, { tipo: 'consulta', texto: descripcion })
   }
@@ -184,19 +189,25 @@ export async function conversarConElAbuelo(
     return `NO se mandó plata ni se le preguntó nada a la familia: el asistente nunca manda ni transfiere plata. ${aviso} Decile con calma, en una o dos frases, que eso no lo podés hacer y que ${avisados.length > 0 ? 'ya le avisaste a la familia para que lo llamen' : 'es mejor que lo hable con la familia'}.`
   }
 
-  async function proponerViaje(lugarId: unknown): Promise<string> {
+  async function proponerViaje(lugarId: unknown, forma: unknown): Promise<string> {
     const lugar = lugares.find((l) => l.id === lugarId)
     if (!lugar) return 'Ese id no corresponde a ningún lugar guardado. No inventes lugares.'
-    const propuesto = armarViajeUber(lugar)
-    if (!propuesto) {
-      return `NO se puede armar el viaje: a "${lugar.nombre}" le falta la ubicación exacta. Decile que esa dirección no está completa y que le pida a la familia que la complete.`
+    const pidio = formasActivas.find((f) => f === forma)
+    const armado = await armarViaje(lugar, configuracion, pidio)
+    if (!armado.ok) {
+      return armado.motivo === 'sin-ubicacion'
+        ? `NO se puede armar el viaje: a "${lugar.nombre}" le falta la ubicación exacta. Decile que esa dirección no está completa y que le pida a la familia que la complete.`
+        : `NO se puede armar el viaje a "${lugar.nombre}": la única forma activada es caminando y ${armado.caminandoNo ?? 'no se puede ir caminando'}. Decile con amabilidad que hasta ahí no conviene ir caminando y que le pida a la familia otra forma de viajar.`
     }
-    // Regla del servidor: los lugares con necesitaPermiso necesitan el OK de la familia.
+    const { viaje: propuesto, caminandoNo } = armado
+    const nota = pidio && pidio !== propuesto.opciones[0].forma ? ` Pidió ir ${nombresDeFormas([pidio])}, pero no se puede: ${caminandoNo}. Decíselo con amabilidad.` : ''
+    // Regla del servidor: los lugares con necesitaPermiso necesitan el OK de la familia (vaya como vaya).
     if (lugar.necesitaPermiso) {
       return pedirPermisoALaFamilia(`${nombreAbuelo} quiere ir a ${lugar.nombre}`, { tipo: 'viaje', viaje: propuesto })
     }
     viaje = propuesto
-    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con "${lugar.nombre}" (${lugar.direccion}) y un botón verde "Abrir Uber". El auto NO está pedido: lo pide él cuando toca el botón. Contáselo en una o dos frases, sin escribir links ni coordenadas.`
+    const botones = propuesto.opciones.map((o) => BOTON_DE_VIAJE[o.forma]).join(', ')
+    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con "${lugar.nombre}" (${lugar.direccion}) y estos botones grandes: ${botones}. Nada está pedido: elige él tocando un botón (Uber abre la app para pedir el auto; caminando y colectivo abren el mapa con el destino puesto).${nota} Contáselo en una o dos frases, sin escribir links ni coordenadas.`
   }
 
   const respuesta = await llamarALaIA({
@@ -210,7 +221,7 @@ export async function conversarConElAbuelo(
       HERRAMIENTA_ALERTAR_ESTAFA,
       herramientaConsultarALaFamilia(lugares.map((l) => l.id)),
       HERRAMIENTA_AVISAR_PEDIDO_DE_PLATA,
-      ...(lugares.length > 0 ? [herramientaProponerViaje(lugares.map((l) => l.id))] : []),
+      ...(lugares.length > 0 && formasActivas.length > 0 ? [herramientaProponerViaje(lugares.map((l) => l.id), formasActivas)] : []),
       ...(comercios.length > 0 ? [herramientaProponerPedido(comercios.map((c) => c.id))] : []),
     ],
     usarHerramienta: (bloque) => {
@@ -218,7 +229,10 @@ export async function conversarConElAbuelo(
       if (bloque.name === 'alertar_estafa') return alertarEstafa((bloque.input as { motivo?: unknown }).motivo)
       if (bloque.name === 'consultar_a_la_familia') return consultarALaFamilia(bloque.input as Record<string, unknown>)
       if (bloque.name === 'avisar_pedido_de_plata') return avisarPlata()
-      if (bloque.name === 'proponer_viaje') return proponerViaje((bloque.input as { lugar_id?: unknown }).lugar_id)
+      if (bloque.name === 'proponer_viaje') {
+        const entrada = bloque.input as { lugar_id?: unknown; forma?: unknown }
+        return proponerViaje(entrada.lugar_id, entrada.forma)
+      }
       if (bloque.name === 'proponer_pedido') {
         const entrada = bloque.input as { comercio_id?: unknown; aclaracion?: unknown; pedido_distinto?: unknown }
         return proponerPedido(entrada.comercio_id, entrada.aclaracion, entrada.pedido_distinto)
@@ -344,19 +358,31 @@ const HERRAMIENTA_AVISAR_PEDIDO_DE_PLATA: Anthropic.Beta.BetaTool = {
   strict: true,
 }
 
-function herramientaProponerViaje(ids: string[]): Anthropic.Beta.BetaTool {
+/** Cómo se llama cada botón de la tarjeta de viaje (lo usa la IA para contarle al abuelo). */
+const BOTON_DE_VIAJE: Record<FormaDeViajar, string> = {
+  uber: '"Ir en Uber"',
+  caminando: '"Ir caminando"',
+  colectivo: '"Ir en colectivo"',
+}
+
+function herramientaProponerViaje(ids: string[], formas: FormaDeViajar[]): Anthropic.Beta.BetaTool {
   return {
     name: 'proponer_viaje',
     description:
-      'Le muestra al abuelo una tarjeta con un botón para abrir Uber hacia un lugar GUARDADO. ' +
-      'No pide el auto: lo pide el abuelo al tocar el botón. Si el lugar necesita permiso, el sistema le pregunta a la familia. ' +
+      'Le muestra al abuelo una tarjeta con un botón grande por cada forma de viajar activada (Uber, caminando, colectivo) hacia un lugar GUARDADO. ' +
+      'No pide nada: elige él tocando un botón. Si el lugar necesita permiso, el sistema le pregunta a la familia. ' +
       'Usala solo cuando esté claro a qué lugar guardado quiere ir.',
     input_schema: {
       type: 'object',
       properties: {
         lugar_id: { type: 'string', enum: ids, description: 'El id del lugar guardado (por ejemplo "lugar-1").' },
+        forma: {
+          type: 'string',
+          enum: [...formas, 'cualquiera'],
+          description: 'Cómo dijo que quiere ir (ese botón va primero). "cualquiera" si no lo dijo.',
+        },
       },
-      required: ['lugar_id'],
+      required: ['lugar_id', 'forma'],
       additionalProperties: false,
     },
     strict: true,
@@ -392,8 +418,10 @@ Abajo está su configuración (lugares, comercios y familiares, con sus apodos).
 - Si algo necesita permiso de la familia lo decide el sistema, no vos: usá igual la herramienta y el sistema te dice qué pasó. Si no hace falta permiso, no hables del permiso.
 - Familiares: el de "orden" 1 es a quien se recurre primero.
 
-VIAJES EN UBER
-Podés proponerle un viaje en Uber a un lugar GUARDADO con la herramienta proponer_viaje, pasando solo el id del lugar. La pantalla le muestra una tarjeta con un botón "Abrir Uber"; el auto lo pide él al tocarlo, vos nunca lo pedís.
+VIAJES (${nombresDeFormas(formasDeViajarDe(configuracion)).toUpperCase()})
+Formas de viajar que activó la familia: ${nombresDeFormas(formasDeViajarDe(configuracion)) || 'ninguna'}. No ofrezcas otras.
+Podés proponerle un viaje a un lugar GUARDADO con la herramienta proponer_viaje, pasando el id del lugar y cómo dijo que quiere ir ("cualquiera" si no lo dijo). La pantalla le muestra una tarjeta con un botón grande por cada forma activada; elige él tocando uno. Uber abre la app para que él pida el auto (vos nunca lo pedís); caminando y colectivo abren el mapa con el destino puesto, que lo guía.
+- Si pide una forma que la familia no activó (por ejemplo colectivo, si no está en la lista), decile con amabilidad que esa forma no está activada y ofrecé las que sí.
 - Usala solo cuando quede claro a qué lugar guardado quiere ir. Si un nombre o apodo corresponde a más de un lugar, primero preguntale cuál.
 - Si el lugar necesita permiso, usala igual: el sistema le pregunta a la familia por mail y te dice qué contestarle.
 - Si quiere ir a un lugar que no está guardado, no le digas que no: usá consultar_a_la_familia con el destino tal cual lo dijo. Nunca inventes direcciones.

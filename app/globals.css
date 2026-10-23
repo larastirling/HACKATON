@@ -539,3 +539,19 @@ a.boton {
 .invitar-pasos .pasos { gap: 6px; }
 .invitar-pasos .boton { min-height: 64px; }
 .invitar-pasos h3 { font-size: 1.3rem; margin: 4px 0 0; }
+
+/* ── Formas de viajar: un botón grande por cada una ── */
+.tarjeta-viaje .boton + .boton { margin-top: 10px; }
+.boton-caminando,
+.boton-colectivo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  color: #fff;
+  font-size: 1.3rem;
+  text-decoration: none;
+}
+.boton-caminando { background: var(--principal); border: 3px solid var(--principal); }
+.boton-colectivo { background: #1f4e79; border: 3px solid #1f4e79; }   /* azul oscuro: contraste 8.6:1 con blanco */
+.tarjeta-viaje-explicacion { font-size: 1.3rem; font-weight: 700; line-height: 1.4; margin: 6px 0; }

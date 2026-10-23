@@ -79,6 +79,20 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
               />
             )}
             {c.necesitaPermiso && <span> · Necesita permiso</span>}
+            {c.confirmacion && (
+              <>
+                <br />
+                <span>
+                  Número {c.confirmacion.estado} ({c.confirmacion.fecha.split('-').reverse().join('/')})
+                </span>
+              </>
+            )}
+            {c.numeroNoAnda && (
+              <>
+                <br />
+                <Estado ok={false} si="" no="Avisaron que el número no anda: falta un número nuevo" />
+              </>
+            )}
           </li>
         ))}
       </Recuadro>

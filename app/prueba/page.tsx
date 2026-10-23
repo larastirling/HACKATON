@@ -2,6 +2,7 @@ import BarraNavegacion from '@/components/BarraNavegacion'
 import { modoAlmacenamiento } from '@/lib/datos'
 import { exigirSesion } from '@/lib/sesion'
 import BotonesDePrueba from './BotonesDePrueba'
+import NumerosReportados from './NumerosReportados'
 import RestaurarDemo from './RestaurarDemo'
 import ResumenDelDia from './ResumenDelDia'
 
@@ -21,6 +22,7 @@ export default async function PaginaPrueba() {
         <BotonesDePrueba />
         <ResumenDelDia />
         <RestaurarDemo />
+        <NumerosReportados />
       </main>
       <BarraNavegacion rol={sesion.rol} />
     </>

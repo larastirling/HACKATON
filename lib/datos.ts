@@ -1,7 +1,7 @@
 import 'server-only'
 import { randomBytes, randomInt } from 'node:crypto'
 import { Redis } from '@upstash/redis'
-import type { Viaje } from './uber'
+import type { Viaje } from './viajes'
 import type { Pedido } from './whatsapp'
 
 // ─────────────────────────────────────────────────────────────
@@ -48,6 +48,13 @@ export interface Comercio {
   pedidoHabitual: string
   /** true si la familia tiene que aprobar cada pedido. Si se guardó sin esto, se toma como true (nunca libre por defecto). */
   necesitaPermiso: boolean
+  /**
+   * Para los que salieron del catálogo: quién confirmó que el número toma pedidos.
+   * "confirmado por la familia" vale solo para ESTA familia (el hijo dijo que ya le pidieron por ahí y funciona).
+   */
+  confirmacion?: { estado: 'confirmado por su web' | 'confirmado por la familia'; fecha: string; link?: string }
+  /** Fecha en que el hijo dijo que el número no anda: hasta que pase otro número, no se le arman pedidos. */
+  numeroNoAnda?: string
 }
 
 export interface Familiar {
@@ -79,6 +86,10 @@ export interface Reglas {
   fijas: typeof REGLAS_FIJAS
 }
 
+/** Cómo puede ir la persona mayor a los lugares. Lo elige la familia en /familia. */
+export const FORMAS_DE_VIAJAR = ['uber', 'caminando', 'colectivo'] as const
+export type FormaDeViajar = (typeof FORMAS_DE_VIAJAR)[number]
+
 export interface ConfiguracionAbuelo {
   codigoFamilia: string
   abuelo: Abuelo
@@ -86,6 +97,16 @@ export interface ConfiguracionAbuelo {
   comercios: Comercio[]
   familiares: Familiar[]
   reglas: Reglas
+  /**
+   * Formas de viajar que el asistente puede ofrecer. Si falta (familias de antes), solo Uber.
+   * Los permisos no cambian: un lugar "con permiso" se consulta igual, vaya como vaya.
+   */
+  formasDeViajar?: FormaDeViajar[]
+}
+
+/** Las formas de viajar de la familia (las de antes de que existiera el dato: solo Uber). */
+export function formasDeViajarDe(configuracion: Pick<ConfiguracionAbuelo, 'formasDeViajar'>): FormaDeViajar[] {
+  return configuracion.formasDeViajar ?? ['uber']
 }
 
 /** Abuelo de ejemplo que siempre existe, para probar sin cargar nada. */
@@ -146,6 +167,7 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
     abueloAceptoAvisos: true,
     fijas: REGLAS_FIJAS,
   },
+  formasDeViajar: ['uber', 'caminando', 'colectivo'],
 }
 
 // ── Almacenamiento ──────────────────────────────────────────
@@ -214,6 +236,7 @@ function completarConfiguracion(configuracion: ConfiguracionAbuelo): Configuraci
     abuelo: { ...configuracion.abuelo, direccion: configuracion.abuelo.direccion ?? PENDIENTE },
     comercios: configuracion.comercios.map((c) => ({ ...c, necesitaPermiso: c.necesitaPermiso ?? true })),
     reglas: { ...configuracion.reglas, fijas: REGLAS_FIJAS },
+    formasDeViajar: formasDeViajarDe(configuracion),
   }
 }
 
@@ -340,6 +363,13 @@ export function validarConfiguracion(dato: unknown): string[] {
     }
   })
   if (Array.isArray(c.familiares) && c.familiares.length === 0) errores.push('Tiene que haber al menos un familiar')
+
+  if (
+    c.formasDeViajar !== undefined &&
+    (!Array.isArray(c.formasDeViajar) || !c.formasDeViajar.every((f) => FORMAS_DE_VIAJAR.includes(f)))
+  ) {
+    errores.push(`"formasDeViajar" tiene que ser una lista con: ${FORMAS_DE_VIAJAR.join(', ')}`)
+  }
 
   if (!c.reglas || typeof c.reglas !== 'object') {
     errores.push('Falta "reglas"')
@@ -654,6 +684,37 @@ export async function leerDiario(codigoFamilia: string, fecha = fechaDeHoy()): P
 export async function familiasConDiario(fecha = fechaDeHoy()): Promise<string[]> {
   const prefijo = `diario:${fecha}:`
   return (await clavesQueEmpiezanCon(prefijo)).map((clave) => clave.slice(prefijo.length))
+}
+
+// ── Números de comercios que no andan (valen para TODAS las familias) ──
+// Cuando un hijo dice que el número de un comercio no anda, ese número deja de sugerirse a todas las familias
+// hasta que alguien del equipo lo revise y lo saque de acá (en /prueba, "Números reportados").
+
+export interface NumeroReportado {
+  /** El número tal cual lo tiene el comercio, ej. "+598 97 213 707" o "0800 4242". */
+  numero: string
+  comercio: string
+  cuando: string
+  codigoFamilia: string
+  /** Lo que escribió el hijo. */
+  loQueDijo: string
+}
+
+const claveNumeroReportado = (numero: string) => `numero-reportado:${numero.replace(/\D/g, '')}`
+
+export async function reportarNumero(reporte: NumeroReportado): Promise<void> {
+  await guardar(claveNumeroReportado(reporte.numero), reporte)
+}
+
+export async function leerNumerosReportados(): Promise<NumeroReportado[]> {
+  const claves = await clavesQueEmpiezanCon('numero-reportado:')
+  const reportes = await Promise.all(claves.map((clave) => leer<NumeroReportado>(clave)))
+  return reportes.filter((r): r is NumeroReportado => !!r).sort((a, b) => b.cuando.localeCompare(a.cuando))
+}
+
+/** Lo revisó alguien del equipo: el número vuelve a sugerirse. */
+export async function quitarReporteDeNumero(numero: string): Promise<void> {
+  await borrar(claveNumeroReportado(numero))
 }
 
 // ── Restaurar la familia DEMO (para usar antes de la demo) ──

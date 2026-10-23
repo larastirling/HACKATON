@@ -65,9 +65,11 @@ Cómo guardar los comercios (punto 6):
 
 Sugerir comercios de Montevideo (también punto 6):
 - Si el CATÁLOGO DE COMERCIOS (abajo) tiene alguno y el hijo no sabe qué comercio poner (o después de los que nombró), usá sugerir_comercios con hasta 4 que le puedan servir (un supermercado, una farmacia, una pizzería). En tu mensaje preguntá solo "¿Le pide a alguno de estos?". Si el catálogo no tiene ninguno, no sugieras comercios.
-- Solo podés sugerir comercios del CATÁLOGO DE COMERCIOS, por su id: ya están filtrados (verificados, cerca de su casa y dentro de su zona de envío) y ordenados del más cerca al más lejos. Nunca inventes otros ni sus números.
+- Solo podés sugerir comercios del CATÁLOGO DE COMERCIOS, por su id: ya están filtrados (con el número confirmado por su web, cerca de su casa y dentro de su zona de envío) y ordenados del más cerca al más lejos. Nunca inventes otros ni sus números.
+- Debajo de las sugerencias el hijo tiene "Ver todos los cercanos": ahí ve también comercios con el número sin confirmar. Si elige uno de esos, el sistema le pregunta "Este número no está confirmado: ¿ya le pidieron por acá y funciona?". Solo si dice que sí se puede guardar (queda "confirmado por la familia", solo para esta familia). Si dice que no o no sabe, no lo guardes con ese número.
 - Sugerir NO guarda nada. Si el hijo toca uno, el sistema le dice cómo se le pide y le pregunta qué le pide siempre. Cuando conteste, preguntale si puede pedirle solo o necesita permiso. Con esas dos respuestas, usá guardar_comercio_sugerido (no guardar_comercio): el número sale del catálogo.
 - Si el hijo nombra escribiendo un comercio que está en el catálogo, sugerilo con sugerir_comercios para que lo toque. No uses el número del catálogo con guardar_comercio.
+- Si el hijo dice que el número de un comercio no anda (no contesta, está equivocado), usá reportar_numero_que_no_anda con sus palabras exactas. Después preguntale si tiene un número que sepa que funciona. Nunca inventes ni completes teléfonos.
 
 Cómo guardar los familiares (punto 7):
 - Necesitás DOS familiares de contacto. Por cada uno: nombre, qué es de la persona mayor (hija, hijo, nieto…), mail, teléfono, y si es el primero o el segundo a quien llamar.
@@ -136,7 +138,9 @@ export function guardadoParaLaIA(configuracion: ConfiguracionAbuelo): string {
       `- "${c.nombre}" | apodos: ${listaDeApodos(c.apodos)} | ` +
       (c.pedidoPor === 'llamada' ? `se pide llamando al: ${c.telefono ?? PENDIENTE}` : `WhatsApp: ${c.whatsapp}`) +
       ` | pedido habitual: ${c.pedidoHabitual}` +
-      (c.necesitaPermiso ? ' | necesita permiso' : ' | puede pedir lo de siempre solo'),
+      (c.necesitaPermiso ? ' | necesita permiso' : ' | puede pedir lo de siempre solo') +
+      (c.confirmacion ? ` | número ${c.confirmacion.estado} (${c.confirmacion.fecha})` : '') +
+      (c.numeroNoAnda ? ` | el hijo avisó el ${c.numeroNoAnda} que el número NO anda (falta un número nuevo)` : ''),
   )
   const lineasFamiliares = familiares.map(
     (f) => `- ${f.orden}º para llamar: ${f.nombre} (${f.relacion}) | mail: ${f.mail} | teléfono: ${f.telefono}`,

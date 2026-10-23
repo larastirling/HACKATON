@@ -1,6 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
+import type { FormaDeViajar } from '@/lib/datos'
 import type { Emergencia, EsperaAprobacion, Estafa, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
 import { juntarNombres } from '@/lib/texto'
 import { consultarAprobacion, responderAlAbuelo } from './acciones'
@@ -199,15 +200,63 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
 }
 
 // Tarjeta con el destino y el botón de Uber. El auto lo pide el abuelo al tocar el botón.
+const TEXTO_DEL_BOTON: Record<FormaDeViajar, string> = {
+  uber: 'Ir en Uber',
+  caminando: 'Ir caminando',
+  colectivo: 'Ir en colectivo',
+}
+
+/** Lo que se le dice (y se le muestra) antes de abrir el mapa. */
+const ANTES_DE_ABRIR_EL_MAPA: Record<Exclude<FormaDeViajar, 'uber'>, string> = {
+  caminando: 'Le abro el mapa para ir caminando. Cuando se abra, toque "Iniciar" y siga la flecha azul.',
+  colectivo:
+    'Le abro el mapa con los colectivos. Ahí le muestra qué colectivo tomar, dónde está la parada y dónde bajarse.',
+}
+
+// Tarjeta del viaje: un botón grande por cada forma de viajar que activó la familia.
+// Uber abre la app (el auto lo pide el abuelo). Caminando y colectivo primero le explican en voz alta
+// qué va a pasar y después abren Google Maps con el destino puesto (en iPhone una app solo se abre con un toque).
 function TarjetaViaje({ viaje }: { viaje: Viaje }) {
+  const opciones = viaje.opciones ?? (viaje.link ? [{ forma: 'uber' as const, link: viaje.link }] : [])
+  const [elegida, setElegida] = useState<(typeof opciones)[number] | null>(null)
+
+  function elegir(opcion: (typeof opciones)[number]) {
+    if (opcion.forma === 'uber') return
+    setElegida(opcion)
+    decirEnVozAlta(ANTES_DE_ABRIR_EL_MAPA[opcion.forma], { enEsteToque: true })
+  }
+
   return (
     <section className="tarjeta-viaje" aria-label={`Viaje a ${viaje.nombre}`}>
       <p className="tarjeta-viaje-titulo">Viaje a</p>
       <p className="tarjeta-viaje-destino">{viaje.nombre}</p>
       <p className="tarjeta-viaje-direccion">{viaje.direccion}</p>
-      <a className="boton boton-uber" href={viaje.link} target="_blank" rel="noopener noreferrer">
-        Abrir Uber
-      </a>
+
+      {elegida && elegida.forma !== 'uber' ? (
+        <>
+          <p className="tarjeta-viaje-explicacion" role="status">
+            {ANTES_DE_ABRIR_EL_MAPA[elegida.forma]}
+          </p>
+          <a className={`boton boton-${elegida.forma}`} href={elegida.link} target="_blank" rel="noopener noreferrer">
+            Abrir el mapa
+          </a>
+          <button type="button" className="boton boton-secundario" onClick={() => setElegida(null)}>
+            Volver
+          </button>
+        </>
+      ) : (
+        opciones.map((opcion) =>
+          opcion.forma === 'uber' ? (
+            <a key={opcion.forma} className="boton boton-uber" href={opcion.link} target="_blank" rel="noopener noreferrer">
+              {TEXTO_DEL_BOTON.uber}
+            </a>
+          ) : (
+            <button key={opcion.forma} type="button" className={`boton boton-${opcion.forma}`} onClick={() => elegir(opcion)}>
+              {TEXTO_DEL_BOTON[opcion.forma]}
+            </button>
+          ),
+        )
+      )}
     </section>
   )
 }
@@ -321,7 +370,7 @@ function EsperandoAprobacion({
           const quien = resultado.familiar
           avisar.current(
             resultado.viaje
-              ? { de: 'ia', texto: `${quien} aprobó el viaje. Toque el botón verde para abrir Uber.`, viaje: resultado.viaje }
+              ? { de: 'ia', texto: `${quien} aprobó el viaje. Toque cómo quiere ir.`, viaje: resultado.viaje }
               : resultado.pedido
                 ? {
                     de: 'ia',
