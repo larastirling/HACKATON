@@ -9,6 +9,7 @@ import { borrar, HERRAMIENTA_BORRAR, HERRAMIENTA_PROPONER_BORRAR, proponerBorrar
 import { guardarComercio, HERRAMIENTA_GUARDAR_COMERCIO } from './comercios'
 import { guardarFamiliar, HERRAMIENTA_GUARDAR_FAMILIAR } from './familiares'
 import { guardadoParaLaIA, INSTRUCCIONES_FAMILIA, quienEscribeParaLaIA } from './instrucciones'
+import { guardarFormasDeViajar, HERRAMIENTA_GUARDAR_FORMAS_DE_VIAJAR } from './formas-de-viajar'
 import { HERRAMIENTA_UBICAR_CON_LINK, ubicarConLink } from './google-maps'
 import { guardarLugar, HERRAMIENTA_GUARDAR_LUGAR } from './lugares'
 import { guardarReglas, HERRAMIENTA_GUARDAR_REGLAS, HERRAMIENTA_MOSTRAR_REGLAS, mostrarReglas, type TablaReglas } from './reglas'
@@ -95,7 +96,7 @@ export interface MensajeCharla {
 }
 
 /** Lo que muestran los recuadros de /familia. */
-export type Guardado = Pick<ConfiguracionAbuelo, 'codigoFamilia' | 'abuelo' | 'lugares' | 'comercios' | 'familiares' | 'reglas'>
+export type Guardado = Pick<ConfiguracionAbuelo, 'codigoFamilia' | 'abuelo' | 'lugares' | 'comercios' | 'familiares' | 'reglas' | 'formasDeViajar'>
 
 export type RespuestaFamilia = RespuestaIA & {
   guardado?: Guardado
@@ -236,6 +237,7 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
       HERRAMIENTA_GUARDAR_LUGAR,
       HERRAMIENTA_UBICAR_CON_LINK,
       HERRAMIENTA_BUSCAR_EN_EL_MAPA,
+      HERRAMIENTA_GUARDAR_FORMAS_DE_VIAJAR,
       ...(herramientaSugerir ? [herramientaSugerir, HERRAMIENTA_GUARDAR_LUGAR_SUGERIDO] : []),
       HERRAMIENTA_GUARDAR_COMERCIO,
       HERRAMIENTA_REPORTAR_NUMERO,
@@ -259,6 +261,8 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
             if (resultado.sugerencias) sugerencias = resultado.sugerencias
             return resultado.texto
           })
+        case HERRAMIENTA_GUARDAR_FORMAS_DE_VIAJAR.name:
+          return guardarFormasDeViajar(codigo, bloque.input)
         case HERRAMIENTA_BUSCAR_EN_EL_MAPA.name:
           return buscarEnElMapa(configuracionAhora, bloque.input).then((resultado) => {
             if (resultado.sugerencias) sugerencias = resultado.sugerencias
@@ -431,8 +435,8 @@ async function dejarUnaSolaPregunta(respuesta: Extract<RespuestaIA, { ok: true }
   return quedaUna ? reescrita : respuesta
 }
 
-function soloGuardado({ codigoFamilia, abuelo, lugares, comercios, familiares, reglas }: ConfiguracionAbuelo): Guardado {
-  return { codigoFamilia, abuelo, lugares, comercios, familiares, reglas }
+function soloGuardado({ codigoFamilia, abuelo, lugares, comercios, familiares, reglas, formasDeViajar }: ConfiguracionAbuelo): Guardado {
+  return { codigoFamilia, abuelo, lugares, comercios, familiares, reglas, formasDeViajar }
 }
 
 function esCharlaValida(mensajes: unknown): mensajes is MensajeCharla[] {

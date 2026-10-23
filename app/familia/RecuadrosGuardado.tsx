@@ -5,10 +5,11 @@ import estilos from './charla.module.css'
 // (cantidad -1 = recuadro sin contador)
 
 const PENDIENTE = 'PENDIENTE' // igual que en lib/datos.ts (ese archivo solo corre en el servidor)
+const COMO_VA = { uber: 'En Uber', caminando: 'Caminando (cerca)', colectivo: 'En colectivo' } as const
 const apodos = (lista: string[]) => lista.map((a) => `“${a}”`).join(', ')
 
 export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) {
-  const { codigoFamilia, abuelo, lugares, comercios, familiares, reglas } = guardado
+  const { codigoFamilia, abuelo, lugares, comercios, familiares, reglas, formasDeViajar } = guardado
   const conPermiso = lugares.filter((l) => l.necesitaPermiso).map((l) => l.nombre)
   return (
     <>
@@ -26,6 +27,10 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
         </li>
         <li>
           <Estado ok={abuelo.direccion !== PENDIENTE} si={`Vive en ${abuelo.direccion}`} no="Falta su dirección (va en los pedidos)" />
+        </li>
+        <li>
+          {/* Si nunca se eligió, solo Uber (igual que formasDeViajarDe en lib/datos.ts) */}
+          <strong>Puede ir:</strong> {(formasDeViajar ?? ['uber']).map((f) => COMO_VA[f]).join(' · ') || 'no se le ofrecen viajes'}
         </li>
       </Recuadro>
 

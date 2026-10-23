@@ -23,6 +23,7 @@ export default async function PaginaFamilia() {
             comercios: configuracion.comercios,
             familiares: configuracion.familiares,
             reglas: configuracion.reglas,
+            formasDeViajar: configuracion.formasDeViajar,
           }}
         />
       </main>
