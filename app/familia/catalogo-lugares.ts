@@ -546,6 +546,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1382965
   },
   {
+    "id": "abitab-las-piedras",
+    "nombre": "Abitab (Las Piedras)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7273373,
+    "longitud": -56.2229553
+  },
+  {
     "id": "abitab-nuevo-paris",
     "nombre": "Abitab (Nuevo París)",
     "tipo": "Pagos",
@@ -554,6 +564,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8424514,
     "longitud": -56.2418253
+  },
+  {
+    "id": "abitab-tres-ombues",
+    "nombre": "Abitab (Tres Ombúes)",
+    "tipo": "Pagos",
+    "direccion": "Rivera Indarte, Tres Ombúes",
+    "barrio": "Tres Ombúes",
+    "ciudad": "Montevideo",
+    "latitud": -34.8660558,
+    "longitud": -56.2363909
+  },
+  {
+    "id": "abitab-cerro",
+    "nombre": "Abitab (Cerro)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Carlos María Ramírez, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8739303,
+    "longitud": -56.2512588
   },
   {
     "id": "abitab-casabo",
@@ -596,16 +626,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2216803
   },
   {
-    "id": "abitab-las-acacias",
-    "nombre": "Abitab (Las Acacias)",
-    "tipo": "Pagos",
-    "direccion": "Avenida General San Martín 4250, Las Acacias",
-    "barrio": "Las Acacias",
-    "ciudad": "Montevideo",
-    "latitud": -34.8484013,
-    "longitud": -56.1698684
-  },
-  {
     "id": "abitab-reducto",
     "nombre": "Abitab (Reducto)",
     "tipo": "Pagos",
@@ -644,6 +664,36 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8596709,
     "longitud": -56.1338906
+  },
+  {
+    "id": "abitab-las-acacias",
+    "nombre": "Abitab (Las Acacias)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General San Martín 4250, Las Acacias",
+    "barrio": "Las Acacias",
+    "ciudad": "Montevideo",
+    "latitud": -34.8484013,
+    "longitud": -56.1698684
+  },
+  {
+    "id": "abitab-jacinto-vera",
+    "nombre": "Abitab (Jacinto Vera)",
+    "tipo": "Pagos",
+    "direccion": "Bulevar General Artigas 3003, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.871702,
+    "longitud": -56.1677396
+  },
+  {
+    "id": "abitab-la-figurita",
+    "nombre": "Abitab (La Figurita)",
+    "tipo": "Pagos",
+    "direccion": "Bulevar General Artigas 3528, La Figurita",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.870417,
+    "longitud": -56.1794184
   },
   {
     "id": "abitab-atahualpa",
@@ -686,6 +736,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1931716
   },
   {
+    "id": "abitab-bolivar",
+    "nombre": "Abitab (Bolívar)",
+    "tipo": "Pagos",
+    "direccion": "Bulevar José Batlle y Ordóñez, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8692176,
+    "longitud": -56.1614108
+  },
+  {
     "id": "abitab-brazo-oriental",
     "nombre": "Abitab (Brazo Oriental)",
     "tipo": "Pagos",
@@ -706,6 +766,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2008037
   },
   {
+    "id": "abitab-prado",
+    "nombre": "Abitab (Prado)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Agraciada, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8652984,
+    "longitud": -56.2100819
+  },
+  {
+    "id": "abitab-capurro",
+    "nombre": "Abitab (Capurro)",
+    "tipo": "Pagos",
+    "direccion": "Capurro, Capurro",
+    "barrio": "Capurro",
+    "ciudad": "Montevideo",
+    "latitud": -34.870678,
+    "longitud": -56.2112071
+  },
+  {
     "id": "abitab-maronas",
     "nombre": "Abitab (Maroñas)",
     "tipo": "Pagos",
@@ -714,6 +794,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8652073,
     "longitud": -56.1216539
+  },
+  {
+    "id": "abitab-carrasco",
+    "nombre": "Abitab (Carrasco)",
+    "tipo": "Pagos",
+    "direccion": "Cooper, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8799545,
+    "longitud": -56.067347
   },
   {
     "id": "abitab-parque-miramar",
@@ -746,6 +836,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1888788
   },
   {
+    "id": "abitab-buceo",
+    "nombre": "Abitab (Buceo)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General Rivera, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.899928,
+    "longitud": -56.1298932
+  },
+  {
     "id": "abitab-larranaga",
     "nombre": "Abitab (Larrañaga)",
     "tipo": "Pagos",
@@ -764,6 +864,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8811244,
     "longitud": -56.1660231
+  },
+  {
+    "id": "abitab-parque-rodo",
+    "nombre": "Abitab (Parque Rodó)",
+    "tipo": "Pagos",
+    "direccion": "Juan Paullier, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9022334,
+    "longitud": -56.1678338
+  },
+  {
+    "id": "abitab-cordon",
+    "nombre": "Abitab (Cordón)",
+    "tipo": "Pagos",
+    "direccion": "Avenida 18 de Julio 1969, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.900729,
+    "longitud": -56.1733151
   },
   {
     "id": "abitab-palermo",
@@ -826,116 +946,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9819016
   },
   {
-    "id": "abitab-buceo",
-    "nombre": "Abitab (Buceo)",
-    "tipo": "Pagos",
-    "direccion": "Avenida General Rivera, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.899928,
-    "longitud": -56.1298932
-  },
-  {
-    "id": "abitab-carrasco",
-    "nombre": "Abitab (Carrasco)",
-    "tipo": "Pagos",
-    "direccion": "Cooper, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8799545,
-    "longitud": -56.067347
-  },
-  {
-    "id": "abitab-prado",
-    "nombre": "Abitab (Prado)",
-    "tipo": "Pagos",
-    "direccion": "Avenida Agraciada, Prado",
-    "barrio": "Prado",
-    "ciudad": "Montevideo",
-    "latitud": -34.8652984,
-    "longitud": -56.2100819
-  },
-  {
-    "id": "abitab-cerro",
-    "nombre": "Abitab (Cerro)",
-    "tipo": "Pagos",
-    "direccion": "Avenida Carlos María Ramírez, Cerro",
-    "barrio": "Cerro",
-    "ciudad": "Montevideo",
-    "latitud": -34.8739303,
-    "longitud": -56.2512588
-  },
-  {
-    "id": "abitab-parque-rodo",
-    "nombre": "Abitab (Parque Rodó)",
-    "tipo": "Pagos",
-    "direccion": "Juan Paullier, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9022334,
-    "longitud": -56.1678338
-  },
-  {
-    "id": "abitab-las-piedras",
-    "nombre": "Abitab (Las Piedras)",
-    "tipo": "Pagos",
-    "direccion": "Avenida General Artigas, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.7273373,
-    "longitud": -56.2229553
-  },
-  {
-    "id": "abitab-tres-ombues",
-    "nombre": "Abitab (Tres Ombúes)",
-    "tipo": "Pagos",
-    "direccion": "Rivera Indarte, Tres Ombúes",
-    "barrio": "Tres Ombúes",
-    "ciudad": "Montevideo",
-    "latitud": -34.8660558,
-    "longitud": -56.2363909
-  },
-  {
-    "id": "abitab-jacinto-vera",
-    "nombre": "Abitab (Jacinto Vera)",
-    "tipo": "Pagos",
-    "direccion": "Bulevar General Artigas 3003, Jacinto Vera",
-    "barrio": "Jacinto Vera",
-    "ciudad": "Montevideo",
-    "latitud": -34.871702,
-    "longitud": -56.1677396
-  },
-  {
-    "id": "abitab-la-figurita",
-    "nombre": "Abitab (La Figurita)",
-    "tipo": "Pagos",
-    "direccion": "Bulevar General Artigas 3528, La Figurita",
-    "barrio": "La Figurita",
-    "ciudad": "Montevideo",
-    "latitud": -34.870417,
-    "longitud": -56.1794184
-  },
-  {
-    "id": "abitab-bolivar",
-    "nombre": "Abitab (Bolívar)",
-    "tipo": "Pagos",
-    "direccion": "Bulevar José Batlle y Ordóñez, Bolívar",
-    "barrio": "Bolívar",
-    "ciudad": "Montevideo",
-    "latitud": -34.8692176,
-    "longitud": -56.1614108
-  },
-  {
-    "id": "abitab-capurro",
-    "nombre": "Abitab (Capurro)",
-    "tipo": "Pagos",
-    "direccion": "Capurro, Capurro",
-    "barrio": "Capurro",
-    "ciudad": "Montevideo",
-    "latitud": -34.870678,
-    "longitud": -56.2112071
-  },
-  {
     "id": "redpagos-larranaga",
     "nombre": "RedPagos (Larrañaga)",
     "tipo": "Pagos",
@@ -956,6 +966,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2546879
   },
   {
+    "id": "redpagos-tres-cruces",
+    "nombre": "RedPagos (Tres Cruces)",
+    "tipo": "Pagos",
+    "direccion": "Palmar 2311, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.9008718,
+    "longitud": -56.1649171
+  },
+  {
     "id": "redpagos-flor-de-maronas",
     "nombre": "RedPagos (Flor de Maroñas)",
     "tipo": "Pagos",
@@ -966,6 +986,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1324179
   },
   {
+    "id": "redpagos-union",
+    "nombre": "RedPagos (Unión)",
+    "tipo": "Pagos",
+    "direccion": "Avenida 8 de Octubre, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8706903,
+    "longitud": -56.1353073
+  },
+  {
     "id": "redpagos-la-teja",
     "nombre": "RedPagos (La Teja)",
     "tipo": "Pagos",
@@ -974,6 +1004,56 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8582611,
     "longitud": -56.2257409
+  },
+  {
+    "id": "redpagos-la-figurita",
+    "nombre": "RedPagos (La Figurita)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General Flores, La Figurita",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.8732549,
+    "longitud": -56.1771237
+  },
+  {
+    "id": "redpagos-pocitos",
+    "nombre": "RedPagos (Pocitos)",
+    "tipo": "Pagos",
+    "direccion": "26 de Marzo 1366, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.907833,
+    "longitud": -56.146049
+  },
+  {
+    "id": "redpagos-malvin-nuevo",
+    "nombre": "RedPagos (Malvín Nuevo)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Italia 4206, Malvín Nuevo",
+    "barrio": "Malvín Nuevo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8879241,
+    "longitud": -56.1177325
+  },
+  {
+    "id": "redpagos-cordon",
+    "nombre": "RedPagos (Cordón)",
+    "tipo": "Pagos",
+    "direccion": "Gaboto, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9045705,
+    "longitud": -56.1774356
+  },
+  {
+    "id": "redpagos-parque-rodo",
+    "nombre": "RedPagos (Parque Rodó)",
+    "tipo": "Pagos",
+    "direccion": "Canelones, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9074364,
+    "longitud": -56.1720938
   },
   {
     "id": "redpagos-perez-castellanos",
@@ -996,6 +1076,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1639142
   },
   {
+    "id": "redpagos-bolivar",
+    "nombre": "RedPagos (Bolívar)",
+    "tipo": "Pagos",
+    "direccion": "Bulevar José Batlle y Ordóñez 3770, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8655158,
+    "longitud": -56.1644882
+  },
+  {
+    "id": "redpagos-punta-carretas",
+    "nombre": "RedPagos (Punta Carretas)",
+    "tipo": "Pagos",
+    "direccion": "21 de Setiembre, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9197237,
+    "longitud": -56.1520818
+  },
+  {
     "id": "redpagos-parque-batlle",
     "nombre": "RedPagos (Parque Batlle)",
     "tipo": "Pagos",
@@ -1016,76 +1116,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1821852
   },
   {
-    "id": "redpagos-solymar",
-    "nombre": "RedPagos (Solymar)",
-    "tipo": "Pagos",
-    "direccion": "Adela Reta, Solymar, Ciudad de la Costa",
-    "barrio": "Solymar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.815994,
-    "longitud": -55.9796047
-  },
-  {
-    "id": "redpagos-cordon",
-    "nombre": "RedPagos (Cordón)",
-    "tipo": "Pagos",
-    "direccion": "Gaboto, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.9045705,
-    "longitud": -56.1774356
-  },
-  {
-    "id": "redpagos-malvin-nuevo",
-    "nombre": "RedPagos (Malvín Nuevo)",
-    "tipo": "Pagos",
-    "direccion": "Avenida Italia 4206, Malvín Nuevo",
-    "barrio": "Malvín Nuevo",
-    "ciudad": "Montevideo",
-    "latitud": -34.8879241,
-    "longitud": -56.1177325
-  },
-  {
-    "id": "redpagos-union",
-    "nombre": "RedPagos (Unión)",
-    "tipo": "Pagos",
-    "direccion": "Avenida 8 de Octubre, Unión",
-    "barrio": "Unión",
-    "ciudad": "Montevideo",
-    "latitud": -34.8706903,
-    "longitud": -56.1353073
-  },
-  {
-    "id": "redpagos-parque-rodo",
-    "nombre": "RedPagos (Parque Rodó)",
-    "tipo": "Pagos",
-    "direccion": "Canelones, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9074364,
-    "longitud": -56.1720938
-  },
-  {
-    "id": "redpagos-la-figurita",
-    "nombre": "RedPagos (La Figurita)",
-    "tipo": "Pagos",
-    "direccion": "Avenida General Flores, La Figurita",
-    "barrio": "La Figurita",
-    "ciudad": "Montevideo",
-    "latitud": -34.8732549,
-    "longitud": -56.1771237
-  },
-  {
-    "id": "redpagos-bolivar",
-    "nombre": "RedPagos (Bolívar)",
-    "tipo": "Pagos",
-    "direccion": "Bulevar José Batlle y Ordóñez 3770, Bolívar",
-    "barrio": "Bolívar",
-    "ciudad": "Montevideo",
-    "latitud": -34.8655158,
-    "longitud": -56.1644882
-  },
-  {
     "id": "redpagos-las-piedras",
     "nombre": "RedPagos (Las Piedras)",
     "tipo": "Pagos",
@@ -1096,34 +1126,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2235958
   },
   {
-    "id": "redpagos-pocitos",
-    "nombre": "RedPagos (Pocitos)",
+    "id": "redpagos-solymar",
+    "nombre": "RedPagos (Solymar)",
     "tipo": "Pagos",
-    "direccion": "26 de Marzo 1366, Pocitos",
-    "barrio": "Pocitos",
-    "ciudad": "Montevideo",
-    "latitud": -34.907833,
-    "longitud": -56.146049
-  },
-  {
-    "id": "redpagos-punta-carretas",
-    "nombre": "RedPagos (Punta Carretas)",
-    "tipo": "Pagos",
-    "direccion": "21 de Setiembre, Punta Carretas",
-    "barrio": "Punta Carretas",
-    "ciudad": "Montevideo",
-    "latitud": -34.9197237,
-    "longitud": -56.1520818
-  },
-  {
-    "id": "redpagos-tres-cruces",
-    "nombre": "RedPagos (Tres Cruces)",
-    "tipo": "Pagos",
-    "direccion": "Palmar 2311, Tres Cruces",
-    "barrio": "Tres Cruces",
-    "ciudad": "Montevideo",
-    "latitud": -34.9008718,
-    "longitud": -56.1649171
+    "direccion": "Adela Reta, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.815994,
+    "longitud": -55.9796047
   },
   {
     "id": "casmu-colon",
@@ -1134,16 +1144,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.804216,
     "longitud": -56.2240559
-  },
-  {
-    "id": "casmu-solymar",
-    "nombre": "CASMU (Solymar)",
-    "tipo": "Salud",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Solymar, Ciudad de la Costa",
-    "barrio": "Solymar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8245528,
-    "longitud": -55.9620384
   },
   {
     "id": "casmu-malvin",
@@ -1166,24 +1166,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1649706
   },
   {
-    "id": "medica-uruguaya-el-pinar",
-    "nombre": "Médica Uruguaya (El Pinar)",
+    "id": "casmu-solymar",
+    "nombre": "CASMU (Solymar)",
     "tipo": "Salud",
-    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8012849,
-    "longitud": -55.9194114
-  },
-  {
-    "id": "medica-uruguaya-parque-de-carrasco",
-    "nombre": "Médica Uruguaya (Parque de Carrasco)",
-    "tipo": "Salud",
-    "direccion": "Avenida Ingeniero Luis Giannattasio 0402, Parque de Carrasco, Ciudad de la Costa",
-    "barrio": "Parque de Carrasco",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8534632,
-    "longitud": -56.0088858
+    "latitud": -34.8245528,
+    "longitud": -55.9620384
   },
   {
     "id": "medica-uruguaya-tres-ombues",
@@ -1216,6 +1206,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2223104
   },
   {
+    "id": "medica-uruguaya-el-pinar",
+    "nombre": "Médica Uruguaya (El Pinar)",
+    "tipo": "Salud",
+    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8012849,
+    "longitud": -55.9194114
+  },
+  {
+    "id": "medica-uruguaya-parque-de-carrasco",
+    "nombre": "Médica Uruguaya (Parque de Carrasco)",
+    "tipo": "Salud",
+    "direccion": "Avenida Ingeniero Luis Giannattasio 0402, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8534632,
+    "longitud": -56.0088858
+  },
+  {
     "id": "smi-union",
     "nombre": "SMI (Unión)",
     "tipo": "Salud",
@@ -1234,6 +1244,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Ciudad de la Costa",
     "latitud": -34.8229585,
     "longitud": -55.9589653
+  },
+  {
+    "id": "asociacion-espanola-colon",
+    "nombre": "Asociación Española (Colón)",
+    "tipo": "Salud",
+    "direccion": "Margarita, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8025152,
+    "longitud": -56.2241313
   },
   {
     "id": "asociacion-espanola-paso-molino",
@@ -1256,16 +1276,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2044088
   },
   {
-    "id": "asociacion-espanola-colon",
-    "nombre": "Asociación Española (Colón)",
-    "tipo": "Salud",
-    "direccion": "Margarita, Colón",
-    "barrio": "Colón",
-    "ciudad": "Montevideo",
-    "latitud": -34.8025152,
-    "longitud": -56.2241313
-  },
-  {
     "id": "asociacion-espanola-solymar",
     "nombre": "Asociación Española (Solymar)",
     "tipo": "Salud",
@@ -1274,16 +1284,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Ciudad de la Costa",
     "latitud": -34.8303442,
     "longitud": -55.9723358
-  },
-  {
-    "id": "circulo-catolico-lagomar",
-    "nombre": "Círculo Católico (Lagomar)",
-    "tipo": "Salud",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
-    "barrio": "Lagomar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8327205,
-    "longitud": -55.9789748
   },
   {
     "id": "circulo-catolico-palermo",
@@ -1306,14 +1306,24 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2244282
   },
   {
-    "id": "cosem-lagomar",
-    "nombre": "COSEM (Lagomar)",
+    "id": "circulo-catolico-lagomar",
+    "nombre": "Círculo Católico (Lagomar)",
     "tipo": "Salud",
     "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
     "barrio": "Lagomar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.835924,
-    "longitud": -55.9830384
+    "latitud": -34.8327205,
+    "longitud": -55.9789748
+  },
+  {
+    "id": "cosem-tres-cruces",
+    "nombre": "COSEM (Tres Cruces)",
+    "tipo": "Salud",
+    "direccion": "Doctor Gastón Ramón 2330, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8998894,
+    "longitud": -56.163191
   },
   {
     "id": "cosem-malvin-nuevo",
@@ -1326,54 +1336,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1197775
   },
   {
-    "id": "asse",
-    "nombre": "ASSE",
+    "id": "cosem-lagomar",
+    "nombre": "COSEM (Lagomar)",
     "tipo": "Salud",
-    "direccion": "Cuacziola 5645, Barrio Abayubá",
-    "barrio": "Barrio Abayubá",
-    "ciudad": "Montevideo",
-    "latitud": -34.7673669,
-    "longitud": -56.2245405
-  },
-  {
-    "id": "policlinica-las-retamas",
-    "nombre": "Policlínica Las Retamas",
-    "tipo": "Salud",
-    "direccion": "Picaflor, Sayago",
-    "barrio": "Sayago",
-    "ciudad": "Montevideo",
-    "latitud": -34.821908,
-    "longitud": -56.2322243
-  },
-  {
-    "id": "centro-de-salud-union",
-    "nombre": "Centro de Salud Unión",
-    "tipo": "Salud",
-    "direccion": "Vicenza 2815, Maroñas",
-    "barrio": "Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8574758,
-    "longitud": -56.1316348
-  },
-  {
-    "id": "policlinica-pinar-norte",
-    "nombre": "Policlinica Pinar Norte",
-    "tipo": "Salud",
-    "direccion": "Avenida Eduardo Pérez Robido, Lomas de Solymar, Ciudad de la Costa",
-    "barrio": "Lomas de Solymar",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8003129,
-    "longitud": -55.9394116
-  },
-  {
-    "id": "policlinica-de-todos",
-    "nombre": "Policlínica De Todos",
-    "tipo": "Salud",
-    "direccion": "Interlagos, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.787964,
-    "longitud": -55.9242124
+    "latitud": -34.835924,
+    "longitud": -55.9830384
   },
   {
     "id": "policlinica-doctor-yanicelli",
@@ -1386,6 +1356,36 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1188256
   },
   {
+    "id": "policlinica-las-retamas",
+    "nombre": "Policlínica Las Retamas",
+    "tipo": "Salud",
+    "direccion": "Picaflor, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.821908,
+    "longitud": -56.2322243
+  },
+  {
+    "id": "asse",
+    "nombre": "ASSE",
+    "tipo": "Salud",
+    "direccion": "Cuacziola 5645, Barrio Abayubá",
+    "barrio": "Barrio Abayubá",
+    "ciudad": "Montevideo",
+    "latitud": -34.7673669,
+    "longitud": -56.2245405
+  },
+  {
+    "id": "centro-de-salud-union",
+    "nombre": "Centro de Salud Unión",
+    "tipo": "Salud",
+    "direccion": "Vicenza 2815, Maroñas",
+    "barrio": "Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8574758,
+    "longitud": -56.1316348
+  },
+  {
     "id": "policlinica-solymar",
     "nombre": "Policlínica (Solymar)",
     "tipo": "Salud",
@@ -1396,34 +1396,24 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9622611
   },
   {
-    "id": "disco-villa-garcia",
-    "nombre": "Disco (Villa García)",
-    "tipo": "Supermercado",
-    "direccion": "Dionisio Fernández, Villa García",
-    "barrio": "Villa García",
-    "ciudad": "Montevideo",
-    "latitud": -34.8020344,
-    "longitud": -56.086493
+    "id": "policlinica-de-todos",
+    "nombre": "Policlínica De Todos",
+    "tipo": "Salud",
+    "direccion": "Interlagos, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.787964,
+    "longitud": -55.9242124
   },
   {
-    "id": "disco-barrio-sur",
-    "nombre": "Disco (Barrio Sur)",
-    "tipo": "Supermercado",
-    "direccion": "Maldonado, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9099806,
-    "longitud": -56.194065
-  },
-  {
-    "id": "disco-buceo",
-    "nombre": "Disco (Buceo)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida Mariscal Francisco Solano López, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.8916336,
-    "longitud": -56.1250928
+    "id": "policlinica-pinar-norte",
+    "nombre": "Policlinica Pinar Norte",
+    "tipo": "Salud",
+    "direccion": "Avenida Eduardo Pérez Robido, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8003129,
+    "longitud": -55.9394116
   },
   {
     "id": "disco-flor-de-maronas",
@@ -1436,6 +1426,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1324659
   },
   {
+    "id": "disco-la-figurita",
+    "nombre": "Disco (La Figurita)",
+    "tipo": "Supermercado",
+    "direccion": "Marcelino Sosa, La Figurita",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.8778301,
+    "longitud": -56.1809235
+  },
+  {
     "id": "disco-parque-batlle",
     "nombre": "Disco (Parque Batlle)",
     "tipo": "Supermercado",
@@ -1444,6 +1444,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8945297,
     "longitud": -56.1445551
+  },
+  {
+    "id": "disco-villa-garcia",
+    "nombre": "Disco (Villa García)",
+    "tipo": "Supermercado",
+    "direccion": "Dionisio Fernández, Villa García",
+    "barrio": "Villa García",
+    "ciudad": "Montevideo",
+    "latitud": -34.8020344,
+    "longitud": -56.086493
+  },
+  {
+    "id": "disco-buceo",
+    "nombre": "Disco (Buceo)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Mariscal Francisco Solano López, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8916336,
+    "longitud": -56.1250928
   },
   {
     "id": "disco-cordon",
@@ -1456,14 +1476,44 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1776808
   },
   {
-    "id": "disco-la-figurita",
-    "nombre": "Disco (La Figurita)",
+    "id": "disco-centro",
+    "nombre": "Disco (Centro)",
     "tipo": "Supermercado",
-    "direccion": "Marcelino Sosa, La Figurita",
-    "barrio": "La Figurita",
+    "direccion": "Ejido 1530, Centro",
+    "barrio": "Centro",
     "ciudad": "Montevideo",
-    "latitud": -34.8778301,
-    "longitud": -56.1809235
+    "latitud": -34.9021589,
+    "longitud": -56.1867062
+  },
+  {
+    "id": "disco-pocitos",
+    "nombre": "Disco (Pocitos)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Doctor Francisco Soca 1318, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9055318,
+    "longitud": -56.1547295
+  },
+  {
+    "id": "disco-punta-carretas",
+    "nombre": "Disco (Punta Carretas)",
+    "tipo": "Supermercado",
+    "direccion": "Obligado 968, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9132726,
+    "longitud": -56.1601252
+  },
+  {
+    "id": "disco-barrio-sur",
+    "nombre": "Disco (Barrio Sur)",
+    "tipo": "Supermercado",
+    "direccion": "Maldonado, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9099806,
+    "longitud": -56.194065
   },
   {
     "id": "disco-palermo",
@@ -1476,14 +1526,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1838399
   },
   {
-    "id": "devoto-villa-munoz",
-    "nombre": "Devoto (Villa Muñoz)",
+    "id": "devoto-prado",
+    "nombre": "Devoto (Prado)",
     "tipo": "Supermercado",
-    "direccion": "Arenal Grande 2006, Villa Muñoz",
-    "barrio": "Villa Muñoz",
+    "direccion": "Avenida Agraciada 3655, Prado",
+    "barrio": "Prado",
     "ciudad": "Montevideo",
-    "latitud": -34.8925868,
-    "longitud": -56.1807314
+    "latitud": -34.8655409,
+    "longitud": -56.2102483
   },
   {
     "id": "devoto-punta-gorda",
@@ -1496,26 +1546,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.0808892
   },
   {
-    "id": "devoto-prado",
-    "nombre": "Devoto (Prado)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida Agraciada 3655, Prado",
-    "barrio": "Prado",
-    "ciudad": "Montevideo",
-    "latitud": -34.8655409,
-    "longitud": -56.2102483
-  },
-  {
-    "id": "devoto-las-piedras",
-    "nombre": "Devoto (Las Piedras)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida Instrucciones del Año XIII, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.727933,
-    "longitud": -56.2240597
-  },
-  {
     "id": "devoto-union",
     "nombre": "Devoto (Unión)",
     "tipo": "Supermercado",
@@ -1524,6 +1554,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8765368,
     "longitud": -56.1437821
+  },
+  {
+    "id": "devoto-villa-munoz",
+    "nombre": "Devoto (Villa Muñoz)",
+    "tipo": "Supermercado",
+    "direccion": "Arenal Grande 2006, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8925868,
+    "longitud": -56.1807314
   },
   {
     "id": "devoto-centro",
@@ -1536,34 +1576,24 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1887585
   },
   {
-    "id": "tienda-inglesa-aires-puros",
-    "nombre": "Tienda Inglesa (Aires Puros)",
+    "id": "devoto-las-piedras",
+    "nombre": "Devoto (Las Piedras)",
     "tipo": "Supermercado",
-    "direccion": "Avenida Luis Alberto de Herrera 4462, Aires Puros",
-    "barrio": "Aires Puros",
-    "ciudad": "Montevideo",
-    "latitud": -34.8568742,
-    "longitud": -56.1952529
+    "direccion": "Avenida Instrucciones del Año XIII, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.727933,
+    "longitud": -56.2240597
   },
   {
-    "id": "tienda-inglesa-carrasco",
-    "nombre": "Tienda Inglesa (Carrasco)",
+    "id": "devoto-malvin-nuevo",
+    "nombre": "Devoto (Malvín Nuevo)",
     "tipo": "Supermercado",
-    "direccion": "Doctor Alejandro Schroeder 6436, Carrasco",
-    "barrio": "Carrasco",
+    "direccion": "Hipólito Yrigoyen 1444, Malvín Nuevo",
+    "barrio": "Malvín Nuevo",
     "ciudad": "Montevideo",
-    "latitud": -34.8879461,
-    "longitud": -56.0582581
-  },
-  {
-    "id": "tienda-inglesa-buceo",
-    "nombre": "Tienda Inglesa (Buceo)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.90265,
-    "longitud": -56.1363019
+    "latitud": -34.8948828,
+    "longitud": -56.1075481
   },
   {
     "id": "tienda-inglesa-punta-gorda",
@@ -1586,6 +1616,66 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1646189
   },
   {
+    "id": "tienda-inglesa-carrasco",
+    "nombre": "Tienda Inglesa (Carrasco)",
+    "tipo": "Supermercado",
+    "direccion": "Doctor Alejandro Schroeder 6436, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8879461,
+    "longitud": -56.0582581
+  },
+  {
+    "id": "tienda-inglesa-aires-puros",
+    "nombre": "Tienda Inglesa (Aires Puros)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Luis Alberto de Herrera 4462, Aires Puros",
+    "barrio": "Aires Puros",
+    "ciudad": "Montevideo",
+    "latitud": -34.8568742,
+    "longitud": -56.1952529
+  },
+  {
+    "id": "tienda-inglesa-pocitos",
+    "nombre": "Tienda Inglesa (Pocitos)",
+    "tipo": "Supermercado",
+    "direccion": "Libertad 2479, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9116169,
+    "longitud": -56.1597503
+  },
+  {
+    "id": "tienda-inglesa-buceo",
+    "nombre": "Tienda Inglesa (Buceo)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.90265,
+    "longitud": -56.1363019
+  },
+  {
+    "id": "tienda-inglesa-cordon",
+    "nombre": "Tienda Inglesa (Cordón)",
+    "tipo": "Supermercado",
+    "direccion": "Mercedes 1615, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8994948,
+    "longitud": -56.1755488
+  },
+  {
+    "id": "tienda-inglesa-union",
+    "nombre": "Tienda Inglesa (Unión)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida 8 de Octubre 4086, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8708636,
+    "longitud": -56.1349453
+  },
+  {
     "id": "tienda-inglesa-lagomar",
     "nombre": "Tienda Inglesa (Lagomar)",
     "tipo": "Supermercado",
@@ -1594,96 +1684,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Ciudad de la Costa",
     "latitud": -34.8348003,
     "longitud": -55.9801717
-  },
-  {
-    "id": "ta-ta-ituzaingo",
-    "nombre": "Ta-Ta (Ituzaingó)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida Dámaso Antonio Larrañaga, Ituzaingó",
-    "barrio": "Ituzaingó",
-    "ciudad": "Montevideo",
-    "latitud": -34.8598967,
-    "longitud": -56.1515361
-  },
-  {
-    "id": "ta-ta-piedras-blancas",
-    "nombre": "Ta-Ta (Piedras Blancas)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida José Belloni, Piedras Blancas",
-    "barrio": "Piedras Blancas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8230197,
-    "longitud": -56.1410115
-  },
-  {
-    "id": "ta-ta-aires-puros",
-    "nombre": "Ta-Ta (Aires Puros)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida Costanera Felipe Carapé 4478, Aires Puros",
-    "barrio": "Aires Puros",
-    "ciudad": "Montevideo",
-    "latitud": -34.8534893,
-    "longitud": -56.1940599
-  },
-  {
-    "id": "ta-ta-reducto",
-    "nombre": "Ta-Ta (Reducto)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida General San Martín 2700, Reducto",
-    "barrio": "Reducto",
-    "ciudad": "Montevideo",
-    "latitud": -34.8765944,
-    "longitud": -56.1856408
-  },
-  {
-    "id": "ta-ta-san-jose-de-carrasco",
-    "nombre": "Ta-Ta (San José de Carrasco)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida Ingeniero Luis Giannattasio Local 149, San José de Carrasco, Ciudad de la Costa",
-    "barrio": "San José de Carrasco",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8412764,
-    "longitud": -55.992635
-  },
-  {
-    "id": "ta-ta-paso-molino",
-    "nombre": "Ta-Ta (Paso Molino)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida Agraciada 4214, Paso Molino",
-    "barrio": "Paso Molino",
-    "ciudad": "Montevideo",
-    "latitud": -34.8561378,
-    "longitud": -56.2197657
-  },
-  {
-    "id": "ta-ta-jacinto-vera",
-    "nombre": "Ta-Ta (Jacinto Vera)",
-    "tipo": "Supermercado",
-    "direccion": "Cufré 2687, Jacinto Vera",
-    "barrio": "Jacinto Vera",
-    "ciudad": "Montevideo",
-    "latitud": -34.8778456,
-    "longitud": -56.1709201
-  },
-  {
-    "id": "ta-ta-villa-munoz",
-    "nombre": "Ta-Ta (Villa Muñoz)",
-    "tipo": "Supermercado",
-    "direccion": "José L. Terra 2220, Villa Muñoz",
-    "barrio": "Villa Muñoz",
-    "ciudad": "Montevideo",
-    "latitud": -34.8867873,
-    "longitud": -56.1829907
-  },
-  {
-    "id": "ta-ta-barrio-sur",
-    "nombre": "Ta-Ta (Barrio Sur)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida 18 de Julio 880, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9064703,
-    "longitud": -56.1974551
   },
   {
     "id": "ta-ta-flor-de-maronas",
@@ -1696,6 +1696,66 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1238983
   },
   {
+    "id": "ta-ta-paso-molino",
+    "nombre": "Ta-Ta (Paso Molino)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Agraciada 4214, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8561378,
+    "longitud": -56.2197657
+  },
+  {
+    "id": "ta-ta-piedras-blancas",
+    "nombre": "Ta-Ta (Piedras Blancas)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida José Belloni, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8230197,
+    "longitud": -56.1410115
+  },
+  {
+    "id": "ta-ta-ituzaingo",
+    "nombre": "Ta-Ta (Ituzaingó)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Dámaso Antonio Larrañaga, Ituzaingó",
+    "barrio": "Ituzaingó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8598967,
+    "longitud": -56.1515361
+  },
+  {
+    "id": "ta-ta-aires-puros",
+    "nombre": "Ta-Ta (Aires Puros)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Costanera Felipe Carapé 4478, Aires Puros",
+    "barrio": "Aires Puros",
+    "ciudad": "Montevideo",
+    "latitud": -34.8534893,
+    "longitud": -56.1940599
+  },
+  {
+    "id": "ta-ta-pocitos",
+    "nombre": "Ta-Ta (Pocitos)",
+    "tipo": "Supermercado",
+    "direccion": "Libertad 2545, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9106252,
+    "longitud": -56.158107
+  },
+  {
+    "id": "ta-ta-jacinto-vera",
+    "nombre": "Ta-Ta (Jacinto Vera)",
+    "tipo": "Supermercado",
+    "direccion": "Cufré 2687, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8778456,
+    "longitud": -56.1709201
+  },
+  {
     "id": "ta-ta-tres-ombues",
     "nombre": "Ta-Ta (Tres Ombúes)",
     "tipo": "Supermercado",
@@ -1706,24 +1766,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2467665
   },
   {
-    "id": "ta-ta-perez-castellanos",
-    "nombre": "Ta-Ta (Pérez Castellanos)",
+    "id": "ta-ta-villa-munoz",
+    "nombre": "Ta-Ta (Villa Muñoz)",
     "tipo": "Supermercado",
-    "direccion": "Avenida General Flores 4104, Pérez Castellanos",
-    "barrio": "Pérez Castellanos",
+    "direccion": "José L. Terra 2220, Villa Muñoz",
+    "barrio": "Villa Muñoz",
     "ciudad": "Montevideo",
-    "latitud": -34.8548571,
-    "longitud": -56.1620868
-  },
-  {
-    "id": "ta-ta-cordon",
-    "nombre": "Ta-Ta (Cordón)",
-    "tipo": "Supermercado",
-    "direccion": "Constituyente 1570, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.906057,
-    "longitud": -56.1817806
+    "latitud": -34.8867873,
+    "longitud": -56.1829907
   },
   {
     "id": "ta-ta-buceo",
@@ -1736,24 +1786,84 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1292876
   },
   {
-    "id": "kinko-bella-vista",
-    "nombre": "Kinko (Bella Vista)",
+    "id": "ta-ta-centro",
+    "nombre": "Ta-Ta (Centro)",
     "tipo": "Supermercado",
-    "direccion": "Hermanos Gil, Bella Vista",
-    "barrio": "Bella Vista",
+    "direccion": "Avenida 18 de Julio 1280, Centro",
+    "barrio": "Centro",
     "ciudad": "Montevideo",
-    "latitud": -34.8704519,
-    "longitud": -56.2015736
+    "latitud": -34.9058685,
+    "longitud": -56.1884551
   },
   {
-    "id": "kinko-carrasco",
-    "nombre": "Kinko (Carrasco)",
+    "id": "ta-ta-barrio-sur",
+    "nombre": "Ta-Ta (Barrio Sur)",
     "tipo": "Supermercado",
-    "direccion": "General Máximo Tajes, Carrasco",
-    "barrio": "Carrasco",
+    "direccion": "Avenida 18 de Julio 880, Barrio Sur",
+    "barrio": "Barrio Sur",
     "ciudad": "Montevideo",
-    "latitud": -34.8749863,
-    "longitud": -56.0431754
+    "latitud": -34.9064703,
+    "longitud": -56.1974551
+  },
+  {
+    "id": "ta-ta-malvin-norte",
+    "nombre": "Ta-Ta (Malvín Norte)",
+    "tipo": "Supermercado",
+    "direccion": "Camino Carrasco 4656, Malvín Norte",
+    "barrio": "Malvín Norte",
+    "ciudad": "Montevideo",
+    "latitud": -34.8719626,
+    "longitud": -56.1176035
+  },
+  {
+    "id": "ta-ta-reducto",
+    "nombre": "Ta-Ta (Reducto)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General San Martín 2700, Reducto",
+    "barrio": "Reducto",
+    "ciudad": "Montevideo",
+    "latitud": -34.8765944,
+    "longitud": -56.1856408
+  },
+  {
+    "id": "ta-ta-cordon",
+    "nombre": "Ta-Ta (Cordón)",
+    "tipo": "Supermercado",
+    "direccion": "Constituyente 1570, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.906057,
+    "longitud": -56.1817806
+  },
+  {
+    "id": "ta-ta-punta-carretas",
+    "nombre": "Ta-Ta (Punta Carretas)",
+    "tipo": "Supermercado",
+    "direccion": "José H. Figueira 2301, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9156954,
+    "longitud": -56.1638021
+  },
+  {
+    "id": "ta-ta-perez-castellanos",
+    "nombre": "Ta-Ta (Pérez Castellanos)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General Flores 4104, Pérez Castellanos",
+    "barrio": "Pérez Castellanos",
+    "ciudad": "Montevideo",
+    "latitud": -34.8548571,
+    "longitud": -56.1620868
+  },
+  {
+    "id": "ta-ta-san-jose-de-carrasco",
+    "nombre": "Ta-Ta (San José de Carrasco)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Ingeniero Luis Giannattasio Local 149, San José de Carrasco, Ciudad de la Costa",
+    "barrio": "San José de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8412764,
+    "longitud": -55.992635
   },
   {
     "id": "kinko-parque-rodo",
@@ -1766,6 +1876,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1617228
   },
   {
+    "id": "kinko-bella-vista",
+    "nombre": "Kinko (Bella Vista)",
+    "tipo": "Supermercado",
+    "direccion": "Hermanos Gil, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8704519,
+    "longitud": -56.2015736
+  },
+  {
     "id": "kinko-jacinto-vera",
     "nombre": "Kinko (Jacinto Vera)",
     "tipo": "Supermercado",
@@ -1776,34 +1896,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1697935
   },
   {
-    "id": "kinko-parque-batlle",
-    "nombre": "Kinko (Parque Batlle)",
+    "id": "kinko-carrasco",
+    "nombre": "Kinko (Carrasco)",
     "tipo": "Supermercado",
-    "direccion": "Avenida Doctor Américo Ricaldoni 2854, Parque Batlle",
-    "barrio": "Parque Batlle",
+    "direccion": "General Máximo Tajes, Carrasco",
+    "barrio": "Carrasco",
     "ciudad": "Montevideo",
-    "latitud": -34.8989257,
-    "longitud": -56.1541098
-  },
-  {
-    "id": "kinko-el-pinar",
-    "nombre": "Kinko (El Pinar)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8038258,
-    "longitud": -55.9060981
-  },
-  {
-    "id": "kinko-la-blanqueada",
-    "nombre": "Kinko (La Blanqueada)",
-    "tipo": "Supermercado",
-    "direccion": "Estero Bellaco 2846, La Blanqueada",
-    "barrio": "La Blanqueada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8890284,
-    "longitud": -56.157465
+    "latitud": -34.8749863,
+    "longitud": -56.0431754
   },
   {
     "id": "kinko-pocitos",
@@ -1816,24 +1916,34 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1533684
   },
   {
-    "id": "el-dorado-las-piedras",
-    "nombre": "El Dorado (Las Piedras)",
+    "id": "kinko-parque-batlle",
+    "nombre": "Kinko (Parque Batlle)",
     "tipo": "Supermercado",
-    "direccion": "Avenida Instrucciones del Año XIII, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.728029,
-    "longitud": -56.2163851
+    "direccion": "Avenida Doctor Américo Ricaldoni 2854, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8989257,
+    "longitud": -56.1541098
   },
   {
-    "id": "el-dorado-cordon",
-    "nombre": "El Dorado (Cordón)",
+    "id": "kinko-la-blanqueada",
+    "nombre": "Kinko (La Blanqueada)",
     "tipo": "Supermercado",
-    "direccion": "Avenida 18 de Julio 1807, Cordón",
-    "barrio": "Cordón",
+    "direccion": "Estero Bellaco 2846, La Blanqueada",
+    "barrio": "La Blanqueada",
     "ciudad": "Montevideo",
-    "latitud": -34.9020989,
-    "longitud": -56.1771861
+    "latitud": -34.8890284,
+    "longitud": -56.157465
+  },
+  {
+    "id": "kinko-el-pinar",
+    "nombre": "Kinko (El Pinar)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8038258,
+    "longitud": -55.9060981
   },
   {
     "id": "el-dorado-la-blanqueada",
@@ -1846,6 +1956,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1627929
   },
   {
+    "id": "el-dorado-cordon",
+    "nombre": "El Dorado (Cordón)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida 18 de Julio 1807, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9020989,
+    "longitud": -56.1771861
+  },
+  {
     "id": "el-dorado-centro",
     "nombre": "El Dorado (Centro)",
     "tipo": "Supermercado",
@@ -1854,6 +1974,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9053869,
     "longitud": -56.1891928
+  },
+  {
+    "id": "el-dorado-las-piedras",
+    "nombre": "El Dorado (Las Piedras)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Instrucciones del Año XIII, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.728029,
+    "longitud": -56.2163851
   },
   {
     "id": "macro-mercado-brazo-oriental",
@@ -1866,16 +1996,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1796878
   },
   {
-    "id": "macro-mercado-parque-miramar",
-    "nombre": "Macro Mercado (Parque Miramar)",
-    "tipo": "Supermercado",
-    "direccion": "Avenida al Parque, Parque Miramar, Ciudad de la Costa",
-    "barrio": "Parque Miramar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.869742,
-    "longitud": -56.0225737
-  },
-  {
     "id": "macro-mercado-la-teja",
     "nombre": "Macro Mercado (La Teja)",
     "tipo": "Supermercado",
@@ -1884,6 +2004,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8614897,
     "longitud": -56.2315225
+  },
+  {
+    "id": "macro-mercado-parque-miramar",
+    "nombre": "Macro Mercado (Parque Miramar)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida al Parque, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.869742,
+    "longitud": -56.0225737
   },
   {
     "id": "geant-sayago",
@@ -1906,6 +2036,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.0245281
   },
   {
+    "id": "farmashop-tres-cruces",
+    "nombre": "Farmashop (Tres Cruces)",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar General Artigas 1481, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.901423,
+    "longitud": -56.1645399
+  },
+  {
     "id": "farmashop-lezica",
     "nombre": "Farmashop (Lezica)",
     "tipo": "Farmacia",
@@ -1914,66 +2054,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.7951515,
     "longitud": -56.2490248
-  },
-  {
-    "id": "farmashop-maronas",
-    "nombre": "Farmashop (Maroñas)",
-    "tipo": "Farmacia",
-    "direccion": "Veracierto, Maroñas",
-    "barrio": "Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8712487,
-    "longitud": -56.1173786
-  },
-  {
-    "id": "farmashop-brazo-oriental",
-    "nombre": "Farmashop (Brazo Oriental)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida General San Martín 3402, Brazo Oriental",
-    "barrio": "Brazo Oriental",
-    "ciudad": "Montevideo",
-    "latitud": -34.8628004,
-    "longitud": -56.1788092
-  },
-  {
-    "id": "farmashop-barrio-sur",
-    "nombre": "Farmashop (Barrio Sur)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida 18 de Julio 850, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9065497,
-    "longitud": -56.1983044
-  },
-  {
-    "id": "farmashop-parque-miramar",
-    "nombre": "Farmashop (Parque Miramar)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida de las Américas, Parque Miramar, Ciudad de la Costa",
-    "barrio": "Parque Miramar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8698099,
-    "longitud": -56.0311519
-  },
-  {
-    "id": "farmashop-punta-gorda",
-    "nombre": "Farmashop (Punta Gorda)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida Bolivia, Punta Gorda",
-    "barrio": "Punta Gorda",
-    "ciudad": "Montevideo",
-    "latitud": -34.8929388,
-    "longitud": -56.0659995
-  },
-  {
-    "id": "farmashop-lagomar",
-    "nombre": "Farmashop (Lagomar)",
-    "tipo": "Farmacia",
-    "direccion": "Escribano Luis Laserre, Lagomar, Ciudad de la Costa",
-    "barrio": "Lagomar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8408431,
-    "longitud": -55.9729976
   },
   {
     "id": "farmashop-punta-carretas",
@@ -1986,14 +2066,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1557418
   },
   {
-    "id": "farmashop-buceo",
-    "nombre": "Farmashop (Buceo)",
+    "id": "farmashop-maronas",
+    "nombre": "Farmashop (Maroñas)",
     "tipo": "Farmacia",
-    "direccion": "Avenida Mariscal Francisco Solano López, Buceo",
-    "barrio": "Buceo",
+    "direccion": "Veracierto, Maroñas",
+    "barrio": "Maroñas",
     "ciudad": "Montevideo",
-    "latitud": -34.8921033,
-    "longitud": -56.1254065
+    "latitud": -34.8712487,
+    "longitud": -56.1173786
   },
   {
     "id": "farmashop-union",
@@ -2006,26 +2086,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1472606
   },
   {
-    "id": "farmashop-las-piedras",
-    "nombre": "Farmashop (Las Piedras)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida General Artigas, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.7270021,
-    "longitud": -56.2136009
-  },
-  {
-    "id": "farmashop-cordon",
-    "nombre": "Farmashop (Cordón)",
-    "tipo": "Farmacia",
-    "direccion": "Colonia 1800, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.9016448,
-    "longitud": -56.1778873
-  },
-  {
     "id": "farmashop-malvin-nuevo",
     "nombre": "Farmashop (Malvín Nuevo)",
     "tipo": "Farmacia",
@@ -2034,6 +2094,46 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8876173,
     "longitud": -56.1176977
+  },
+  {
+    "id": "farmashop-malvin",
+    "nombre": "Farmashop (Malvín)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Enrique Legrand 5085, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8895577,
+    "longitud": -56.0988068
+  },
+  {
+    "id": "farmashop-buceo",
+    "nombre": "Farmashop (Buceo)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Mariscal Francisco Solano López, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8921033,
+    "longitud": -56.1254065
+  },
+  {
+    "id": "farmashop-brazo-oriental",
+    "nombre": "Farmashop (Brazo Oriental)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General San Martín 3402, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8628004,
+    "longitud": -56.1788092
+  },
+  {
+    "id": "farmashop-punta-gorda",
+    "nombre": "Farmashop (Punta Gorda)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Bolivia, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8929388,
+    "longitud": -56.0659995
   },
   {
     "id": "farmashop-centro",
@@ -2046,134 +2146,64 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1934197
   },
   {
-    "id": "farmashop-tres-cruces",
-    "nombre": "Farmashop (Tres Cruces)",
+    "id": "farmashop-cordon",
+    "nombre": "Farmashop (Cordón)",
     "tipo": "Farmacia",
-    "direccion": "Bulevar General Artigas 1481, Tres Cruces",
-    "barrio": "Tres Cruces",
+    "direccion": "Colonia 1800, Cordón",
+    "barrio": "Cordón",
     "ciudad": "Montevideo",
-    "latitud": -34.901423,
-    "longitud": -56.1645399
+    "latitud": -34.9016448,
+    "longitud": -56.1778873
   },
   {
-    "id": "farmacia-san-roque-san-jose-de-carrasco",
-    "nombre": "Farmacia San Roque (San José de Carrasco)",
+    "id": "farmashop-barrio-sur",
+    "nombre": "Farmashop (Barrio Sur)",
     "tipo": "Farmacia",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, San José de Carrasco, Ciudad de la Costa",
-    "barrio": "San José de Carrasco",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8406916,
-    "longitud": -55.9936243
-  },
-  {
-    "id": "farmacia-san-roque-paso-molino",
-    "nombre": "Farmacia San Roque (Paso Molino)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida Agraciada 4214, Paso Molino",
-    "barrio": "Paso Molino",
-    "ciudad": "Montevideo",
-    "latitud": -34.8563477,
-    "longitud": -56.2198347
-  },
-  {
-    "id": "farmacia-san-roque-villa-munoz",
-    "nombre": "Farmacia San Roque (Villa Muñoz)",
-    "tipo": "Farmacia",
-    "direccion": "José L. Terra 2200, Villa Muñoz",
-    "barrio": "Villa Muñoz",
-    "ciudad": "Montevideo",
-    "latitud": -34.886865,
-    "longitud": -56.1835715
-  },
-  {
-    "id": "farmacia-san-roque-carrasco",
-    "nombre": "Farmacia San Roque (Carrasco)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida Alfredo Arocena 1681, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8867722,
-    "longitud": -56.0586393
-  },
-  {
-    "id": "farmacia-san-roque-parque-rodo",
-    "nombre": "Farmacia San Roque (Parque Rodó)",
-    "tipo": "Farmacia",
-    "direccion": "Canelones 2198, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9071202,
-    "longitud": -56.1676027
-  },
-  {
-    "id": "farmacia-san-roque-tres-ombues",
-    "nombre": "Farmacia San Roque (Tres Ombúes)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida Carlos María Ramírez 1490, Tres Ombúes",
-    "barrio": "Tres Ombúes",
-    "ciudad": "Montevideo",
-    "latitud": -34.8732455,
-    "longitud": -56.2463537
-  },
-  {
-    "id": "farmacia-san-roque-barrio-sur",
-    "nombre": "Farmacia San Roque (Barrio Sur)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida 18 de Julio 900, Barrio Sur",
+    "direccion": "Avenida 18 de Julio 850, Barrio Sur",
     "barrio": "Barrio Sur",
     "ciudad": "Montevideo",
-    "latitud": -34.9064363,
-    "longitud": -56.1971303
+    "latitud": -34.9065497,
+    "longitud": -56.1983044
   },
   {
-    "id": "farmacia-san-roque-parque-miramar",
-    "nombre": "Farmacia San Roque (Parque Miramar)",
+    "id": "farmashop-las-piedras",
+    "nombre": "Farmashop (Las Piedras)",
     "tipo": "Farmacia",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Parque Miramar, Ciudad de la Costa",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7270021,
+    "longitud": -56.2136009
+  },
+  {
+    "id": "farmashop-parque-miramar",
+    "nombre": "Farmashop (Parque Miramar)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida de las Américas, Parque Miramar, Ciudad de la Costa",
     "barrio": "Parque Miramar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8655132,
-    "longitud": -56.0236407
+    "latitud": -34.8698099,
+    "longitud": -56.0311519
   },
   {
-    "id": "farmacia-san-roque-punta-gorda",
-    "nombre": "Farmacia San Roque (Punta Gorda)",
+    "id": "farmashop-lagomar",
+    "nombre": "Farmashop (Lagomar)",
     "tipo": "Farmacia",
-    "direccion": "Avenida Italia 5775, Punta Gorda",
-    "barrio": "Punta Gorda",
-    "ciudad": "Montevideo",
-    "latitud": -34.8812841,
-    "longitud": -56.0813031
+    "direccion": "Escribano Luis Laserre, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8408431,
+    "longitud": -55.9729976
   },
   {
-    "id": "farmacia-san-roque-pocitos",
-    "nombre": "Farmacia San Roque (Pocitos)",
+    "id": "farmacia-san-roque-centro",
+    "nombre": "Farmacia San Roque (Centro)",
     "tipo": "Farmacia",
-    "direccion": "Gabriel Pereira 3298, Pocitos",
-    "barrio": "Pocitos",
+    "direccion": "Avenida 18 de Julio 1252, Centro",
+    "barrio": "Centro",
     "ciudad": "Montevideo",
-    "latitud": -34.9112263,
-    "longitud": -56.1462412
-  },
-  {
-    "id": "farmacia-san-roque-punta-carretas",
-    "nombre": "Farmacia San Roque (Punta Carretas)",
-    "tipo": "Farmacia",
-    "direccion": "José Ellauri 512, Punta Carretas",
-    "barrio": "Punta Carretas",
-    "ciudad": "Montevideo",
-    "latitud": -34.9211904,
-    "longitud": -56.1572953
-  },
-  {
-    "id": "farmacia-san-roque-buceo",
-    "nombre": "Farmacia San Roque (Buceo)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9031978,
-    "longitud": -56.1370059
+    "latitud": -34.9058643,
+    "longitud": -56.188981
   },
   {
     "id": "farmacia-san-roque-union",
@@ -2186,6 +2216,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1430505
   },
   {
+    "id": "farmacia-san-roque-paso-molino",
+    "nombre": "Farmacia San Roque (Paso Molino)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Agraciada 4214, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8563477,
+    "longitud": -56.2198347
+  },
+  {
     "id": "farmacia-san-roque-cordon",
     "nombre": "Farmacia San Roque (Cordón)",
     "tipo": "Farmacia",
@@ -2194,6 +2234,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9023056,
     "longitud": -56.1774454
+  },
+  {
+    "id": "farmacia-san-roque-tres-ombues",
+    "nombre": "Farmacia San Roque (Tres Ombúes)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Carlos María Ramírez 1490, Tres Ombúes",
+    "barrio": "Tres Ombúes",
+    "ciudad": "Montevideo",
+    "latitud": -34.8732455,
+    "longitud": -56.2463537
   },
   {
     "id": "farmacia-san-roque-malvin",
@@ -2206,6 +2256,86 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.0963442
   },
   {
+    "id": "farmacia-san-roque-punta-gorda",
+    "nombre": "Farmacia San Roque (Punta Gorda)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Italia 5775, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8812841,
+    "longitud": -56.0813031
+  },
+  {
+    "id": "farmacia-san-roque-barrio-sur",
+    "nombre": "Farmacia San Roque (Barrio Sur)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 18 de Julio 900, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9064363,
+    "longitud": -56.1971303
+  },
+  {
+    "id": "farmacia-san-roque-carrasco",
+    "nombre": "Farmacia San Roque (Carrasco)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Alfredo Arocena 1681, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8867722,
+    "longitud": -56.0586393
+  },
+  {
+    "id": "farmacia-san-roque-buceo",
+    "nombre": "Farmacia San Roque (Buceo)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9031978,
+    "longitud": -56.1370059
+  },
+  {
+    "id": "farmacia-san-roque-villa-munoz",
+    "nombre": "Farmacia San Roque (Villa Muñoz)",
+    "tipo": "Farmacia",
+    "direccion": "José L. Terra 2200, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.886865,
+    "longitud": -56.1835715
+  },
+  {
+    "id": "farmacia-san-roque-punta-carretas",
+    "nombre": "Farmacia San Roque (Punta Carretas)",
+    "tipo": "Farmacia",
+    "direccion": "José Ellauri 512, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9211904,
+    "longitud": -56.1572953
+  },
+  {
+    "id": "farmacia-san-roque-pocitos",
+    "nombre": "Farmacia San Roque (Pocitos)",
+    "tipo": "Farmacia",
+    "direccion": "Gabriel Pereira 3298, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9112263,
+    "longitud": -56.1462412
+  },
+  {
+    "id": "farmacia-san-roque-parque-rodo",
+    "nombre": "Farmacia San Roque (Parque Rodó)",
+    "tipo": "Farmacia",
+    "direccion": "Canelones 2198, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9071202,
+    "longitud": -56.1676027
+  },
+  {
     "id": "farmacia-san-roque-ciudad-vieja",
     "nombre": "Farmacia San Roque (Ciudad Vieja)",
     "tipo": "Farmacia",
@@ -2214,6 +2344,46 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9064382,
     "longitud": -56.2010223
+  },
+  {
+    "id": "farmacia-san-roque-parque-miramar",
+    "nombre": "Farmacia San Roque (Parque Miramar)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8655132,
+    "longitud": -56.0236407
+  },
+  {
+    "id": "farmacia-san-roque-san-jose-de-carrasco",
+    "nombre": "Farmacia San Roque (San José de Carrasco)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, San José de Carrasco, Ciudad de la Costa",
+    "barrio": "San José de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8406916,
+    "longitud": -55.9936243
+  },
+  {
+    "id": "farmacia-el-tunel-punta-carretas",
+    "nombre": "Farmacia El Túnel (Punta Carretas)",
+    "tipo": "Farmacia",
+    "direccion": "21 de Setiembre 2816, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9187319,
+    "longitud": -56.1565129
+  },
+  {
+    "id": "farmacia-el-tunel-barrio-sur",
+    "nombre": "Farmacia El Túnel (Barrio Sur)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 18 de Julio, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9061176,
+    "longitud": -56.1960202
   },
   {
     "id": "farmacia-el-tunel-paso-molino",
@@ -2236,16 +2406,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.0636243
   },
   {
-    "id": "farmacia-el-tunel-barrio-sur",
-    "nombre": "Farmacia El Túnel (Barrio Sur)",
-    "tipo": "Farmacia",
-    "direccion": "Avenida 18 de Julio, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9061176,
-    "longitud": -56.1960202
-  },
-  {
     "id": "farmacia-el-tunel-pocitos",
     "nombre": "Farmacia El Túnel (Pocitos)",
     "tipo": "Farmacia",
@@ -2256,24 +2416,64 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1396877
   },
   {
-    "id": "brou-villa-espanola",
-    "nombre": "BROU (Villa Española)",
-    "tipo": "Banco",
-    "direccion": "Avenida Dámaso Antonio Larrañaga 3449, Villa Española",
-    "barrio": "Villa Española",
+    "id": "farmacia-el-tunel-malvin-nuevo",
+    "nombre": "Farmacia El Túnel (Malvín Nuevo)",
+    "tipo": "Farmacia",
+    "direccion": "Hipólito Yrigoyen 1599, Malvín Nuevo",
+    "barrio": "Malvín Nuevo",
     "ciudad": "Montevideo",
-    "latitud": -34.8735054,
-    "longitud": -56.1527477
+    "latitud": -34.8914295,
+    "longitud": -56.1090522
   },
   {
-    "id": "brou-punta-rieles",
-    "nombre": "BROU (Punta Rieles)",
+    "id": "brou-cordon",
+    "nombre": "BROU (Cordón)",
     "tipo": "Banco",
-    "direccion": "Camino Maldonado 6847, Punta Rieles",
-    "barrio": "Punta Rieles",
+    "direccion": "Avenida 18 de Julio 1670, Cordón",
+    "barrio": "Cordón",
     "ciudad": "Montevideo",
-    "latitud": -34.8234487,
-    "longitud": -56.1017283
+    "latitud": -34.903997,
+    "longitud": -56.1797357
+  },
+  {
+    "id": "brou-buceo",
+    "nombre": "BROU (Buceo)",
+    "tipo": "Banco",
+    "direccion": "Solferino 4098, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8874604,
+    "longitud": -56.1263957
+  },
+  {
+    "id": "brou-centro",
+    "nombre": "BROU (Centro)",
+    "tipo": "Banco",
+    "direccion": "Avenida General Rondeau 1754, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9038451,
+    "longitud": -56.1914551
+  },
+  {
+    "id": "brou-prado",
+    "nombre": "BROU (Prado)",
+    "tipo": "Banco",
+    "direccion": "Avenida Joaquín Suárez 3781, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8587655,
+    "longitud": -56.1965791
+  },
+  {
+    "id": "brou-punta-gorda",
+    "nombre": "BROU (Punta Gorda)",
+    "tipo": "Banco",
+    "direccion": "Bolonia, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8803909,
+    "longitud": -56.0780536
   },
   {
     "id": "brou-aguada",
@@ -2286,6 +2486,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1920742
   },
   {
+    "id": "brou-colon",
+    "nombre": "BROU (Colón)",
+    "tipo": "Banco",
+    "direccion": "Avenida General Eugenio Garzón 1864, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.807882,
+    "longitud": -56.2212226
+  },
+  {
     "id": "brou-cerro",
     "nombre": "BROU (Cerro)",
     "tipo": "Banco",
@@ -2296,16 +2506,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2488852
   },
   {
-    "id": "brou-piedras-blancas",
-    "nombre": "BROU (Piedras Blancas)",
-    "tipo": "Banco",
-    "direccion": "Avenida José Belloni 4296, Piedras Blancas",
-    "barrio": "Piedras Blancas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8253784,
-    "longitud": -56.1406003
-  },
-  {
     "id": "brou-brazo-oriental",
     "nombre": "BROU (Brazo Oriental)",
     "tipo": "Banco",
@@ -2314,26 +2514,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8635037,
     "longitud": -56.1791723
-  },
-  {
-    "id": "brou-san-jose-de-carrasco",
-    "nombre": "BROU (San José de Carrasco)",
-    "tipo": "Banco",
-    "direccion": "Bernardo O'Higgins, San José de Carrasco, Ciudad de la Costa",
-    "barrio": "San José de Carrasco",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8416668,
-    "longitud": -55.9931565
-  },
-  {
-    "id": "brou-prado",
-    "nombre": "BROU (Prado)",
-    "tipo": "Banco",
-    "direccion": "Avenida Joaquín Suárez 3781, Prado",
-    "barrio": "Prado",
-    "ciudad": "Montevideo",
-    "latitud": -34.8587655,
-    "longitud": -56.1965791
   },
   {
     "id": "brou-jacinto-vera",
@@ -2356,14 +2536,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1818594
   },
   {
-    "id": "brou-colon",
-    "nombre": "BROU (Colón)",
+    "id": "brou-pocitos",
+    "nombre": "BROU (Pocitos)",
     "tipo": "Banco",
-    "direccion": "Avenida General Eugenio Garzón 1864, Colón",
-    "barrio": "Colón",
+    "direccion": "Avenida Brasil 3049, Pocitos",
+    "barrio": "Pocitos",
     "ciudad": "Montevideo",
-    "latitud": -34.807882,
-    "longitud": -56.2212226
+    "latitud": -34.9130769,
+    "longitud": -56.1499841
   },
   {
     "id": "brou-parque-miramar",
@@ -2376,6 +2556,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.0246851
   },
   {
+    "id": "brou-villa-espanola",
+    "nombre": "BROU (Villa Española)",
+    "tipo": "Banco",
+    "direccion": "Avenida Dámaso Antonio Larrañaga 3449, Villa Española",
+    "barrio": "Villa Española",
+    "ciudad": "Montevideo",
+    "latitud": -34.8735054,
+    "longitud": -56.1527477
+  },
+  {
     "id": "brou-paso-molino",
     "nombre": "BROU (Paso Molino)",
     "tipo": "Banco",
@@ -2384,6 +2574,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8606162,
     "longitud": -56.2141906
+  },
+  {
+    "id": "brou-piedras-blancas",
+    "nombre": "BROU (Piedras Blancas)",
+    "tipo": "Banco",
+    "direccion": "Avenida José Belloni 4296, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8253784,
+    "longitud": -56.1406003
+  },
+  {
+    "id": "brou-punta-rieles",
+    "nombre": "BROU (Punta Rieles)",
+    "tipo": "Banco",
+    "direccion": "Camino Maldonado 6847, Punta Rieles",
+    "barrio": "Punta Rieles",
+    "ciudad": "Montevideo",
+    "latitud": -34.8234487,
+    "longitud": -56.1017283
   },
   {
     "id": "brou-carrasco",
@@ -2396,34 +2606,24 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.0579885
   },
   {
-    "id": "brou-punta-gorda",
-    "nombre": "BROU (Punta Gorda)",
+    "id": "brou-punta-carretas",
+    "nombre": "BROU (Punta Carretas)",
     "tipo": "Banco",
-    "direccion": "Bolonia, Punta Gorda",
-    "barrio": "Punta Gorda",
+    "direccion": "21 de Setiembre 2851, Punta Carretas",
+    "barrio": "Punta Carretas",
     "ciudad": "Montevideo",
-    "latitud": -34.8803909,
-    "longitud": -56.0780536
+    "latitud": -34.918878,
+    "longitud": -56.155787
   },
   {
-    "id": "bps-belvedere",
-    "nombre": "BPS (Belvedere)",
-    "tipo": "Trámites",
-    "direccion": "Juan B. Pandiani 26 BIS, Belvedere",
-    "barrio": "Belvedere",
-    "ciudad": "Montevideo",
-    "latitud": -34.8546256,
-    "longitud": -56.2224329
-  },
-  {
-    "id": "bps-las-piedras",
-    "nombre": "BPS (Las Piedras)",
-    "tipo": "Trámites",
-    "direccion": "Avenida Instrucciones del Año XIII, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.7281377,
-    "longitud": -56.2172236
+    "id": "brou-san-jose-de-carrasco",
+    "nombre": "BROU (San José de Carrasco)",
+    "tipo": "Banco",
+    "direccion": "Bernardo O'Higgins, San José de Carrasco, Ciudad de la Costa",
+    "barrio": "San José de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8416668,
+    "longitud": -55.9931565
   },
   {
     "id": "bps-cordon",
@@ -2446,44 +2646,24 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2034117
   },
   {
-    "id": "correo-uruguayo-belvedere",
-    "nombre": "Correo Uruguayo (Belvedere)",
-    "tipo": "Correo",
-    "direccion": "Avenida Carlos María Ramírez 119, Belvedere",
+    "id": "bps-las-piedras",
+    "nombre": "BPS (Las Piedras)",
+    "tipo": "Trámites",
+    "direccion": "Avenida Instrucciones del Año XIII, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7281377,
+    "longitud": -56.2172236
+  },
+  {
+    "id": "bps-belvedere",
+    "nombre": "BPS (Belvedere)",
+    "tipo": "Trámites",
+    "direccion": "Juan B. Pandiani 26 BIS, Belvedere",
     "barrio": "Belvedere",
     "ciudad": "Montevideo",
-    "latitud": -34.8561366,
-    "longitud": -56.2236423
-  },
-  {
-    "id": "correo-uruguayo-san-jose-de-carrasco",
-    "nombre": "Correo Uruguayo (San José de Carrasco)",
-    "tipo": "Correo",
-    "direccion": "Viejo Pancho, San José de Carrasco, Ciudad de la Costa",
-    "barrio": "San José de Carrasco",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8406339,
-    "longitud": -55.9941564
-  },
-  {
-    "id": "correo-uruguayo-la-blanqueada",
-    "nombre": "Correo Uruguayo (La Blanqueada)",
-    "tipo": "Correo",
-    "direccion": "Avenida 8 de Octubre 3082 bis, La Blanqueada",
-    "barrio": "La Blanqueada",
-    "ciudad": "Montevideo",
-    "latitud": -34.882718,
-    "longitud": -56.1533356
-  },
-  {
-    "id": "correo-uruguayo-parque-miramar",
-    "nombre": "Correo Uruguayo (Parque Miramar)",
-    "tipo": "Correo",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Parque Miramar, Ciudad de la Costa",
-    "barrio": "Parque Miramar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8658787,
-    "longitud": -56.0241755
+    "latitud": -34.8546256,
+    "longitud": -56.2224329
   },
   {
     "id": "correo-uruguayo-union",
@@ -2496,24 +2676,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1359251
   },
   {
-    "id": "correo-uruguayo-las-piedras",
-    "nombre": "Correo Uruguayo (Las Piedras)",
+    "id": "correo-uruguayo-la-blanqueada",
+    "nombre": "Correo Uruguayo (La Blanqueada)",
     "tipo": "Correo",
-    "direccion": "Avenida General Artigas, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.7267886,
-    "longitud": -56.2139149
-  },
-  {
-    "id": "correo-uruguayo-pocitos",
-    "nombre": "Correo Uruguayo (Pocitos)",
-    "tipo": "Correo",
-    "direccion": "Juan Benito Blanco, Pocitos",
-    "barrio": "Pocitos",
+    "direccion": "Avenida 8 de Octubre 3082 bis, La Blanqueada",
+    "barrio": "La Blanqueada",
     "ciudad": "Montevideo",
-    "latitud": -34.9134788,
-    "longitud": -56.1485589
+    "latitud": -34.882718,
+    "longitud": -56.1533356
   },
   {
     "id": "correo-uruguayo-centro",
@@ -2526,6 +2696,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.18629
   },
   {
+    "id": "correo-uruguayo-belvedere",
+    "nombre": "Correo Uruguayo (Belvedere)",
+    "tipo": "Correo",
+    "direccion": "Avenida Carlos María Ramírez 119, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.8561366,
+    "longitud": -56.2236423
+  },
+  {
     "id": "correo-uruguayo-malvin",
     "nombre": "Correo Uruguayo (Malvín)",
     "tipo": "Correo",
@@ -2534,6 +2714,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8837379,
     "longitud": -56.0848479
+  },
+  {
+    "id": "correo-uruguayo-pocitos",
+    "nombre": "Correo Uruguayo (Pocitos)",
+    "tipo": "Correo",
+    "direccion": "Juan Benito Blanco, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9134788,
+    "longitud": -56.1485589
   },
   {
     "id": "correo-uruguayo-ciudad-vieja",
@@ -2546,74 +2736,34 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2055683
   },
   {
-    "id": "parroquia-nuestra-senora-de-la-asuncion-y-san-carlos-borromeo",
-    "nombre": "Parroquia Nuestra Señora de la Asunción y San Carlos Borromeo",
-    "tipo": "Iglesia",
-    "direccion": "Avenida Millán 3307, Atahualpa",
-    "barrio": "Atahualpa",
-    "ciudad": "Montevideo",
-    "latitud": -34.8668629,
-    "longitud": -56.192695
+    "id": "correo-uruguayo-las-piedras",
+    "nombre": "Correo Uruguayo (Las Piedras)",
+    "tipo": "Correo",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7267886,
+    "longitud": -56.2139149
   },
   {
-    "id": "capilla-san-francisco",
-    "nombre": "Capilla San Francisco",
-    "tipo": "Iglesia",
-    "direccion": "Doctor José María Silva 3980, Peñarol",
-    "barrio": "Peñarol",
-    "ciudad": "Montevideo",
-    "latitud": -34.841683,
-    "longitud": -56.1863431
-  },
-  {
-    "id": "iglesia-del-reducto",
-    "nombre": "Iglesia del Reducto",
-    "tipo": "Iglesia",
-    "direccion": "Padre Andrés Coindre 1677, Reducto",
-    "barrio": "Reducto",
-    "ciudad": "Montevideo",
-    "latitud": -34.8744358,
-    "longitud": -56.1821465
-  },
-  {
-    "id": "parroquia-santa-magdalena-sofia-barat",
-    "nombre": "Parroquia Santa Magdalena Sofía Barat",
-    "tipo": "Iglesia",
-    "direccion": "Bulevar José Batlle y Ordóñez 4667, Aires Puros",
-    "barrio": "Aires Puros",
-    "ciudad": "Montevideo",
-    "latitud": -34.8516978,
-    "longitud": -56.1842781
-  },
-  {
-    "id": "capilla-nuestra-senora-del-rosario-salesianos-maturana",
-    "nombre": "Capilla Nuestra Señora del Rosario (Salesianos – Maturana)",
-    "tipo": "Iglesia",
-    "direccion": "Bulevar General Artigas 4365, Bella Vista",
-    "barrio": "Bella Vista",
-    "ciudad": "Montevideo",
-    "latitud": -34.8726869,
-    "longitud": -56.2011382
-  },
-  {
-    "id": "parroquia-nuestra-senora-de-la-merced-y-san-judas-tadeo",
-    "nombre": "Parroquia Nuestra Señora de la Merced y San Judas Tadeo",
-    "tipo": "Iglesia",
-    "direccion": "Doctor Juan José de Amézaga 2018, La Comercial",
-    "barrio": "La Comercial",
-    "ciudad": "Montevideo",
-    "latitud": -34.8856493,
-    "longitud": -56.1743134
-  },
-  {
-    "id": "templo-ti-osun",
-    "nombre": "TEMPLO TI OSUN",
-    "tipo": "Iglesia",
-    "direccion": "De los Picaflores mz 139 s 4, Lomas de Solymar, Ciudad de la Costa",
-    "barrio": "Lomas de Solymar",
+    "id": "correo-uruguayo-parque-miramar",
+    "nombre": "Correo Uruguayo (Parque Miramar)",
+    "tipo": "Correo",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8114711,
-    "longitud": -55.9434188
+    "latitud": -34.8658787,
+    "longitud": -56.0241755
+  },
+  {
+    "id": "correo-uruguayo-san-jose-de-carrasco",
+    "nombre": "Correo Uruguayo (San José de Carrasco)",
+    "tipo": "Correo",
+    "direccion": "Viejo Pancho, San José de Carrasco, Ciudad de la Costa",
+    "barrio": "San José de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8406339,
+    "longitud": -55.9941564
   },
   {
     "id": "capilla-juan-pablo-ii",
@@ -2626,6 +2776,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1780068
   },
   {
+    "id": "iglesia-del-reducto",
+    "nombre": "Iglesia del Reducto",
+    "tipo": "Iglesia",
+    "direccion": "Padre Andrés Coindre 1677, Reducto",
+    "barrio": "Reducto",
+    "ciudad": "Montevideo",
+    "latitud": -34.8744358,
+    "longitud": -56.1821465
+  },
+  {
+    "id": "parroquia-nuestra-senora-de-la-asuncion-y-san-carlos-borromeo",
+    "nombre": "Parroquia Nuestra Señora de la Asunción y San Carlos Borromeo",
+    "tipo": "Iglesia",
+    "direccion": "Avenida Millán 3307, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8668629,
+    "longitud": -56.192695
+  },
+  {
     "id": "capilla-de-la-transfiguracion-del-senor",
     "nombre": "Capilla de la Transfiguración del Señor",
     "tipo": "Iglesia",
@@ -2636,24 +2806,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1692642
   },
   {
-    "id": "iglesia-evangelica-perez-castellanos",
-    "nombre": "Iglesia Evangelica (Pérez Castellanos)",
+    "id": "parroquia-santa-magdalena-sofia-barat",
+    "nombre": "Parroquia Santa Magdalena Sofía Barat",
     "tipo": "Iglesia",
-    "direccion": "Avenida General Flores, Pérez Castellanos",
-    "barrio": "Pérez Castellanos",
+    "direccion": "Bulevar José Batlle y Ordóñez 4667, Aires Puros",
+    "barrio": "Aires Puros",
     "ciudad": "Montevideo",
-    "latitud": -34.853889,
-    "longitud": -56.1610274
-  },
-  {
-    "id": "iglesia-ortodoxa-griega-san-nicolas",
-    "nombre": "Iglesia Ortodoxa Griega San Nicolas",
-    "tipo": "Iglesia",
-    "direccion": "Avenida 19 de Abril 3366, Prado",
-    "barrio": "Prado",
-    "ciudad": "Montevideo",
-    "latitud": -34.8676995,
-    "longitud": -56.2037278
+    "latitud": -34.8516978,
+    "longitud": -56.1842781
   },
   {
     "id": "parroquia-san-antonino",
@@ -2676,6 +2836,36 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1787598
   },
   {
+    "id": "capilla-nuestra-senora-del-rosario-salesianos-maturana",
+    "nombre": "Capilla Nuestra Señora del Rosario (Salesianos – Maturana)",
+    "tipo": "Iglesia",
+    "direccion": "Bulevar General Artigas 4365, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8726869,
+    "longitud": -56.2011382
+  },
+  {
+    "id": "parroquia-nuestra-senora-de-la-merced-y-san-judas-tadeo",
+    "nombre": "Parroquia Nuestra Señora de la Merced y San Judas Tadeo",
+    "tipo": "Iglesia",
+    "direccion": "Doctor Juan José de Amézaga 2018, La Comercial",
+    "barrio": "La Comercial",
+    "ciudad": "Montevideo",
+    "latitud": -34.8856493,
+    "longitud": -56.1743134
+  },
+  {
+    "id": "iglesia-ortodoxa-griega-san-nicolas",
+    "nombre": "Iglesia Ortodoxa Griega San Nicolas",
+    "tipo": "Iglesia",
+    "direccion": "Avenida 19 de Abril 3366, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8676995,
+    "longitud": -56.2037278
+  },
+  {
     "id": "parroquia-de-nuestra-senora-de-bzommar",
     "nombre": "Parroquia de Nuestra Señora de Bzommar",
     "tipo": "Iglesia",
@@ -2684,6 +2874,36 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8829947,
     "longitud": -56.1688773
+  },
+  {
+    "id": "iglesia-evangelica-perez-castellanos",
+    "nombre": "Iglesia Evangelica (Pérez Castellanos)",
+    "tipo": "Iglesia",
+    "direccion": "Avenida General Flores, Pérez Castellanos",
+    "barrio": "Pérez Castellanos",
+    "ciudad": "Montevideo",
+    "latitud": -34.853889,
+    "longitud": -56.1610274
+  },
+  {
+    "id": "capilla-san-francisco",
+    "nombre": "Capilla San Francisco",
+    "tipo": "Iglesia",
+    "direccion": "Doctor José María Silva 3980, Peñarol",
+    "barrio": "Peñarol",
+    "ciudad": "Montevideo",
+    "latitud": -34.841683,
+    "longitud": -56.1863431
+  },
+  {
+    "id": "templo-ti-osun",
+    "nombre": "TEMPLO TI OSUN",
+    "tipo": "Iglesia",
+    "direccion": "De los Picaflores mz 139 s 4, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8114711,
+    "longitud": -55.9434188
   },
   {
     "id": "parroquia-san-isidro-labrador",
@@ -2696,36 +2916,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2171315
   },
   {
-    "id": "espacio-cultural-bibliobarrio",
-    "nombre": "Espacio Cultural Bibliobarrio",
-    "tipo": "Biblioteca",
-    "direccion": "Enriqueta Compte y Rique 1275, Arroyo Seco",
-    "barrio": "Arroyo Seco",
-    "ciudad": "Montevideo",
-    "latitud": -34.884026,
-    "longitud": -56.1899694
-  },
-  {
-    "id": "biblioteca-shangrila",
-    "nombre": "Biblioteca Shangrilá",
-    "tipo": "Biblioteca",
-    "direccion": "Venezuela, Parque de Carrasco, Ciudad de la Costa",
-    "barrio": "Parque de Carrasco",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8521405,
-    "longitud": -56.0054316
-  },
-  {
-    "id": "biblioteca-barrio-26-de-octubre",
-    "nombre": "Biblioteca Barrio 26 de Octubre",
-    "tipo": "Biblioteca",
-    "direccion": "Vehicular/ Peatonal, Sayago",
-    "barrio": "Sayago",
-    "ciudad": "Montevideo",
-    "latitud": -34.8323539,
-    "longitud": -56.2296784
-  },
-  {
     "id": "biblioteca-popular-cina-cina",
     "nombre": "Biblioteca Popular Cina Cina",
     "tipo": "Biblioteca",
@@ -2736,14 +2926,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1729304
   },
   {
-    "id": "francisco-schinca",
-    "nombre": "Francisco Schinca",
+    "id": "espacio-cultural-bibliobarrio",
+    "nombre": "Espacio Cultural Bibliobarrio",
     "tipo": "Biblioteca",
-    "direccion": "Avenida 8 de Octubre 4210, Unión",
-    "barrio": "Unión",
+    "direccion": "Enriqueta Compte y Rique 1275, Arroyo Seco",
+    "barrio": "Arroyo Seco",
     "ciudad": "Montevideo",
-    "latitud": -34.8686185,
-    "longitud": -56.1344471
+    "latitud": -34.884026,
+    "longitud": -56.1899694
   },
   {
     "id": "biblioteca-profesor-jose-luis-rebellato",
@@ -2766,34 +2956,34 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2027379
   },
   {
-    "id": "cine-universitario",
-    "nombre": "Cine Universitario",
-    "tipo": "Cine",
-    "direccion": "Canelones, Barrio Sur",
-    "barrio": "Barrio Sur",
+    "id": "francisco-schinca",
+    "nombre": "Francisco Schinca",
+    "tipo": "Biblioteca",
+    "direccion": "Avenida 8 de Octubre 4210, Unión",
+    "barrio": "Unión",
     "ciudad": "Montevideo",
-    "latitud": -34.9086052,
-    "longitud": -56.1881421
+    "latitud": -34.8686185,
+    "longitud": -56.1344471
   },
   {
-    "id": "movie-center",
-    "nombre": "Movie Center",
-    "tipo": "Cine",
-    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
-    "barrio": "Buceo",
+    "id": "biblioteca-barrio-26-de-octubre",
+    "nombre": "Biblioteca Barrio 26 de Octubre",
+    "tipo": "Biblioteca",
+    "direccion": "Vehicular/ Peatonal, Sayago",
+    "barrio": "Sayago",
     "ciudad": "Montevideo",
-    "latitud": -34.9038284,
-    "longitud": -56.136877
+    "latitud": -34.8323539,
+    "longitud": -56.2296784
   },
   {
-    "id": "grupo-cine",
-    "nombre": "Grupo Cine",
-    "tipo": "Cine",
-    "direccion": "Colonia, Centro",
-    "barrio": "Centro",
-    "ciudad": "Montevideo",
-    "latitud": -34.9046342,
-    "longitud": -56.1884205
+    "id": "biblioteca-shangrila",
+    "nombre": "Biblioteca Shangrilá",
+    "tipo": "Biblioteca",
+    "direccion": "Venezuela, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8521405,
+    "longitud": -56.0054316
   },
   {
     "id": "cine-opera",
@@ -2806,6 +2996,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1791542
   },
   {
+    "id": "grupo-cine",
+    "nombre": "Grupo Cine",
+    "tipo": "Cine",
+    "direccion": "Colonia, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9046342,
+    "longitud": -56.1884205
+  },
+  {
+    "id": "cine-universitario",
+    "nombre": "Cine Universitario",
+    "tipo": "Cine",
+    "direccion": "Canelones, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9086052,
+    "longitud": -56.1881421
+  },
+  {
     "id": "salas-de-cinemateca-uruguaya",
     "nombre": "Salas de Cinemateca Uruguaya",
     "tipo": "Cine",
@@ -2814,6 +3024,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9085403,
     "longitud": -56.2008525
+  },
+  {
+    "id": "movie-center",
+    "nombre": "Movie Center",
+    "tipo": "Cine",
+    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9038284,
+    "longitud": -56.136877
   },
   {
     "id": "auditorio-mario-benedetti",
@@ -2826,54 +3046,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1943658
   },
   {
-    "id": "salla-jorge-lazaroff",
-    "nombre": "Salla Jorge Lazaroff",
+    "id": "la-trastienda",
+    "nombre": "La Trastienda",
     "tipo": "Teatro",
-    "direccion": "Camino Maldonado 4849, Flor de Maroñas",
-    "barrio": "Flor de Maroñas",
+    "direccion": "Avenida Daniel Fernández Crespo 1763, Cordón",
+    "barrio": "Cordón",
     "ciudad": "Montevideo",
-    "latitud": -34.8557662,
-    "longitud": -56.1324931
-  },
-  {
-    "id": "teatro-grupo-babilonia",
-    "nombre": "Teatro grupo babilonia",
-    "tipo": "Teatro",
-    "direccion": "Costa Rica, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8044042,
-    "longitud": -55.916188
-  },
-  {
-    "id": "teatro-comedia",
-    "nombre": "Teatro Comedía",
-    "tipo": "Teatro",
-    "direccion": "Doctor Joaquín Requena, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9074711,
-    "longitud": -56.1686882
-  },
-  {
-    "id": "auditorio-nacional-adela-reta",
-    "nombre": "Auditorio Nacional \"Adela Reta\"",
-    "tipo": "Teatro",
-    "direccion": "Andes 1455, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9042808,
-    "longitud": -56.198708
-  },
-  {
-    "id": "el-comedy",
-    "nombre": "El Comedy",
-    "tipo": "Teatro",
-    "direccion": "Gabriel Pereira 3064, Pocitos",
-    "barrio": "Pocitos",
-    "ciudad": "Montevideo",
-    "latitud": -34.9080217,
-    "longitud": -56.1493297
+    "latitud": -34.8984034,
+    "longitud": -56.1784225
   },
   {
     "id": "teatro-victoria",
@@ -2886,54 +3066,54 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1939918
   },
   {
-    "id": "la-trastienda",
-    "nombre": "La Trastienda",
+    "id": "auditorio-nacional-adela-reta",
+    "nombre": "Auditorio Nacional \"Adela Reta\"",
     "tipo": "Teatro",
-    "direccion": "Avenida Daniel Fernández Crespo 1763, Cordón",
-    "barrio": "Cordón",
+    "direccion": "Andes 1455, Barrio Sur",
+    "barrio": "Barrio Sur",
     "ciudad": "Montevideo",
-    "latitud": -34.8984034,
-    "longitud": -56.1784225
+    "latitud": -34.9042808,
+    "longitud": -56.198708
   },
   {
-    "id": "centro-cultural-penarol",
-    "nombre": "Centro Cultural (Peñarol)",
-    "tipo": "Club",
-    "direccion": "Avenida de las Instrucciones, Peñarol",
-    "barrio": "Peñarol",
+    "id": "teatro-comedia",
+    "nombre": "Teatro Comedía",
+    "tipo": "Teatro",
+    "direccion": "Doctor Joaquín Requena, Parque Rodó",
+    "barrio": "Parque Rodó",
     "ciudad": "Montevideo",
-    "latitud": -34.8368757,
-    "longitud": -56.1931113
+    "latitud": -34.9074711,
+    "longitud": -56.1686882
   },
   {
-    "id": "centro-cultural-goes",
-    "nombre": "Centro Cultural Goes",
-    "tipo": "Club",
-    "direccion": "Doctor Domingo Aramburú, Reducto",
-    "barrio": "Reducto",
+    "id": "salla-jorge-lazaroff",
+    "nombre": "Salla Jorge Lazaroff",
+    "tipo": "Teatro",
+    "direccion": "Camino Maldonado 4849, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
     "ciudad": "Montevideo",
-    "latitud": -34.8823042,
-    "longitud": -56.1827908
+    "latitud": -34.8557662,
+    "longitud": -56.1324931
   },
   {
-    "id": "club-lomas-1ra",
-    "nombre": "Club Lomas 1ra",
-    "tipo": "Club",
-    "direccion": "Avenida Cruz del Sur, Lomas de Solymar, Ciudad de la Costa",
-    "barrio": "Lomas de Solymar",
+    "id": "el-comedy",
+    "nombre": "El Comedy",
+    "tipo": "Teatro",
+    "direccion": "Gabriel Pereira 3064, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9080217,
+    "longitud": -56.1493297
+  },
+  {
+    "id": "teatro-grupo-babilonia",
+    "nombre": "Teatro grupo babilonia",
+    "tipo": "Teatro",
+    "direccion": "Costa Rica, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8173111,
-    "longitud": -55.9405752
-  },
-  {
-    "id": "sociedad-urbana-villa-dolores",
-    "nombre": "Sociedad Urbana Villa Dolores",
-    "tipo": "Club",
-    "direccion": "Alejo Rosell y Rius, Parque Batlle",
-    "barrio": "Parque Batlle",
-    "ciudad": "Montevideo",
-    "latitud": -34.9006019,
-    "longitud": -56.1465382
+    "latitud": -34.8044042,
+    "longitud": -55.916188
   },
   {
     "id": "centro-cultural-guyunusa",
@@ -2954,6 +3134,46 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8774466,
     "longitud": -56.1730042
+  },
+  {
+    "id": "centro-cultural-goes",
+    "nombre": "Centro Cultural Goes",
+    "tipo": "Club",
+    "direccion": "Doctor Domingo Aramburú, Reducto",
+    "barrio": "Reducto",
+    "ciudad": "Montevideo",
+    "latitud": -34.8823042,
+    "longitud": -56.1827908
+  },
+  {
+    "id": "centro-cultural-penarol",
+    "nombre": "Centro Cultural (Peñarol)",
+    "tipo": "Club",
+    "direccion": "Avenida de las Instrucciones, Peñarol",
+    "barrio": "Peñarol",
+    "ciudad": "Montevideo",
+    "latitud": -34.8368757,
+    "longitud": -56.1931113
+  },
+  {
+    "id": "sociedad-urbana-villa-dolores",
+    "nombre": "Sociedad Urbana Villa Dolores",
+    "tipo": "Club",
+    "direccion": "Alejo Rosell y Rius, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.9006019,
+    "longitud": -56.1465382
+  },
+  {
+    "id": "club-lomas-1ra",
+    "nombre": "Club Lomas 1ra",
+    "tipo": "Club",
+    "direccion": "Avenida Cruz del Sur, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8173111,
+    "longitud": -55.9405752
   },
   {
     "id": "club-las-piedras",
@@ -2986,16 +3206,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1787544
   },
   {
-    "id": "cementerio-de-la-teja",
-    "nombre": "Cementerio de La Teja",
-    "tipo": "Cementerio",
-    "direccion": "La Teja, Montevideo",
-    "barrio": "La Teja",
-    "ciudad": "Montevideo",
-    "latitud": -34.8578116,
-    "longitud": -56.2298074
-  },
-  {
     "id": "cementerio-central",
     "nombre": "Cementerio Central",
     "tipo": "Cementerio",
@@ -3004,6 +3214,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9131956,
     "longitud": -56.1874516
+  },
+  {
+    "id": "cementerio-de-la-teja",
+    "nombre": "Cementerio de La Teja",
+    "tipo": "Cementerio",
+    "direccion": "La Teja, Montevideo",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.8578116,
+    "longitud": -56.2298074
   }
 ]
 

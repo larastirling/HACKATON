@@ -10,12 +10,15 @@
 //     zona por zona, y entran las que el mapa tiene con ese nombre y esa categoría (farmacia, supermercado, iglesia…).
 //     Una por barrio, primero los barrios que todavía tienen menos lugares en el catálogo. Nombre, dirección, barrio y
 //     ubicación salen del mapa. Si una zona devuelve el máximo (40), se parte en 4 para no perder sucursales.
+//   - Lo que YA ESTABA en el catálogo entra primero, aunque pase el máximo: volver a correrlo nunca saca lugares
+//     (salvo que el mapa ya no los tenga). Se reconocen por la misma marca a menos de 60 m.
 //
 // Las reglas del mapa (1 búsqueda por segundo, decir quiénes somos, caché) las cumple lib/mapas.ts.
 // Además, nunca corren dos a la vez: si ya hay uno corriendo, este no arranca.
 // Si el mapa falla (por ejemplo, nos frena), para enseguida y NO escribe nada: el catálogo nunca queda a medias.
 // Correrlo (tarda unos minutos la primera vez; después, lo ya buscado sale de la caché):
-//   npx tsx@4.20.3 --conditions=react-server scripts/verificar-catalogo.ts
+//   npx tsx@4.20.3 --conditions=react-server scripts/verificar-catalogo.ts [otro-catalogo-viejo.ts]
+// (el archivo opcional suma los lugares de otro catálogo a "lo que ya estaba", por ejemplo uno de antes en git).
 
 import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -278,6 +281,18 @@ interface LugarDelCatalogo extends Punto {
 }
 
 const entraron: LugarDelCatalogo[] = []
+
+/** Los lugares de un catálogo ya escrito (el actual y, si se pasa, otro de antes). */
+function lugaresDe(archivo: string): Pick<LugarDelCatalogo, 'nombre' | 'latitud' | 'longitud'>[] {
+  try {
+    const texto = readFileSync(archivo, 'utf8')
+    return JSON.parse(texto.slice(texto.indexOf('= [') + 2, texto.indexOf('/** Los que quedaron')).trim())
+  } catch {
+    return []
+  }
+}
+const YA_ESTABAN = [...lugaresDe(join(process.cwd(), 'app', 'familia', 'catalogo-lugares.ts')), ...(process.argv[2] ? lugaresDe(process.argv[2]) : [])]
+const METROS_YA_ESTABA = 60
 const afuera: string[] = []
 
 const sinTildes = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
@@ -441,10 +456,43 @@ async function verificarFuente(fuente: Fuente) {
   // Primero los barrios con menos lugares en el catálogo; si empatan, los de BARRIOS_PRIMERO.
   const barrios = [...porBarrio.keys()].sort((a, b) => cuantosHayEn(a) - cuantosHayEn(b) || prioridadDelBarrio(a) - prioridadDelBarrio(b))
   let cuantas = 0
+  let conservadas = 0
   const repetidas: string[] = []
+  // Lo que ya estaba en el catálogo entra primero (aunque pase el máximo).
+  for (const l of validas) {
+    const lugar = armarLugar(l)
+    if (!YA_ESTABAN.some((v) => marca(v.nombre) === marca(lugar.nombre) && distanciaEnMetros(v, lugar) < METROS_YA_ESTABA)) continue
+    if (NO_INCLUIR[lugar.nombre] || repetido(lugar)) continue
+    entraron.push(lugar)
+    conservadas++
+    console.log(`YA ESTABA ${lugar.nombre}  →  ${lugar.direccion}`)
+  }
   for (const barrioDeLaLista of barrios) {
-    if (cuantas >= fuente.maximo) break
-    const l = porBarrio.get(barrioDeLaLista)!
+    if (cuantas + conservadas >= fuente.maximo) break // lo que ya estaba entra siempre; los nuevos completan hasta el máximo
+    const lugar = armarLugar(porBarrio.get(barrioDeLaLista)!)
+    const barrio = lugar.barrio
+    if (NO_INCLUIR[lugar.nombre]) {
+      dejarAfuera(`${lugar.nombre}: ${NO_INCLUIR[lugar.nombre]}`)
+      continue
+    }
+    const igual = repetido(lugar)
+    if (igual) {
+      repetidas.push(`${barrio} (ya está "${igual.nombre}")`)
+      continue
+    }
+    entraron.push(lugar)
+    cuantas++
+    console.log(`OK     ${lugar.nombre}  →  ${lugar.direccion}`)
+  }
+  console.log(
+    `FUENTE ${etiqueta}: el mapa devolvió ${delMapa.length}, ${validas.length} sirven, en ${porBarrio.size} barrios; ` +
+      `ya estaban ${conservadas}, entraron ${cuantas} nuevas.` +
+      (repetidas.length ? ` Repetidas: ${repetidas.join(', ')}.` : ''),
+  )
+  if (cuantas + conservadas === 0) dejarAfuera(`${etiqueta}: el mapa no tiene ninguno que se pueda confirmar`)
+
+  /** El lugar del catálogo con lo que dice el mapa. */
+  function armarLugar(l: LugarDelMapa): LugarDelCatalogo {
     const ciudad = ciudadDe(l)!
     const barrio = l.barrio ?? 'Las Piedras'
     // Con el nombre de la fuente: "Farmashop (Pocitos)". Con el del mapa: tal cual, y el barrio si se repite el nombre.
@@ -464,24 +512,8 @@ async function verificarFuente(fuente: Fuente) {
       latitud: Number(l.latitud.toFixed(7)),
       longitud: Number(l.longitud.toFixed(7)),
     }
-    if (NO_INCLUIR[lugar.nombre]) {
-      dejarAfuera(`${lugar.nombre}: ${NO_INCLUIR[lugar.nombre]}`)
-      continue
-    }
-    const igual = repetido(lugar)
-    if (igual) {
-      repetidas.push(`${barrio} (ya está "${igual.nombre}")`)
-      continue
-    }
-    entraron.push(lugar)
-    cuantas++
-    console.log(`OK     ${lugar.nombre}  →  ${lugar.direccion}`)
+    return lugar
   }
-  console.log(
-    `FUENTE ${etiqueta}: el mapa devolvió ${delMapa.length}, ${validas.length} sirven, en ${porBarrio.size} barrios; entraron ${cuantas}.` +
-      (repetidas.length ? ` Repetidas: ${repetidas.join(', ')}.` : ''),
-  )
-  if (cuantas === 0) dejarAfuera(`${etiqueta}: el mapa no tiene ninguno que se pueda confirmar`)
 }
 
 async function verificar() {

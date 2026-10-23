@@ -51,11 +51,12 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
   Google Maps; se borra si cambia la dirección.
 - **Familia DEMO**: la casa de Don Carlos pasó a "Juan Benito Blanco 780, Montevideo" (Pocitos), que el mapa sí encuentra.
 
-- **Catálogo de lugares** (`app/familia/catalogo-lugares.ts`): 299 lugares verificados con el mapa el 2026-10-23, en
-  Montevideo (254), Ciudad de la Costa (35) y Las Piedras (10), cada uno con `tipo`, `barrio` y `ciudad`
-  (pagos 59, supermercados 51, salud 40, farmacias 35, plazas 16, bancos 15, iglesias 15, clubes 10, correo 10,
+- **Catálogo de lugares** (`app/familia/catalogo-lugares.ts`): 321 lugares verificados con el mapa el 2026-10-23, en
+  Montevideo (276), Ciudad de la Costa (35) y Las Piedras (10), cada uno con `tipo`, `barrio` y `ciudad`
+  (supermercados 62, pagos 60, salud 41, farmacias 39, bancos 20, plazas 16, iglesias 15, clubes 10, correo 10,
   teatros 9, cafés 8, shoppings 7, bibliotecas 7, trámites 6, cines 5, cementerios 3, mercados 2, centros de jubilados 1).
   Las cadenas y los tipos de lugar se le piden al mapa por zonas, uno por barrio, primero los barrios con menos lugares.
+  Lo que ya estaba en el catálogo entra primero: volver a correr el script nunca saca lugares (están los 107 de antes).
   Las policlínicas entran solo si el mapa dice que las atiende ASSE. La mitad no tiene número de puerta en el mapa
   (la ubicación sí es la real). Quedaron afuera Plaza Cagancha, Plaza Seregni, Plaza Virgilio y 6 cafés tradicionales
   que el mapa no confirmó, y "Disco (Malvín)" y "Géant (Jacinto Vera)" (lista `NO_INCLUIR` del script).
