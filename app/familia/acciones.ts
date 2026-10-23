@@ -296,15 +296,17 @@ const PRIMERO_SE_MUESTRAN = 4
  * A las sugerencias les agrega la lista de "Ver todos los cercanos" (todos a menos de 10 km, del más cerca al más lejos).
  * Lugares: si hay 4 o menos, se muestran todos de entrada y no hace falta el botón.
  * Comercios: de entrada solo los confirmados; con el botón se ven también los sin confirmar (con el aviso).
+ * Lo que encontró buscar_lugar_en_el_mapa (ids "mapa:…") va tal cual y sin "Ver todos": son resultados de esa búsqueda,
+ * no lugares cercanos (y al tocar uno se lo busca entre estas mismas sugerencias).
  */
 async function conTodosLosCercanos(
   configuracion: ConfiguracionAbuelo,
   { sugerencias, comerciosSugeridos }: { sugerencias?: LugarSugerido[]; comerciosSugeridos?: ComercioSugerido[] },
 ): Promise<Pick<RespuestaFamilia, 'sugerencias' | 'todosLosLugares' | 'comerciosSugeridos' | 'todosLosComercios'>> {
   const resultado: Pick<RespuestaFamilia, 'sugerencias' | 'todosLosLugares' | 'comerciosSugeridos' | 'todosLosComercios'> = {}
-  // Lo que encontró buscar_lugar_en_el_mapa va solo: no se mezcla con el catálogo.
-  if (sugerencias?.length && esDelMapa(sugerencias[0].id)) resultado.sugerencias = sugerencias
-  else if (sugerencias?.length) {
+  if (sugerencias?.length && sugerencias.some((s) => esDelMapa(s.id))) {
+    resultado.sugerencias = sugerencias
+  } else if (sugerencias?.length) {
     const todos = await todosLosLugaresCercanos(configuracion)
     if (todos.length > PRIMERO_SE_MUESTRAN) {
       resultado.sugerencias = sugerencias
