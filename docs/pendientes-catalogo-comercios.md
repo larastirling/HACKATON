@@ -66,15 +66,36 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
   navegador (sin IA ni servidor) por nombre, tipo, barrio, dirección y tipo de comida (`comida` en el catálogo de
   comercios, solo si la fuente lo dice). La IA ve solo los 5 más cercanos de cada tipo (antes, todos).
 
-## Pendiente
+## Pendiente (al 2026-10-23, después de subir a main cd0c84a)
 
-1. **Cerro y Parque Rodó** tienen pocos lugares en el catálogo (el mapa no devolvió sucursales de cadenas ahí).
-2. **Probar la carga nueva en la app publicada con la IA real**, como un hijo nuevo, de punta a punta. Probado en
-   tamaño celular sin la IA (anduvo entero) y con 1 charla real a mitad del paso 3 (anduvo bien); falta una charla
-   completa con correcciones escritas ("quiero cambiar algo" en las reglas, un lugar que falta).
-3. **Antes de la demo**: "Restaurar DEMO" en /prueba (la DEMO de Redis puede tener datos viejos).
-4. **Comercios**: revisar de vez en cuando las webs de los "confirmado por su web" (la frase puede cambiar) y si algún
-   "sin confirmar" lo empieza a decir. Si alguien ya guardó el "Comercio de prueba (equipo)" en una familia de la app
-   publicada, borrarlo desde /familia.
-5. Hay un proceso de **vite** corriendo en esta carpeta desde el 2026-10-17 (`vite --host`) que no levantó esta charla:
-   ver si alguien lo usa.
+**Inés**
+1. **`clasp push`** de `gmail/` (`avisar-a-la-app.gs` nuevo y dos líneas en `proteger-mails.gs`): sin eso, los mails
+   ESTAFA o DUDOSO no aparecen en /familia → "Lo que pasó". Después, probar con `protegerUltimosMails`.
+2. **Conectar el Gmail del abuelo** (OAuth): la rama `felipelyonnet/gmail-conectar` está en GitHub pero NO en main.
+   Espera que se junte `ibertolotti/gmail-oauth`, y hoy choca con main: hay que resolver el choque y probarla.
+
+**Lara**
+3. Leer `docs/trato-en-la-pantalla-del-abuelo.md`: los textos fijos de /abuelo ahora van en usted o vos con
+   `t('…', '…')`. Todo texto nuevo para el abuelo tiene que escribirse en las dos formas.
+
+**Estacionamiento**
+4. **Confirmar con la web de la Intendencia** el WhatsApp 099 019 500 y las palabras "estacionamiento" / "fin" (dato
+   que pasó Felipe), y el SMS de respaldo (466, "E MATRÍCULA MINUTOS"). Anotar el link y la fecha en
+   `lib/estacionamiento-config.ts` y poner `confirmado: true` en el SMS recién con la fuente oficial.
+5. Probarlo en un celular de verdad: que el link abra WhatsApp con la palabra escrita y que el SMS abra los mensajes.
+
+**Catálogo y comercios**
+6. Revisar a mano: "Oro del Rhin" (el mapa lo pone en Pocitos), "Bar Hispano" y "Bar Andorra" (sin calle), y nombres
+   con errores que vienen del mapa ("Salla Jorge Lazaroff", "Teatro Comedía"). La mitad de los lugares no tiene número
+   de puerta en el mapa. Centros de jubilados: el mapa casi no los tiene (entró solo la ONAJPU).
+7. **Cerro y Parque Rodó** tienen pocos lugares (el mapa no devolvió sucursales de cadenas ahí).
+8. **Comercios**: revisar de vez en cuando las webs de los "confirmado por su web" (la frase puede cambiar) y si algún
+   "sin confirmar" lo empieza a decir. La Pasiva no tiene tipo de comida (su fuente no lo dice). Si alguien ya guardó
+   el "Comercio de prueba (equipo)" en una familia de la app publicada, borrarlo desde /familia.
+
+**Probar y la demo**
+9. **Probar en la app publicada con la IA real**, de punta a punta: la carga de un hijo nuevo (con correcciones
+   escritas), estacionamiento, dudas del día a día y "Lo que pasó" con datos reales (solo se ve lo que pase desde ahora).
+10. **Antes de la demo**: "Restaurar DEMO" en /prueba (necesita la clave CONFIG_API_TOKEN de Vercel, que no es la de
+    `.env.local`). Restaurar también vacía "Lo que pasó" y el estacionamiento abierto de DEMO.
+11. Los avisos de las reglas ("se avisa cuando sale de su casa") todavía no se mandan en ningún lado.
