@@ -1,8 +1,8 @@
 # Pendientes: catálogo de comercios, lugares cercanos y "Llamar al comercio"
 
-Rama `felipelyonnet/catalogo-comercios` (sale de main 9944c42). **No está juntada con main.** Notas del 2026-10-23.
+Trabajo de la rama `felipelyonnet/catalogo-comercios`, ya subido a main. Notas del 2026-10-23.
 
-## Qué está hecho (en esta rama)
+## Qué está hecho
 
 - **Catálogo de comercios** (`app/familia/catalogo-comercios.ts`): 21 comercios cargados, todos con `verificado: false`, salvo el
   "Comercio de prueba (equipo)" (+598 92 625 554, se pide llamando). Solo se sugieren y se guardan los verificados.
@@ -19,15 +19,15 @@ Rama `felipelyonnet/catalogo-comercios` (sale de main 9944c42). **No está junta
   cada pedido, caché en archivo, pausa de 1 minuto si OpenStreetMap contesta 429.
 - **Familia DEMO**: la casa de Don Carlos pasó a "Juan Benito Blanco 780, Montevideo" (Pocitos), que el mapa sí encuentra.
 
+- **Catálogo de lugares** (`app/familia/catalogo-lugares.ts`): 108 lugares verificados con el mapa el 2026-10-23
+  (salud 26, supermercados 22, farmacias 19, plazas 16, trámites 7, bancos 7, shoppings 5, clubes 3, paseos 3).
+  Quedaron afuera Plaza Cagancha, Plaza Seregni y Plaza Virgilio. Para volver a armarlo, correr UNA vez
+  `npx tsx@4.20.3 --conditions=react-server scripts/verificar-catalogo.ts` (si el mapa falla, no escribe nada).
+
 ## Pendiente
 
-1. **Correr el catálogo de lugares** (unos 100 lugares). OpenStreetMap nos bloqueó (429) el 2026-10-23 a las 13:46
-   porque corrieron dos scripts a la vez (ya está arreglado: ahora no pueden correr dos).
-   - Primero ver si el mapa ya responde. Si contesta 200, correr UNA vez:
-     `npx tsx@4.20.3 --conditions=react-server scripts/verificar-catalogo.ts`
-   - Si el mapa falla aunque sea una vez, el script NO escribe el catálogo (queda el de git, con 36 lugares).
-   - La última corrida que salió completa dio 102 lugares, pero tenía un error al detectar repetidos (ya corregido).
-     Revisar cuántos entran ahora, por tipo y por barrio, y qué quedó afuera.
+1. **Revisar a ojo dos datos del mapa**: "Disco (Malvín)" figura en Avenida Italia 11400 y "Géant (Jacinto Vera)" en
+   Gualeguay 3350. El Cerro y Parque Rodó tienen pocos lugares (el mapa no devolvió sucursales de cadenas ahí).
 2. **Una charla corta con la IA real** para confirmar que, cuando la IA pregunta por los lugares, las sugerencias
    aparecen solas (depende de cómo escribe la IA: `HABLA_DE_LUGARES` y `HABLA_DE_COMERCIOS` en `sugerencias-solas.ts`).
    Todavía no se hizo ninguna llamada a la IA para esto.
@@ -38,6 +38,5 @@ Rama `felipelyonnet/catalogo-comercios` (sale de main 9944c42). **No está junta
    en la pizzería, campos nuevos `pedidoPor` y `telefono`). Si la DEMO en Redis tiene la dirección vieja: "Restaurar DEMO" en /prueba.
 5. **Antes de la demo con comercios reales**: sacar o poner en `verificado: false` el "Comercio de prueba (equipo)",
    y verificar (llamando) los comercios reales que se quieran sugerir.
-6. **Juntar con main** cuando esté probado: `git push origin HEAD:main` desde esta rama (main está abierto en otra carpeta).
-7. Hay un proceso de **vite** corriendo en esta carpeta desde el 2026-10-17 (`vite --host`) que no levantó esta charla:
+6. Hay un proceso de **vite** corriendo en esta carpeta desde el 2026-10-17 (`vite --host`) que no levantó esta charla:
    ver si alguien lo usa.
