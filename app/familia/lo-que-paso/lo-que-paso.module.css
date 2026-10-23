@@ -1,0 +1,56 @@
+/* "Lo que pasó": una tarjeta por cosa, con ícono grande, fecha y hora, y letra grande para el celu. */
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cosa {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
+  border: 1px solid var(--linea);
+  border-radius: 16px;
+  background: var(--fondo-tarjeta);
+  box-shadow: var(--sombra);
+}
+/* Mail ESTAFA: borde rojo. Mail DUDOSO: borde marrón grueso. */
+.peligro { border: 2px solid var(--error); background: var(--error-suave); }
+.cuidado { border: 2px solid var(--principal); }
+.icono {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--principal-suave);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.cuerpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.cuerpo p { margin: 0; overflow-wrap: anywhere; }
+.cuando { font-size: 1rem; font-weight: 700; color: var(--texto-suave); }
+.tipo { font-weight: 400; }
+.texto { font-size: 1.15rem; font-weight: 700; color: var(--texto-titulo); line-height: 1.35; }
+.detalle { font-size: 1rem; color: var(--texto); }
+.porQue { font-size: 1rem; color: var(--texto); }
+.estado {
+  align-self: flex-start;
+  margin-top: 4px !important;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.aprobado { background: var(--ok-suave); color: var(--ok); }
+.rechazado { background: var(--error-suave); color: var(--error); }
+.sinRespuesta { background: var(--fondo-calido); color: var(--texto-titulo); }
+.esperando { background: var(--principal-suave); color: var(--principal); }
+
+.vacio { display: flex; flex-direction: column; gap: 8px; }
+.vacio p { margin: 0; font-size: 1.05rem; }
+.vacioTitulo { font-size: 1.3rem !important; font-weight: 800; color: var(--texto-titulo); }

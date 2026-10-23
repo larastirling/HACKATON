@@ -3,6 +3,7 @@
 import { actualizarSiVencio } from '@/lib/aprobaciones'
 import { anotarEnElDiario, cerrarEstacionamiento, leerAprobacion, leerConfiguracion, leerEstacionamientoAbierto, marcarAvisadoAlAbuelo } from '@/lib/datos'
 import { armarEmergencia, avisarEmergenciaALaFamilia, avisarUbicacionALaFamilia } from '@/lib/emergencia'
+import { anotarPedido, anotarViaje } from '@/lib/lo-que-paso'
 import {
   conversarConElAbuelo,
   type Emergencia,
@@ -156,6 +157,9 @@ async function anotarLoQuePaso(
   if (r.emergencia) await anotarEnElDiario(codigoFamilia, 'emergencia', 'Se le mostraron los botones de emergencia')
   if (r.estacionamiento) await anotarEstacionamientoEnElDiario(codigoFamilia, r.estacionamiento)
   // La estafa la anota lib/emergencia.ts, con el motivo.
+  // Para "Lo que pasó" de /familia (los permisos los anota lib/aprobaciones.ts).
+  if (r.viaje) await anotarViaje(codigoFamilia, r.viaje)
+  if (r.pedido) await anotarPedido(codigoFamilia, r.pedido)
 }
 
 function esCharlaValida(charla: unknown): charla is MensajeCharla[] {

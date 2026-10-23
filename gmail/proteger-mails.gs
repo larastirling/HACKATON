@@ -232,9 +232,11 @@ function protegerMensaje(mensaje) {
     }
     var abuelo = mandarExplicacion(mensaje.getFrom(), mensaje.getSubject(), resultado.motivo);
     var familia = avisarFamilia(mensaje.getFrom(), mensaje.getSubject(), resultado.motivo);
+    var app = avisarALaApp('ESTAFA', mensaje.getFrom(), mensaje.getSubject(), resultado.motivo); // avisar-a-la-app.gs
     return 'ESTAFA: etiquetado' + (enSpam ? ', queda en Spam.\n' : ' y sacado de la bandeja.\n') +
       'Explicación enviada al abuelo (' + abuelo + ').\n' +
       familia.join('\n') + '\n' +
+      app + '\n' +
       'Por qué: ' + resultado.motivo;
   }
 
@@ -244,7 +246,8 @@ function protegerMensaje(mensaje) {
 
   if (resultado.categoria === 'DUDOSO') {
     ponerEtiquetaUnica(hilo, 'DUDOSO');
-    return 'DUDOSO: etiquetado, queda en la bandeja.\nPor qué: ' + resultado.motivo;
+    var anotado = avisarALaApp('DUDOSO', mensaje.getFrom(), mensaje.getSubject(), resultado.motivo); // avisar-a-la-app.gs
+    return 'DUDOSO: etiquetado, queda en la bandeja.\n' + anotado + '\nPor qué: ' + resultado.motivo;
   }
 
   return 'LEGITIMO: no hice nada.\nPor qué: ' + resultado.motivo;

@@ -129,6 +129,32 @@ Los usa /familia para cargar a la persona mayor en 6 pasos (`app/familia/pasos.t
 
 Si falta `armado` (familias cargadas antes de los pasos), los pasos se deducen de lo guardado: una familia con reglas guardadas ya está cargada.
 
+## 9. "Lo que pasó" (se guarda aparte, NO va en la configuración)
+
+Lo que ve el hijo en **/familia/lo-que-paso** (botón "Lo que pasó" de la barra de abajo). Lo anota la app sola, no se
+escribe a mano ni va en este archivo de configuración: es una lista por familia (clave `lo-que-paso:<CÓDIGO>`), de la
+más nueva a la más vieja, con las últimas 300 cosas. "Restaurar DEMO" la vacía. Código: `lib/lo-que-paso.ts`.
+
+| Campo | Qué significa | Ejemplo |
+|---|---|---|
+| `cuando` | Fecha y hora (ISO). | `"2026-10-23T18:22:00.000Z"` |
+| `tipo` | `"viaje"`, `"pedido"` (por WhatsApp), `"llamada"` (pedido por teléfono), `"permiso"`, `"aviso"` (a la familia) o `"mail"`. | `"permiso"` |
+| `texto` | Una frase para el hijo. | `"Carlos quiere ir a Montevideo Shopping"` |
+| `detalle` | Opcional: qué pidió, a quién se le preguntó, a quiénes les llegó el aviso. | `"Se les preguntó a Inés y Lara"` |
+| `aprobacionId` | Solo `permiso`: el pedido de aprobación. El estado (aprobado, rechazado, nadie contestó, esperando) se lee de ahí al mostrarlo, así siempre está al día. | `"9f2c…"` |
+| `mail` | Solo `mail`: `categoria` (`"ESTAFA"` o `"DUDOSO"`), `motivo` (por qué, una frase), y opcionales `de` (solo el nombre) y `asunto`. **Nunca** links, mails ni teléfonos del mail: se reemplazan por `[link]`, `[mail]`, `[teléfono]`. | `{ "categoria": "ESTAFA", "motivo": "Pide la clave del banco" }` |
+
+Quién anota cada cosa: viajes y pedidos, `app/abuelo/acciones.ts`; permisos, `lib/aprobaciones.ts`; avisos de
+emergencia, ubicación, posible estafa y pedido de plata, `lib/emergencia.ts`; resumen del día, `lib/resumen.ts`
+(un aviso se anota solo si le llegó a alguien). Los mails los manda el script de Gmail
+(`gmail/avisar-a-la-app.gs`) a `POST /api/mail-marcado`, con la misma clave que `/api/configuracion`:
+
+```
+POST /api/mail-marcado
+Authorization: Bearer <CONFIG_API_TOKEN>
+{ "codigo": "DEMO", "categoria": "ESTAFA", "motivo": "Pide la clave del banco", "de": "BROU Seguridad", "asunto": "Su cuenta será bloqueada" }
+```
+
 ---
 
 ## Ejemplo completo: familia DEMO (Montevideo)

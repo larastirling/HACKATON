@@ -134,3 +134,9 @@ Propiedades del script nuevas:
 | `CODIGO_FAMILIA` | el código de la familia (si falta, se usa `DEMO`) |
 
 Para probar sin mandar mails: ejecutar **probarLeerFamiliares**.
+
+# Gmail: contarle a la app los mails marcados ("Lo que pasó")
+
+Script `avisar-a-la-app.gs`. Cuando `proteger-mails.gs` marca un mail como **ESTAFA** o **DUDOSO**, se lo cuenta a la app (`POST /api/mail-marcado`) para que la familia lo vea en `/familia` → "Lo que pasó": de quién decía venir (solo el nombre), el asunto y por qué. Nunca manda links, mails ni teléfonos del mail (y la app igual los saca). LEGITIMO no se manda. Si la app no contesta, la protección sigue igual y el registro lo dice.
+
+Usa las mismas propiedades `URL_APP`, `CONFIG_API_TOKEN` y `CODIGO_FAMILIA` de arriba. Después de cambiar los archivos hay que subirlos con `clasp push`.

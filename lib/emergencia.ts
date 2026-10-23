@@ -12,6 +12,7 @@ import {
   type Familiar,
   type Ubicacion,
 } from './datos'
+import { anotarAviso } from './lo-que-paso'
 import { enviarMail, type ResultadoMail } from './mail'
 import { notificarAFamiliar } from './notificaciones'
 
@@ -88,6 +89,7 @@ export async function avisarEmergenciaALaFamilia(configuracion: ConfiguracionAbu
     .filter((f, i) => (resultado.enviado && conMail.includes(f)) || porNotificacion[i])
     .map((f) => f.nombre)
   if (avisados.length === 0) await soltarCandado(candado) // así el próximo intento puede volver a probar
+  await anotarAviso(configuracion.codigoFamilia, `Aviso de emergencia: ${nombre} puede necesitar ayuda`, avisados, `Dijo: "${cita}"`)
   return avisados
 }
 
@@ -142,6 +144,7 @@ export async function avisarUbicacionALaFamilia(configuracion: ConfiguracionAbue
     notificacion: { titulo: `Dónde está ${nombre}`, cuerpo: 'Tocá para ver en el mapa desde dónde pidió ayuda.', url: '/emergencia', etiqueta: 'ubicacion' },
   })
   if (avisados.length === 0) await soltarCandado(candado)
+  await anotarAviso(configuracion.codigoFamilia, `Tocó el botón de ayuda: se mandó dónde está ${nombre}`, avisados)
   return avisados
 }
 
@@ -175,6 +178,7 @@ export async function avisarEstafaALaFamilia(configuracion: ConfiguracionAbuelo,
     notificacion: { titulo: `Posible estafa a ${nombre}`, cuerpo: `Dijo: "${cita}". Llamalo.`, url: '/familia', etiqueta: 'estafa' },
   })
   if (avisados.length === 0) await soltarCandado(candado)
+  await anotarAviso(configuracion.codigoFamilia, `Aviso de posible estafa a ${nombre}`, avisados, motivo)
   return { ...estafa, ...(avisados.length > 0 && { avisados }) }
 }
 
@@ -201,6 +205,7 @@ export async function avisarPedidoDePlata(configuracion: ConfiguracionAbuelo, lo
     notificacion: { titulo: `${nombre} quiso mandar plata`, cuerpo: `Dijo: "${cita}". No se hizo nada. Llamalo.`, url: '/familia', etiqueta: 'plata' },
   })
   if (avisados.length === 0) await soltarCandado(candado)
+  await anotarAviso(configuracion.codigoFamilia, `Aviso: ${nombre} quiso mandar plata (no se hizo nada)`, avisados, `Dijo: "${cita}"`)
   return avisados
 }
 
