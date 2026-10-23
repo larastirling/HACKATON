@@ -1,7 +1,7 @@
 import 'server-only'
 import { randomBytes, randomInt } from 'node:crypto'
 import { Redis } from '@upstash/redis'
-import type { Viaje } from './uber'
+import type { Viaje } from './viajes'
 import type { Pedido } from './whatsapp'
 
 // ─────────────────────────────────────────────────────────────
@@ -86,6 +86,10 @@ export interface Reglas {
   fijas: typeof REGLAS_FIJAS
 }
 
+/** Cómo puede ir la persona mayor a los lugares. Lo elige la familia en /familia. */
+export const FORMAS_DE_VIAJAR = ['uber', 'caminando', 'colectivo'] as const
+export type FormaDeViajar = (typeof FORMAS_DE_VIAJAR)[number]
+
 export interface ConfiguracionAbuelo {
   codigoFamilia: string
   abuelo: Abuelo
@@ -93,6 +97,16 @@ export interface ConfiguracionAbuelo {
   comercios: Comercio[]
   familiares: Familiar[]
   reglas: Reglas
+  /**
+   * Formas de viajar que el asistente puede ofrecer. Si falta (familias de antes), solo Uber.
+   * Los permisos no cambian: un lugar "con permiso" se consulta igual, vaya como vaya.
+   */
+  formasDeViajar?: FormaDeViajar[]
+}
+
+/** Las formas de viajar de la familia (las de antes de que existiera el dato: solo Uber). */
+export function formasDeViajarDe(configuracion: Pick<ConfiguracionAbuelo, 'formasDeViajar'>): FormaDeViajar[] {
+  return configuracion.formasDeViajar ?? ['uber']
 }
 
 /** Abuelo de ejemplo que siempre existe, para probar sin cargar nada. */
@@ -153,6 +167,7 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
     abueloAceptoAvisos: true,
     fijas: REGLAS_FIJAS,
   },
+  formasDeViajar: ['uber', 'caminando', 'colectivo'],
 }
 
 // ── Almacenamiento ──────────────────────────────────────────
@@ -221,6 +236,7 @@ function completarConfiguracion(configuracion: ConfiguracionAbuelo): Configuraci
     abuelo: { ...configuracion.abuelo, direccion: configuracion.abuelo.direccion ?? PENDIENTE },
     comercios: configuracion.comercios.map((c) => ({ ...c, necesitaPermiso: c.necesitaPermiso ?? true })),
     reglas: { ...configuracion.reglas, fijas: REGLAS_FIJAS },
+    formasDeViajar: formasDeViajarDe(configuracion),
   }
 }
 
@@ -347,6 +363,13 @@ export function validarConfiguracion(dato: unknown): string[] {
     }
   })
   if (Array.isArray(c.familiares) && c.familiares.length === 0) errores.push('Tiene que haber al menos un familiar')
+
+  if (
+    c.formasDeViajar !== undefined &&
+    (!Array.isArray(c.formasDeViajar) || !c.formasDeViajar.every((f) => FORMAS_DE_VIAJAR.includes(f)))
+  ) {
+    errores.push(`"formasDeViajar" tiene que ser una lista con: ${FORMAS_DE_VIAJAR.join(', ')}`)
+  }
 
   if (!c.reglas || typeof c.reglas !== 'object') {
     errores.push('Falta "reglas"')
