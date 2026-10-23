@@ -37,7 +37,9 @@ export const HERRAMIENTA_PROPONER_BORRAR: Anthropic.Beta.BetaTool = {
     required: ['tipo', 'nombre'],
     additionalProperties: false,
   },
-  strict: true,
+  // Sin strict: Haiku rechaza la charla si hay muchas herramientas strict ("The compiled grammar is too large").
+  // Strict queda solo en las que guardan datos; lo que llega por acá lo revisa el servidor igual.
+  strict: false,
 }
 
 export const HERRAMIENTA_BORRAR: Anthropic.Beta.BetaTool = {
@@ -54,7 +56,9 @@ export const HERRAMIENTA_BORRAR: Anthropic.Beta.BetaTool = {
     required: ['tipo', 'nombre'],
     additionalProperties: false,
   },
-  strict: true,
+  // Sin strict: Haiku rechaza la charla si hay muchas herramientas strict ("The compiled grammar is too large").
+  // Strict queda solo en las que guardan datos; lo que llega por acá lo revisa el servidor igual.
+  strict: false,
 }
 
 const normalizar = (t: string) =>

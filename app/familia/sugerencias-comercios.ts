@@ -111,14 +111,18 @@ export function herramientaSugerirComercios(): Anthropic.Beta.BetaTool | null {
       properties: {
         ids: {
           type: 'array',
-          items: { type: 'string', enum: SUGERIBLES.map((c) => c.id) },
-          description: `Entre 1 y ${MAXIMO_SUGERENCIAS_COMERCIOS} ids del catálogo de comercios, los que más le puedan servir según lo que contó el hijo.`,
+          // Sin "enum" con los ids, igual que sugerir_lugares: un catálogo grande hace que la API rechace las herramientas strict.
+          // sugerirComercios descarta los ids que no están entre los que se pueden sugerir.
+          items: { type: 'string' },
+          description: `Entre 1 y ${MAXIMO_SUGERENCIAS_COMERCIOS} ids del CATÁLOGO DE COMERCIOS (tal cual aparecen en la lista), los que más le puedan servir según lo que contó el hijo.`,
         },
       },
       required: ['ids'],
       additionalProperties: false,
     },
-    strict: true,
+    // Sin strict: Haiku rechaza la charla si hay muchas herramientas strict ("The compiled grammar is too large").
+    // Strict queda solo en las que guardan datos; lo que llega por acá lo revisa el servidor igual.
+    strict: false,
   }
 }
 
@@ -182,7 +186,9 @@ export const HERRAMIENTA_GUARDAR_COMERCIO_SUGERIDO: Anthropic.Beta.BetaTool = {
     required: ['id', 'apodos', 'pedidoHabitual', 'necesitaPermiso', 'fraseDelHijo'],
     additionalProperties: false,
   },
-  strict: true,
+  // Sin strict: Haiku rechaza la charla si hay muchas herramientas strict ("The compiled grammar is too large").
+  // Strict queda solo en las que guardan datos; lo que llega por acá lo revisa el servidor igual.
+  strict: false,
 }
 
 /**

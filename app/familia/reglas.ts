@@ -79,7 +79,9 @@ export const HERRAMIENTA_MOSTRAR_REGLAS: Anthropic.Beta.BetaTool = {
     'Le muestra al hijo una tabla con el nivel y las reglas propuestas. NO guarda nada. ' +
     'Usala para proponer y cada vez que el hijo cambie una regla, con la propuesta completa actualizada.',
   input_schema: esquema,
-  strict: true,
+  // Sin strict: Haiku rechaza la charla si hay muchas herramientas strict ("The compiled grammar is too large").
+  // Strict queda solo en las que guardan datos; lo que llega por acá lo revisa el servidor igual.
+  strict: false,
 }
 
 export const HERRAMIENTA_GUARDAR_REGLAS: Anthropic.Beta.BetaTool = {
