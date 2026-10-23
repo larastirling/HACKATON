@@ -2,7 +2,17 @@ import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { pedirPermiso } from './aprobaciones'
 import { formasDeViajarDe, primerNombre, ZONA_HORARIA, type ConfiguracionAbuelo, type FormaDeViajar, type QueSePidio } from './datos'
-import { armarEmergencia, avisarEmergenciaALaFamilia, avisarEstafaALaFamilia, avisarPedidoDePlata, type Emergencia, type Estafa } from './emergencia'
+import {
+  armarEmergencia,
+  avisarDudaALaFamilia,
+  avisarEmergenciaALaFamilia,
+  avisarEstafaALaFamilia,
+  avisarPedidoDePlata,
+  contactosParaLlamar,
+  type Emergencia,
+  type Estafa,
+} from './emergencia'
+import { armarMensajeDeEstacionamiento, mostrarMatricula, normalizarMatricula, type MensajeDeEstacionamiento } from './estacionamiento'
 import { buscarCoordenadas } from './mapas'
 import { juntarNombres } from './texto'
 import { armarViaje, nombresDeFormas, type Viaje } from './viajes'
@@ -30,8 +40,10 @@ export interface MensajeCharla {
   pedido?: Pedido
   /** Si hizo falta permiso, a quién se le preguntó (la pantalla espera la respuesta). */
   aprobacion?: EsperaAprobacion
-  /** Botón para llamar a un familiar (por ejemplo, si rechazó un pedido). */
+  /** Botón para llamar a un familiar (por ejemplo, si rechazó un pedido, o una duda peligrosa como el gas). */
   llamar?: { nombre: string; link: string }
+  /** Si quiere pagar el estacionamiento: la tarjeta con el SMS ya escrito y el botón para abrirlo (lo manda él). */
+  estacionamiento?: MensajeDeEstacionamiento
 }
 
 /** Lo que necesita la pantalla del abuelo para esperar la respuesta de la familia. */
@@ -41,7 +53,7 @@ export interface EsperaAprobacion {
   familiares: string[]
 }
 
-export type { Emergencia, Estafa, Pedido, Viaje }
+export type { Emergencia, Estafa, MensajeDeEstacionamiento, Pedido, Viaje }
 
 /** Pregunta suelta, sin charla (la usa /prueba). */
 export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
@@ -79,7 +91,17 @@ export async function conversarConElAbuelo(
   configuracion: ConfiguracionAbuelo,
   charla: MensajeCharla[],
   { urlApp }: { urlApp: string },
-): Promise<RespuestaIA & { viaje?: Viaje; emergencia?: Emergencia; estafa?: Estafa; pedido?: Pedido; aprobacion?: EsperaAprobacion }> {
+): Promise<
+  RespuestaIA & {
+    viaje?: Viaje
+    emergencia?: Emergencia
+    estafa?: Estafa
+    pedido?: Pedido
+    aprobacion?: EsperaAprobacion
+    llamar?: { nombre: string; link: string }
+    estacionamiento?: MensajeDeEstacionamiento
+  }
+> {
   const lugares = configuracion.lugares.map((lugar, i) => ({ id: `lugar-${i + 1}`, ...lugar }))
   const formasActivas = formasDeViajarDe(configuracion)
   const comercios = configuracion.comercios.map((comercio, i) => ({ id: `comercio-${i + 1}`, ...comercio }))
@@ -89,6 +111,8 @@ export async function conversarConElAbuelo(
   let estafa: Estafa | undefined
   let pedido: Pedido | undefined
   let aprobacion: EsperaAprobacion | undefined
+  let llamar: { nombre: string; link: string } | undefined
+  let estacionamiento: MensajeDeEstacionamiento | undefined
 
   /** Pide permiso a la familia (una sola vez por respuesta) y le dice a la IA qué contestar. */
   async function pedirPermisoALaFamilia(descripcion: string, que: QueSePidio): Promise<string> {
@@ -189,6 +213,46 @@ export async function conversarConElAbuelo(
     return `NO se mandó plata ni se le preguntó nada a la familia: el asistente nunca manda ni transfiere plata. ${aviso} Decile con calma, en una o dos frases, que eso no lo podés hacer y que ${avisados.length > 0 ? 'ya le avisaste a la familia para que lo llamen' : 'es mejor que lo hable con la familia'}.`
   }
 
+  /** Estacionamiento tarifado: el servidor arma el SMS con la matrícula GUARDADA (o la que dijo, si no hay ninguna). */
+  function pagarEstacionamiento(entrada: { minutos?: unknown; matricula?: unknown }): string {
+    if (estacionamiento) return 'La tarjeta del estacionamiento ya se está mostrando.'
+    const guardada = configuracion.abuelo.matricula
+    const dicha = typeof entrada.matricula === 'string' ? normalizarMatricula(entrada.matricula) : null
+    const matricula = guardada ?? dicha
+    if (!matricula) {
+      return 'NO se armó el mensaje: no hay ninguna matrícula guardada. Preguntale la matrícula del auto (letras y números, por ejemplo SBA 1234) y repetísela para que confirme; o sugerile que le pida a la familia que la cargue en la app. No la inventes.'
+    }
+    const minutos = typeof entrada.minutos === 'number' ? Math.round(entrada.minutos) : Number.NaN
+    const armado = armarMensajeDeEstacionamiento(matricula, minutos)
+    if (!armado) return 'NO se armó el mensaje: faltan los minutos (un número entero, por ejemplo 60 para una hora). Preguntale cuánto tiempo va a estar.'
+    estacionamiento = armado
+    const nota = guardada
+      ? ''
+      : ' Como esa matrícula no está guardada, recordale que el auto tiene que estar registrado en el sistema de estacionamiento de la Intendencia (eso lo hace la familia una vez) y que puede pedirle a la familia que la cargue en la app.'
+    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con el mensaje "${armado.texto}" para el ${armado.numero} (auto ${armado.matricula}, ${armado.minutos} minutos) y un botón grande "Abrir mensaje". El SMS NO está mandado: él toca el botón y después aprieta Enviar en los mensajes del celular.${nota} Contáselo en una o dos frases.`
+  }
+
+  /** Un botón para llamar al primer familiar con teléfono (por ejemplo, para algo peligroso como el gas). */
+  function ofrecerLlamarALaFamilia(): string {
+    const [primero] = contactosParaLlamar(configuracion.familiares)
+    if (!primero) return 'No hay ningún familiar con teléfono guardado: no se muestra el botón. Decile que llame a un técnico o a alguien de confianza.'
+    llamar = primero
+    return `Listo: debajo de tu respuesta, el abuelo ve un botón grande "Llamar a ${primero.nombre}". No escribas números de teléfono.`
+  }
+
+  /** Una duda que no se pudo resolver por chat: con su OK, se la cuenta a la familia para que lo llamen. */
+  async function preguntarleALaFamilia(duda: unknown): Promise<string> {
+    const texto = typeof duda === 'string' ? duda.trim().slice(0, 200) : ''
+    if (!texto) return 'No se le preguntó a nadie: falta la duda.'
+    const avisados = await avisarDudaALaFamilia(configuracion, texto)
+    const [primero] = contactosParaLlamar(configuracion.familiares)
+    if (primero) llamar = primero
+    if (avisados.length === 0) {
+      return `No se le pudo avisar a nadie de la familia.${primero ? ` Debajo de tu respuesta ve un botón "Llamar a ${primero.nombre}".` : ''} Decíselo con calma.`
+    }
+    return `Listo: ya les conté la duda a ${juntarNombres(avisados)} para que lo llamen.${primero ? ` Además, debajo de tu respuesta ve un botón "Llamar a ${primero.nombre}" por si quiere llamar él.` : ''} Decíselo en una o dos frases. No escribas números de teléfono.`
+  }
+
   async function proponerViaje(lugarId: unknown, forma: unknown): Promise<string> {
     const lugar = lugares.find((l) => l.id === lugarId)
     if (!lugar) return 'Ese id no corresponde a ningún lugar guardado. No inventes lugares.'
@@ -223,12 +287,18 @@ export async function conversarConElAbuelo(
       HERRAMIENTA_AVISAR_PEDIDO_DE_PLATA,
       ...(lugares.length > 0 && formasActivas.length > 0 ? [herramientaProponerViaje(lugares.map((l) => l.id), formasActivas)] : []),
       ...(comercios.length > 0 ? [herramientaProponerPedido(comercios.map((c) => c.id))] : []),
+      herramientaPagarEstacionamiento(configuracion.abuelo.matricula),
+      HERRAMIENTA_LLAMAR_A_LA_FAMILIA,
+      HERRAMIENTA_PREGUNTARLE_A_LA_FAMILIA,
     ],
     usarHerramienta: (bloque) => {
       if (bloque.name === 'mostrar_emergencia') return mostrarEmergencia()
       if (bloque.name === 'alertar_estafa') return alertarEstafa((bloque.input as { motivo?: unknown }).motivo)
       if (bloque.name === 'consultar_a_la_familia') return consultarALaFamilia(bloque.input as Record<string, unknown>)
       if (bloque.name === 'avisar_pedido_de_plata') return avisarPlata()
+      if (bloque.name === 'pagar_estacionamiento') return pagarEstacionamiento(bloque.input as Record<string, unknown>)
+      if (bloque.name === 'ofrecer_llamar_a_la_familia') return ofrecerLlamarALaFamilia()
+      if (bloque.name === 'preguntarle_a_la_familia') return preguntarleALaFamilia((bloque.input as { duda?: unknown }).duda)
       if (bloque.name === 'proponer_viaje') {
         const entrada = bloque.input as { lugar_id?: unknown; forma?: unknown }
         return proponerViaje(entrada.lugar_id, entrada.forma)
@@ -248,7 +318,64 @@ export async function conversarConElAbuelo(
     ...(estafa && { estafa }),
     ...(pedido && { pedido }),
     ...(aprobacion && { aprobacion }),
+    ...(llamar && { llamar }),
+    ...(estacionamiento && { estacionamiento }),
   }
+}
+
+// Las tres de abajo van sin strict: Haiku rechaza la charla si hay muchas herramientas strict. Lo que llega lo revisa
+// el servidor igual (los minutos, la matrícula, la duda).
+
+function herramientaPagarEstacionamiento(matriculaGuardada: string | undefined): Anthropic.Beta.BetaTool {
+  return {
+    name: 'pagar_estacionamiento',
+    description:
+      'Estacionamiento tarifado: le muestra al abuelo una tarjeta con el SMS para pagar ya escrito y un botón "Abrir mensaje". ' +
+      'NO manda nada: él aprieta Enviar. Usala recién cuando él confirmó la matrícula y los minutos.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        minutos: { type: 'integer', description: 'Cuántos minutos va a estar, en número (una hora = 60, media hora = 30).' },
+        matricula: {
+          type: 'string',
+          description: matriculaGuardada
+            ? 'Dejalo en "": se usa la matrícula guardada.'
+            : 'No hay matrícula guardada: la que dijo el abuelo y confirmó, tal cual (ej. "SBA 1234"). Nunca la inventes.',
+        },
+      },
+      required: ['minutos', 'matricula'],
+      additionalProperties: false,
+    },
+    strict: false,
+  }
+}
+
+const HERRAMIENTA_LLAMAR_A_LA_FAMILIA: Anthropic.Beta.BetaTool = {
+  name: 'ofrecer_llamar_a_la_familia',
+  description:
+    'Le muestra al abuelo un botón grande para llamar a su primer familiar (el teléfono lo pone el sistema). ' +
+    'Usala cuando una duda es peligrosa (gas, electricidad, una pérdida de agua grande) o cuando conviene que hable con la familia.',
+  input_schema: {
+    type: 'object',
+    properties: { motivo: { type: 'string', description: 'En pocas palabras, para qué (no se le muestra).' } },
+    required: ['motivo'],
+    additionalProperties: false,
+  },
+  strict: false,
+}
+
+const HERRAMIENTA_PREGUNTARLE_A_LA_FAMILIA: Anthropic.Beta.BetaTool = {
+  name: 'preguntarle_a_la_familia',
+  description:
+    'Cuando una duda del día a día no se pudo resolver por chat y el abuelo DIJO QUE SÍ a "¿Querés que le pregunte a…?": ' +
+    'les cuenta la duda a los familiares (mail y celular) para que lo llamen. No es un permiso. Nunca para salud, plata ni emergencias.',
+  input_schema: {
+    type: 'object',
+    properties: { duda: { type: 'string', description: 'La duda en pocas palabras, para la familia. Ej. "no le anda la tele".' } },
+    required: ['duda'],
+    additionalProperties: false,
+  },
+  strict: false,
 }
 
 function herramientaProponerPedido(ids: string[]): Anthropic.Beta.BetaTool {
@@ -438,6 +565,28 @@ Vos nunca mandás nada ni llamás.
 - Si quiere pedir a un comercio que no está guardado (o algo que no vende ninguno de sus comercios), no le digas que no: usá consultar_a_la_familia. Nunca inventes comercios ni números.
 - Nunca escribas números, links ni precios (no los sabemos).
 
+ESTACIONAMIENTO TARIFADO (PAGAR CON UN SMS)
+${
+  configuracion.abuelo.matricula
+    ? `Matrícula guardada de su auto: ${mostrarMatricula(configuracion.abuelo.matricula)}.`
+    : 'No tiene matrícula guardada.'
+}
+Si cuenta que estacionó y cuánto va a estar (por ejemplo "estacioné en 18 de Julio, voy a estar una hora"):
+- Antes de nada, confirmale en una pregunta la matrícula y los minutos (por ejemplo: "¿Pago para el auto SBA 1234, 60 minutos?"). Si no dijo cuánto tiempo, preguntale.
+- Cuando diga que sí, usá pagar_estacionamiento con los minutos en número. La pantalla le muestra el mensaje ya escrito y un botón para abrirlo; él aprieta Enviar. Vos nunca lo mandás.
+- Si no hay matrícula guardada: pedile la matrícula y repetísela para que confirme, o sugerile que le pida a la familia que la cargue. Nunca la inventes.
+- No digas precios, horarios ni zonas: no los sabemos.
+
+DUDAS DEL DÍA A DÍA
+Si pregunta algo práctico (la tele no anda, cómo sacar el silencio del celular, qué cocinar con lo que tiene), ayudalo vos:
+- Palabras simples y frases cortas. Un paso por vez: decile solo el primer paso y preguntale "¿Pudiste?" antes de dar el siguiente.
+- Si hace falta un dato para ayudarlo (qué celular o qué tele tiene, de qué marca), preguntalo primero, de a uno.
+- En recetas: dos o tres opciones simples con lo que tiene, sin cosas difíciles. Cuando elija una, los pasos de a uno.
+- Si después de dos o tres intentos no se resuelve, o es muy difícil por chat, preguntale "¿Querés que le pregunte a ${contactosParaLlamar(configuracion.familiares)[0]?.nombre ?? 'la familia'}?". Recién si dice que sí, usá preguntarle_a_la_familia.
+- Si es algo peligroso (olor a gas, chispas o cables, una pérdida de agua grande), no le des pasos para arreglarlo: decile que no toque nada, que llame a un técnico o a la familia, y usá ofrecer_llamar_a_la_familia. Si hay humo, fuego o alguien lastimado, usá mostrar_emergencia.
+- Nunca consejos médicos (ni de remedios): decile que lo hable con su médico o con la familia.
+- Nunca datos bancarios, claves, códigos ni plata (para la plata está avisar_pedido_de_plata).
+
 SALUD Y EMERGENCIAS
 Pensá en cada mensaje si lo que cuenta PUEDE ser un problema de salud o una emergencia: sentirse mal, una caída, dolor (en el pecho o en cualquier parte), mareos, falta de aire, confusión, un golpe, no poder levantarse, etc. No te guíes por palabras sueltas: razoná qué le está pasando.
 - Si puede serlo, usá la herramienta mostrar_emergencia. Ante la duda, usala: es mejor mostrar los botones de más que de menos.
@@ -453,7 +602,7 @@ Si pide algo raro o fuera de lo común (un lugar que no está guardado, un viaje
 - Nunca para plata, emergencias ni temas de salud: esas tienen sus propias reglas (abajo).
 
 LO QUE TODAVÍA NO PODÉS HACER
-Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails ni llamar vos por teléfono (a un comercio guardado que se pide llamando, llama él con el botón de proponer_pedido). Los permisos de la familia los pide el sistema solo, cuando usás las herramientas. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
+Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails ni llamar vos por teléfono (a un comercio guardado que se pide llamando, llama él con el botón de proponer_pedido; el SMS del estacionamiento lo manda él con el botón de pagar_estacionamiento). Los permisos de la familia los pide el sistema solo, cuando usás las herramientas. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
 Nunca ofrezcas ni digas que hiciste algo que no podés hacer desde esta charla (como anotar algo en un papel).
 
 REGLAS QUE NUNCA SE APAGAN

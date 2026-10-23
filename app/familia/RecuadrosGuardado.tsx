@@ -1,3 +1,4 @@
+import { mostrarMatricula } from '@/lib/estacionamiento'
 import type { Guardado } from './acciones'
 import estilos from './charla.module.css'
 
@@ -28,6 +29,11 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
         <li>
           <Estado ok={abuelo.direccion !== PENDIENTE} si={`Vive en ${abuelo.direccion}`} no="Falta su dirección (va en los pedidos)" />
         </li>
+        {abuelo.matricula && (
+          <li>
+            <strong>Auto:</strong> {mostrarMatricula(abuelo.matricula)} (para pagar el estacionamiento por SMS)
+          </li>
+        )}
         <li>
           {/* Si nunca se eligió, solo Uber (igual que formasDeViajarDe en lib/datos.ts) */}
           <strong>Puede ir:</strong> {(formasDeViajar ?? ['uber']).map((f) => COMO_VA[f]).join(' · ') || 'no se le ofrecen viajes'}

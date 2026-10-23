@@ -13,7 +13,9 @@ import {
   type Nivel,
   type Paso,
 } from '@/lib/datos'
+import { mostrarMatricula, normalizarMatricula } from '@/lib/estacionamiento'
 import { ubicarYGuardarLaCasa } from './abuelo'
+import { AVISO_REGISTRO_DEL_AUTO } from './auto'
 import { guardarFamiliar } from './familiares'
 import { comoPuedeIr, guardarFormas, KM_CAMINANDO, NOMBRES_FORMAS } from './formas-de-viajar'
 import { cambiarConfiguracion, nombreValido, normalizarTelefono } from './guardar'
@@ -64,7 +66,7 @@ export interface FormaEnLaTarjeta {
 }
 
 export type Tarjeta =
-  | { tipo: 'datos'; nombre: string; apodo: string; trato: 'usted' | 'vos' | ''; telefono: string; direccion: string }
+  | { tipo: 'datos'; nombre: string; apodo: string; trato: 'usted' | 'vos' | ''; telefono: string; direccion: string; matricula: string }
   | { tipo: 'como-es'; tecnologia: readonly string[]; plata: readonly string[] }
   | { tipo: 'lugares'; primeros: LugarSugerido[]; todos: LugarSugerido[]; sinCasa?: boolean; formas: FormaEnLaTarjeta[] }
   | { tipo: 'comercios'; primeros: ComercioSugerido[]; todos: ComercioSugerido[]; sinCasa?: boolean }
@@ -74,7 +76,7 @@ export type Tarjeta =
   | { tipo: 'falta'; pasos: string[] }
 
 export type RespuestaDeTarjeta =
-  | { tipo: 'datos'; nombre: string; apodo: string; trato: 'usted' | 'vos'; telefono: string; direccion: string }
+  | { tipo: 'datos'; nombre: string; apodo: string; trato: 'usted' | 'vos'; telefono: string; direccion: string; matricula?: string }
   | { tipo: 'como-es'; tecnologia: string; plata: string }
   | { tipo: 'lugares'; elegidos: { id: string; vaSolo: boolean }[]; formas: FormaDeViajar[] }
   | { tipo: 'comercios'; elegidos: { id: string; pedido: string; vaSolo: boolean; funciona: boolean }[] }
@@ -217,6 +219,7 @@ export async function tarjetaDelPaso(c: ConfiguracionAbuelo, paso: Paso, mail: s
           trato,
           telefono: sinPendiente(c.abuelo.telefono),
           direccion: sinPendiente(c.abuelo.direccion),
+          matricula: c.abuelo.matricula ? mostrarMatricula(c.abuelo.matricula) : '',
         },
       }
     }
@@ -343,6 +346,10 @@ export async function responderTarjeta(
       if (!esTexto(r.direccion) || !r.direccion.trim()) return deNuevo('Falta la dirección (calle, número y barrio).')
       const telefono = esTexto(r.telefono) && r.telefono.trim() ? normalizarTelefono(r.telefono) : PENDIENTE
       if (!telefono) return deNuevo(`No entiendo el teléfono "${r.telefono}". Escribilo como 099 123 456.`)
+      // Si maneja (opcional): la matrícula del auto, para pagar el estacionamiento por SMS desde /abuelo.
+      const escrita = esTexto(r.matricula, 20) ? r.matricula.trim() : ''
+      const matricula = escrita ? normalizarMatricula(escrita) : null
+      if (escrita && !matricula) return deNuevo(`"${escrita}" no parece una matrícula. Escribila como SBA 1234 (o dejala vacía).`)
       const nombre = r.nombre.trim()
       const apodo = esTexto(r.apodo) && r.apodo.trim() ? r.apodo.trim() : primerNombre(nombre)
       const direccion = r.direccion.trim()
@@ -350,13 +357,16 @@ export async function responderTarjeta(
       await cambiarConfiguracion(codigo, (x) => {
         abuelo = { ...x.abuelo, nombre, comoLeGustaQueLeHablen: `${apodo}, de ${r.trato}`, telefono, direccion }
         if (x.abuelo.direccion !== direccion) delete abuelo.ubicacion // dirección nueva: se ubica de nuevo
+        if (matricula) abuelo.matricula = matricula
+        else delete abuelo.matricula
         return { ...x, abuelo }
       })
       const casa = abuelo.ubicacion ?? (await ubicarYGuardarLaCasa(codigo, abuelo))
       const dondeQueda = casa
         ? `Ubiqué la casa en el mapa: ${casa.direccionDelMapa}.`
         : 'No encontré esa dirección en el mapa. Si querés, revisala o pegá abajo el link de Google Maps de la casa (en Google Maps: "Compartir" y "Copiar enlace"). Mientras tanto, seguimos.'
-      return seguir(`Listo, guardé a ${nombre}. ${dondeQueda}`)
+      const delAuto = matricula ? ` Guardé la matrícula ${mostrarMatricula(matricula)}. ${AVISO_REGISTRO_DEL_AUTO}` : ''
+      return seguir(`Listo, guardé a ${nombre}. ${dondeQueda}${delAuto}`)
     }
 
     case 'como-es': {

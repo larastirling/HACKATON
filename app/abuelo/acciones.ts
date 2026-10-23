@@ -9,6 +9,7 @@ import {
   type EsperaAprobacion,
   type Estafa,
   type MensajeCharla,
+  type MensajeDeEstacionamiento,
   type Pedido,
   type Viaje,
 } from '@/lib/ia'
@@ -19,7 +20,17 @@ const MAXIMO_MENSAJES = 40
 const MAXIMO_LETRAS = 2000
 
 export type Respuesta =
-  | { ok: true; texto: string; viaje?: Viaje; emergencia?: Emergencia; estafa?: Estafa; pedido?: Pedido; aprobacion?: EsperaAprobacion }
+  | {
+      ok: true
+      texto: string
+      viaje?: Viaje
+      emergencia?: Emergencia
+      estafa?: Estafa
+      pedido?: Pedido
+      aprobacion?: EsperaAprobacion
+      llamar?: { nombre: string; link: string }
+      estacionamiento?: MensajeDeEstacionamiento
+    }
   | { ok: false }
 
 /** Recibe TODA la charla y devuelve lo que contesta la IA. */
@@ -39,9 +50,9 @@ export async function responderAlAbuelo(charla: MensajeCharla[]): Promise<Respue
     console.error('La IA no pudo responder al abuelo:', respuesta.ok ? 'respuesta vacía' : respuesta.error)
     return { ok: false }
   }
-  const { texto, viaje, emergencia, estafa, pedido, aprobacion } = respuesta
+  const { texto, viaje, emergencia, estafa, pedido, aprobacion, llamar, estacionamiento } = respuesta
   await anotarLoQuePaso(sesion.codigoFamilia, ultimos.at(-1)?.texto ?? '', respuesta)
-  return { ok: true, texto, viaje, emergencia, estafa, pedido, aprobacion }
+  return { ok: true, texto, viaje, emergencia, estafa, pedido, aprobacion, llamar, estacionamiento }
 }
 
 export type EstadoDeLaAprobacion =
@@ -111,13 +122,16 @@ export async function mandarUbicacion(latitud: number, longitud: number): Promis
 async function anotarLoQuePaso(
   codigoFamilia: string,
   loQueDijo: string,
-  r: { viaje?: Viaje; emergencia?: Emergencia; pedido?: Pedido; aprobacion?: EsperaAprobacion },
+  r: { viaje?: Viaje; emergencia?: Emergencia; pedido?: Pedido; aprobacion?: EsperaAprobacion; estacionamiento?: MensajeDeEstacionamiento },
 ): Promise<void> {
   await anotarEnElDiario(codigoFamilia, 'charla', loQueDijo)
   if (r.viaje) await anotarEnElDiario(codigoFamilia, 'viaje', `Se le armó un viaje en Uber a ${r.viaje.nombre}`)
   if (r.pedido) await anotarEnElDiario(codigoFamilia, 'pedido', `Se le armó un pedido ${r.pedido.por === 'llamada' ? 'por teléfono' : 'por WhatsApp'} a ${r.pedido.comercio}: ${r.pedido.pedido}`)
   if (r.aprobacion) await anotarEnElDiario(codigoFamilia, 'permiso', `Se le pidió permiso a la familia (${r.aprobacion.familiares.join(', ')})`)
   if (r.emergencia) await anotarEnElDiario(codigoFamilia, 'emergencia', 'Se le mostraron los botones de emergencia')
+  if (r.estacionamiento) {
+    await anotarEnElDiario(codigoFamilia, 'pedido', `Se le armó el SMS para pagar el estacionamiento (${r.estacionamiento.matricula}, ${r.estacionamiento.minutos} minutos)`)
+  }
   // La estafa la anota lib/emergencia.ts, con el motivo.
 }
 

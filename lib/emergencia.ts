@@ -204,6 +204,32 @@ export async function avisarPedidoDePlata(configuracion: ConfiguracionAbuelo, lo
   return avisados
 }
 
+/**
+ * Una duda del día a día que el asistente no pudo resolver por chat ("no me anda la tele"): con el OK del abuelo, se la
+ * cuenta a los familiares para que lo llamen. No es un permiso: no hay que aprobar nada. Como máximo una cada 10 minutos.
+ */
+export async function avisarDudaALaFamilia(configuracion: ConfiguracionAbuelo, duda: string): Promise<string[]> {
+  const familiares = familiaresEnOrden(configuracion)
+  if (familiares.length === 0) return []
+  const candado = `duda:${configuracion.codigoFamilia}`
+  if (!(await tomarCandado(candado, MINUTOS_ENTRE_AVISOS_DE_EMERGENCIA * 60))) return familiares.map((f) => f.nombre)
+
+  const nombre = primerNombre(configuracion.abuelo.nombre)
+  const cita = duda.trim().slice(0, MAXIMO_LETRAS_CITA)
+  const telefono = configuracion.abuelo.telefono
+  const tieneTelefono = telefono !== PENDIENTE && telefono.replace(/\D/g, '') !== ''
+  await anotarEnElDiario(configuracion.codigoFamilia, 'ayuda', `Le preguntó a la familia: ${cita}`)
+  const avisados = await avisarATodos(configuracion, {
+    asunto: `${nombre} tiene una duda`,
+    titulo: `${nombre} tiene una duda`,
+    parrafo: `Le preguntó al asistente: "${cita}". No se pudo resolver por chat y pidió que te avisemos. Cuando puedas, llamalo.`,
+    ...(tieneTelefono && { boton: { texto: `Llamar a ${nombre}`, link: `tel:${telefono.replace(/[^\d+]/g, '')}`, color: '#6b4226' } }),
+    notificacion: { titulo: `${nombre} tiene una duda`, cuerpo: `"${cita}". Llamalo cuando puedas.`, url: '/familia', etiqueta: 'duda' },
+  })
+  if (avisados.length === 0) await soltarCandado(candado)
+  return avisados
+}
+
 /** Manda el mismo aviso a todos los familiares: un mail (a los que tienen mail) y una notificación al celular. */
 async function avisarATodos(
   configuracion: ConfiguracionAbuelo,

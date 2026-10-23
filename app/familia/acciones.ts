@@ -4,6 +4,7 @@ import { leerConfiguracion, type ConfiguracionAbuelo } from '@/lib/datos'
 import { charlarConLaIA, type RespuestaIA } from '@/lib/ia'
 import { leerSesion } from '@/lib/sesion'
 import { guardarAbuelo, HERRAMIENTA_GUARDAR_ABUELO } from './abuelo'
+import { guardarMatricula, HERRAMIENTA_GUARDAR_MATRICULA } from './auto'
 import { buscarEnElMapa, esDelMapa, guardarLugarDelMapa, HERRAMIENTA_BUSCAR_EN_EL_MAPA, preguntarPermisoDelMapa } from './buscar-en-el-mapa'
 import { borrar, HERRAMIENTA_BORRAR, HERRAMIENTA_PROPONER_BORRAR, proponerBorrar, type PedidoBorrar } from './borrar'
 import { guardarComercio, HERRAMIENTA_GUARDAR_COMERCIO } from './comercios'
@@ -234,6 +235,7 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
   let respuesta = await charlarConLaIA(instrucciones, mensajes.map(paraLaIA), {
     tools: [
       HERRAMIENTA_GUARDAR_ABUELO,
+      HERRAMIENTA_GUARDAR_MATRICULA,
       HERRAMIENTA_GUARDAR_LUGAR,
       HERRAMIENTA_UBICAR_CON_LINK,
       HERRAMIENTA_BUSCAR_EN_EL_MAPA,
@@ -250,6 +252,8 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
     ],
     usarHerramienta: (bloque) => {
       switch (bloque.name) {
+        case HERRAMIENTA_GUARDAR_MATRICULA.name:
+          return guardarMatricula(codigo, bloque.input)
         case HERRAMIENTA_GUARDAR_ABUELO.name:
           return guardarAbuelo(codigo, bloque.input)
         case HERRAMIENTA_UBICAR_CON_LINK.name:

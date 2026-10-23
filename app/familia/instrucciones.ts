@@ -8,7 +8,7 @@ export const INSTRUCCIONES_FAMILIA = `Sos el asistente de "Contigo", un servicio
 Ahora estás hablando con un HIJO o HIJA que está cargando (o ya cargó) a su papá o mamá.
 
 La carga la guía la pantalla con TARJETAS, en 6 pasos, sin la IA: 1) sus datos, 2) cómo se maneja con la tecnología y la plata (botones), 3) lugares (marca varios de una lista, con "Va solo" o "Con permiso", y cómo puede ir: Uber, caminando, colectivo), 4) comercios (igual), 5) familiares, 6) reglas (la tabla con el nivel propuesto). Arriba ve "Paso N de 6", un botón "Seguir" y, en los pasos que no son obligatorios, "Completar después". Mirá CÓMO VA LA CARGA, abajo.
-- Vos NO hacés las preguntas de las tarjetas (nombre, trato, teléfono, dirección, tecnología, plata, cómo puede ir a los lugares, parentesco) ni repetís lo que la tarjeta ya pregunta.
+- Vos NO hacés las preguntas de las tarjetas (nombre, trato, teléfono, dirección, matrícula del auto, tecnología, plata, cómo puede ir a los lugares, parentesco) ni repetís lo que la tarjeta ya pregunta.
 - Vos atendés lo que el hijo ESCRIBE: un lugar o comercio que falta en la lista ("falta la peluquería de la esquina"), una corrección, un cambio, una duda. Usá las herramientas de abajo para eso.
 - Cuando termines con lo que escribió, decile en una frase que puede seguir con el paso tocando "Seguir" arriba (salvo que ya esté todo cargado).
 - Si escribe los datos de una tarjeta en vez de usarla (por ejemplo el nombre), guardalos igual con la herramienta que corresponda.
@@ -22,6 +22,7 @@ Cómo hablás:
 
 Los datos de la persona mayor (si los escribe):
 - Se guardan con guardar_abuelo. La casa se ubica en el mapa apenas guardás la dirección: contale al hijo dónde la ubicó para que confirme. Si el mapa no la encontró, ofrecele revisarla o pegar el link de Google Maps de la casa (sin la casa ubicada no se le pueden sugerir lugares ni comercios cercanos).
+- Si maneja: la matrícula del auto va en la tarjeta del paso 1 (no la pidas vos). Si el hijo la escribe, guardala con guardar_matricula. Cuando se guarde, avisale que el auto tiene que estar registrado en el sistema de estacionamiento de la Intendencia (matrícula, padrón y su celular) y que eso lo hace la familia una sola vez: así puede pagar el estacionamiento con un SMS desde su celular.
 - El que escribe ya es el primer familiar. Los familiares se guardan con guardar_familiar.
 - Al terminar, en el celular de la persona mayor hay que entrar con "Soy el abuelo" y el código de la familia, que se ve arriba en la pantalla.
 
@@ -141,7 +142,7 @@ export function guardadoParaLaIA(configuracion: ConfiguracionAbuelo): string {
 
   return [
     'LO QUE YA ESTÁ GUARDADO (confirmado por el sistema AHORA. Si algo figura acá, se guardó de verdad; lo que dijiste antes sobre guardarlo es cierto):',
-    `Persona mayor: ${abuelo.nombre} | le gusta que le hablen: ${abuelo.comoLeGustaQueLeHablen} | teléfono: ${abuelo.telefono} | dirección: ${abuelo.direccion}`,
+    `Persona mayor: ${abuelo.nombre} | le gusta que le hablen: ${abuelo.comoLeGustaQueLeHablen} | teléfono: ${abuelo.telefono} | dirección: ${abuelo.direccion} | matrícula del auto: ${abuelo.matricula ?? "no tiene (o no maneja)"}`,
     configuracion.comoEs
       ? `Cómo se maneja: con la tecnología, "${configuracion.comoEs.tecnologia}"; con la plata, "${configuracion.comoEs.plata}"`
       : 'Cómo se maneja: todavía no se contestó (paso 2).',

@@ -36,6 +36,7 @@ En el código, el formato está en `lib/datos.ts`. Ese archivo es el único que 
 | `telefono` | Su teléfono, con código de país. | Sí (puede ser `"PENDIENTE"`) | `"+598 9X XXX XXX"` |
 | `direccion` | Dónde vive: calle, número y ciudad. Se pone en los pedidos por WhatsApp para que sepan a dónde llevar. **No inventarla.** | Sí (puede ser `"PENDIENTE"`) | `"Calle 1234, Montevideo"` |
 | `ubicacion` | Dónde queda la casa en el mapa, para sugerir lugares y comercios cercanos: `latitud`, `longitud`, `direccionDelMapa` y `fuente` (`"IDE Uruguay"`, `"OpenStreetMap"` o `"Google Maps"`). La pone el sistema; **nunca la IA**. | No (si falta, se busca la dirección) | `{ "latitud": -34.9087, "longitud": -56.1478, "direccionDelMapa": "26 de Marzo 1271, Pocitos, Montevideo", "fuente": "IDE Uruguay" }` |
+| `matricula` | Si maneja: la matrícula del auto, en mayúsculas y sin espacios. Sirve para pagar el estacionamiento tarifado con un SMS desde /abuelo (el número y el formato del SMS están en `lib/estacionamiento-config.ts`, **a confirmar en la web de la Intendencia de Montevideo**). El auto tiene que estar registrado en el sistema de estacionamiento de la Intendencia (matrícula, padrón y su celular): eso lo hace la familia una vez. | No | `"SBA1234"` |
 
 ## 3. Lugares (`lugares`) — una lista
 

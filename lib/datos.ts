@@ -25,6 +25,12 @@ export interface Abuelo {
    * dirección (lib/mapas.ts) o con un link de Google Maps que pegó el hijo; nunca la IA. Si falta, se busca la dirección.
    */
   ubicacion?: { latitud: number; longitud: number; direccionDelMapa: string; fuente: string }
+  /**
+   * Si maneja: la matrícula del auto, en mayúsculas y sin espacios ("SBA1234"), para pagar el estacionamiento
+   * tarifado por SMS desde /abuelo (lib/estacionamiento.ts). Opcional. El auto tiene que estar registrado en el
+   * sistema de estacionamiento de la Intendencia: eso lo hace la familia una vez.
+   */
+  matricula?: string
 }
 
 export interface Lugar {
@@ -345,6 +351,9 @@ export function validarConfiguracion(dato: unknown): string[] {
     const u = c.abuelo.ubicacion
     if (u !== undefined && (!u || !esCoordenadaNumerica(u.latitud, 90) || !esCoordenadaNumerica(u.longitud, 180) || !esTexto(u.direccionDelMapa))) {
       errores.push('"abuelo.ubicacion" tiene que tener latitud, longitud (números) y direccionDelMapa')
+    }
+    if (c.abuelo.matricula !== undefined && (typeof c.abuelo.matricula !== 'string' || !/^[A-Z0-9]{6,7}$/.test(c.abuelo.matricula))) {
+      errores.push('"abuelo.matricula" tiene que ser la matrícula en mayúsculas y sin espacios, ej. "SBA1234"')
     }
   }
 

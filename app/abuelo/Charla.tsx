@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
 import type { FormaDeViajar } from '@/lib/datos'
-import type { Emergencia, EsperaAprobacion, Estafa, MensajeCharla, Pedido, Viaje } from '@/lib/ia'
+import type { Emergencia, EsperaAprobacion, Estafa, MensajeCharla, MensajeDeEstacionamiento, Pedido, Viaje } from '@/lib/ia'
 import { juntarNombres } from '@/lib/texto'
 import { consultarAprobacion, responderAlAbuelo } from './acciones'
 import { callar, decirEnVozAlta, desbloquearVoz, MENSAJE_TECLADO, prepararVoces, useDictado, useSilencio } from './voz'
@@ -66,8 +66,8 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
       try {
         const respuesta = await responderAlAbuelo(nuevaCharla)
         if (respuesta.ok) {
-          const { texto, viaje, emergencia, estafa, pedido, aprobacion } = respuesta
-          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, estafa, pedido, aprobacion }])
+          const { texto, viaje, emergencia, estafa, pedido, aprobacion, llamar, estacionamiento } = respuesta
+          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, estafa, pedido, aprobacion, llamar, estacionamiento }])
         } else setHayError(true)
       } catch {
         setHayError(true)
@@ -129,6 +129,7 @@ export default function Charla({ inicial = [] }: { inicial?: MensajeCharla[] }) 
             {mensaje.emergencia && <BotonesEmergencia emergencia={mensaje.emergencia} />}
             {mensaje.viaje && <TarjetaViaje viaje={mensaje.viaje} />}
             {mensaje.pedido && <TarjetaPedido pedido={mensaje.pedido} />}
+            {mensaje.estacionamiento && <TarjetaEstacionamiento estacionamiento={mensaje.estacionamiento} />}
             {mensaje.llamar && <BotonLlamar {...mensaje.llamar} />}
             {mensaje.aprobacion && (
               <EsperandoAprobacion
@@ -332,6 +333,27 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
         Abrir WhatsApp
       </a>
       <p className="tarjeta-viaje-ayuda">Después toque “Enviar” en WhatsApp.</p>
+    </section>
+  )
+}
+
+// Estacionamiento tarifado: el SMS ya escrito y el botón para abrirlo. Lo manda él (aprieta Enviar): nunca pasa solo.
+function TarjetaEstacionamiento({ estacionamiento }: { estacionamiento: MensajeDeEstacionamiento }) {
+  const horas = estacionamiento.minutos % 60 === 0 ? estacionamiento.minutos / 60 : null
+  const tiempo = horas ? (horas === 1 ? '1 hora' : `${horas} horas`) : `${estacionamiento.minutos} minutos`
+  return (
+    <section className="tarjeta-viaje" aria-label="Pagar el estacionamiento">
+      <p className="tarjeta-viaje-titulo">Pagar el estacionamiento</p>
+      <p className="tarjeta-viaje-destino">
+        Auto {estacionamiento.matricula} · {tiempo}
+      </p>
+      <p className="tarjeta-viaje-direccion">
+        Mensaje al {estacionamiento.numero}: <strong>{estacionamiento.texto}</strong>
+      </p>
+      <a className="boton boton-uber" href={estacionamiento.link}>
+        Abrir mensaje
+      </a>
+      <p className="tarjeta-viaje-ayuda">Después toque “Enviar”. El mensaje no se manda solo.</p>
     </section>
   )
 }

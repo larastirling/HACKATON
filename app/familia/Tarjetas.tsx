@@ -100,12 +100,13 @@ function TarjetaDatos({ t, mandar }: { t: Extract<Tarjeta, { tipo: 'datos' }>; m
   const [trato, setTrato] = useState(t.trato)
   const [telefono, setTelefono] = useState(t.telefono)
   const [direccion, setDireccion] = useState(t.direccion)
+  const [matricula, setMatricula] = useState(t.matricula)
   const falta = !nombre.trim() ? 'el nombre' : !trato ? 'si le hablamos de usted o de vos' : !direccion.trim() ? 'la dirección' : ''
 
   function listo(e: FormEvent) {
     e.preventDefault()
     if (falta || (trato !== 'usted' && trato !== 'vos')) return
-    responder(mandar, `${nombre.trim()}, de ${trato}, vive en ${direccion.trim()}`, { tipo: 'datos', nombre, apodo, trato, telefono, direccion })
+    responder(mandar, `${nombre.trim()}, de ${trato}, vive en ${direccion.trim()}`, { tipo: 'datos', nombre, apodo, trato, telefono, direccion, matricula })
   }
 
   return (
@@ -122,6 +123,19 @@ function TarjetaDatos({ t, mandar }: { t: Extract<Tarjeta, { tipo: 'datos' }>; m
       </Campo>
       <Campo titulo="Dirección de su casa" ayuda="Calle, número y barrio. Va en los pedidos y sirve para sugerir lugares cerca.">
         <input className={estilos.entradaTarjeta} value={direccion} onChange={(e) => setDireccion(e.target.value)} autoComplete="off" placeholder="Juan Benito Blanco 780, Pocitos" />
+      </Campo>
+      <Campo
+        titulo="Si maneja: la matrícula del auto (si querés)"
+        ayuda="Para pagar el estacionamiento con un SMS. El auto tiene que estar registrado en el sistema de estacionamiento de la Intendencia (matrícula, padrón y su celular): eso lo hace la familia una vez."
+      >
+        <input
+          className={estilos.entradaTarjeta}
+          value={matricula}
+          onChange={(e) => setMatricula(e.target.value.toUpperCase())}
+          autoComplete="off"
+          autoCapitalize="characters"
+          placeholder="SBA 1234"
+        />
       </Campo>
       {falta && <p className={estilos.falta}>Falta {falta}.</p>}
       <button type="submit" className="boton boton-principal" disabled={!!falta}>
