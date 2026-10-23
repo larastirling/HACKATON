@@ -80,15 +80,24 @@ export const OFRECER_LINK_DE_GOOGLE_MAPS =
   '(en Google Maps: buscar el lugar, tocar "Compartir" y "Copiar enlace"). Si pega un link, usá ubicar_con_link_de_google_maps. ' +
   'Nunca escribas ni inventes coordenadas.'
 
-/** La casa se ubica en el mapa apenas se guarda (y queda guardada): con eso se sugieren los lugares y comercios cercanos. */
-async function ubicarLaCasa(codigoFamilia: string, abuelo: Abuelo): Promise<string> {
+/**
+ * Ubica la casa en el mapa y guarda la ubicación (con eso se sugieren los lugares y comercios cercanos).
+ * Devuelve dónde la ubicó, o null si el mapa no la encontró. La usan guardar_abuelo y la tarjeta de datos (pasos.ts).
+ */
+export async function ubicarYGuardarLaCasa(codigoFamilia: string, abuelo: Abuelo): Promise<{ direccionDelMapa: string; fuente: string } | null> {
   const casa = await dondeVive({ abuelo })
-  if (!casa) {
-    return ` OJO: ni IDE Uruguay ni OpenStreetMap encontraron esa dirección exacta, así que todavía no se le pueden sugerir lugares ni comercios cercanos. ${OFRECER_LINK_DE_GOOGLE_MAPS}`
-  }
+  if (!casa) return null
   const { latitud, longitud, direccionDelMapa, fuente } = casa
   await cambiarConfiguracion(codigoFamilia, (c) =>
     c.abuelo.direccion === abuelo.direccion ? { ...c, abuelo: { ...c.abuelo, ubicacion: { latitud, longitud, direccionDelMapa, fuente } } } : c,
   )
-  return ` El mapa (${fuente}) ubicó la casa en: ${direccionDelMapa}. Contale al hijo en pocas palabras (calle, número y barrio) para que confirme que es ahí.`
+  return { direccionDelMapa, fuente }
+}
+
+async function ubicarLaCasa(codigoFamilia: string, abuelo: Abuelo): Promise<string> {
+  const casa = await ubicarYGuardarLaCasa(codigoFamilia, abuelo)
+  if (!casa) {
+    return ` OJO: ni IDE Uruguay ni OpenStreetMap encontraron esa dirección exacta, así que todavía no se le pueden sugerir lugares ni comercios cercanos. ${OFRECER_LINK_DE_GOOGLE_MAPS}`
+  }
+  return ` El mapa (${casa.fuente}) ubicó la casa en: ${casa.direccionDelMapa}. Contale al hijo en pocas palabras (calle, número y barrio) para que confirme que es ahí.`
 }

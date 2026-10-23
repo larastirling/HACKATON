@@ -38,7 +38,17 @@ import {
   todosLosComerciosCercanos,
   type ComercioSugerido,
 } from './sugerencias-comercios'
-import { sugerenciasSolas, sugerirPorBoton } from './sugerencias-solas'
+import {
+  esRespuestaDeTarjeta,
+  estadoDelArmado,
+  loQueSigue,
+  responderTarjeta,
+  tarjetaDelPaso,
+  TITULOS,
+  type EstadoDelArmado,
+  type RespuestaDeTarjeta,
+  type Tarjeta,
+} from './pasos'
 
 const MAXIMO_MENSAJES = 80
 const MAXIMO_LETRAS = 2000
@@ -76,8 +86,12 @@ export interface MensajeCharla {
   permiso?: { id: string; necesitaPermiso: boolean }
   /** Hijo: contestó con un botón si borra o no. */
   confirmaBorrar?: boolean
-  /** Hijo: tocó "Sugerirme lugares" o "Sugerirme comercios" (siempre están, debajo de la charla). */
+  /** Hijo: tocó "Sugerirme lugares" o "Sugerirme comercios" (están cuando el perfil ya está cargado). */
   pidio?: 'lugares' | 'comercios'
+  /** Sistema: la tarjeta de un paso de la carga (pasos.ts). Al servidor vuelve solo el tipo. */
+  tarjeta?: Tarjeta | { tipo: Tarjeta['tipo'] }
+  /** Hijo: lo que completó en la tarjeta (o "Completar después" / "Seguir"). */
+  respuesta?: RespuestaDeTarjeta
 }
 
 /** Lo que muestran los recuadros de /familia. */
@@ -94,17 +108,20 @@ export type RespuestaFamilia = RespuestaIA & {
   preguntaPedido?: ComercioSugerido
   preguntaNumero?: ComercioSugerido
   pedidoBorrar?: PedidoBorrar
+  tarjeta?: Tarjeta
+  /** En qué paso de la carga está (para "Paso 3 de 6" arriba). */
+  paso?: EstadoDelArmado
 }
 
 export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamilia> {
   const sesion = await leerSesion()
   if (sesion?.rol !== 'familiar') return { ok: false, error: 'Tenés que entrar como familiar' }
-  // Las listas de "Ver todos" son solo para la pantalla: si vinieran, no se usan.
+  // Las listas de "Ver todos" y el contenido de las tarjetas son solo para la pantalla: si vinieran, no se usan.
   const mensajes = Array.isArray(charla)
     ? charla.map((m) => {
         if (!m || typeof m !== 'object') return m
-        const { todosLosLugares: _lugares, todosLosComercios: _comercios, ...resto } = m
-        return resto as MensajeCharla
+        const { todosLosLugares: _lugares, todosLosComercios: _comercios, tarjeta, ...resto } = m
+        return (tarjeta && typeof tarjeta === 'object' ? { ...resto, tarjeta: { tipo: tarjeta.tipo } } : resto) as MensajeCharla
       })
     : charla
   if (!esCharlaValida(mensajes)) return { ok: false, error: 'La charla es demasiado larga o vino vacía' }
@@ -115,6 +132,29 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
 
   const ultimo = mensajes.at(-1)!
   const anterior = mensajes.at(-2)
+  const conGuardado = async <T extends object>(r: T) => {
+    const actual = (await leerConfiguracion(codigo)) ?? configuracion
+    return { ok: true as const, ...r, guardado: soloGuardado(actual) }
+  }
+
+  // Abrió la pantalla: el saludo y el paso que toca, sin la IA.
+  if (mensajes.length === 1) {
+    const nombre = quienEscribe(configuracion, sesion.mail)
+    const estado = estadoDelArmado(configuracion, sesion.mail)
+    const hola = `¡Hola${nombre ? ` ${nombre}` : ''}!`
+    if (!estado.actual && estado.paraDespues.length === 0) {
+      return conGuardado({
+        texto: `${hola} El perfil de ${configuracion.abuelo.nombre} está completo. ¿Querés cambiar algo? Escribime.`,
+        paso: estado,
+      })
+    }
+    const intro = estado.numero === 1 ? `${hola} Vamos a cargar a tu papá o mamá: son ${estado.total} pasos cortos.` : `${hola} Seguimos donde quedamos.`
+    return conGuardado(await loQueSigue(configuracion, sesion.mail, intro))
+  }
+  // Completó una tarjeta de los pasos (o tocó "Completar después" / "Seguir"): se guarda y sigue, sin la IA.
+  if (ultimo.respuesta) {
+    return conGuardado(await responderTarjeta(codigo, sesion.mail, ultimo.respuesta))
+  }
 
   // Tocó una sugerencia: antes de guardar SIEMPRE se pregunta si puede ir solo o necesita permiso (sin la IA).
   if (ultimo.eligio) {
@@ -145,10 +185,9 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
       return { ok: true, texto, ...(preguntaPedido && { preguntaPedido }), guardado: soloGuardado(configuracion) }
     }
   }
-  // Tocó "Sugerirme lugares" o "Sugerirme comercios": el sistema muestra los cercanos (sin la IA).
+  // Tocó "Sugerirme lugares" o "Sugerirme comercios": la misma tarjeta del paso, para marcar varios (sin la IA).
   if (ultimo.pidio === 'lugares' || ultimo.pidio === 'comercios') {
-    const sugeridas = await sugerirPorBoton(configuracion, mensajes, ultimo.pidio)
-    return { ok: true, texto: sugeridas.texto, ...(await conTodosLosCercanos(configuracion, sugeridas)), guardado: soloGuardado(configuracion) }
+    return conGuardado({ ...(await tarjetaDelPaso(configuracion, ultimo.pidio, sesion.mail)), paso: estadoDelArmado(configuracion, sesion.mail) })
   }
   // Contestó la pregunta del permiso con un botón: recién ahora se guarda.
   if (ultimo.permiso && anterior?.preguntaPermiso?.id === ultimo.permiso.id) {
@@ -160,6 +199,7 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
     await borrar(codigo, anterior.pedidoBorrar)
   }
   const configuracionAhora = (await leerConfiguracion(codigo)) ?? configuracion
+  const pasoAntes = estadoDelArmado(configuracionAhora, sesion.mail).actual
 
   let tabla: TablaReglas | undefined
   let sugerencias: LugarSugerido[] | undefined
@@ -179,6 +219,7 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
   const instrucciones = [
     INSTRUCCIONES_FAMILIA,
     quienEscribeParaLaIA(configuracionAhora, sesion.mail),
+    cargaParaLaIA(estadoDelArmado(configuracionAhora, sesion.mail)),
     guardadoParaLaIA(configuracionAhora),
     await catalogoParaLaIA(configuracionAhora),
     await catalogoComerciosParaLaIA(configuracionAhora),
@@ -189,8 +230,7 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
   const comerciosElegidos = mensajes.flatMap((m) => (m.eligioComercio ? [m.eligioComercio] : []))
   // Los sin confirmar que el hijo dijo que funcionan (solo esos se pueden guardar, y quedan "confirmado por la familia").
   const comerciosConfirmados = confirmadosPorElHijo(mensajes)
-  const usadas = new Set<string>()
-  let respuesta =await charlarConLaIA(instrucciones, mensajes.map(paraLaIA), {
+  let respuesta = await charlarConLaIA(instrucciones, mensajes.map(paraLaIA), {
     tools: [
       HERRAMIENTA_GUARDAR_ABUELO,
       HERRAMIENTA_GUARDAR_LUGAR,
@@ -207,7 +247,6 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
       HERRAMIENTA_GUARDAR_REGLAS,
     ],
     usarHerramienta: (bloque) => {
-      usadas.add(bloque.name)
       switch (bloque.name) {
         case HERRAMIENTA_GUARDAR_ABUELO.name:
           return guardarAbuelo(codigo, bloque.input)
@@ -273,11 +312,11 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
   if (respuesta.ok) respuesta = await dejarUnaSolaPregunta(respuesta)
 
   const actualizada = await leerConfiguracion(codigo)
-  // Perfil nuevo: cuando la charla llega a los lugares (o a los comercios), las sugerencias cercanas aparecen solas.
-  if (respuesta.ok && actualizada && !tabla && !pedidoBorrar && !sugerencias && !comerciosSugeridos) {
-    const solas = await sugerenciasSolas(actualizada, mensajes, respuesta.texto, usadas)
-    sugerencias = solas.sugerencias
-    comerciosSugeridos = solas.comerciosSugeridos
+  const paso = actualizada ? estadoDelArmado(actualizada, sesion.mail) : undefined
+  // Si con lo que escribió terminó un paso (por ejemplo, escribió los datos en vez de usar la tarjeta), sigue la tarjeta del próximo.
+  let tarjeta: Tarjeta | undefined
+  if (respuesta.ok && actualizada && paso?.actual && paso.actual !== pasoAntes && !tabla && !pedidoBorrar && !sugerencias && !comerciosSugeridos) {
+    tarjeta = (await tarjetaDelPaso(actualizada, paso.actual, sesion.mail)).tarjeta
   }
   const sugeridas = actualizada ? await conTodosLosCercanos(actualizada, { sugerencias, comerciosSugeridos }) : {}
   return {
@@ -285,6 +324,8 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
     ...(tabla && { tabla }),
     ...sugeridas,
     ...(pedidoBorrar && { pedidoBorrar }),
+    ...(tarjeta && { tarjeta }),
+    ...(paso && { paso }),
     guardado: actualizada ? soloGuardado(actualizada) : undefined,
   }
 }
@@ -323,10 +364,24 @@ async function conTodosLosCercanos(
   return resultado
 }
 
+/** En qué paso de la carga está, para la IA. */
+function cargaParaLaIA({ actual, numero, total, titulo, paraDespues }: EstadoDelArmado): string {
+  const despues = paraDespues.length ? ` Dejados para después: ${paraDespues.map((p) => TITULOS[p]).join(', ')}.` : ''
+  return actual
+    ? `CÓMO VA LA CARGA: paso ${numero} de ${total} (${titulo}). La tarjeta de ese paso la muestra la pantalla.${despues}`
+    : `CÓMO VA LA CARGA: ya están todos los pasos${paraDespues.length ? ' (salvo los dejados para después)' : ''}.${despues}`
+}
+
+/** El familiar que está escribiendo (por el mail con el que entró). */
+const quienEscribe = ({ familiares }: ConfiguracionAbuelo, mail: string | undefined) =>
+  mail ? familiares.find((f) => f.mail.toLowerCase() === mail.toLowerCase())?.nombre : undefined
+
 /** La tabla que se mostró va en el texto que lee la IA: así en el próximo mensaje sabe qué propuso. */
 function paraLaIA(mensaje: MensajeCharla) {
   const { role, content, tabla } = mensaje
   const notas = [
+    mensaje.tarjeta && `[El sistema mostró la tarjeta del paso "${TITULOS[mensaje.tarjeta.tipo]}" (el hijo la completa con botones).]`,
+    mensaje.respuesta && `[El hijo usó los botones de la tarjeta (${mensaje.respuesta.tipo}). El sistema ya lo guardó y contestó.]`,
     mensaje.sugerencias && `[Botones de sugerencia que vio el hijo: ${mensaje.sugerencias.map((l) => `${l.nombre} (${l.id})`).join(', ')} y "Ninguno". Si no toca ninguno, no se guarda nada.]`,
     mensaje.preguntaPermiso && `[Pregunta del sistema por el lugar ${mensaje.preguntaPermiso.id}. Con lo que conteste, usá guardar_lugar_sugerido.]`,
     mensaje.comerciosSugeridos &&
@@ -405,7 +460,9 @@ function esCharlaValida(mensajes: unknown): mensajes is MensajeCharla[] {
         (m.permiso === undefined ||
           (m.role === 'user' && typeof m.permiso?.id === 'string' && typeof m.permiso?.necesitaPermiso === 'boolean')) &&
         (m.confirmaBorrar === undefined || (m.role === 'user' && typeof m.confirmaBorrar === 'boolean')) &&
-        (m.pidio === undefined || (m.role === 'user' && (m.pidio === 'lugares' || m.pidio === 'comercios'))),
+        (m.pidio === undefined || (m.role === 'user' && (m.pidio === 'lugares' || m.pidio === 'comercios'))) &&
+        (m.tarjeta === undefined || (m.role === 'assistant' && typeof m.tarjeta?.tipo === 'string' && m.tarjeta.tipo in TITULOS)) &&
+        (m.respuesta === undefined || (m.role === 'user' && esRespuestaDeTarjeta(m.respuesta) && JSON.stringify(m.respuesta).length <= 20_000)),
     ) &&
     mensajes.at(-1)?.role === 'user'
   )

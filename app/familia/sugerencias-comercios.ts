@@ -335,13 +335,46 @@ export async function guardarComercioSugerido(
     ),
     ...(confirmacion && { confirmacion }),
   }
-  const resultado = await escribirComercio(codigoFamilia, comercio, fraseDelHijo, loQueEscribioElHijo)
+  const resultado = await escribirComercio(codigoFamilia, comercio, { fraseDelHijo, loQueEscribioElHijo })
   if ('error' in resultado) return resultado.error
   const como = pedidoPor === 'llamada' ? `para pedir llamando al ${normalizado}` : `con el WhatsApp ${normalizado}`
   return (
     `${resultado.yaExistia ? 'Actualizado' : 'Guardado'} "${comercio.nombre}" ${como}, el pedido "${pedido}" y ${textoDelPermiso(resultado.necesitaPermiso)}. ` +
     'Contáselo en una frase y preguntale si le pide a algún otro comercio.'
   )
+}
+
+/**
+ * Desde la tarjeta del paso "Comercios" (pasos.ts): el hijo marcó el comercio, escribió qué le pide siempre y tocó
+ * "Va solo" o "Con permiso". Si el número no está confirmado, solo se guarda si marcó "ya le pedimos y funciona"
+ * (queda "confirmado por la familia"). Devuelve el nombre si se guardó, o qué falta.
+ */
+export async function guardarComercioDeLaTarjeta(
+  codigoFamilia: string,
+  elegido: { id: string; pedido: string; vaSolo: boolean; funciona: boolean },
+): Promise<{ nombre: string } | { problema: string }> {
+  const del = buscarEnElCatalogo(elegido.id)
+  if (!del || (await numerosQueNoAndan()).has(soloDigitos(comoSePide(del).numero))) return { problema: 'ese comercio ya no está en la lista' }
+  if (!estaConfirmado(del) && !elegido.funciona) {
+    return { problema: `${del.nombre}: para guardarlo, tienen que haberle pedido por ese número y que funcione` }
+  }
+  const pedido = elegido.pedido.trim().slice(0, 200)
+  if (!pedido) return { problema: `${del.nombre}: falta qué le pide siempre` }
+
+  const { pedidoPor, numero } = comoSePide(del)
+  const normalizado = (pedidoPor === 'llamada' ? normalizarTelefonoParaLlamar(numero) : normalizarTelefono(numero)) ?? PENDIENTE
+  const confirmacion: Comercio['confirmacion'] =
+    del.confirmacion.estado === 'confirmado por su web'
+      ? { estado: 'confirmado por su web', fecha: del.confirmacion.fecha, link: del.confirmacion.link }
+      : del.confirmacion.estado === 'sin confirmar'
+        ? { estado: 'confirmado por la familia', fecha: fechaDeHoy() }
+        : undefined
+  const comercio: Comercio = {
+    ...comercioConNumero({ nombre: del.nombre, apodos: [], pedidoHabitual: pedido, necesitaPermiso: !elegido.vaSolo }, pedidoPor, normalizado),
+    ...(confirmacion && { confirmacion }),
+  }
+  const resultado = await escribirComercio(codigoFamilia, comercio, 'con-boton')
+  return 'error' in resultado ? { problema: `${del.nombre}: no se pudo guardar` } : { nombre: del.nombre }
 }
 
 // ── "El número de X no anda" ────────────────────────────────

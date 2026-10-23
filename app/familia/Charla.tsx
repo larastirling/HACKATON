@@ -3,8 +3,10 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent } from 'react'
 import { responder, type Guardado, type MensajeCharla, type RespuestaFamilia } from './acciones'
 import estilos from './charla.module.css'
+import type { EstadoDelArmado, Tarjeta } from './pasos'
 import RecuadrosGuardado from './RecuadrosGuardado'
 import TablaReglas from './TablaReglas'
+import TarjetaDelPaso from './Tarjetas'
 
 // Primer mensaje (no se muestra): la API necesita que la charla arranque del lado del usuario.
 const INICIO: MensajeCharla = { role: 'user', content: '(Abrí la pantalla para registrar a mi papá o mamá.)' }
@@ -15,19 +17,26 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
   const [texto, setTexto] = useState('')
   const [pensando, setPensando] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [paso, setPaso] = useState<EstadoDelArmado | null>(null)
   const finRef = useRef<HTMLDivElement>(null)
+  const ultimoRef = useRef<HTMLDivElement>(null)
+  const entradaRef = useRef<HTMLInputElement>(null)
   const arrancado = useRef(false)
 
   async function pedirRespuesta(historial: MensajeCharla[]) {
     setPensando(true)
     setError(null)
-    // Las listas de "Ver todos" se quedan en la pantalla: no se mandan de vuelta (son largas y el servidor no las usa).
-    const paraMandar = historial.map(({ todosLosLugares: _lugares, todosLosComercios: _comercios, ...m }) => m)
+    // Las listas de "Ver todos" y el contenido de las tarjetas se quedan en la pantalla: no se mandan de vuelta
+    // (son largas y el servidor no los usa; de la tarjeta solo va de qué paso era).
+    const paraMandar = historial.map(({ todosLosLugares: _lugares, todosLosComercios: _comercios, tarjeta, ...m }) =>
+      tarjeta ? { ...m, tarjeta: { tipo: tarjeta.tipo } } : m,
+    )
     const r = await responder(paraMandar).catch(() => ({ ok: false as const, error: 'No se pudo hablar con la IA' }))
     if ('guardado' in r && r.guardado) setGuardado(r.guardado)
     if (r.ok) {
-      const { texto, tabla, sugerencias, todosLosLugares, preguntaPermiso, comerciosSugeridos, todosLosComercios, preguntaPedido, preguntaNumero, pedidoBorrar } =
+      const { texto, tabla, sugerencias, todosLosLugares, preguntaPermiso, comerciosSugeridos, todosLosComercios, preguntaPedido, preguntaNumero, pedidoBorrar, tarjeta, paso } =
         r as Extract<RespuestaFamilia, { ok: true }>
+      if (paso) setPaso(paso)
       setMensajes([
         ...historial,
         {
@@ -42,6 +51,7 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
           ...(preguntaPedido && { preguntaPedido }),
           ...(preguntaNumero && { preguntaNumero }),
           ...(pedidoBorrar && { pedidoBorrar }),
+          ...(tarjeta && { tarjeta }),
         },
       ])
     }
@@ -55,8 +65,11 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
     pedirRespuesta([INICIO])
   }, [])
 
+  // Al llegar una respuesta, se ve desde su principio (si trae una tarjeta larga, que no quede cortada arriba).
   useEffect(() => {
-    finRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const ultimo = mensajes[mensajes.length - 1]
+    if (!pensando && ultimo?.role === 'assistant') ultimoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    else finRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [mensajes, pensando])
 
   function mandar(mensaje: MensajeCharla) {
@@ -75,20 +88,43 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
   }
 
   const ultimoEsDelUsuario = mensajes[mensajes.length - 1]?.role === 'user'
+  const ultimo = mensajes[mensajes.length - 1]
+  const cargando = !!paso?.actual
+  // "Quiero cambiar algo": a escribir.
+  const quererCambiar = () => {
+    entradaRef.current?.focus()
+    entradaRef.current?.setAttribute('placeholder', 'Escribí qué querés cambiar…')
+  }
 
   return (
     <>
       <RecuadrosGuardado guardado={guardado} />
 
-      <div className={estilos.mensajes}>
-        {mensajes.slice(1).map((m, i) => (
-          <Fragment key={i}>
-            <p className={`${estilos.burbuja} ${m.role === 'user' ? estilos.yo : estilos.ia}`}>{m.content}</p>
-            {m.tabla && <TablaReglas tabla={m.tabla} />}
-            {/* Los botones solo sirven en el último mensaje: si el hijo escribe otra cosa, quedan atrás sin hacer nada. */}
-            {i === mensajes.length - 2 && !pensando && <Botones mensaje={m} mandar={mandar} />}
-          </Fragment>
-        ))}
+      {paso && (
+        <Encabezado
+          paso={paso}
+          tarjetaALaVista={ultimo?.role === 'assistant' && !!ultimo.tarjeta && !pensando}
+          pensando={pensando}
+          seguir={() => mandar({ role: 'user', content: paso.actual ? 'Seguir' : 'Completar lo que falta', respuesta: { tipo: 'seguir' } })}
+        />
+      )}
+
+      <div className={`${estilos.mensajes} ${cargando ? '' : estilos.mensajesConAtajos}`}>
+        {mensajes.slice(1).map((m, i) => {
+          const esElUltimo = i === mensajes.length - 2
+          return (
+            <Fragment key={i}>
+              <div ref={esElUltimo ? ultimoRef : undefined} className={estilos.anclaMensaje} />
+              <p className={`${estilos.burbuja} ${m.role === 'user' ? estilos.yo : estilos.ia}`}>{m.content}</p>
+              {m.tabla && <TablaReglas tabla={m.tabla} />}
+              {/* Los botones y las tarjetas solo sirven en el último mensaje: si el hijo escribe otra cosa, quedan atrás. */}
+              {esElUltimo && !pensando && m.tarjeta && esTarjetaCompleta(m.tarjeta) && (
+                <TarjetaDelPaso tarjeta={m.tarjeta} opcional={!!paso && !paso.obligatorio && !!paso.actual} mandar={mandar} quererCambiar={quererCambiar} />
+              )}
+              {esElUltimo && !pensando && !m.tarjeta && <Botones mensaje={m} mandar={mandar} />}
+            </Fragment>
+          )
+        })}
         {pensando && <p className={`${estilos.burbuja} ${estilos.ia} ${estilos.pensando}`}>Escribiendo…</p>}
         {error && (
           <div className="tarjeta">
@@ -104,17 +140,20 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
       </div>
 
       <form className={estilos.caja} onSubmit={enviar}>
-        {/* Siempre a mano: el sistema muestra los lugares y comercios cercanos a la casa, sin la IA. */}
-        <div className={estilos.atajos}>
-          <button type="button" className={estilos.atajo} disabled={pensando} onClick={() => mandar({ role: 'user', content: 'Sugerime lugares', pidio: 'lugares' })}>
-            Sugerirme lugares
-          </button>
-          <button type="button" className={estilos.atajo} disabled={pensando} onClick={() => mandar({ role: 'user', content: 'Sugerime comercios', pidio: 'comercios' })}>
-            Sugerirme comercios
-          </button>
-        </div>
+        {/* Con el perfil cargado: los lugares y comercios cercanos, para marcar más (sin la IA). Mientras se carga, los muestran los pasos. */}
+        {!cargando && (
+          <div className={estilos.atajos}>
+            <button type="button" className={estilos.atajo} disabled={pensando} onClick={() => mandar({ role: 'user', content: 'Sugerime lugares', pidio: 'lugares' })}>
+              Sugerirme lugares
+            </button>
+            <button type="button" className={estilos.atajo} disabled={pensando} onClick={() => mandar({ role: 'user', content: 'Sugerime comercios', pidio: 'comercios' })}>
+              Sugerirme comercios
+            </button>
+          </div>
+        )}
         <div className={estilos.fila}>
           <input
+            ref={entradaRef}
             className={estilos.entrada}
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
@@ -127,6 +166,36 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
         </div>
       </form>
     </>
+  )
+}
+
+/** La tarjeta con todo su contenido (en la pantalla); la que vuelve del historial solo trae el tipo. */
+const esTarjetaCompleta = (t: NonNullable<MensajeCharla['tarjeta']>): t is Tarjeta => Object.keys(t).length > 1
+
+/** Arriba: "Paso 3 de 6 · Lugares", una barrita de avance y "Seguir" (vuelve a mostrar la tarjeta del paso). */
+function Encabezado({ paso, tarjetaALaVista, pensando, seguir }: { paso: EstadoDelArmado; tarjetaALaVista: boolean; pensando: boolean; seguir: () => void }) {
+  if (!paso.actual && paso.paraDespues.length === 0) return null
+  const hechos = paso.actual ? paso.numero - 1 : paso.total
+  return (
+    <div className={estilos.encabezado} role="status">
+      <div className={estilos.encabezadoFila}>
+        <strong>
+          {paso.actual
+            ? `Paso ${paso.numero} de ${paso.total} · ${paso.titulo}`
+            : `Te ${paso.paraDespues.length === 1 ? 'queda 1 paso' : `quedan ${paso.paraDespues.length} pasos`} para después`}
+        </strong>
+        {(!tarjetaALaVista || !paso.actual) && (
+          <button type="button" className={estilos.seguir} disabled={pensando} onClick={seguir}>
+            {paso.actual ? 'Seguir' : 'Completar lo que falta'}
+          </button>
+        )}
+      </div>
+      <div className={estilos.avance} aria-hidden="true">
+        {Array.from({ length: paso.total }, (_, i) => (
+          <span key={i} className={i < hechos ? estilos.avanceHecho : i === hechos && paso.actual ? estilos.avanceActual : ''} />
+        ))}
+      </div>
+    </div>
   )
 }
 

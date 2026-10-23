@@ -1,6 +1,6 @@
 # Pendientes: catálogo de comercios, lugares cercanos y "Llamar al comercio"
 
-Trabajo de la rama `felipelyonnet/catalogo-comercios`, ya subido a main. Notas del 2026-10-23.
+Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y `familia-rapida`, ya subido a main. Notas del 2026-10-23.
 
 ## Qué está hecho
 
@@ -25,9 +25,15 @@ Trabajo de la rama `felipelyonnet/catalogo-comercios`, ya subido a main. Notas d
   (se verifica con lo que escribió el hijo, igual que los lugares). Los comercios viejos sin el dato quedan con permiso.
 - **Distancia**: lugares y comercios se sugieren solo a menos de 10 km de la casa (`KM_MAXIMOS` en `app/familia/distancia.ts`),
   del más cerca al más lejos, con "a 1,2 km". Los comercios además respetan la zona de envío.
-- **Sugerencias solas** (`app/familia/sugerencias-solas.ts`): mientras se arma el perfil, al llegar a los lugares
-  se muestran los cercanos (uno por tipo), y al llegar a los comercios, los verificados cercanos.
-  Botones "Sugerirme lugares" y "Sugerirme comercios" siempre disponibles. La casa se ubica en el mapa apenas se guarda.
+- **Carga en 6 pasos guiados** (`app/familia/pasos.ts` y `Tarjetas.tsx`, desde el 2026-10-23): reemplaza a las
+  "sugerencias solas" (se borró `sugerencias-solas.ts`). Cada paso es una tarjeta que se completa con botones y campos,
+  sin la IA: 1) sus datos, 2) cómo se maneja (botones de tecnología y plata), 3) lugares y 4) comercios (marcar varios
+  de una, con "Va solo" / "Con permiso", por defecto con permiso), 5) familiares, 6) reglas (nivel propuesto según el
+  paso 2). Arriba: "Paso N de 6", barrita de avance y "Seguir". "Completar después" en los pasos 2, 3, 4 y 6; el avance
+  queda guardado (`armado`, `comoEs` en la configuración). La IA atiende solo lo que el hijo escribe (un lugar que
+  falta, correcciones, "quiero cambiar algo"). Con el perfil completo, "Sugerirme lugares / comercios" abre la misma
+  tarjeta. Cargar un abuelo: 17 toques y 8 campos, 0 mensajes a la IA (antes, ~17 mensajes escritos y ~22 respuestas
+  de la IA). La casa se ubica en el mapa apenas se guarda.
 - **Mapa (`lib/mapas.ts`)**: busca primero en IDE Uruguay (direcciones.ide.uy, solo coincidencias exactas con el mismo
   número de puerta) y, si no, en OpenStreetMap. Si ninguno encuentra la dirección, en /familia la IA ofrece pegar un link
   de Google Maps (herramienta `ubicar_con_link_de_google_maps`; las coordenadas salen del link, y OpenStreetMap confirma que
@@ -47,15 +53,15 @@ Trabajo de la rama `felipelyonnet/catalogo-comercios`, ya subido a main. Notas d
 
 ## Pendiente
 
-1. **Cerro y Parque Rodó** tienen pocos lugares en el catálogo (el mapa no devolvió sucursales de cadenas ahí).
-2. **Una charla corta con la IA real** para confirmar que, cuando la IA pregunta por los lugares, las sugerencias
-   aparecen solas (depende de cómo escribe la IA: `HABLA_DE_LUGARES` y `HABLA_DE_COMERCIOS` en `sugerencias-solas.ts`).
-   Todavía no se hizo ninguna llamada a la IA para esto.
-3. **Probar en el celu**: `npm run dev -- -H 0.0.0.0 -p 3000` y abrir `http://<IP de la compu>:3000`.
-   Ver los botones "Sugerirme…", la distancia en las sugerencias y la tarjeta "Llamar a…" en /abuelo
-   (elegir "Comercio de prueba (equipo)" en /familia y pedirle "lo de siempre" en /abuelo).
-4. **Avisarle a Lara** que cambió la familia DEMO en `lib/datos.ts` (dirección de Don Carlos, `necesitaPermiso: false`
-   en la pizzería, campos nuevos `pedidoPor` y `telefono`). Si la DEMO en Redis tiene la dirección vieja: "Restaurar DEMO" en /prueba.
+1. **PR #24 de Lara (formas de viajar en /familia) choca con los pasos guiados.** Ella agrega la pregunta "¿cómo
+   puede ir?" en la charla; con los pasos, va mejor como botones (Uber / Caminando / Colectivo) en la tarjeta de
+   lugares (paso 3), guardados con el mismo "Listo". Además, su rama tiene un commit (a32b4ef) en
+   `sugerencias-solas.ts`, que ya no existe: al juntar, ese archivo se borra. Hay que juntarlo antes de la demo.
+2. **Cerro y Parque Rodó** tienen pocos lugares en el catálogo (el mapa no devolvió sucursales de cadenas ahí).
+3. **Probar la carga nueva en la app publicada con la IA real**, como un hijo nuevo, de punta a punta. Probado en
+   tamaño celular sin la IA (anduvo entero) y con 1 charla real a mitad del paso 3 (anduvo bien); falta una charla
+   completa con correcciones escritas ("quiero cambiar algo" en las reglas, un lugar que falta).
+4. **Antes de la demo**: "Restaurar DEMO" en /prueba (la DEMO de Redis puede tener datos viejos).
 5. **Comercios**: revisar de vez en cuando las webs de los "confirmado por su web" (la frase puede cambiar) y si algún
    "sin confirmar" lo empieza a decir. Si alguien ya guardó el "Comercio de prueba (equipo)" en una familia de la app
    publicada, borrarlo desde /familia.

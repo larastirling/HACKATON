@@ -111,11 +111,12 @@ export function comercioConNumero(
 export async function escribirComercio(
   codigoFamilia: string,
   comercio: Comercio,
-  fraseDelHijo: string,
-  loQueEscribioElHijo: string[],
+  /** Cómo dijo el hijo lo del permiso: escribiendo (se verifica la frase) o tocando el botón "Va solo" / "Con permiso". */
+  permisoDelHijo: { fraseDelHijo: string; loQueEscribioElHijo: string[] } | 'con-boton',
 ): Promise<{ error: string } | { yaExistia: boolean; necesitaPermiso: boolean }> {
   const existente = (await leerConfiguracion(codigoFamilia))?.comercios.find((c) => mismoNombre(c.nombre, comercio.nombre))
-  if (!existente && !loDijoElHijo(fraseDelHijo, loQueEscribioElHijo)) {
+  const loDijo = permisoDelHijo === 'con-boton' || loDijoElHijo(permisoDelHijo.fraseDelHijo, permisoDelHijo.loQueEscribioElHijo)
+  if (!existente && !loDijo) {
     return {
       error:
         `Todavía NO se guardó "${comercio.nombre}": falta que el hijo diga si puede pedir solo o necesita permiso. ` +
@@ -162,7 +163,7 @@ export async function guardarComercio(codigoFamilia: string, dato: unknown, loQu
     dato.pedidoPor,
     numero,
   )
-  const resultado = await escribirComercio(codigoFamilia, comercio, dato.fraseDelHijo, loQueEscribioElHijo)
+  const resultado = await escribirComercio(codigoFamilia, comercio, { fraseDelHijo: dato.fraseDelHijo, loQueEscribioElHijo })
   if ('error' in resultado) return resultado.error
 
   const accion = resultado.yaExistia ? 'Actualizado' : 'Guardado'

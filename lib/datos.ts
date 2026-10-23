@@ -90,6 +90,20 @@ export interface Reglas {
 export const FORMAS_DE_VIAJAR = ['uber', 'caminando', 'colectivo'] as const
 export type FormaDeViajar = (typeof FORMAS_DE_VIAJAR)[number]
 
+/** Los pasos para cargar a la persona mayor en /familia (app/familia/pasos.ts). */
+export const PASOS = ['datos', 'como-es', 'lugares', 'comercios', 'familiares', 'reglas'] as const
+export type Paso = (typeof PASOS)[number]
+
+/** Cómo se maneja con la tecnología y con la plata (lo eligió el hijo con botones; sirve para proponer el nivel). */
+export const COMO_SE_MANEJA = {
+  tecnologia: ['Se maneja bien', 'Le cuesta un poco', 'Le cuesta mucho'],
+  plata: ['La maneja bien', 'A veces se confunde', 'Ya lo estafaron o casi'],
+} as const
+export interface ComoEs {
+  tecnologia: (typeof COMO_SE_MANEJA.tecnologia)[number]
+  plata: (typeof COMO_SE_MANEJA.plata)[number]
+}
+
 export interface ConfiguracionAbuelo {
   codigoFamilia: string
   abuelo: Abuelo
@@ -102,6 +116,10 @@ export interface ConfiguracionAbuelo {
    * Los permisos no cambian: un lugar "con permiso" se consulta igual, vaya como vaya.
    */
   formasDeViajar?: FormaDeViajar[]
+  /** Cómo se maneja la persona mayor (paso 2 de /familia). Si falta, todavía no se contestó. */
+  comoEs?: ComoEs
+  /** Cómo va la carga en /familia: los pasos terminados y los que el hijo dejó para después. */
+  armado?: { hechos: Paso[]; despues: Paso[] }
 }
 
 /** Las formas de viajar de la familia (las de antes de que existiera el dato: solo Uber). */
@@ -369,6 +387,16 @@ export function validarConfiguracion(dato: unknown): string[] {
     (!Array.isArray(c.formasDeViajar) || !c.formasDeViajar.every((f) => FORMAS_DE_VIAJAR.includes(f)))
   ) {
     errores.push(`"formasDeViajar" tiene que ser una lista con: ${FORMAS_DE_VIAJAR.join(', ')}`)
+  }
+  if (
+    c.comoEs !== undefined &&
+    (!c.comoEs || !COMO_SE_MANEJA.tecnologia.includes(c.comoEs.tecnologia) || !COMO_SE_MANEJA.plata.includes(c.comoEs.plata))
+  ) {
+    errores.push('"comoEs" tiene que tener "tecnologia" y "plata" (de las opciones de COMO_SE_MANEJA)')
+  }
+  const esListaDePasos = (v: unknown) => Array.isArray(v) && v.every((p) => PASOS.includes(p))
+  if (c.armado !== undefined && (!c.armado || !esListaDePasos(c.armado.hechos) || !esListaDePasos(c.armado.despues))) {
+    errores.push(`"armado" tiene que tener "hechos" y "despues" (listas con: ${PASOS.join(', ')})`)
   }
 
   if (!c.reglas || typeof c.reglas !== 'object') {

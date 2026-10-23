@@ -113,6 +113,21 @@ Cómo puede ir la persona mayor a los lugares. La familia activa las que quiera;
 
 ---
 
+## 8. Cómo se maneja (`comoEs`) y cómo va la carga (`armado`)
+
+Los usa /familia para cargar a la persona mayor en 6 pasos (`app/familia/pasos.ts`). **Ninguno es obligatorio.**
+
+| Campo | Qué significa | Ejemplo |
+|---|---|---|
+| `comoEs.tecnologia` | Cómo se maneja con el celular (paso 2, con botones): `"Se maneja bien"`, `"Le cuesta un poco"` o `"Le cuesta mucho"`. Sirve para proponer el nivel. | `"Le cuesta un poco"` |
+| `comoEs.plata` | Cómo maneja la plata: `"La maneja bien"`, `"A veces se confunde"` o `"Ya lo estafaron o casi"`. | `"A veces se confunde"` |
+| `armado.hechos` | Los pasos terminados (`"datos"`, `"como-es"`, `"lugares"`, `"comercios"`, `"familiares"`, `"reglas"`). | `["lugares"]` |
+| `armado.despues` | Los pasos que el hijo dejó para después ("Completar después"). | `["comercios"]` |
+
+Si falta `armado` (familias cargadas antes de los pasos), los pasos se deducen de lo guardado: una familia con reglas guardadas ya está cargada.
+
+---
+
 ## Ejemplo completo: familia DEMO (Montevideo)
 
 Es lo que devuelve `/api/configuracion?codigo=DEMO`:

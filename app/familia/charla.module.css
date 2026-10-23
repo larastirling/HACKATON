@@ -4,8 +4,11 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 150px; /* lugar para la caja de escribir y los atajos */
+  padding-bottom: 110px; /* lugar para la caja de escribir: lo último nunca queda tapado */
 }
+.mensajesConAtajos { padding-bottom: 170px; } /* y los botones "Sugerirme…" */
+/* Al llegar una respuesta se ve desde acá, sin quedar debajo del encabezado de los pasos */
+.anclaMensaje { scroll-margin-top: 96px; height: 0; }
 
 .burbuja {
   max-width: 88%;
@@ -97,14 +100,11 @@
   cursor: pointer;
 }
 .verTodos:hover { background: var(--principal-suave); }
+/* La lista completa va en la charla, sin una cajita con su propio scroll (en el celu se veía chiquita) */
 .listaTodos {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 55vh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 2px 4px 2px 0;
 }
 .sugerenciaCompacta { padding: 10px 14px; border-width: 1px; }
 .sugerenciaCompacta strong { font-size: 1rem; }
@@ -164,3 +164,161 @@
 .sugerencia strong { font-size: 1.1rem; color: var(--principal); }
 .sugerencia span { font-size: 0.9rem; color: var(--texto-suave); }
 .sugerencia:hover { background: var(--principal-suave); }
+
+/* ── Pasos para cargar a la persona mayor (pasos.ts, Tarjetas.tsx) ── */
+
+/* Arriba: "Paso 3 de 6 · Lugares" y la barrita de avance. Queda fijo al scrollear. */
+.encabezado {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 -16px 12px;
+  padding: 10px 16px;
+  background: var(--fondo);
+  border-bottom: 1px solid var(--linea);
+}
+.encabezadoFila { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.encabezadoFila strong { font-size: 1.1rem; color: var(--texto-titulo); }
+.seguir {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 6px 16px;
+  border: 2px solid var(--principal);
+  border-radius: 999px;
+  background: var(--principal);
+  color: var(--principal-texto);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.seguir:disabled { opacity: 0.5; cursor: default; }
+.avance { display: flex; gap: 4px; }
+.avance span { flex: 1; height: 6px; border-radius: 3px; background: var(--linea); }
+.avance .avanceHecho { background: var(--principal); }
+.avance .avanceActual { background: var(--principal-suave); outline: 2px solid var(--principal); outline-offset: -2px; }
+
+/* La tarjeta de cada paso: ancha, con letra grande */
+.tarjetaPaso {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  background: var(--blanco);
+  box-shadow: var(--sombra);
+  font-size: 1.05rem;
+}
+.tarjetaPaso :global(.boton) { min-height: 56px; font-size: 1.1rem; }
+.subtitulo { margin: 4px 0 0; font-size: 1.15rem; color: var(--texto-titulo); }
+.ayudaTarjeta { margin: 0; color: var(--texto-suave); }
+.falta { margin: 0; color: var(--error); font-weight: 700; }
+
+.campo { display: flex; flex-direction: column; gap: 6px; font-weight: 700; color: var(--texto-titulo); }
+.campo small { font-weight: 400; font-size: 0.9rem; color: var(--texto-suave); }
+.entradaTarjeta {
+  min-height: 52px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 400;
+  border: 2px solid var(--borde);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--texto);
+}
+.entradaTarjeta:focus { outline: none; border-color: var(--principal); box-shadow: 0 0 0 4px var(--principal-suave); }
+
+/* Botones de opciones (uno elegido) */
+.grupo { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px; }
+.grupo legend { padding: 0; margin-bottom: 8px; font-weight: 700; color: var(--texto-titulo); }
+.opciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.opcion {
+  flex: 1 1 auto;
+  min-height: 52px;
+  padding: 8px 14px;
+  border: 2px solid var(--principal);
+  border-radius: 14px;
+  background: var(--blanco);
+  color: var(--principal);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.opcion[aria-pressed='true'] { background: var(--principal); color: var(--principal-texto); }
+
+/* Lugares y comercios para marcar varios */
+.elegibles { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.elegible { border: 2px solid var(--borde); border-radius: 16px; background: var(--blanco); }
+.elegibleMarcado { border-color: var(--principal); background: var(--principal-suave); }
+.marcar {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 0;
+  background: transparent;
+  color: var(--texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.marcarTexto { display: flex; flex-direction: column; gap: 2px; }
+.marcarTexto strong { font-size: 1.15rem; color: var(--texto-titulo); }
+.marcarTexto span { font-size: 0.98rem; color: var(--texto-suave); }
+/* La casilla (sin emojis): un cuadrado que se pinta al marcar */
+.casilla {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin-top: 2px;
+  border: 2px solid var(--principal);
+  border-radius: 8px;
+  background: #fff;
+}
+[aria-pressed='true'] > .casilla { background: var(--principal); box-shadow: inset 0 0 0 4px #fff; }
+.detalleMarcado { display: flex; flex-direction: column; gap: 10px; padding: 0 14px 14px 54px; }
+/* "Va solo" / "Con permiso": dos botones chicos, uno elegido */
+.permiso { display: flex; gap: 8px; }
+.permiso button {
+  flex: 1;
+  min-height: 44px;
+  border: 2px solid var(--principal);
+  border-radius: 12px;
+  background: var(--blanco);
+  color: var(--principal);
+  font: inherit;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.permiso button[aria-pressed='true'] { background: var(--principal); color: var(--principal-texto); }
+.confirmarNumero {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: var(--texto);
+  font: inherit;
+  font-size: 0.98rem;
+  text-align: left;
+  cursor: pointer;
+}
+.despues {
+  min-height: 48px;
+  border: 0;
+  background: transparent;
+  color: var(--texto-suave);
+  font: inherit;
+  font-size: 1rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
