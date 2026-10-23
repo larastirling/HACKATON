@@ -51,7 +51,8 @@ export async function sugerenciasSolas(
   texto: string,
   usadas: Set<string>,
 ): Promise<{ sugerencias?: LugarSugerido[]; comerciosSugeridos?: ComercioSugerido[] }> {
-  if (!reglasSinElegir(configuracion) || /permiso/i.test(texto)) return {}
+  // Tampoco en la pregunta de cómo puede ir ("¿en Uber, caminando o en colectivo?"): habla de "lugares" pero no es para elegir uno.
+  if (!reglasSinElegir(configuracion) || /permiso|\b(uber|caminando|colectivo)\b/i.test(texto)) return {}
   const sinEnLugarDe = texto.replace(/\ben lugar de\b/gi, '')
   const yaVioLugares = lugaresYaMostrados(mensajes).length > 0
   const yaVioComercios = comerciosYaMostrados(mensajes).length > 0
