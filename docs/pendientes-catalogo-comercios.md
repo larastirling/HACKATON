@@ -6,8 +6,11 @@ Trabajo de la rama `felipelyonnet/catalogo-comercios`, ya subido a main. Notas d
 
 - **Catálogo de comercios** (`app/familia/catalogo-comercios.ts`): 21 comercios, cada uno con su confirmación:
   - "confirmado por su web" (su web oficial dice explícitamente que toman pedidos; con link, fecha y la frase): Disco,
-    Piazza Italia (Centro y Pocitos) y La Fábrica (Centro y Tres Cruces), revisados el 2026-10-23. Solo estos se sugieren solos.
-  - "sin confirmar": todos los demás (Fundamento y El Hidalgo tampoco: su web no lo dice explícito). Aparecen en
+    Piazza Italia (Centro y Pocitos), La Fábrica (Centro y Tres Cruces) y El Hidalgo (delivery propio y "Llámanos o
+    escríbenos por WhatsApp"), revisados el 2026-10-23. Solo estos se sugieren solos.
+  - "sin confirmar": todos los demás. Fundamento también: no encontramos en su web las preguntas frecuentes que dirían
+    que se pide por WhatsApp (no están en el sitemap, /preguntas-frecuentes y /faq dan 404, y las páginas de cada local
+    solo tienen un botón de WhatsApp sin texto). Si aparece el link, revisarlo y marcarlo. Aparecen en
     "Ver todos los cercanos" con el aviso "Número sin confirmar". Si el hijo elige uno, el sistema pregunta si ya le pidieron
     por ahí y funciona: solo con un "sí" se guarda, como "confirmado por la familia" (vale solo para esa familia).
   - El "Comercio de prueba (equipo)" (+598 92 625 554, se pide llamando) tiene `soloEnLaCompu`: aparece al correr la app

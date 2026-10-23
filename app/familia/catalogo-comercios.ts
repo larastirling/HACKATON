@@ -230,8 +230,13 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     horario: 'delivery propio hasta la 01:30',
     zonaDeEnvio: null,
     fuente: { tipo: 'oficial', link: 'https://pizzeriaelhidalgo.com' },
-    // Su web dice "Llámanos o escríbenos por WhatsApp" como contacto, y para pedir enlaza PedidosYa: no lo dice explícito.
-    confirmacion: SIN_CONFIRMAR,
+    // Su web tiene delivery propio y "Llámanos o escríbenos por WhatsApp" (también enlaza PedidosYa para los envíos).
+    confirmacion: {
+      estado: 'confirmado por su web',
+      link: 'https://pizzeriaelhidalgo.com',
+      fecha: '2026-10-23',
+      dice: 'Delivery propio del local hasta 01:30 Hrs [...] Teléfono: 2208 3969 WhatsApp: 099 910 894 [...] Contacto: Llámanos o escríbenos por WhatsApp',
+    },
   },
   {
     id: 'la-fabrica-empanadas-centro',
