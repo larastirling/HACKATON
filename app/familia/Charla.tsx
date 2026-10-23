@@ -182,11 +182,14 @@ function Encabezado({ paso, tarjetaALaVista, pensando, seguir }: { paso: EstadoD
         <strong>
           {paso.actual
             ? `Paso ${paso.numero} de ${paso.total} · ${paso.titulo}`
-            : `Te ${paso.paraDespues.length === 1 ? 'queda 1 paso' : `quedan ${paso.paraDespues.length} pasos`} para después`}
+            : // Corto, para que entre en una línea en el celular al lado del botón.
+              paso.paraDespues.length === 1
+              ? `Falta: ${paso.titulosParaDespues[0]}`
+              : `Faltan ${paso.paraDespues.length} pasos`}
         </strong>
         {(!tarjetaALaVista || !paso.actual) && (
           <button type="button" className={estilos.seguir} disabled={pensando} onClick={seguir}>
-            {paso.actual ? 'Seguir' : 'Completar lo que falta'}
+            {paso.actual ? 'Seguir' : 'Completar'}
           </button>
         )}
       </div>

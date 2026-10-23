@@ -50,6 +50,8 @@ export interface EstadoDelArmado {
   obligatorio: boolean
   /** Los que el hijo dejó para después (todavía sin hacer). */
   paraDespues: Paso[]
+  /** Los mismos, con su nombre ("Comercios"), para la pantalla. */
+  titulosParaDespues: string[]
 }
 
 /** Un botón de "¿Cómo puede ir?" en la tarjeta de lugares, marcado si ya estaba guardado. */
@@ -126,6 +128,7 @@ export function estadoDelArmado(c: ConfiguracionAbuelo, mail: string | undefined
     titulo: actual ? TITULOS[actual] : 'Listo',
     obligatorio: actual ? OBLIGATORIOS.includes(actual) : false,
     paraDespues: pendientes.filter((p) => despues.includes(p)),
+    titulosParaDespues: pendientes.filter((p) => despues.includes(p)).map((p) => TITULOS[p]),
   }
 }
 
@@ -283,7 +286,7 @@ export async function loQueSigue(
     const lista = faltan.length === 1 ? faltan[0] : `${faltan.slice(0, -1).join(', ')} y ${faltan.at(-1)}`
     return {
       texto: con(
-        `Casi listo: todavía ${faltan.length === 1 ? 'falta' : 'faltan'} ${lista} (${faltan.length === 1 ? 'lo dejaste' : 'los dejaste'} para después). ¿Lo completamos ahora? ` +
+        `Casi listo: todavía ${faltan.length === 1 ? 'falta' : 'faltan'} ${lista} (${faltan.length === 1 ? 'lo dejaste' : 'los dejaste'} para después). ¿${faltan.length === 1 ? 'Lo' : 'Los'} completamos ahora? ` +
           `Mientras tanto, ${nombre} ya puede usar la app: en su celular, entrá, tocá "Soy el abuelo" y poné el código ${c.codigoFamilia}.`,
       ),
       tarjeta: { tipo: 'falta', pasos: faltan },

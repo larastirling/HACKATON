@@ -180,8 +180,13 @@
   background: var(--fondo);
   border-bottom: 1px solid var(--linea);
 }
-.encabezadoFila { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.encabezadoFila strong { font-size: 1.1rem; color: var(--texto-titulo); }
+/* Si no entran en una línea, el botón baja entero (el texto no se parte en muchos renglones angostos). */
+.encabezadoFila { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.encabezadoFila strong { flex: 1 1 auto; font-size: 1.1rem; color: var(--texto-titulo); }
+@media (max-width: 359px) {
+  /* Celulares angostos: 18px (el mínimo), así "Paso 2 de 6 · Cómo se maneja" entra en una línea. */
+  .encabezadoFila strong { font-size: 0.9rem; }
+}
 .seguir {
   flex-shrink: 0;
   min-height: 44px;
