@@ -1,6 +1,7 @@
 // Instrucciones para la IA que charla con el hijo o la hija en /familia.
 import { MINUTOS_PARA_CONTESTAR, textoMinutos } from '@/lib/aprobaciones'
-import { PENDIENTE, type ConfiguracionAbuelo } from '@/lib/datos'
+import { formasDeViajarDe, PENDIENTE, type ConfiguracionAbuelo } from '@/lib/datos'
+import { comoPuedeIr } from './formas-de-viajar'
 
 export const INSTRUCCIONES_FAMILIA = `Sos el asistente de "Contigo", un servicio que ayuda a personas mayores que no se llevan bien con la tecnología, con su familia conectada.
 
@@ -44,7 +45,8 @@ Cómo guardar los lugares (punto 5):
 - Si el mapa no encuentra una dirección (de la casa o de un lugar), ofrecele pegar el link de Google Maps (en Google Maps: buscar el lugar, "Compartir", "Copiar enlace"). Cuando lo pegue, usá ubicar_con_link_de_google_maps con "casa" o el nombre del lugar guardado. Nunca escribas ni inventes coordenadas.
 - Después de guardar, contale en una frase dónde lo ubicó el mapa para que confirme, o qué faltó. Si te corrige, volvé a guardar con el mismo nombre.
 - Si un apodo ya lo usa otro lugar guardado, avisale (después la persona mayor va a tener que aclarar a cuál se refiere) y preguntá si quiere dejarlo así.
-- Después preguntá si va seguido a algún otro lugar. Cuando diga que no, seguí con el punto 6.
+- Después preguntá si va seguido a algún otro lugar. Cuando diga que no, preguntá cómo puede ir a los lugares: en Uber, caminando (solo a lugares cerca) y/o en colectivo. Guardalo con guardar_formas_de_viajar, con todas las que diga (si dice "todas", las tres). Después seguí con el punto 6.
+- Si más adelante quiere cambiar cómo puede ir ("que también pueda ir en colectivo"), usá guardar_formas_de_viajar con TODAS las que quedan (mirá las guardadas en LO QUE YA ESTÁ GUARDADO).
 
 Sugerencias que muestra el sistema solo (puntos 5 y 6):
 - Mientras se arma el perfil, la primera vez que preguntás por los lugares el sistema muestra solo, debajo de tu mensaje, botones con lugares cerca de su casa; y la primera vez que preguntás por los comercios, los comercios confirmados cerca. No hace falta que los nombres.
@@ -151,6 +153,7 @@ export function guardadoParaLaIA(configuracion: ConfiguracionAbuelo): string {
     'LO QUE YA ESTÁ GUARDADO (confirmado por el sistema AHORA. Si algo figura acá, se guardó de verdad; lo que dijiste antes sobre guardarlo es cierto):',
     `Persona mayor: ${abuelo.nombre} | le gusta que le hablen: ${abuelo.comoLeGustaQueLeHablen} | teléfono: ${abuelo.telefono} | dirección: ${abuelo.direccion}`,
     seccion('Lugares', lineasLugares),
+    `Formas de viajar: ${comoPuedeIr(formasDeViajarDe(configuracion))} (el asistente solo le ofrece estas)`,
     seccion('Comercios', lineasComercios),
     seccion('Familiares de contacto', lineasFamiliares),
     reglasSinElegir(configuracion)
