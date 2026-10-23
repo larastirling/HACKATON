@@ -94,6 +94,22 @@ Estas reglas valen para **todos** los abuelos y no se pueden apagar. Aunque algu
 
 ---
 
+## 7. Formas de viajar (`formasDeViajar`)
+
+Cómo puede ir la persona mayor a los lugares. La familia activa las que quiera; el asistente **solo ofrece las activadas**.
+
+| Valor | Qué hace el asistente |
+|---|---|
+| `"uber"` | Botón **"Ir en Uber"**: abre Uber con el destino puesto. El auto lo pide la persona mayor. |
+| `"caminando"` | Botón **"Ir caminando"**: le explica en voz alta y abre Google Maps caminando con el destino puesto. Solo se ofrece si el lugar queda a menos de 1,5 km de su casa. |
+| `"colectivo"` | Botón **"Ir en colectivo"**: le explica en voz alta y abre Google Maps en modo colectivo (muestra qué colectivo tomar, la parada y dónde bajarse). |
+
+- Es una lista, por ejemplo `["uber", "caminando", "colectivo"]`. Puede ir vacía (no se ofrecen viajes).
+- **No es obligatorio:** si falta (familias guardadas antes de que existiera), se toma como `["uber"]`.
+- **Los permisos no cambian:** si un lugar tiene `necesitaPermiso: true`, primero se le pregunta a la familia, vaya como vaya.
+
+---
+
 ## Ejemplo completo: familia DEMO (Montevideo)
 
 Es lo que devuelve `/api/configuracion?codigo=DEMO`:
@@ -157,7 +173,8 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
       "Si algo parece una estafa, siempre se avisa a la familia.",
       "Nunca se dan consejos médicos: se sugiere hablar con un médico o con la familia."
     ]
-  }
+  },
+  "formasDeViajar": ["uber", "caminando", "colectivo"]
 }
 ```
 
