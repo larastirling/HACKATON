@@ -2,7 +2,7 @@ import 'server-only'
 import type Anthropic from '@anthropic-ai/sdk'
 import { leerConfiguracion, PENDIENTE, type Lugar } from '@/lib/datos'
 import { buscarCoordenadas } from '@/lib/mapas'
-import { cambiarConfiguracion, limpiarApodos, mismoNombre, nombreValido } from './guardar'
+import { cambiarConfiguracion, limpiarApodos, loDijoElHijo, mismoNombre, nombreValido } from './guardar'
 
 // Herramienta "guardar_lugar": la IA saca de la charla un lugar con sus apodos y lo guarda
 // en la configuración (formato de docs/formato-configuracion.md). La IA nunca pasa coordenadas:
@@ -66,23 +66,6 @@ function esPedidoValido(dato: unknown): dato is PedidoGuardarLugar {
     typeof d.necesitaPermiso === 'boolean' &&
     typeof d.fraseDelHijo === 'string'
   )
-}
-
-/** Minúsculas, sin tildes ni signos, espacios simples: para comparar lo que escribió el hijo. */
-const comparable = (texto: string) =>
-  texto
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^\p{L}\p{N}]+/gu, ' ')
-    .trim()
-
-/** La frase del permiso tiene que estar de verdad en algo que escribió el hijo (que la IA no la invente). */
-function loDijoElHijo(frase: string, loQueEscribioElHijo: string[]): boolean {
-  const buscada = comparable(frase)
-  // Tiene que hablar de ir solo o con permiso (no vale una palabra suelta como "papá").
-  const hablaDelPermiso = /\b(sol[oa]s?|permiso|libre|avis\w*|pregunt\w*|aprob\w*|acompa\w*|autoriz\w*)\b/.test(buscada)
-  return hablaDelPermiso && loQueEscribioElHijo.some((mensaje) => comparable(mensaje).includes(buscada))
 }
 
 /** Ejecuta guardar_lugar y le devuelve a la IA, en texto, qué quedó guardado. */

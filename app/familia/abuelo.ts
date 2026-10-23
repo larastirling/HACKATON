@@ -1,6 +1,7 @@
 import 'server-only'
 import type Anthropic from '@anthropic-ai/sdk'
 import { PENDIENTE, type Abuelo } from '@/lib/datos'
+import { dondeVive } from './distancia'
 import { cambiarConfiguracion, nombreValido, normalizarTelefono } from './guardar'
 
 // Herramienta "guardar_abuelo": los datos de la persona mayor (sección 2 de docs/formato-configuracion.md).
@@ -67,5 +68,18 @@ export async function guardarAbuelo(codigoFamilia: string, dato: unknown): Promi
     abuelo.direccion === PENDIENTE && 'su dirección',
   ].filter(Boolean)
   return `Guardado. Persona mayor: ${abuelo.nombre} | trato: ${abuelo.comoLeGustaQueLeHablen} | teléfono: ${abuelo.telefono} | dirección: ${abuelo.direccion}.` +
-    (faltan.length ? ` Todavía falta: ${faltan.join(', ')} (preguntalo de a uno).` : '')
+    (faltan.length ? ` Todavía falta: ${faltan.join(', ')} (preguntalo de a uno).` : '') +
+    (cambios.direccion && cambios.direccion !== PENDIENTE ? await textoDeLaCasa(abuelo) : '')
+}
+
+/** La casa se ubica en el mapa apenas se guarda: con eso se sugieren los lugares y comercios cercanos. */
+async function textoDeLaCasa(abuelo: Abuelo): Promise<string> {
+  const casa = await dondeVive({ abuelo })
+  if (!casa) {
+    return (
+      ` OJO: el mapa NO encontró esa dirección exacta, así que no se le van a poder sugerir lugares ni comercios cercanos. ` +
+      'Pedile al hijo que la revise (calle y número, y si puede el barrio) y volvé a guardarla.'
+    )
+  }
+  return ` El mapa ubicó la casa en: ${casa.direccionDelMapa}. Contale al hijo en pocas palabras (calle, número y barrio) para que confirme que es ahí.`
 }

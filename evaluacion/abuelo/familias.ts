@@ -51,6 +51,7 @@ export const FAMILIA_MARTA: Omit<ConfiguracionAbuelo, 'reglas'> & { reglas: Omit
       apodos: ['la panadería'],
       whatsapp: '+598 99 000 002',
       pedidoHabitual: 'Media docena de bizcochos y un pan flauta',
+      necesitaPermiso: false,
     },
   ],
   familiares: [{ nombre: 'Pablo', relacion: 'Hijo', mail: 'pablo@ejemplo.invalid', telefono: '+598 99 000 003', orden: 1 }],

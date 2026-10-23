@@ -65,11 +65,20 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
             <br />
             Pide: {c.pedidoHabitual}
             <br />
-            <Estado
-              ok={c.whatsapp !== PENDIENTE}
-              si={`WhatsApp ${c.whatsapp}`}
-              no="Falta el WhatsApp (no se le puede armar el pedido)"
-            />
+            {c.pedidoPor === 'llamada' ? (
+              <Estado
+                ok={!!c.telefono && c.telefono !== PENDIENTE}
+                si={`Se pide llamando al ${c.telefono}`}
+                no="Falta el teléfono (no se le puede armar el pedido)"
+              />
+            ) : (
+              <Estado
+                ok={c.whatsapp !== PENDIENTE}
+                si={`WhatsApp ${c.whatsapp}`}
+                no="Falta el WhatsApp (no se le puede armar el pedido)"
+              />
+            )}
+            {c.necesitaPermiso && <span> · Necesita permiso</span>}
           </li>
         ))}
       </Recuadro>

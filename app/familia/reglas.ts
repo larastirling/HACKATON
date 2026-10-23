@@ -6,10 +6,12 @@ import { cambiarConfiguracion, mismoNombre } from './guardar'
 // Nivel y reglas. La IA propone; el SERVIDOR arma la tabla con los datos guardados, así lo que
 // se muestra es exactamente lo que va a pasar. /abuelo decide los permisos así (lib/ia.ts de Lara):
 //   - Viaje: el lugar tiene necesitaPermiso: true  → eso es lo que cambia "lugaresConPermiso".
-//   - Comida: pedir algo distinto al pedido habitual siempre necesita permiso (regla del sistema).
+//   - Comida: el comercio tiene necesitaPermiso: true → eso es lo que cambia "comerciosConPermiso".
+//     Además, pedir algo distinto al pedido habitual siempre necesita permiso (regla del sistema).
 
 const IR_CON_PERMISO = 'Ir a un lugar que necesita permiso'
 const PEDIDO_DISTINTO = 'Pedir algo que no es el pedido habitual'
+const PEDIR_CON_PERMISO = 'Pedir a un comercio que necesita permiso'
 
 /** Lo que ve el hijo: una tabla por grupos. */
 export interface TablaReglas {
@@ -27,6 +29,7 @@ interface PropuestaReglas {
   nivel: Nivel
   motivo: string
   lugaresConPermiso: string[]
+  comerciosConPermiso: string[]
   seAvisa: string[]
   otrasAprobaciones: string[]
 }
@@ -44,6 +47,12 @@ const propiedades = {
     items: { type: 'string' },
     description: 'Nombres EXACTOS de los lugares guardados a los que solo puede ir con permiso de la familia. Los demás quedan libres.',
   },
+  comerciosConPermiso: {
+    type: 'array',
+    items: { type: 'string' },
+    description:
+      'Nombres EXACTOS de los comercios guardados a los que solo puede pedir con permiso de la familia (cada pedido). A los demás les puede pedir lo de siempre solo.',
+  },
   seAvisa: {
     type: 'array',
     items: { type: 'string' },
@@ -53,7 +62,7 @@ const propiedades = {
     type: 'array',
     items: { type: 'string' },
     description:
-      'Otras cosas que la familia tiene que aprobar, además de los lugares con permiso y los pedidos distintos al habitual (esos ya los pone el sistema). Normalmente [].',
+      'Otras cosas que la familia tiene que aprobar, además de los lugares y comercios con permiso y los pedidos distintos al habitual (esos ya los pone el sistema). Normalmente [].',
   },
 } as const
 
@@ -89,6 +98,7 @@ function esPropuesta(dato: unknown): dato is PropuestaReglas {
     NIVELES.includes(d.nivel as Nivel) &&
     typeof d.motivo === 'string' &&
     listaDeTextos(d.lugaresConPermiso) &&
+    listaDeTextos(d.comerciosConPermiso) &&
     listaDeTextos(d.seAvisa) &&
     listaDeTextos(d.otrasAprobaciones)
   )
@@ -98,7 +108,10 @@ const limpiar = (lista: string[], sacar: string[] = []) =>
   [...new Set(lista.map((x) => x.trim()).filter((x) => x && !sacar.some((s) => mismoNombre(s, x))))]
 
 /** Arma la tabla con los datos guardados. Devuelve un texto de error para la IA si algo no cuadra. */
-function armar(configuracion: ConfiguracionAbuelo, dato: unknown): { tabla: TablaReglas; conPermiso: Set<string> } | string {
+function armar(
+  configuracion: ConfiguracionAbuelo,
+  dato: unknown,
+): { tabla: TablaReglas; conPermiso: Set<string>; comerciosConPermiso: Set<string> } | string {
   if (!esPropuesta(dato)) return 'No se pudo armar la tabla: faltan datos (nivel, motivo, lugares con permiso, avisos y otras aprobaciones).'
   const { lugares, comercios } = configuracion
   const desconocidos = dato.lugaresConPermiso.filter((n) => !lugares.some((l) => mismoNombre(l.nombre, n)))
@@ -106,25 +119,33 @@ function armar(configuracion: ConfiguracionAbuelo, dato: unknown): { tabla: Tabl
     return `No se pudo armar la tabla: estos lugares no están guardados: ${desconocidos.join(', ')}. Usá los nombres exactos de la lista de lugares.`
   }
   const conPermiso = new Set(lugares.filter((l) => dato.lugaresConPermiso.some((n) => mismoNombre(l.nombre, n))).map((l) => l.nombre))
+  const comerciosDesconocidos = dato.comerciosConPermiso.filter((n) => !comercios.some((c) => mismoNombre(c.nombre, n)))
+  if (comerciosDesconocidos.length > 0) {
+    return `No se pudo armar la tabla: estos comercios no están guardados: ${comerciosDesconocidos.join(', ')}. Usá los nombres exactos de la lista de comercios.`
+  }
+  const comerciosConPermiso = new Set(
+    comercios.filter((c) => dato.comerciosConPermiso.some((n) => mismoNombre(c.nombre, n))).map((c) => c.nombre),
+  )
 
   const tabla: TablaReglas = {
     nivel: dato.nivel,
     motivo: dato.motivo.trim(),
     seAprueba: [
       ...lugares.filter((l) => conPermiso.has(l.nombre)).map((l) => `Ir a ${l.nombre}`),
+      ...comercios.filter((c) => comerciosConPermiso.has(c.nombre)).map((c) => `Pedir a ${c.nombre}`),
       ...(comercios.length > 0 ? [`${PEDIDO_DISTINTO} (lo decide el sistema)`] : []),
-      ...limpiar(dato.otrasAprobaciones, [IR_CON_PERMISO, PEDIDO_DISTINTO]),
+      ...limpiar(dato.otrasAprobaciones, [IR_CON_PERMISO, PEDIDO_DISTINTO, PEDIR_CON_PERMISO]),
     ],
     seAvisa: limpiar(dato.seAvisa),
     libre: [
       ...lugares.filter((l) => !conPermiso.has(l.nombre)).map((l) => `Ir a ${l.nombre}`),
-      ...comercios.map((c) => `Pedir lo de siempre a ${c.nombre}`),
+      ...comercios.filter((c) => !comerciosConPermiso.has(c.nombre)).map((c) => `Pedir lo de siempre a ${c.nombre}`),
     ],
     fijas: [...REGLAS_FIJAS],
     abueloAceptoAvisos: configuracion.reglas.abueloAceptoAvisos,
     guardada: false,
   }
-  return { tabla, conPermiso }
+  return { tabla, conPermiso, comerciosConPermiso }
 }
 
 /** mostrar_reglas: arma la tabla sin guardar. */
@@ -144,20 +165,22 @@ export async function guardarReglas(codigoFamilia: string, configuracion: Config
   console.log('[familia] la IA pidió guardar_reglas:', JSON.stringify(dato))
   const armado = armar(configuracion, dato)
   if (typeof armado === 'string') return { texto: armado.replace('armar la tabla', 'guardar') }
-  const { tabla, conPermiso } = armado
+  const { tabla, conPermiso, comerciosConPermiso } = armado
   const propuesta = dato as PropuestaReglas
 
   const error = await cambiarConfiguracion(codigoFamilia, (c) => ({
     ...c,
     lugares: c.lugares.map((l) => ({ ...l, necesitaPermiso: conPermiso.has(l.nombre) })),
+    comercios: c.comercios.map((x) => ({ ...x, necesitaPermiso: comerciosConPermiso.has(x.nombre) })),
     reglas: {
       ...c.reglas,
       nivel: propuesta.nivel,
       seAvisa: tabla.seAvisa,
       seAprueba: [
         ...(conPermiso.size > 0 ? [IR_CON_PERMISO] : []),
+        ...(comerciosConPermiso.size > 0 ? [PEDIR_CON_PERMISO] : []),
         ...(c.comercios.length > 0 ? [PEDIDO_DISTINTO] : []),
-        ...limpiar(propuesta.otrasAprobaciones, [IR_CON_PERMISO, PEDIDO_DISTINTO]),
+        ...limpiar(propuesta.otrasAprobaciones, [IR_CON_PERMISO, PEDIDO_DISTINTO, PEDIR_CON_PERMISO]),
       ],
       // abueloAceptoAvisos no se toca: lo tiene que aceptar el abuelo, no el hijo.
     },

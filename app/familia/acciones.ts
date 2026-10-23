@@ -19,6 +19,16 @@ import {
   sugerirLugares,
   type LugarSugerido,
 } from './sugerencias'
+import {
+  catalogoComerciosParaLaIA,
+  guardarComercioSugerido,
+  HERRAMIENTA_GUARDAR_COMERCIO_SUGERIDO,
+  herramientaSugerirComercios,
+  preguntarPedido,
+  sugerirComercios,
+  type ComercioSugerido,
+} from './sugerencias-comercios'
+import { sugerenciasSolas, sugerirPorBoton } from './sugerencias-solas'
 
 const MAXIMO_MENSAJES = 80
 const MAXIMO_LETRAS = 2000
@@ -32,14 +42,22 @@ export interface MensajeCharla {
   sugerencias?: LugarSugerido[]
   /** Sistema: pregunta "¿Puede ir solo o necesita permiso?" por un lugar sugerido que el hijo tocó. */
   preguntaPermiso?: LugarSugerido
+  /** IA: botones con comercios del catálogo para sugerir (no se guarda nada si no toca ninguno). */
+  comerciosSugeridos?: ComercioSugerido[]
+  /** Sistema: pregunta "¿Qué le pide siempre?" por un comercio sugerido que el hijo tocó. */
+  preguntaPedido?: ComercioSugerido
   /** IA: botones "Sí, borrar" / "No" para algo que el hijo pidió borrar. */
   pedidoBorrar?: PedidoBorrar
   /** Hijo: tocó una sugerencia (id del catálogo). */
   eligio?: string
+  /** Hijo: tocó un comercio sugerido (id del catálogo de comercios). */
+  eligioComercio?: string
   /** Hijo: contestó con un botón si puede ir solo o necesita permiso. */
   permiso?: { id: string; necesitaPermiso: boolean }
   /** Hijo: contestó con un botón si borra o no. */
   confirmaBorrar?: boolean
+  /** Hijo: tocó "Sugerirme lugares" o "Sugerirme comercios" (siempre están, debajo de la charla). */
+  pidio?: 'lugares' | 'comercios'
 }
 
 /** Lo que muestran los recuadros de /familia. */
@@ -50,6 +68,8 @@ export type RespuestaFamilia = RespuestaIA & {
   tabla?: TablaReglas
   sugerencias?: LugarSugerido[]
   preguntaPermiso?: LugarSugerido
+  comerciosSugeridos?: ComercioSugerido[]
+  preguntaPedido?: ComercioSugerido
   pedidoBorrar?: PedidoBorrar
 }
 
@@ -70,6 +90,15 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
     const { texto, preguntaPermiso } = preguntarPermiso(configuracion, ultimo.eligio)
     return { ok: true, texto, ...(preguntaPermiso && { preguntaPermiso }), guardado: soloGuardado(configuracion) }
   }
+  // Tocó un comercio sugerido: el sistema le dice de dónde salió el número y le pregunta qué pide (sin la IA).
+  if (ultimo.eligioComercio) {
+    const { texto, preguntaPedido } = preguntarPedido(configuracion, ultimo.eligioComercio)
+    return { ok: true, texto, ...(preguntaPedido && { preguntaPedido }), guardado: soloGuardado(configuracion) }
+  }
+  // Tocó "Sugerirme lugares" o "Sugerirme comercios": el sistema muestra los cercanos (sin la IA).
+  if (ultimo.pidio === 'lugares' || ultimo.pidio === 'comercios') {
+    return { ok: true, ...(await sugerirPorBoton(configuracion, mensajes, ultimo.pidio)), guardado: soloGuardado(configuracion) }
+  }
   // Contestó la pregunta del permiso con un botón: recién ahora se guarda.
   if (ultimo.permiso && anterior?.preguntaPermiso?.id === ultimo.permiso.id) {
     await guardarLugarSugerido(codigo, ultimo.permiso.id, ultimo.permiso.necesitaPermiso)
@@ -82,6 +111,7 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
 
   let tabla: TablaReglas | undefined
   let sugerencias: LugarSugerido[] | undefined
+  let comerciosSugeridos: ComercioSugerido[] | undefined
   let pedidoBorrar: PedidoBorrar | undefined
   const conLaTabla = async (usar: (c: ConfiguracionAbuelo) => Promise<{ texto: string; tabla?: TablaReglas }> | { texto: string; tabla?: TablaReglas }) => {
     const actual = await leerConfiguracion(codigo)
@@ -98,15 +128,21 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
     INSTRUCCIONES_FAMILIA,
     quienEscribeParaLaIA(configuracionAhora, sesion.mail),
     guardadoParaLaIA(configuracionAhora),
-    catalogoParaLaIA(configuracionAhora),
+    await catalogoParaLaIA(configuracionAhora),
+    await catalogoComerciosParaLaIA(configuracionAhora),
   ].join('\n\n')
   const herramientaSugerir = herramientaSugerirLugares()
-  let respuesta = await charlarConLaIA(instrucciones, mensajes.map(paraLaIA), {
+  const herramientaSugerirComercio = herramientaSugerirComercios()
+  // Del catálogo solo se pueden guardar los comercios que el hijo eligió tocando su botón.
+  const comerciosElegidos = mensajes.flatMap((m) => (m.eligioComercio ? [m.eligioComercio] : []))
+  const usadas = new Set<string>()
+  let respuesta =await charlarConLaIA(instrucciones, mensajes.map(paraLaIA), {
     tools: [
       HERRAMIENTA_GUARDAR_ABUELO,
       HERRAMIENTA_GUARDAR_LUGAR,
       ...(herramientaSugerir ? [herramientaSugerir, HERRAMIENTA_GUARDAR_LUGAR_SUGERIDO] : []),
       HERRAMIENTA_GUARDAR_COMERCIO,
+      ...(herramientaSugerirComercio ? [herramientaSugerirComercio, HERRAMIENTA_GUARDAR_COMERCIO_SUGERIDO] : []),
       HERRAMIENTA_GUARDAR_FAMILIAR,
       HERRAMIENTA_PROPONER_BORRAR,
       HERRAMIENTA_BORRAR,
@@ -114,16 +150,17 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
       HERRAMIENTA_GUARDAR_REGLAS,
     ],
     usarHerramienta: (bloque) => {
+      usadas.add(bloque.name)
       switch (bloque.name) {
         case HERRAMIENTA_GUARDAR_ABUELO.name:
           return guardarAbuelo(codigo, bloque.input)
         case HERRAMIENTA_GUARDAR_LUGAR.name:
           return guardarLugar(codigo, bloque.input, loQueEscribioElHijo)
-        case 'sugerir_lugares': {
-          const resultado = sugerirLugares(configuracionAhora, bloque.input)
-          if (resultado.sugerencias) sugerencias = resultado.sugerencias
-          return resultado.texto
-        }
+        case 'sugerir_lugares':
+          return sugerirLugares(configuracionAhora, bloque.input).then((resultado) => {
+            if (resultado.sugerencias) sugerencias = resultado.sugerencias
+            return resultado.texto
+          })
         case HERRAMIENTA_GUARDAR_LUGAR_SUGERIDO.name: {
           // Solo vale si el mensaje anterior fue la pregunta del permiso por ESE lugar (nunca libre por defecto).
           const { id, necesitaPermiso } = bloque.input as { id?: unknown; necesitaPermiso?: unknown }
@@ -147,7 +184,14 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
           return borrar(codigo, propuesto)
         }
         case HERRAMIENTA_GUARDAR_COMERCIO.name:
-          return guardarComercio(codigo, bloque.input)
+          return guardarComercio(codigo, bloque.input, loQueEscribioElHijo)
+        case 'sugerir_comercios':
+          return sugerirComercios(configuracionAhora, bloque.input).then((resultado) => {
+            if (resultado.comerciosSugeridos) comerciosSugeridos = resultado.comerciosSugeridos
+            return resultado.texto
+          })
+        case HERRAMIENTA_GUARDAR_COMERCIO_SUGERIDO.name:
+          return guardarComercioSugerido(codigo, bloque.input, comerciosElegidos, loQueEscribioElHijo)
         case HERRAMIENTA_GUARDAR_FAMILIAR.name:
           return guardarFamiliar(codigo, bloque.input)
         case HERRAMIENTA_MOSTRAR_REGLAS.name:
@@ -162,10 +206,17 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
   if (respuesta.ok) respuesta = await dejarUnaSolaPregunta(respuesta)
 
   const actualizada = await leerConfiguracion(codigo)
+  // Perfil nuevo: cuando la charla llega a los lugares (o a los comercios), las sugerencias cercanas aparecen solas.
+  if (respuesta.ok && actualizada && !tabla && !pedidoBorrar && !sugerencias && !comerciosSugeridos) {
+    const solas = await sugerenciasSolas(actualizada, mensajes, respuesta.texto, usadas)
+    sugerencias = solas.sugerencias
+    comerciosSugeridos = solas.comerciosSugeridos
+  }
   return {
     ...respuesta,
     ...(tabla && { tabla }),
     ...(sugerencias && { sugerencias }),
+    ...(comerciosSugeridos && { comerciosSugeridos }),
     ...(pedidoBorrar && { pedidoBorrar }),
     guardado: actualizada ? soloGuardado(actualizada) : undefined,
   }
@@ -177,11 +228,16 @@ function paraLaIA(mensaje: MensajeCharla) {
   const notas = [
     mensaje.sugerencias && `[Botones de sugerencia que vio el hijo: ${mensaje.sugerencias.map((l) => `${l.nombre} (${l.id})`).join(', ')} y "Ninguno". Si no toca ninguno, no se guarda nada.]`,
     mensaje.preguntaPermiso && `[Pregunta del sistema por el lugar del catálogo ${mensaje.preguntaPermiso.id}. Con lo que conteste, usá guardar_lugar_sugerido.]`,
+    mensaje.comerciosSugeridos &&
+      `[Botones de comercios sugeridos que vio el hijo: ${mensaje.comerciosSugeridos.map((c) => `${c.nombre} (${c.id})`).join(', ')} y "Ninguno". Si no toca ninguno, no se guarda nada.]`,
+    mensaje.preguntaPedido && `[Pregunta del sistema por el comercio del catálogo ${mensaje.preguntaPedido.id}. Con lo que conteste, usá guardar_comercio_sugerido.]`,
     mensaje.pedidoBorrar && `[Botones "Sí, borrar" y "No" por ${mensaje.pedidoBorrar.tipo} "${mensaje.pedidoBorrar.nombre}". NO está borrado todavía.]`,
     mensaje.eligio && `[El hijo tocó la sugerencia ${mensaje.eligio}.]`,
+    mensaje.eligioComercio && `[El hijo tocó el comercio sugerido ${mensaje.eligioComercio}.]`,
     mensaje.permiso && `[El hijo tocó el botón: ${mensaje.permiso.necesitaPermiso ? 'necesita permiso' : 'puede ir solo'}. El sistema YA lo guardó así; mirá LO QUE YA ESTÁ GUARDADO. Contale en una frase cómo quedó y preguntá si va a algún otro lugar.]`,
     mensaje.confirmaBorrar === true && '[El hijo tocó "Sí, borrar". El sistema YA lo borró; contáselo en una frase.]',
     mensaje.confirmaBorrar === false && '[El hijo tocó "No". No se borró nada; contáselo en una frase.]',
+    mensaje.pidio && `[El hijo tocó el botón "Sugerirme ${mensaje.pidio}". El sistema le mostró los cercanos en botones.]`,
   ].filter(Boolean)
   const conNotas = notas.length > 0 ? `${content}\n\n${notas.join('\n')}` : content
   if (!tabla) return { role, content: conNotas }
@@ -232,11 +288,16 @@ function esCharlaValida(mensajes: unknown): mensajes is MensajeCharla[] {
         (m.tabla === undefined || (m.role === 'assistant' && esTablaValida(m.tabla))) &&
         (m.sugerencias === undefined || (Array.isArray(m.sugerencias) && m.sugerencias.length <= 10 && m.sugerencias.every(esLugarSugerido))) &&
         (m.preguntaPermiso === undefined || esLugarSugerido(m.preguntaPermiso)) &&
+        (m.comerciosSugeridos === undefined ||
+          (Array.isArray(m.comerciosSugeridos) && m.comerciosSugeridos.length <= 10 && m.comerciosSugeridos.every(esLugarSugerido))) &&
+        (m.preguntaPedido === undefined || esLugarSugerido(m.preguntaPedido)) &&
         (m.pedidoBorrar === undefined || esPedidoBorrar(m.pedidoBorrar)) &&
         (m.eligio === undefined || (m.role === 'user' && typeof m.eligio === 'string' && m.eligio.length <= 100)) &&
+        (m.eligioComercio === undefined || (m.role === 'user' && typeof m.eligioComercio === 'string' && m.eligioComercio.length <= 100)) &&
         (m.permiso === undefined ||
           (m.role === 'user' && typeof m.permiso?.id === 'string' && typeof m.permiso?.necesitaPermiso === 'boolean')) &&
-        (m.confirmaBorrar === undefined || (m.role === 'user' && typeof m.confirmaBorrar === 'boolean')),
+        (m.confirmaBorrar === undefined || (m.role === 'user' && typeof m.confirmaBorrar === 'boolean')) &&
+        (m.pidio === undefined || (m.role === 'user' && (m.pidio === 'lugares' || m.pidio === 'comercios'))),
     ) &&
     mensajes.at(-1)?.role === 'user'
   )
@@ -250,9 +311,17 @@ function esTablaValida(tabla: unknown): tabla is TablaReglas {
 
 const textoCorto = (v: unknown) => typeof v === 'string' && v.length <= 300
 
+/** También sirve para los comercios sugeridos: tienen los mismos campos. */
 function esLugarSugerido(dato: unknown): dato is LugarSugerido {
   const d = dato as Partial<LugarSugerido> | null
-  return !!d && textoCorto(d.id) && textoCorto(d.nombre) && textoCorto(d.tipo) && textoCorto(d.direccion)
+  return (
+    !!d &&
+    textoCorto(d.id) &&
+    textoCorto(d.nombre) &&
+    textoCorto(d.tipo) &&
+    textoCorto(d.direccion) &&
+    (d.distancia === undefined || textoCorto(d.distancia))
+  )
 }
 
 function esPedidoBorrar(dato: unknown): dato is PedidoBorrar {

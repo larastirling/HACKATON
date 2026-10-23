@@ -57,8 +57,11 @@ Comercios a los que el abuelo les pide cosas.
 |---|---|---|---|
 | `nombre` | Nombre del comercio. | Sí | `"Pizzería Don José"` |
 | `apodos` | Otras formas en que el abuelo lo llama. | Sí (puede ser `[]`) | `["lo de siempre"]` |
-| `whatsapp` | Número de WhatsApp, con código de país. | Sí (puede ser `"PENDIENTE"`) | `"+598 9X XXX XXX"` |
+| `pedidoPor` | Cómo se le pide: `"whatsapp"` (el abuelo manda el mensaje armado) o `"llamada"` (el abuelo toca "Llamar a…" y lee el pedido). | No (si falta, `"whatsapp"`) | `"llamada"` |
+| `whatsapp` | Número de WhatsApp, con código de país. | Sí (puede ser `"PENDIENTE"`; en los de llamada lo es) | `"+598 9X XXX XXX"` |
+| `telefono` | Teléfono para llamar. | Solo si `pedidoPor` es `"llamada"` (puede ser `"PENDIENTE"`) | `"0800 4242"` |
 | `pedidoHabitual` | Lo que pide siempre ("lo de siempre"). | Sí | `"Una muzzarella grande y una fainá"` |
+| `necesitaPermiso` | `true` si la familia tiene que aprobar cada pedido. | No (si falta, se toma como `true`: nunca libre por defecto) | `false` |
 
 ## 5. Familiares (`familiares`) — una lista, mínimo uno
 
@@ -102,7 +105,7 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
     "nombre": "Carlos Pérez",
     "comoLeGustaQueLeHablen": "Don Carlos, de usted",
     "telefono": "+598 92 158 202",
-    "direccion": "Costa Rica 621, Montevideo"
+    "direccion": "Juan Benito Blanco 780, Montevideo"
   },
   "lugares": [
     {
@@ -135,7 +138,8 @@ Es lo que devuelve `/api/configuracion?codigo=DEMO`:
       "nombre": "Pizzería Don José",
       "apodos": ["lo de siempre"],
       "whatsapp": "+598 92 625 554",
-      "pedidoHabitual": "Una muzzarella grande y una fainá"
+      "pedidoHabitual": "Una muzzarella grande y una fainá",
+      "necesitaPermiso": false
     }
   ],
   "familiares": [

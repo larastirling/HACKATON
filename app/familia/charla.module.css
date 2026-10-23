@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 96px; /* lugar para la caja de escribir */
+  padding-bottom: 150px; /* lugar para la caja de escribir y los atajos */
 }
 
 .burbuja {
@@ -37,6 +37,7 @@
   right: 0;
   bottom: calc(var(--alto-barra) + env(safe-area-inset-bottom));
   display: flex;
+  flex-direction: column;
   gap: 8px;
   max-width: 600px;
   margin: 0 auto;
@@ -59,6 +60,28 @@
 .entrada:focus { outline: none; border-color: var(--principal); box-shadow: 0 0 0 4px var(--principal-suave); }
 
 .enviar { width: auto; min-height: 64px; }
+
+.fila { display: flex; gap: 8px; }
+
+/* "Sugerirme lugares" y "Sugerirme comercios": siempre arriba de la caja de escribir */
+.atajos { display: flex; gap: 8px; }
+.atajo {
+  flex: 1;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: 2px solid var(--principal);
+  border-radius: 999px;
+  background: var(--blanco);
+  color: var(--principal);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.atajo:hover { background: var(--principal-suave); }
+.atajo:disabled { opacity: 0.5; cursor: default; }
+
+.tituloBotones { font-size: 0.9rem; font-weight: 700; color: var(--texto-suave); }
 
 /* Recuadro "Lugares guardados" */
 .guardado {

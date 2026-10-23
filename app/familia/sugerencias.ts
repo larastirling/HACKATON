@@ -2,9 +2,11 @@ import 'server-only'
 import type Anthropic from '@anthropic-ai/sdk'
 import type { ConfiguracionAbuelo, Lugar } from '@/lib/datos'
 import { CATALOGO_LUGARES, type LugarDelCatalogo } from './catalogo-lugares'
+import { dondeVive, kmEntre, KM_MAXIMOS, textoDistancia } from './distancia'
 import { cambiarConfiguracion, mismoNombre } from './guardar'
 
 // Sugerencias de lugares comunes de Montevideo (catálogo verificado con el mapa).
+// Solo los que quedan a menos de KM_MAXIMOS de la casa, del más cerca al más lejos (sin la casa ubicada, ninguno).
 // Nada se guarda solo:
 //   1. La IA muestra algunas sugerencias como botones (sugerir_lugares). Si el hijo no toca ninguna, no pasa nada.
 //   2. Si toca una, el sistema le pregunta "¿Puede ir solo o necesita permiso?" (sin la IA, siempre igual).
@@ -15,6 +17,8 @@ export interface LugarSugerido {
   nombre: string
   tipo: string
   direccion: string
+  /** A cuánto queda de la casa ("a 1,2 km"), si se sabe. */
+  distancia?: string
 }
 
 export const MAXIMO_SUGERENCIAS = 4
@@ -23,15 +27,72 @@ const yaGuardado = (c: ConfiguracionAbuelo, lugar: LugarDelCatalogo) => c.lugare
 
 export const buscarEnCatalogo = (id: unknown) => CATALOGO_LUGARES.find((l) => l.id === id)
 
-const paraMostrar = ({ id, nombre, tipo, direccion }: LugarDelCatalogo): LugarSugerido => ({ id, nombre, tipo, direccion })
+const paraMostrar = ({ id, nombre, tipo, direccion }: LugarDelCatalogo, km?: number): LugarSugerido => ({
+  id,
+  nombre,
+  tipo,
+  direccion,
+  ...(km !== undefined && { distancia: textoDistancia(km) }),
+})
 
-/** La lista que ve la IA: solo puede sugerir estos (los que todavía no están guardados). */
-export function catalogoParaLaIA(configuracion: ConfiguracionAbuelo): string {
-  const disponibles = CATALOGO_LUGARES.filter((l) => !yaGuardado(configuracion, l))
-  if (disponibles.length === 0) return 'CATÁLOGO DE LUGARES PARA SUGERIR: no queda ninguno para sugerir.'
+interface Disponible {
+  lugar: LugarDelCatalogo
+  km: number
+}
+
+/**
+ * Los lugares del catálogo que se pueden sugerir: todavía no guardados y a menos de KM_MAXIMOS de la casa,
+ * del más cerca al más lejos. null si no se sabe dónde vive (sin eso no se sugiere ninguno).
+ */
+async function disponibles(configuracion: ConfiguracionAbuelo): Promise<Disponible[] | null> {
+  const casa = await dondeVive(configuracion)
+  if (!casa) return null
+  return CATALOGO_LUGARES.filter((l) => !yaGuardado(configuracion, l))
+    .map((lugar) => ({ lugar, km: kmEntre(casa, lugar) }))
+    .filter((d) => d.km <= KM_MAXIMOS)
+    .sort((a, b) => a.km - b.km)
+}
+
+/** Al elegir solos (sin la IA), los tipos que más le pueden servir van primero. */
+const TIPOS_PRIMERO = ['Salud', 'Farmacia', 'Supermercado', 'Banco', 'Trámites', 'Plaza', 'Shopping', 'Paseo', 'Club']
+
+/**
+ * Las sugerencias que muestra el sistema solo (al llegar a los lugares o con el botón "Sugerirme lugares"):
+ * el más cercano de cada tipo, los tipos más útiles primero, sin repetir los que ya vio en esta charla
+ * (si ya vio todos, vuelve a empezar). Del más cerca al más lejos. null si no se sabe dónde vive.
+ */
+export async function lugaresCercanos(configuracion: ConfiguracionAbuelo, yaMostrados: string[]): Promise<LugarSugerido[] | null> {
+  const lista = await disponibles(configuracion)
+  if (!lista) return null
+  const nuevos = lista.filter((d) => !yaMostrados.includes(d.lugar.id))
+  const candidatos = nuevos.length > 0 ? nuevos : lista
+  const prioridad = (tipo: string) => (TIPOS_PRIMERO.includes(tipo) ? TIPOS_PRIMERO.indexOf(tipo) : TIPOS_PRIMERO.length)
+  const tipos = [...new Set(candidatos.map((d) => d.lugar.tipo))].sort((a, b) => prioridad(a) - prioridad(b))
+  return tipos
+    .slice(0, MAXIMO_SUGERENCIAS)
+    .map((tipo) => candidatos.find((d) => d.lugar.tipo === tipo)!) // la lista ya viene del más cerca al más lejos
+    .sort((a, b) => a.km - b.km)
+    .map((d) => paraMostrar(d.lugar, d.km))
+}
+
+/**
+ * La lista que ve la IA: solo puede sugerir estos. Va agrupada por tipo (primero el tipo que tiene el más cercano)
+ * y, dentro de cada tipo, del más cerca al más lejos: así, de varias farmacias, la primera es la más cercana.
+ */
+export async function catalogoParaLaIA(configuracion: ConfiguracionAbuelo): Promise<string> {
+  const lista = await disponibles(configuracion)
+  if (!lista) {
+    return 'CATÁLOGO DE LUGARES PARA SUGERIR: todavía no se puede sugerir ninguno, porque la dirección de la casa no está ubicada en el mapa (hace falta para saber qué le queda cerca). No uses sugerir_lugares.'
+  }
+  if (lista.length === 0) return `CATÁLOGO DE LUGARES PARA SUGERIR: no queda ninguno a menos de ${KM_MAXIMOS} km de su casa. No uses sugerir_lugares.`
+  const tipos = [...new Set(lista.map((d) => d.lugar.tipo))]
   return [
-    'CATÁLOGO DE LUGARES PARA SUGERIR (lugares reales de Montevideo, verificados en el mapa; son los ÚNICOS que podés sugerir):',
-    ...disponibles.map((l) => `- ${l.id} | ${l.nombre} | ${l.tipo} | ${l.direccion}`),
+    `CATÁLOGO DE LUGARES PARA SUGERIR (lugares reales de Montevideo, verificados en el mapa, a menos de ${KM_MAXIMOS} km de su casa; son los ÚNICOS que podés sugerir). ` +
+      'Por tipo, del más cerca al más lejos:',
+    ...tipos.flatMap((tipo) => [
+      `${tipo}:`,
+      ...lista.filter((d) => d.lugar.tipo === tipo).map((d) => `- ${d.lugar.id} | ${d.lugar.nombre} | ${d.lugar.direccion} | ${textoDistancia(d.km)}`),
+    ]),
   ].join('\n')
 }
 
@@ -48,7 +109,9 @@ export function herramientaSugerirLugares(): Anthropic.Beta.BetaTool | null {
         ids: {
           type: 'array',
           items: { type: 'string', enum: CATALOGO_LUGARES.map((l) => l.id) },
-          description: `Entre 2 y ${MAXIMO_SUGERENCIAS} ids del catálogo, los que más le puedan servir según lo que contó el hijo.`,
+          description:
+            `Entre 1 y ${MAXIMO_SUGERENCIAS} ids del catálogo, los que más le puedan servir según lo que contó el hijo. ` +
+            'De cada tipo, el más cercano (el primero de su grupo), salvo que el hijo haya nombrado otro.',
         },
       },
       required: ['ids'],
@@ -58,21 +121,26 @@ export function herramientaSugerirLugares(): Anthropic.Beta.BetaTool | null {
   }
 }
 
-/** Ejecuta sugerir_lugares: arma los botones (sin guardar nada) y le dice a la IA qué se muestra. */
-export function sugerirLugares(configuracion: ConfiguracionAbuelo, dato: unknown): { texto: string; sugerencias?: LugarSugerido[] } {
+/** Ejecuta sugerir_lugares: arma los botones (sin guardar nada), del más cerca al más lejos, y le dice a la IA qué se muestra. */
+export async function sugerirLugares(configuracion: ConfiguracionAbuelo, dato: unknown): Promise<{ texto: string; sugerencias?: LugarSugerido[] }> {
   const ids = (dato as { ids?: unknown } | null)?.ids
   if (!Array.isArray(ids)) return { texto: 'No se mostró nada: faltan los ids del catálogo.' }
-  const sugerencias = [...new Set(ids)]
-    .map(buscarEnCatalogo)
-    .filter((l): l is LugarDelCatalogo => !!l && !yaGuardado(configuracion, l))
+  const lista = await disponibles(configuracion)
+  if (!lista) return { texto: 'No se mostró nada: la dirección de la casa no está ubicada en el mapa, así que no se sabe qué le queda cerca.' }
+  const sugerencias = lista
+    .filter((d) => ids.includes(d.lugar.id))
     .slice(0, MAXIMO_SUGERENCIAS)
-    .map(paraMostrar)
-  if (sugerencias.length === 0) return { texto: 'No se mostró nada: esos lugares no están en el catálogo o ya están guardados.' }
+    .map((d) => paraMostrar(d.lugar, d.km))
+  if (sugerencias.length === 0) {
+    return { texto: `No se mostró nada: esos lugares no están en el catálogo, ya están guardados o quedan a más de ${KM_MAXIMOS} km de su casa.` }
+  }
+  const noSeMostraron = ids.filter((id) => typeof id === 'string' && !sugerencias.some((s) => s.id === id))
   return {
     sugerencias,
     texto:
-      `Listo: debajo de tu mensaje el hijo ve botones con ${sugerencias.map((s) => s.nombre).join(', ')} y uno de "Ninguno". ` +
-      'NO se guardó nada. En tu mensaje preguntale, en una frase, si su papá o mamá va a alguno de estos (por ejemplo "¿Va a alguno de estos?"). No los listes: ya están en los botones.',
+      `Listo: debajo de tu mensaje el hijo ve botones con ${sugerencias.map((s) => `${s.nombre} (${s.distancia})`).join(', ')} y uno de "Ninguno". NO se guardó nada.` +
+      (noSeMostraron.length ? ` No se mostraron ${noSeMostraron.join(', ')}: quedan a más de ${KM_MAXIMOS} km o ya están guardados.` : '') +
+      ' En tu mensaje preguntale, en una frase, si su papá o mamá va a alguno de estos (por ejemplo "¿Va a alguno de estos?"). No los listes: ya están en los botones.',
   }
 }
 

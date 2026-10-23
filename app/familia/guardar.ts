@@ -51,7 +51,37 @@ export function normalizarMail(texto: string): string | null {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(limpio) ? limpio : null
 }
 
-export const limpiarApodos = (apodos: string[]) => [...new Set(apodos.map((a) => a.trim()).filter(Boolean))]
+/**
+ * Teléfono para llamar: como normalizarTelefono, pero también acepta los 0800 ("0800 4242").
+ * Devuelve null si no se entiende y PENDIENTE si el hijo no lo sabe.
+ */
+export function normalizarTelefonoParaLlamar(texto: string): string | null {
+  const digitos = texto.replace(/\D/g, '')
+  if (/^0800\d{4}$/.test(digitos)) return `0800 ${digitos.slice(4)}`
+  return normalizarTelefono(texto)
+}
+
+/** Minúsculas, sin tildes ni signos, espacios simples: para comparar lo que escribió el hijo. */
+const comparable = (texto: string) =>
+  texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()
+
+/**
+ * La frase del permiso (si va o pide solo, o necesita permiso) tiene que estar de verdad en algo
+ * que escribió el hijo, para que la IA no la invente. Lo usan los lugares y los comercios.
+ */
+export function loDijoElHijo(frase: string, loQueEscribioElHijo: string[]): boolean {
+  const buscada = comparable(frase)
+  // Tiene que hablar de hacerlo solo o con permiso (no vale una palabra suelta como "papá").
+  const hablaDelPermiso = /\b(sol[oa]s?|permiso|libre|avis\w*|pregunt\w*|aprob\w*|acompa\w*|autoriz\w*)\b/.test(buscada)
+  return hablaDelPermiso && loQueEscribioElHijo.some((mensaje) => comparable(mensaje).includes(buscada))
+}
+
+export const limpiarApodos =(apodos: string[]) => [...new Set(apodos.map((a) => a.trim()).filter(Boolean))]
 
 /** Rechaza nombres que no parecen reales (ej. "x"), para que la IA no guarde datos de prueba. */
 export const nombreValido = (nombre: string) => nombre.replace(/[^\p{L}]/gu, '').length >= 2

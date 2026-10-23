@@ -34,8 +34,15 @@ export interface Lugar {
 export interface Comercio {
   nombre: string
   apodos: string[]
+  /** Cómo se le pide: el abuelo manda el WhatsApp armado, o llama y lee el pedido. Si falta, es por WhatsApp. */
+  pedidoPor?: 'whatsapp' | 'llamada'
+  /** Para pedir por WhatsApp. En los de llamada queda PENDIENTE. */
   whatsapp: string
+  /** Teléfono para llamar (solo en los de llamada). */
+  telefono?: string
   pedidoHabitual: string
+  /** true si la familia tiene que aprobar cada pedido. Si se guardó sin esto, se toma como true (nunca libre por defecto). */
+  necesitaPermiso: boolean
 }
 
 export interface Familiar {
@@ -83,7 +90,7 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
     nombre: 'Carlos Pérez',
     comoLeGustaQueLeHablen: 'Don Carlos, de usted',
     telefono: '+598 92 158 202',
-    direccion: 'Costa Rica 621, Montevideo',
+    direccion: 'Juan Benito Blanco 780, Montevideo',
   },
   lugares: [
     {
@@ -120,6 +127,7 @@ export const FAMILIA_DEMO: ConfiguracionAbuelo = {
       apodos: ['lo de siempre'],
       whatsapp: '+598 92 625 554',
       pedidoHabitual: 'Una muzzarella grande y una fainá',
+      necesitaPermiso: false,
     },
   ],
   familiares: [
@@ -193,11 +201,13 @@ export function normalizarCodigo(codigo: string): string {
 /**
  * Las reglas fijas siempre se ponen desde el código, nunca desde lo guardado.
  * Si la configuración se guardó antes de que existiera abuelo.direccion, queda como PENDIENTE.
+ * Si un comercio se guardó antes de que existiera necesitaPermiso, queda con permiso (nunca libre por defecto).
  */
 function completarConfiguracion(configuracion: ConfiguracionAbuelo): ConfiguracionAbuelo {
   return {
     ...configuracion,
     abuelo: { ...configuracion.abuelo, direccion: configuracion.abuelo.direccion ?? PENDIENTE },
+    comercios: configuracion.comercios.map((c) => ({ ...c, necesitaPermiso: c.necesitaPermiso ?? true })),
     reglas: { ...configuracion.reglas, fijas: REGLAS_FIJAS },
   }
 }
@@ -302,6 +312,14 @@ export function validarConfiguracion(dato: unknown): string[] {
     if (!esListaDeTextos(comercio.apodos)) errores.push(`"${donde}.apodos" tiene que ser una lista de textos`)
     if (!esTexto(comercio.whatsapp)) errores.push(`Falta "${donde}.whatsapp"`)
     if (!esTexto(comercio.pedidoHabitual)) errores.push(`Falta "${donde}.pedidoHabitual"`)
+    if (comercio.pedidoPor !== undefined && comercio.pedidoPor !== 'whatsapp' && comercio.pedidoPor !== 'llamada') {
+      errores.push(`"${donde}.pedidoPor" tiene que ser "whatsapp" o "llamada"`)
+    }
+    if (comercio.pedidoPor === 'llamada' && !esTexto(comercio.telefono)) errores.push(`Falta "${donde}.telefono" (se le pide llamando)`)
+    // Si falta, al leer queda con permiso (nunca libre por defecto).
+    if (comercio.necesitaPermiso !== undefined && typeof comercio.necesitaPermiso !== 'boolean') {
+      errores.push(`"${donde}.necesitaPermiso" tiene que ser true o false`)
+    }
   })
 
   revisarLista(c.familiares, 'familiares', errores, (familiar: Partial<Familiar>, donde) => {

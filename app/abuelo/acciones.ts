@@ -115,7 +115,7 @@ async function anotarLoQuePaso(
 ): Promise<void> {
   await anotarEnElDiario(codigoFamilia, 'charla', loQueDijo)
   if (r.viaje) await anotarEnElDiario(codigoFamilia, 'viaje', `Se le armó un viaje en Uber a ${r.viaje.nombre}`)
-  if (r.pedido) await anotarEnElDiario(codigoFamilia, 'pedido', `Se le armó un pedido por WhatsApp a ${r.pedido.comercio}: ${r.pedido.pedido}`)
+  if (r.pedido) await anotarEnElDiario(codigoFamilia, 'pedido', `Se le armó un pedido ${r.pedido.por === 'llamada' ? 'por teléfono' : 'por WhatsApp'} a ${r.pedido.comercio}: ${r.pedido.pedido}`)
   if (r.aprobacion) await anotarEnElDiario(codigoFamilia, 'permiso', `Se le pidió permiso a la familia (${r.aprobacion.familiares.join(', ')})`)
   if (r.emergencia) await anotarEnElDiario(codigoFamilia, 'emergencia', 'Se le mostraron los botones de emergencia')
   // La estafa la anota lib/emergencia.ts, con el motivo.

@@ -353,6 +353,9 @@ strong { font-weight: 800; }
 .tarjeta-viaje-destino { font-size: 1.6rem; font-weight: 800; line-height: 1.2; color: var(--texto-titulo); }
 .tarjeta-viaje-direccion { font-size: 1.2rem; margin-bottom: 10px; }
 .tarjeta-viaje-ayuda { font-size: 1.05rem; text-align: center; color: var(--texto-suave); }
+/* Pedido por teléfono: el texto que lee el abuelo, bien grande, y arriba del botón de llamar. */
+.tarjeta-para-leer { font-size: 1.5rem; font-weight: 700; line-height: 1.35; color: var(--texto-titulo); margin-bottom: 10px; }
+.boton-llamar-comercio { min-height: 88px; font-size: 1.6rem; font-weight: 800; }
 
 .boton-uber {
   display: flex;

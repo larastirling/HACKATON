@@ -24,10 +24,19 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
     const r = await responder(historial).catch(() => ({ ok: false as const, error: 'No se pudo hablar con la IA' }))
     if ('guardado' in r && r.guardado) setGuardado(r.guardado)
     if (r.ok) {
-      const { texto, tabla, sugerencias, preguntaPermiso, pedidoBorrar } = r as Extract<RespuestaFamilia, { ok: true }>
+      const { texto, tabla, sugerencias, preguntaPermiso, comerciosSugeridos, preguntaPedido, pedidoBorrar } = r as Extract<RespuestaFamilia, { ok: true }>
       setMensajes([
         ...historial,
-        { role: 'assistant', content: texto, ...(tabla && { tabla }), ...(sugerencias && { sugerencias }), ...(preguntaPermiso && { preguntaPermiso }), ...(pedidoBorrar && { pedidoBorrar }) },
+        {
+          role: 'assistant',
+          content: texto,
+          ...(tabla && { tabla }),
+          ...(sugerencias && { sugerencias }),
+          ...(preguntaPermiso && { preguntaPermiso }),
+          ...(comerciosSugeridos && { comerciosSugeridos }),
+          ...(preguntaPedido && { preguntaPedido }),
+          ...(pedidoBorrar && { pedidoBorrar }),
+        },
       ])
     }
     else setError(r.error)
@@ -89,16 +98,27 @@ export default function Charla({ guardadoInicial }: { guardadoInicial: Guardado 
       </div>
 
       <form className={estilos.caja} onSubmit={enviar}>
-        <input
-          className={estilos.entrada}
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          placeholder="Escribí tu respuesta…"
-          aria-label="Tu respuesta"
-        />
-        <button type="submit" className={`boton boton-principal ${estilos.enviar}`} disabled={!texto.trim() || pensando}>
-          Enviar
-        </button>
+        {/* Siempre a mano: el sistema muestra los lugares y comercios cercanos a la casa, sin la IA. */}
+        <div className={estilos.atajos}>
+          <button type="button" className={estilos.atajo} disabled={pensando} onClick={() => mandar({ role: 'user', content: 'Sugerime lugares', pidio: 'lugares' })}>
+            Sugerirme lugares
+          </button>
+          <button type="button" className={estilos.atajo} disabled={pensando} onClick={() => mandar({ role: 'user', content: 'Sugerime comercios', pidio: 'comercios' })}>
+            Sugerirme comercios
+          </button>
+        </div>
+        <div className={estilos.fila}>
+          <input
+            className={estilos.entrada}
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            placeholder="Escribí tu respuesta…"
+            aria-label="Tu respuesta"
+          />
+          <button type="submit" className={`boton boton-principal ${estilos.enviar}`} disabled={!texto.trim() || pensando}>
+            Enviar
+          </button>
+        </div>
       </form>
     </>
   )
@@ -109,10 +129,27 @@ function Botones({ mensaje, mandar }: { mensaje: MensajeCharla; mandar: (m: Mens
   if (mensaje.sugerencias?.length) {
     return (
       <div className={estilos.botones} role="group" aria-label="Lugares sugeridos">
+        <p className={estilos.tituloBotones}>Lugares cerca de su casa</p>
         {mensaje.sugerencias.map((l) => (
           <button key={l.id} type="button" className={estilos.sugerencia} onClick={() => mandar({ role: 'user', content: `Va a ${l.nombre}`, eligio: l.id })}>
             <strong>{l.nombre}</strong>
-            <span>{l.tipo} · {l.direccion}</span>
+            <span>{l.tipo} · {l.direccion}{l.distancia && ` · ${l.distancia}`}</span>
+          </button>
+        ))}
+        <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'Ninguno de esos' })}>
+          Ninguno
+        </button>
+      </div>
+    )
+  }
+  if (mensaje.comerciosSugeridos?.length) {
+    return (
+      <div className={estilos.botones} role="group" aria-label="Comercios sugeridos">
+        <p className={estilos.tituloBotones}>Comercios confirmados cerca de su casa</p>
+        {mensaje.comerciosSugeridos.map((c) => (
+          <button key={c.id} type="button" className={estilos.sugerencia} onClick={() => mandar({ role: 'user', content: `Le pide a ${c.nombre}`, eligioComercio: c.id })}>
+            <strong>{c.nombre}</strong>
+            <span>{c.tipo} · {c.direccion}{c.distancia && ` · ${c.distancia}`}</span>
           </button>
         ))}
         <button type="button" className="boton boton-secundario" onClick={() => mandar({ role: 'user', content: 'Ninguno de esos' })}>

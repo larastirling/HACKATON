@@ -6,7 +6,7 @@ import { armarEmergencia, avisarEmergenciaALaFamilia, avisarEstafaALaFamilia, av
 import { buscarCoordenadas } from './mapas'
 import { juntarNombres } from './texto'
 import { armarViajeUber, type Viaje } from './uber'
-import { armarPedidoWhatsApp, type Pedido } from './whatsapp'
+import { armarPedido, type Pedido } from './whatsapp'
 
 // ÚNICO lugar donde se habla con la IA. Solo corre en el servidor:
 // la clave ANTHROPIC_API_KEY nunca llega al navegador.
@@ -26,7 +26,7 @@ export interface MensajeCharla {
   emergencia?: Emergencia
   /** Si la IA cree que le quieren hacer una estafa, el cartel rojo (y a quién se avisó). */
   estafa?: Estafa
-  /** Si la IA propuso un pedido, la tarjeta con el botón de WhatsApp. */
+  /** Si la IA propuso un pedido, la tarjeta con el botón de WhatsApp o de llamar. */
   pedido?: Pedido
   /** Si hizo falta permiso, a quién se le preguntó (la pantalla espera la respuesta). */
   aprobacion?: EsperaAprobacion
@@ -71,7 +71,7 @@ export async function charlarConLaIA(
  *   que no, se le pide aprobación a la familia. Si es un viaje y el mapa encuentra el lugar, al aprobar sale el Uber.
  * - avisar_pedido_de_plata: quiere mandar plata. No se consulta ni se hace nada: solo se avisa a la familia.
  * - proponer_pedido: elige el id del comercio (y una aclaración, o lo distinto que pidió) y el servidor
- *   arma el link de WhatsApp.
+ *   arma el link de WhatsApp (o, si se le pide llamando, el texto para leer y el link para llamar).
  * Si algo necesita permiso, lo decide el SERVIDOR (lib/aprobaciones.ts): en vez del botón, le pregunta
  * por mail al primer familiar y la pantalla del abuelo espera la respuesta.
  */
@@ -105,22 +105,27 @@ export async function conversarConElAbuelo(
     const comercio = comercios.find((c) => c.id === comercioId)
     if (!comercio) return 'Ese id no corresponde a ningún comercio guardado. No inventes comercios.'
     const distinto = typeof pedidoDistinto === 'string' ? pedidoDistinto.trim() : ''
-    const propuesto = armarPedidoWhatsApp(comercio, configuracion.abuelo, {
+    const propuesto = armarPedido(comercio, configuracion.abuelo, {
       aclaracion: typeof aclaracion === 'string' ? aclaracion : '',
       pedidoDistinto: distinto,
     })
+    const porLlamada = comercio.pedidoPor === 'llamada'
     if (!propuesto) {
-      return `NO se puede armar el pedido: a "${comercio.nombre}" le falta el número de WhatsApp. Decile que ese comercio no tiene el número anotado y que le pida a la familia que lo agregue.`
+      return `NO se puede armar el pedido: a "${comercio.nombre}" le falta el número ${porLlamada ? 'de teléfono' : 'de WhatsApp'}. Decile que ese comercio no tiene el número anotado y que le pida a la familia que lo agregue.`
     }
-    // Regla del servidor: lo que no es el pedido habitual necesita permiso.
-    if (distinto) {
+    // Reglas del servidor: lo que no es el pedido habitual, o un comercio que necesita permiso, lo aprueba la familia.
+    if (distinto || comercio.necesitaPermiso) {
       return pedirPermisoALaFamilia(`${nombreAbuelo} quiere pedir a ${comercio.nombre}: ${propuesto.pedido}`, {
         tipo: 'pedido',
         pedido: propuesto,
       })
     }
     pedido = propuesto
-    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con el pedido a "${comercio.nombre}" (${propuesto.pedido}${propuesto.aclaracion ? `; aclaración: ${propuesto.aclaracion}` : ''}) y un botón verde "Abrir WhatsApp". El mensaje NO está mandado: él toca el botón y después aprieta enviar en WhatsApp. Contáselo en una o dos frases, sin escribir números, links ni precios.`
+    const detalle = `${propuesto.pedido}${propuesto.aclaracion ? `; aclaración: ${propuesto.aclaracion}` : ''}`
+    if (porLlamada) {
+      return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con el pedido a "${comercio.nombre}" (${detalle}), el texto para leer cuando atiendan y un botón verde "Llamar a ${comercio.nombre}". NO se llamó: llama él cuando toca el botón. Contáselo en una o dos frases, sin escribir números, links ni precios.`
+    }
+    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con el pedido a "${comercio.nombre}" (${detalle}) y un botón verde "Abrir WhatsApp". El mensaje NO está mandado: él toca el botón y después aprieta enviar en WhatsApp. Contáselo en una o dos frases, sin escribir números, links ni precios.`
   }
 
   async function mostrarEmergencia(): Promise<string> {
@@ -236,8 +241,9 @@ function herramientaProponerPedido(ids: string[]): Anthropic.Beta.BetaTool {
   return {
     name: 'proponer_pedido',
     description:
-      'Le muestra al abuelo una tarjeta con su pedido a un comercio GUARDADO y un botón para abrir WhatsApp con el mensaje listo. ' +
-      'No manda nada: él toca el botón y aprieta enviar. Si el pedido necesita permiso, el sistema le pregunta a la familia. ' +
+      'Le muestra al abuelo una tarjeta con su pedido a un comercio GUARDADO: un botón para abrir WhatsApp con el mensaje listo, ' +
+      'o, si el comercio se pide llamando, el texto para leer y un botón para llamar. ' +
+      'No manda ni llama nada: lo hace él tocando el botón. Si el pedido necesita permiso, el sistema le pregunta a la familia. ' +
       'Usala solo cuando esté claro a qué comercio guardado le quiere pedir.',
     input_schema: {
       type: 'object',
@@ -367,7 +373,7 @@ function instruccionesParaElAbuelo(
   const configuracionParaLaIA = {
     ...configuracion,
     lugares: lugares.map(({ id, nombre, apodos, direccion, necesitaPermiso }) => ({ id, nombre, apodos, direccion, necesitaPermiso })),
-    comercios: comercios.map(({ id, nombre, apodos, pedidoHabitual }) => ({ id, nombre, apodos, pedidoHabitual })),
+    comercios: comercios.map(({ id, nombre, apodos, pedidoHabitual, pedidoPor }) => ({ id, nombre, apodos, pedidoHabitual, pedidoPor: pedidoPor ?? 'whatsapp' })),
   }
   return `Sos el "Asistente de confianza" de ${abuelo.nombre}, una persona mayor que no sabe usar tecnología. Te escribe desde el celular.
 
@@ -393,8 +399,11 @@ Podés proponerle un viaje en Uber a un lugar GUARDADO con la herramienta propon
 - Si quiere ir a un lugar que no está guardado, no le digas que no: usá consultar_a_la_familia con el destino tal cual lo dijo. Nunca inventes direcciones.
 - Nunca escribas links ni coordenadas.
 
-PEDIDOS POR WHATSAPP
-Podés proponerle un pedido a un comercio GUARDADO con la herramienta proponer_pedido. La pantalla le muestra una tarjeta con el pedido y un botón "Abrir WhatsApp" con el mensaje listo; él toca el botón y después aprieta enviar en WhatsApp. Vos nunca mandás nada.
+PEDIDOS A COMERCIOS (POR WHATSAPP O LLAMANDO)
+Podés proponerle un pedido a un comercio GUARDADO con la herramienta proponer_pedido. La pantalla le muestra una tarjeta con el pedido:
+- Si el comercio se pide por WhatsApp: un botón "Abrir WhatsApp" con el mensaje listo; él toca el botón y después aprieta enviar.
+- Si se pide llamando (pedidoPor "llamada"): el texto para leer cuando atiendan y un botón "Llamar a" ese comercio; él toca el botón y llama.
+Vos nunca mandás nada ni llamás.
 - Usala solo cuando quede claro a qué comercio guardado le quiere pedir (por nombre o apodo, como "lo de siempre"). Si no está claro, preguntale.
 - Si pide su pedido habitual: dejá pedido_distinto vacío. Si pide un detalle chico que no cambia qué se pide (por ejemplo "sin aceitunas"), ponelo en aclaracion.
 - Si pide otra comida u otra cantidad distinta de su pedido habitual: escribilo en pedido_distinto tal como lo pidió. El sistema le pregunta a la familia y te dice qué contestarle.
@@ -416,7 +425,7 @@ Si pide algo raro o fuera de lo común (un lugar que no está guardado, un viaje
 - Nunca para plata, emergencias ni temas de salud: esas tienen sus propias reglas (abajo).
 
 LO QUE TODAVÍA NO PODÉS HACER
-Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails ni llamar por teléfono. Los permisos de la familia los pide el sistema solo, cuando usás las herramientas. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
+Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails ni llamar vos por teléfono (a un comercio guardado que se pide llamando, llama él con el botón de proponer_pedido). Los permisos de la familia los pide el sistema solo, cuando usás las herramientas. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
 Nunca ofrezcas ni digas que hiciste algo que no podés hacer desde esta charla (como anotar algo en un papel).
 
 REGLAS QUE NUNCA SE APAGAN

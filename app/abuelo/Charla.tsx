@@ -253,8 +253,19 @@ function CartelEstafa({ estafa }: { estafa: Estafa }) {
   )
 }
 
-// Tarjeta con el pedido y el botón de WhatsApp. El mensaje lo manda el abuelo, nunca se manda solo.
+// Tarjeta con el pedido y el botón de WhatsApp (o de llamar). El abuelo manda el mensaje o llama: nunca pasa solo.
 function TarjetaPedido({ pedido }: { pedido: Pedido }) {
+  if (pedido.por === 'llamada') {
+    return (
+      <section className="tarjeta-viaje" aria-label={`Pedido a ${pedido.comercio}`}>
+        <p className="tarjeta-viaje-titulo">Cuando atiendan, lea esto</p>
+        <p className="tarjeta-para-leer">“{pedido.textoParaLeer}”</p>
+        <a className="boton boton-uber boton-llamar-comercio" href={pedido.link}>
+          Llamar a {pedido.comercio}
+        </a>
+      </section>
+    )
+  }
   return (
     <section className="tarjeta-viaje" aria-label={`Pedido a ${pedido.comercio}`}>
       <p className="tarjeta-viaje-titulo">Pedido a</p>
@@ -312,7 +323,14 @@ function EsperandoAprobacion({
             resultado.viaje
               ? { de: 'ia', texto: `${quien} aprobó el viaje. Toque el botón verde para abrir Uber.`, viaje: resultado.viaje }
               : resultado.pedido
-                ? { de: 'ia', texto: `${quien} aprobó el pedido. Toque el botón verde para abrir WhatsApp y después apriete enviar.`, pedido: resultado.pedido }
+                ? {
+                    de: 'ia',
+                    texto:
+                      resultado.pedido.por === 'llamada'
+                        ? `${quien} aprobó el pedido. Toque el botón verde para llamar y, cuando atiendan, lea el texto.`
+                        : `${quien} aprobó el pedido. Toque el botón verde para abrir WhatsApp y después apriete enviar.`,
+                    pedido: resultado.pedido,
+                  }
                 : { de: 'ia', texto: `${quien} dijo que sí. Si quiere organizarlo, puede llamar a ${quien}.` },
           )
         } else if (resultado.estado === 'rechazado') {
