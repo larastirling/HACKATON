@@ -35,6 +35,7 @@ En el código, el formato está en `lib/datos.ts`. Ese archivo es el único que 
 | `comoLeGustaQueLeHablen` | Cómo prefiere que le hable la IA: el nombre que usa y si de "vos" o de "usted". | Sí | `"Don Carlos, de usted"` |
 | `telefono` | Su teléfono, con código de país. | Sí (puede ser `"PENDIENTE"`) | `"+598 9X XXX XXX"` |
 | `direccion` | Dónde vive: calle, número y ciudad. Se pone en los pedidos por WhatsApp para que sepan a dónde llevar. **No inventarla.** | Sí (puede ser `"PENDIENTE"`) | `"Calle 1234, Montevideo"` |
+| `ubicacion` | Dónde queda la casa en el mapa, para sugerir lugares y comercios cercanos: `latitud`, `longitud`, `direccionDelMapa` y `fuente` (`"IDE Uruguay"`, `"OpenStreetMap"` o `"Google Maps"`). La pone el sistema; **nunca la IA**. | No (si falta, se busca la dirección) | `{ "latitud": -34.9087, "longitud": -56.1478, "direccionDelMapa": "26 de Marzo 1271, Pocitos, Montevideo", "fuente": "IDE Uruguay" }` |
 
 ## 3. Lugares (`lugares`) — una lista
 

@@ -33,12 +33,14 @@ export interface ComercioDelCatalogo {
   nota?: string
   /** Si alguien ya confirmó (llamando o escribiendo) que el número es el del comercio y toma pedidos. */
   verificado: boolean
+  /** Solo para probar: aparece cuando la app corre en una compu, nunca en la app publicada en Vercel. */
+  soloEnLaCompu?: boolean
 }
 
 export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
   // Solo para probar la app: el número es de alguien del equipo (el mismo de la pizzería de la familia DEMO).
   // Se pide llamando, para probar el botón "Llamar a…" de /abuelo. Sin local: no se filtra por distancia.
-  // Antes de la demo con comercios reales, sacarlo o dejarlo en verificado: false.
+  // soloEnLaCompu: en la app publicada (Vercel) no aparece.
   {
     id: 'comercio-de-prueba',
     nombre: 'Comercio de prueba (equipo)',
@@ -52,6 +54,7 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     fuente: { tipo: 'prueba', link: null, detalle: 'número de alguien del equipo' },
     nota: 'Es un comercio de prueba: atiende alguien del equipo.',
     verificado: true,
+    soloEnLaCompu: true,
   },
 
   // Supermercados y farmacias (cadenas: se le pide a la central)

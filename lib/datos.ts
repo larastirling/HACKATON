@@ -20,6 +20,11 @@ export interface Abuelo {
   telefono: string
   /** Dónde vive. Se usa, por ejemplo, en los pedidos por WhatsApp. */
   direccion: string
+  /**
+   * Dónde queda la casa en el mapa (para sugerir lugares y comercios cercanos). La pone el sistema al guardar la
+   * dirección (lib/mapas.ts) o con un link de Google Maps que pegó el hijo; nunca la IA. Si falta, se busca la dirección.
+   */
+  ubicacion?: { latitud: number; longitud: number; direccionDelMapa: string; fuente: string }
 }
 
 export interface Lugar {
@@ -296,6 +301,10 @@ export function validarConfiguracion(dato: unknown): string[] {
     for (const campo of ['nombre', 'comoLeGustaQueLeHablen', 'telefono', 'direccion'] as const) {
       if (!esTexto(c.abuelo[campo])) errores.push(`Falta "abuelo.${campo}"`)
     }
+    const u = c.abuelo.ubicacion
+    if (u !== undefined && (!u || !esCoordenadaNumerica(u.latitud, 90) || !esCoordenadaNumerica(u.longitud, 180) || !esTexto(u.direccionDelMapa))) {
+      errores.push('"abuelo.ubicacion" tiene que tener latitud, longitud (números) y direccionDelMapa')
+    }
   }
 
   revisarLista(c.lugares, 'lugares', errores, (lugar: Partial<Lugar>, donde) => {
@@ -353,7 +362,11 @@ function esListaDeTextos(valor: unknown): valor is string[] {
 }
 
 function esCoordenada(valor: unknown, maximo: number): boolean {
-  return valor === PENDIENTE || (typeof valor === 'number' && Math.abs(valor) <= maximo)
+  return valor === PENDIENTE || esCoordenadaNumerica(valor, maximo)
+}
+
+function esCoordenadaNumerica(valor: unknown, maximo: number): boolean {
+  return typeof valor === 'number' && Number.isFinite(valor) && Math.abs(valor) <= maximo
 }
 
 function revisarLista<T>(

@@ -8,6 +8,7 @@ import { borrar, HERRAMIENTA_BORRAR, HERRAMIENTA_PROPONER_BORRAR, proponerBorrar
 import { guardarComercio, HERRAMIENTA_GUARDAR_COMERCIO } from './comercios'
 import { guardarFamiliar, HERRAMIENTA_GUARDAR_FAMILIAR } from './familiares'
 import { guardadoParaLaIA, INSTRUCCIONES_FAMILIA, quienEscribeParaLaIA } from './instrucciones'
+import { HERRAMIENTA_UBICAR_CON_LINK, ubicarConLink } from './google-maps'
 import { guardarLugar, HERRAMIENTA_GUARDAR_LUGAR } from './lugares'
 import { guardarReglas, HERRAMIENTA_GUARDAR_REGLAS, HERRAMIENTA_MOSTRAR_REGLAS, mostrarReglas, type TablaReglas } from './reglas'
 import {
@@ -140,6 +141,7 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
     tools: [
       HERRAMIENTA_GUARDAR_ABUELO,
       HERRAMIENTA_GUARDAR_LUGAR,
+      HERRAMIENTA_UBICAR_CON_LINK,
       ...(herramientaSugerir ? [herramientaSugerir, HERRAMIENTA_GUARDAR_LUGAR_SUGERIDO] : []),
       HERRAMIENTA_GUARDAR_COMERCIO,
       ...(herramientaSugerirComercio ? [herramientaSugerirComercio, HERRAMIENTA_GUARDAR_COMERCIO_SUGERIDO] : []),
@@ -154,6 +156,8 @@ export async function responder(mensajes: MensajeCharla[]): Promise<RespuestaFam
       switch (bloque.name) {
         case HERRAMIENTA_GUARDAR_ABUELO.name:
           return guardarAbuelo(codigo, bloque.input)
+        case HERRAMIENTA_UBICAR_CON_LINK.name:
+          return ubicarConLink(codigo, bloque.input, loQueEscribioElHijo)
         case HERRAMIENTA_GUARDAR_LUGAR.name:
           return guardarLugar(codigo, bloque.input, loQueEscribioElHijo)
         case 'sugerir_lugares':

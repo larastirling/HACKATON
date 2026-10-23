@@ -58,6 +58,8 @@ export async function guardarAbuelo(codigoFamilia: string, dato: unknown): Promi
   let abuelo: Abuelo | undefined
   const error = await cambiarConfiguracion(codigoFamilia, (c) => {
     abuelo = { ...c.abuelo, ...cambios }
+    // Dirección nueva: la ubicación vieja ya no vale (se busca de nuevo abajo).
+    if (cambios.direccion) delete abuelo.ubicacion
     return { ...c, abuelo }
   })
   if (error || !abuelo) return error ?? 'No se pudo guardar.'
@@ -69,17 +71,24 @@ export async function guardarAbuelo(codigoFamilia: string, dato: unknown): Promi
   ].filter(Boolean)
   return `Guardado. Persona mayor: ${abuelo.nombre} | trato: ${abuelo.comoLeGustaQueLeHablen} | teléfono: ${abuelo.telefono} | dirección: ${abuelo.direccion}.` +
     (faltan.length ? ` Todavía falta: ${faltan.join(', ')} (preguntalo de a uno).` : '') +
-    (cambios.direccion && cambios.direccion !== PENDIENTE ? await textoDeLaCasa(abuelo) : '')
+    (cambios.direccion && cambios.direccion !== PENDIENTE ? await ubicarLaCasa(codigoFamilia, abuelo) : '')
 }
 
-/** La casa se ubica en el mapa apenas se guarda: con eso se sugieren los lugares y comercios cercanos. */
-async function textoDeLaCasa(abuelo: Abuelo): Promise<string> {
+/** Qué decirle a la IA cuando no se encuentra una dirección: ofrecer el link de Google Maps (las coordenadas nunca las pone ella). */
+export const OFRECER_LINK_DE_GOOGLE_MAPS =
+  'Ofrecele al hijo, en una sola pregunta, revisar la dirección (calle y número) o pegar acá el link de Google Maps de ese lugar ' +
+  '(en Google Maps: buscar el lugar, tocar "Compartir" y "Copiar enlace"). Si pega un link, usá ubicar_con_link_de_google_maps. ' +
+  'Nunca escribas ni inventes coordenadas.'
+
+/** La casa se ubica en el mapa apenas se guarda (y queda guardada): con eso se sugieren los lugares y comercios cercanos. */
+async function ubicarLaCasa(codigoFamilia: string, abuelo: Abuelo): Promise<string> {
   const casa = await dondeVive({ abuelo })
   if (!casa) {
-    return (
-      ` OJO: el mapa NO encontró esa dirección exacta, así que no se le van a poder sugerir lugares ni comercios cercanos. ` +
-      'Pedile al hijo que la revise (calle y número, y si puede el barrio) y volvé a guardarla.'
-    )
+    return ` OJO: ni IDE Uruguay ni OpenStreetMap encontraron esa dirección exacta, así que todavía no se le pueden sugerir lugares ni comercios cercanos. ${OFRECER_LINK_DE_GOOGLE_MAPS}`
   }
-  return ` El mapa ubicó la casa en: ${casa.direccionDelMapa}. Contale al hijo en pocas palabras (calle, número y barrio) para que confirme que es ahí.`
+  const { latitud, longitud, direccionDelMapa, fuente } = casa
+  await cambiarConfiguracion(codigoFamilia, (c) =>
+    c.abuelo.direccion === abuelo.direccion ? { ...c, abuelo: { ...c.abuelo, ubicacion: { latitud, longitud, direccionDelMapa, fuente } } } : c,
+  )
+  return ` El mapa (${fuente}) ubicó la casa en: ${direccionDelMapa}. Contale al hijo en pocas palabras (calle, número y barrio) para que confirme que es ahí.`
 }

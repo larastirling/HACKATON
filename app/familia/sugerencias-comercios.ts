@@ -26,7 +26,12 @@ export interface ComercioSugerido {
 export const MAXIMO_SUGERENCIAS_COMERCIOS = 4
 
 /** Solo los verificados y con algún número para pedir. Los demás quedan en el catálogo pero no aparecen. */
-const SUGERIBLES = CATALOGO_COMERCIOS.filter((c) => c.verificado && (c.whatsapp || c.llamada.length > 0))
+/** Vercel define VERCEL en la app publicada: ahí no aparecen los comercios de prueba (soloEnLaCompu). */
+const enLaAppPublicada = Boolean(process.env.VERCEL)
+
+const SUGERIBLES = CATALOGO_COMERCIOS.filter(
+  (c) => c.verificado && (c.whatsapp || c.llamada.length > 0) && !(c.soloEnLaCompu && enLaAppPublicada),
+)
 
 const buscarSugerible = (id: unknown) => SUGERIBLES.find((c) => c.id === id)
 
