@@ -83,6 +83,39 @@
 
 .tituloBotones { font-size: 0.9rem; font-weight: 700; color: var(--texto-suave); }
 
+/* "Ver todos los cercanos": botón de texto (no compite con las sugerencias) y la lista larga con su propio scroll */
+.verTodos {
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 2px dashed var(--principal);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--principal);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.verTodos:hover { background: var(--principal-suave); }
+.listaTodos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 55vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 4px 2px 0;
+}
+.sugerenciaCompacta { padding: 10px 14px; border-width: 1px; }
+.sugerenciaCompacta strong { font-size: 1rem; }
+.sinConfirmar {
+  margin-top: 2px;
+  font-style: normal;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--error);
+}
+
 /* Recuadro "Lugares guardados" */
 .guardado {
   background: var(--blanco);

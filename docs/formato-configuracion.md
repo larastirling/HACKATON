@@ -35,6 +35,7 @@ En el código, el formato está en `lib/datos.ts`. Ese archivo es el único que 
 | `comoLeGustaQueLeHablen` | Cómo prefiere que le hable la IA: el nombre que usa y si de "vos" o de "usted". | Sí | `"Don Carlos, de usted"` |
 | `telefono` | Su teléfono, con código de país. | Sí (puede ser `"PENDIENTE"`) | `"+598 9X XXX XXX"` |
 | `direccion` | Dónde vive: calle, número y ciudad. Se pone en los pedidos por WhatsApp para que sepan a dónde llevar. **No inventarla.** | Sí (puede ser `"PENDIENTE"`) | `"Calle 1234, Montevideo"` |
+| `ubicacion` | Dónde queda la casa en el mapa, para sugerir lugares y comercios cercanos: `latitud`, `longitud`, `direccionDelMapa` y `fuente` (`"IDE Uruguay"`, `"OpenStreetMap"` o `"Google Maps"`). La pone el sistema; **nunca la IA**. | No (si falta, se busca la dirección) | `{ "latitud": -34.9087, "longitud": -56.1478, "direccionDelMapa": "26 de Marzo 1271, Pocitos, Montevideo", "fuente": "IDE Uruguay" }` |
 
 ## 3. Lugares (`lugares`) — una lista
 
@@ -62,6 +63,8 @@ Comercios a los que el abuelo les pide cosas.
 | `telefono` | Teléfono para llamar. | Solo si `pedidoPor` es `"llamada"` (puede ser `"PENDIENTE"`) | `"0800 4242"` |
 | `pedidoHabitual` | Lo que pide siempre ("lo de siempre"). | Sí | `"Una muzzarella grande y una fainá"` |
 | `necesitaPermiso` | `true` si la familia tiene que aprobar cada pedido. | No (si falta, se toma como `true`: nunca libre por defecto) | `false` |
+| `confirmacion` | Solo en los que salieron del catálogo: quién confirmó que el número toma pedidos. `estado`: `"confirmado por su web"` (con `link`) o `"confirmado por la familia"` (vale solo para esta familia), y `fecha`. | No | `{ "estado": "confirmado por la familia", "fecha": "2026-10-23" }` |
+| `numeroNoAnda` | Fecha en que el hijo avisó que el número no anda: no se le arman pedidos hasta que pase otro número. | No | `"2026-10-23"` |
 
 ## 5. Familiares (`familiares`) — una lista, mínimo uno
 

@@ -18,24 +18,24 @@
     "nombre": "Hospital Británico",
     "tipo": "Salud",
     "direccion": "Avenida Italia 2420",
-    "latitud": -34.8945754,
-    "longitud": -56.1625434
+    "latitud": -34.894275,
+    "longitud": -56.1630004
   },
   {
     "id": "hospital-italiano",
     "nombre": "Hospital Italiano",
     "tipo": "Salud",
     "direccion": "Bulevar Artigas 1632",
-    "latitud": -34.8965334,
-    "longitud": -56.1645559
+    "latitud": -34.896532,
+    "longitud": -56.1645594
   },
   {
     "id": "hospital-maciel",
     "nombre": "Hospital Maciel",
     "tipo": "Salud",
     "direccion": "25 de Mayo 174",
-    "latitud": -34.9083534,
-    "longitud": -56.2118645
+    "latitud": -34.9080025,
+    "longitud": -56.2120333
   },
   {
     "id": "casmu-sanatorio-2",
@@ -122,16 +122,16 @@
     "nombre": "BPS (Atención Ciudadana)",
     "tipo": "Trámites",
     "direccion": "Colonia 1851",
-    "latitud": -34.9007922,
-    "longitud": -56.1768349
+    "latitud": -34.9007962,
+    "longitud": -56.176835
   },
   {
     "id": "intendencia-de-montevideo",
     "nombre": "Intendencia de Montevideo",
     "tipo": "Trámites",
     "direccion": "Avenida 18 de Julio 1360",
-    "latitud": -34.9065941,
-    "longitud": -56.1860929
+    "latitud": -34.9056963,
+    "longitud": -56.186173
   },
   {
     "id": "correo-uruguayo-centro",
@@ -154,40 +154,40 @@
     "nombre": "Montevideo Shopping",
     "tipo": "Shopping",
     "direccion": "Avenida Luis Alberto de Herrera 1290",
-    "latitud": -34.9030628,
-    "longitud": -56.1363655
+    "latitud": -34.904097,
+    "longitud": -56.137255
   },
   {
     "id": "punta-carretas-shopping",
     "nombre": "Punta Carretas Shopping",
     "tipo": "Shopping",
     "direccion": "José Ellauri 350",
-    "latitud": -34.9237331,
-    "longitud": -56.159439
+    "latitud": -34.9236262,
+    "longitud": -56.159748
   },
   {
     "id": "tres-cruces-shopping-y-terminal",
     "nombre": "Tres Cruces (shopping y terminal)",
     "tipo": "Shopping",
     "direccion": "Bulevar Artigas 1825",
-    "latitud": -34.8937958,
-    "longitud": -56.1664023
+    "latitud": -34.8943095,
+    "longitud": -56.165202
   },
   {
     "id": "portones-shopping",
     "nombre": "Portones Shopping",
     "tipo": "Shopping",
     "direccion": "Avenida Italia 5775",
-    "latitud": -34.8813516,
-    "longitud": -56.081088
+    "latitud": -34.8824435,
+    "longitud": -56.0827562
   },
   {
     "id": "nuevocentro-shopping",
     "nombre": "Nuevocentro Shopping",
     "tipo": "Shopping",
     "direccion": "Avenida Luis Alberto de Herrera 3365",
-    "latitud": -34.8684338,
-    "longitud": -56.1695721
+    "latitud": -34.8688111,
+    "longitud": -56.168912
   },
   {
     "id": "plaza-independencia",
@@ -346,8 +346,8 @@
     "nombre": "Teatro Solís",
     "tipo": "Paseo",
     "direccion": "Buenos Aires 652",
-    "latitud": -34.9074112,
-    "longitud": -56.2012147
+    "latitud": -34.9074063,
+    "longitud": -56.2012162
   },
   {
     "id": "mercado-del-puerto",
@@ -362,8 +362,8 @@
     "nombre": "Mercado Agrícola (MAM)",
     "tipo": "Paseo",
     "direccion": "José L. Terra 2220",
-    "latitud": -34.8869732,
-    "longitud": -56.1834097
+    "latitud": -34.8867762,
+    "longitud": -56.1839119
   },
   {
     "id": "farmashop-punta-carretas",
@@ -550,12 +550,12 @@
     "longitud": -56.1776808
   },
   {
-    "id": "disco-malvin",
-    "nombre": "Disco (Malvín)",
+    "id": "disco-buceo",
+    "nombre": "Disco (Buceo)",
     "tipo": "Supermercado",
-    "direccion": "Avenida Italia 11400, Malvín Nuevo",
-    "latitud": -34.8882734,
-    "longitud": -56.1181692
+    "direccion": "Avenida Mariscal Francisco Solano López, Buceo",
+    "latitud": -34.8916336,
+    "longitud": -56.1250928
   },
   {
     "id": "devoto-centro",
@@ -684,14 +684,6 @@
     "direccion": "Camino Ariel 4626, Sayago",
     "latitud": -34.8353493,
     "longitud": -56.2109722
-  },
-  {
-    "id": "geant-jacinto-vera",
-    "nombre": "Géant (Jacinto Vera)",
-    "tipo": "Supermercado",
-    "direccion": "Gualeguay 3350, Jacinto Vera",
-    "latitud": -34.8680718,
-    "longitud": -56.1704131
   },
   {
     "id": "brou-pocitos",
@@ -883,6 +875,8 @@
   export const QUEDARON_AFUERA: readonly string[] = [
   "Plaza Cagancha (Plaza Libertad): el mapa encontró uno con ese nombre pero en otro barrio (Ituzaingó, Montevideo), no en Centro",
   "Plaza Seregni: el mapa no lo encontró por su nombre",
-  "Plaza Virgilio: el mapa devolvió otro lugar (\"Plaza de la Armada\")"
+  "Plaza Virgilio: el mapa devolvió otro lugar (\"Plaza de la Armada\")",
+  "Disco (Malvín): revisado a mano: el mapa la pone en Avenida Italia 11400, un número que no corresponde a Malvín",
+  "Géant (Jacinto Vera): revisado a mano: el mapa la pone en Gualeguay 3350 y no pudimos confirmar que sea un Géant"
 ]
   

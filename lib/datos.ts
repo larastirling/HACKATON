@@ -20,6 +20,11 @@ export interface Abuelo {
   telefono: string
   /** Dónde vive. Se usa, por ejemplo, en los pedidos por WhatsApp. */
   direccion: string
+  /**
+   * Dónde queda la casa en el mapa (para sugerir lugares y comercios cercanos). La pone el sistema al guardar la
+   * dirección (lib/mapas.ts) o con un link de Google Maps que pegó el hijo; nunca la IA. Si falta, se busca la dirección.
+   */
+  ubicacion?: { latitud: number; longitud: number; direccionDelMapa: string; fuente: string }
 }
 
 export interface Lugar {
@@ -43,6 +48,13 @@ export interface Comercio {
   pedidoHabitual: string
   /** true si la familia tiene que aprobar cada pedido. Si se guardó sin esto, se toma como true (nunca libre por defecto). */
   necesitaPermiso: boolean
+  /**
+   * Para los que salieron del catálogo: quién confirmó que el número toma pedidos.
+   * "confirmado por la familia" vale solo para ESTA familia (el hijo dijo que ya le pidieron por ahí y funciona).
+   */
+  confirmacion?: { estado: 'confirmado por su web' | 'confirmado por la familia'; fecha: string; link?: string }
+  /** Fecha en que el hijo dijo que el número no anda: hasta que pase otro número, no se le arman pedidos. */
+  numeroNoAnda?: string
 }
 
 export interface Familiar {
@@ -312,6 +324,10 @@ export function validarConfiguracion(dato: unknown): string[] {
     for (const campo of ['nombre', 'comoLeGustaQueLeHablen', 'telefono', 'direccion'] as const) {
       if (!esTexto(c.abuelo[campo])) errores.push(`Falta "abuelo.${campo}"`)
     }
+    const u = c.abuelo.ubicacion
+    if (u !== undefined && (!u || !esCoordenadaNumerica(u.latitud, 90) || !esCoordenadaNumerica(u.longitud, 180) || !esTexto(u.direccionDelMapa))) {
+      errores.push('"abuelo.ubicacion" tiene que tener latitud, longitud (números) y direccionDelMapa')
+    }
   }
 
   revisarLista(c.lugares, 'lugares', errores, (lugar: Partial<Lugar>, donde) => {
@@ -376,7 +392,11 @@ function esListaDeTextos(valor: unknown): valor is string[] {
 }
 
 function esCoordenada(valor: unknown, maximo: number): boolean {
-  return valor === PENDIENTE || (typeof valor === 'number' && Math.abs(valor) <= maximo)
+  return valor === PENDIENTE || esCoordenadaNumerica(valor, maximo)
+}
+
+function esCoordenadaNumerica(valor: unknown, maximo: number): boolean {
+  return typeof valor === 'number' && Number.isFinite(valor) && Math.abs(valor) <= maximo
 }
 
 function revisarLista<T>(
@@ -664,6 +684,37 @@ export async function leerDiario(codigoFamilia: string, fecha = fechaDeHoy()): P
 export async function familiasConDiario(fecha = fechaDeHoy()): Promise<string[]> {
   const prefijo = `diario:${fecha}:`
   return (await clavesQueEmpiezanCon(prefijo)).map((clave) => clave.slice(prefijo.length))
+}
+
+// ── Números de comercios que no andan (valen para TODAS las familias) ──
+// Cuando un hijo dice que el número de un comercio no anda, ese número deja de sugerirse a todas las familias
+// hasta que alguien del equipo lo revise y lo saque de acá (en /prueba, "Números reportados").
+
+export interface NumeroReportado {
+  /** El número tal cual lo tiene el comercio, ej. "+598 97 213 707" o "0800 4242". */
+  numero: string
+  comercio: string
+  cuando: string
+  codigoFamilia: string
+  /** Lo que escribió el hijo. */
+  loQueDijo: string
+}
+
+const claveNumeroReportado = (numero: string) => `numero-reportado:${numero.replace(/\D/g, '')}`
+
+export async function reportarNumero(reporte: NumeroReportado): Promise<void> {
+  await guardar(claveNumeroReportado(reporte.numero), reporte)
+}
+
+export async function leerNumerosReportados(): Promise<NumeroReportado[]> {
+  const claves = await clavesQueEmpiezanCon('numero-reportado:')
+  const reportes = await Promise.all(claves.map((clave) => leer<NumeroReportado>(clave)))
+  return reportes.filter((r): r is NumeroReportado => !!r).sort((a, b) => b.cuando.localeCompare(a.cuando))
+}
+
+/** Lo revisó alguien del equipo: el número vuelve a sugerirse. */
+export async function quitarReporteDeNumero(numero: string): Promise<void> {
+  await borrar(claveNumeroReportado(numero))
 }
 
 // ── Restaurar la familia DEMO (para usar antes de la demo) ──

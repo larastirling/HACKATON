@@ -136,6 +136,15 @@ const CADENAS: Cadena[] = [
 ]
 
 /** Los barrios que se cubren primero con las sucursales de cada cadena (después, los demás). */
+/**
+ * Sucursales que el mapa devuelve pero que revisamos a mano y no van: el dato del mapa no cierra.
+ * (Si otra sucursal de la misma cadena entra en su lugar, está bien.)
+ */
+const NO_INCLUIR: Record<string, string> = {
+  'Disco (Malvín)': 'revisado a mano: el mapa la pone en Avenida Italia 11400, un número que no corresponde a Malvín',
+  'Géant (Jacinto Vera)': 'revisado a mano: el mapa la pone en Gualeguay 3350 y no pudimos confirmar que sea un Géant',
+}
+
 const BARRIOS_PRIMERO = ['Pocitos', 'Punta Carretas', 'Centro', 'Cordón', 'Malvín', 'Buceo', 'Carrasco', 'Prado', 'Unión', 'Cerro', 'Parque Rodó']
 
 const METROS_MAXIMOS = 500
@@ -280,6 +289,11 @@ async function verificarCadena(cadena: Cadena) {
       direccion: `${l.calle}${l.numero ? ` ${l.numero}` : ''}, ${l.barrio}`,
       latitud: Number(l.latitud.toFixed(7)),
       longitud: Number(l.longitud.toFixed(7)),
+    }
+    if (NO_INCLUIR[lugar.nombre]) {
+      afuera.push(`${lugar.nombre}: ${NO_INCLUIR[lugar.nombre]}`)
+      console.log(`AFUERA ${afuera.at(-1)}`)
+      continue
     }
     const igual = repetido(lugar)
     if (igual) {

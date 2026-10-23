@@ -105,6 +105,9 @@ export async function conversarConElAbuelo(
   async function proponerPedido(comercioId: unknown, aclaracion: unknown, pedidoDistinto: unknown): Promise<string> {
     const comercio = comercios.find((c) => c.id === comercioId)
     if (!comercio) return 'Ese id no corresponde a ningún comercio guardado. No inventes comercios.'
+    if (comercio.numeroNoAnda) {
+      return `NO se puede armar el pedido: la familia avisó que el número de "${comercio.nombre}" no anda. Decile con calma que ese número no funciona y que le pida a la familia el número nuevo (o usá consultar_a_la_familia).`
+    }
     const distinto = typeof pedidoDistinto === 'string' ? pedidoDistinto.trim() : ''
     const propuesto = armarPedido(comercio, configuracion.abuelo, {
       aclaracion: typeof aclaracion === 'string' ? aclaracion : '',

@@ -2,6 +2,7 @@ import 'server-only'
 import type Anthropic from '@anthropic-ai/sdk'
 import { leerConfiguracion, PENDIENTE, type Lugar } from '@/lib/datos'
 import { buscarCoordenadas } from '@/lib/mapas'
+import { OFRECER_LINK_DE_GOOGLE_MAPS } from './abuelo'
 import { cambiarConfiguracion, limpiarApodos, loDijoElHijo, mismoNombre, nombreValido } from './guardar'
 
 // Herramienta "guardar_lugar": la IA saca de la charla un lugar con sus apodos y lo guarda
@@ -112,7 +113,10 @@ export async function guardarLugar(codigoFamilia: string, dato: unknown, loQueEs
     return `${accion} "${lugar.nombre}" sin dirección. Decile que hasta que no esté la dirección no se puede pedir un Uber a ese lugar, y que la puede pasar cuando quiera.`
   }
   if (!ubicacion) {
-    return `${accion} "${lugar.nombre}" con la dirección "${direccion}", pero el mapa no encontró ese número exacto, así que la ubicación quedó pendiente y todavía no se puede pedir un Uber ahí. Pedile que revise cómo se escribe la calle o que agregue el barrio.`
+    return (
+      `${accion} "${lugar.nombre}" con la dirección "${direccion}", pero ni IDE Uruguay ni OpenStreetMap encontraron ese número exacto, ` +
+      `así que la ubicación quedó pendiente y todavía no se puede pedir un Uber ahí. ${OFRECER_LINK_DE_GOOGLE_MAPS}`
+    )
   }
   return `${accion} "${lugar.nombre}". El mapa lo ubicó en: ${ubicacion.direccionDelMapa}. Contale al hijo en pocas palabras dónde quedó ubicado (calle, número y barrio) para que confirme que es ahí. No le digas coordenadas.`
 }

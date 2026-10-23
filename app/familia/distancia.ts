@@ -29,8 +29,12 @@ export const textoDistancia = (km: number) => `a ${km.toFixed(1).replace('.', ',
 const casasYaBuscadas = new Map<string, { buscada: Promise<UbicacionEncontrada | null>; cuando: number }>()
 const REINTENTAR_SI_NO_LA_ENCONTRO_MS = 10 * 60 * 1000
 
-/** Dónde vive la persona mayor, según el mapa (null si no tiene dirección o el mapa no la encuentra). */
+/**
+ * Dónde vive la persona mayor: la ubicación guardada (del mapa o de un link de Google Maps) o, si no hay,
+ * la que encuentra el mapa con la dirección. null si no tiene dirección o no se la encuentra.
+ */
 export async function dondeVive({ abuelo }: Pick<ConfiguracionAbuelo, 'abuelo'>): Promise<UbicacionEncontrada | null> {
+  if (abuelo.ubicacion) return { ...abuelo.ubicacion, fuente: abuelo.ubicacion.fuente as UbicacionEncontrada['fuente'] }
   const direccion = abuelo.direccion?.trim()
   if (!direccion || direccion === PENDIENTE) return null
   const anterior = casasYaBuscadas.get(direccion)
