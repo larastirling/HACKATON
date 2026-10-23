@@ -26,6 +26,8 @@ export interface ComercioSugerido {
   direccion: string
   /** A cuánto queda el local de la casa ("a 1,2 km"). Las cadenas no tienen. */
   distancia?: string
+  /** Restaurantes: qué venden, si su fuente lo dice (para el buscador). */
+  comida?: string[]
   /** El número todavía no está confirmado (se muestra el aviso "número sin confirmar"). */
   sinConfirmar?: boolean
 }
@@ -96,6 +98,7 @@ const paraMostrar = ({ comercio, km }: Disponible): ComercioSugerido => ({
   tipo: comercio.tipo,
   direccion: comercio.direccion ?? 'Pedido a la central',
   ...(km !== null && { distancia: textoDistancia(km) }),
+  ...(comercio.comida && { comida: comercio.comida }),
   ...(!estaConfirmado(comercio) && { sinConfirmar: true }),
 })
 

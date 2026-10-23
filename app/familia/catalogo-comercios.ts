@@ -32,6 +32,12 @@ export interface ComercioDelCatalogo {
   id: string
   nombre: string
   tipo: 'Supermercado' | 'Farmacia' | 'Restaurante'
+  /**
+   * Restaurantes: qué venden ("pizza", "empanadas"), solo si su fuente lo dice (para el buscador de /familia).
+   * Si la fuente no lo dice, no va: nunca se adivina. comidaSegun dice de dónde salió.
+   */
+  comida?: string[]
+  comidaSegun?: string
   /** Dirección del local, o null si es una cadena y se le pide a la central. */
   direccion: string | null
   /** Dónde está el local, según el mapa. null en las cadenas o si el mapa no lo encontró. */
@@ -142,6 +148,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'piazza-italia-centro',
     nombre: 'Piazza Italia (Centro)',
     tipo: 'Restaurante',
+    comida: ['pizza'],
+    comidaSegun: 'su web (https://piazzaitalia.uy, revisada el 2026-10-23): "Pizzería artesanal en Montevideo"',
     // Su web oficial dice "Centro: San José 1084" (antes teníamos Soriano 1384, de otra fuente).
     direccion: 'San José 1084, Centro',
     latitud: -34.907076,
@@ -162,6 +170,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'piazza-italia-pocitos',
     nombre: 'Piazza Italia (Pocitos)',
     tipo: 'Restaurante',
+    comida: ['pizza'],
+    comidaSegun: 'su web (https://piazzaitalia.uy, revisada el 2026-10-23): "Pizzería artesanal en Montevideo"',
     direccion: 'Gestido 2807, Pocitos',
     latitud: -34.9059273,
     longitud: -56.1534253,
@@ -181,6 +191,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'fundamento-pizza-ciudad-vieja',
     nombre: 'Fundamento Pizza (Ciudad Vieja)',
     tipo: 'Restaurante',
+    comida: ['pizza'],
+    comidaSegun: 'su web (https://fundamentopizza.com, revisada el 2026-10-23): "Pizza al horno de leña en Ciudad Vieja, Cordón y Pocitos"',
     direccion: 'Ciudadela 1274, Barrio Sur',
     latitud: -34.9080417,
     longitud: -56.1997405,
@@ -194,6 +206,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'fundamento-pizza-cordon',
     nombre: 'Fundamento Pizza (Cordón)',
     tipo: 'Restaurante',
+    comida: ['pizza'],
+    comidaSegun: 'su web (https://fundamentopizza.com, revisada el 2026-10-23): "Pizza al horno de leña en Ciudad Vieja, Cordón y Pocitos"',
     direccion: 'Joaquín de Salterain 1441, Parque Rodó',
     latitud: -34.9025512,
     longitud: -56.1703049,
@@ -208,6 +222,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'fundamento-pizza-pocitos',
     nombre: 'Fundamento Pizza (Pocitos)',
     tipo: 'Restaurante',
+    comida: ['pizza'],
+    comidaSegun: 'su web (https://fundamentopizza.com, revisada el 2026-10-23): "Pizza al horno de leña en Ciudad Vieja, Cordón y Pocitos"',
     direccion: 'Francisco Solano Antuña 2647, Punta Carretas',
     latitud: -34.9168651,
     longitud: -56.1565377,
@@ -222,6 +238,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'pizzeria-el-hidalgo',
     nombre: 'Pizzería El Hidalgo',
     tipo: 'Restaurante',
+    comida: ['pizza', 'empanadas', 'milanesas'],
+    comidaSegun: 'su web (https://pizzeriaelhidalgo.com, revisada el 2026-10-23): "Pizzas, Fainá y Figazzas [...] Empanadas [...] Milanesas"',
     direccion: 'Nueva Palmira 1899 esquina Defensa, La Comercial',
     latitud: -34.8886279,
     longitud: -56.1748483,
@@ -242,6 +260,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'la-fabrica-empanadas-centro',
     nombre: 'La Fábrica Empanadas (Centro)',
     tipo: 'Restaurante',
+    comida: ['empanadas'],
+    comidaSegun: 'su web (https://lafabricaempanadas.com.uy, revisada el 2026-10-23): "auténticas empanadas artesanales"',
     direccion: 'Dr. Aquiles R. Lanza 1285, Centro',
     latitud: -34.9068725,
     longitud: -56.1879623,
@@ -260,6 +280,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'la-fabrica-empanadas-tres-cruces',
     nombre: 'La Fábrica Empanadas (Tres Cruces)',
     tipo: 'Restaurante',
+    comida: ['empanadas'],
+    comidaSegun: 'su web (https://lafabricaempanadas.com.uy, revisada el 2026-10-23): "auténticas empanadas artesanales"',
     direccion: 'Mario Cassinoni 1667, Tres Cruces',
     latitud: -34.8963911,
     longitud: -56.1661648,
@@ -278,6 +300,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'pizza-subte',
     nombre: 'Pizza Subte',
     tipo: 'Restaurante',
+    comida: ['pizza'],
+    comidaSegun: 'el nombre del comercio en su fuente ("Pizza Subte")',
     direccion: 'Ejido 1327, Centro',
     latitud: -34.9061369,
     longitud: -56.18691,
@@ -293,6 +317,8 @@ export const CATALOGO_COMERCIOS: readonly ComercioDelCatalogo[] = [
     id: 'pizza-centro',
     nombre: 'Pizza Centro',
     tipo: 'Restaurante',
+    comida: ['pizza'],
+    comidaSegun: 'el nombre del comercio en su fuente ("Pizza Centro")',
     direccion: 'Canelones 1099, Barrio Sur',
     latitud: -34.9087366,
     longitud: -56.1923225,

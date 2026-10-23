@@ -51,11 +51,19 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
   Google Maps; se borra si cambia la dirección.
 - **Familia DEMO**: la casa de Don Carlos pasó a "Juan Benito Blanco 780, Montevideo" (Pocitos), que el mapa sí encuentra.
 
-- **Catálogo de lugares** (`app/familia/catalogo-lugares.ts`): 107 lugares verificados con el mapa el 2026-10-23
-  (salud 26, supermercados 21, farmacias 19, plazas 16, trámites 7, bancos 7, shoppings 5, clubes 3, paseos 3).
-  Quedaron afuera Plaza Cagancha, Plaza Seregni y Plaza Virgilio (el mapa no las confirmó) y, revisados a mano,
-  "Disco (Malvín)" y "Géant (Jacinto Vera)" (lista `NO_INCLUIR` del script). Para volver a armarlo, correr UNA vez
-  `npx tsx@4.20.3 --conditions=react-server scripts/verificar-catalogo.ts` (si el mapa falla, no escribe nada).
+- **Catálogo de lugares** (`app/familia/catalogo-lugares.ts`): 299 lugares verificados con el mapa el 2026-10-23, en
+  Montevideo (254), Ciudad de la Costa (35) y Las Piedras (10), cada uno con `tipo`, `barrio` y `ciudad`
+  (pagos 59, supermercados 51, salud 40, farmacias 35, plazas 16, bancos 15, iglesias 15, clubes 10, correo 10,
+  teatros 9, cafés 8, shoppings 7, bibliotecas 7, trámites 6, cines 5, cementerios 3, mercados 2, centros de jubilados 1).
+  Las cadenas y los tipos de lugar se le piden al mapa por zonas, uno por barrio, primero los barrios con menos lugares.
+  Las policlínicas entran solo si el mapa dice que las atiende ASSE. La mitad no tiene número de puerta en el mapa
+  (la ubicación sí es la real). Quedaron afuera Plaza Cagancha, Plaza Seregni, Plaza Virgilio y 6 cafés tradicionales
+  que el mapa no confirmó, y "Disco (Malvín)" y "Géant (Jacinto Vera)" (lista `NO_INCLUIR` del script).
+  Para volver a armarlo, correr UNA vez `npx tsx@4.20.3 --conditions=react-server scripts/verificar-catalogo.ts`
+  (si el mapa falla, para y no escribe nada; lo ya buscado queda en la caché).
+- **Buscador en "Ver todos los cercanos"** (`app/familia/buscar.ts`): caja con lupa y botones de categoría; filtra en el
+  navegador (sin IA ni servidor) por nombre, tipo, barrio, dirección y tipo de comida (`comida` en el catálogo de
+  comercios, solo si la fuente lo dice). La IA ve solo los 5 más cercanos de cada tipo (antes, todos).
 
 ## Pendiente
 

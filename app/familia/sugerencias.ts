@@ -17,6 +17,8 @@ export interface LugarSugerido {
   nombre: string
   tipo: string
   direccion: string
+  /** El barrio según el mapa (para el buscador de "Ver todos"). */
+  barrio?: string
   /** A cuánto queda de la casa ("a 1,2 km"), si se sabe. */
   distancia?: string
 }
@@ -27,11 +29,12 @@ const yaGuardado = (c: ConfiguracionAbuelo, lugar: LugarDelCatalogo) => c.lugare
 
 export const buscarEnCatalogo = (id: unknown) => CATALOGO_LUGARES.find((l) => l.id === id)
 
-const paraMostrar = ({ id, nombre, tipo, direccion }: LugarDelCatalogo, km?: number): LugarSugerido => ({
+const paraMostrar = ({ id, nombre, tipo, direccion, barrio }: LugarDelCatalogo, km?: number): LugarSugerido => ({
   id,
   nombre,
   tipo,
   direccion,
+  barrio,
   ...(km !== undefined && { distancia: textoDistancia(km) }),
 })
 
@@ -59,7 +62,27 @@ export async function todosLosLugaresCercanos(configuracion: ConfiguracionAbuelo
 }
 
 /** Al elegir solos (sin la IA), los tipos que más le pueden servir van primero. */
-const TIPOS_PRIMERO = ['Salud', 'Farmacia', 'Supermercado', 'Banco', 'Trámites', 'Plaza', 'Shopping', 'Paseo', 'Club']
+const TIPOS_PRIMERO = [
+  'Salud',
+  'Farmacia',
+  'Supermercado',
+  'Pagos',
+  'Banco',
+  'Trámites',
+  'Plaza',
+  'Iglesia',
+  'Club',
+  'Centro de jubilados',
+  'Café',
+  'Shopping',
+  'Correo',
+  'Biblioteca',
+  'Cine',
+  'Teatro',
+  'Mercado',
+  'Paseo',
+  'Cementerio',
+]
 
 /**
  * Las sugerencias que muestra el sistema solo (al llegar a los lugares o con el botón "Sugerirme lugares"):
@@ -81,6 +104,12 @@ export async function lugaresCercanos(configuracion: ConfiguracionAbuelo, yaMost
 }
 
 /**
+ * Cuántos de cada tipo ve la IA (los más cercanos): con ~300 lugares, mandarlos todos haría cada mensaje mucho más caro.
+ * El hijo igual ve todos en "Ver todos los cercanos".
+ */
+const POR_TIPO_PARA_LA_IA = 5
+
+/**
  * La lista que ve la IA: solo puede sugerir estos. Va agrupada por tipo (primero el tipo que tiene el más cercano)
  * y, dentro de cada tipo, del más cerca al más lejos: así, de varias farmacias, la primera es la más cercana.
  */
@@ -92,11 +121,14 @@ export async function catalogoParaLaIA(configuracion: ConfiguracionAbuelo): Prom
   if (lista.length === 0) return `CATÁLOGO DE LUGARES PARA SUGERIR: no queda ninguno a menos de ${KM_MAXIMOS} km de su casa. No uses sugerir_lugares.`
   const tipos = [...new Set(lista.map((d) => d.lugar.tipo))]
   return [
-    `CATÁLOGO DE LUGARES PARA SUGERIR (lugares reales de Montevideo, verificados en el mapa, a menos de ${KM_MAXIMOS} km de su casa; son los ÚNICOS que podés sugerir). ` +
-      'Por tipo, del más cerca al más lejos:',
+    `CATÁLOGO DE LUGARES PARA SUGERIR (lugares reales, verificados en el mapa, a menos de ${KM_MAXIMOS} km de su casa; son los ÚNICOS que podés sugerir). ` +
+      `Por tipo, los ${POR_TIPO_PARA_LA_IA} más cercanos de cada uno, del más cerca al más lejos:`,
     ...tipos.flatMap((tipo) => [
       `${tipo}:`,
-      ...lista.filter((d) => d.lugar.tipo === tipo).map((d) => `- ${d.lugar.id} | ${d.lugar.nombre} | ${d.lugar.direccion} | ${textoDistancia(d.km)}`),
+      ...lista
+        .filter((d) => d.lugar.tipo === tipo)
+        .slice(0, POR_TIPO_PARA_LA_IA)
+        .map((d) => `- ${d.lugar.id} | ${d.lugar.nombre} | ${d.lugar.direccion} | ${textoDistancia(d.km)}`),
     ]),
   ].join('\n')
 }
