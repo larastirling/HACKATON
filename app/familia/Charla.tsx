@@ -175,7 +175,6 @@ const esTarjetaCompleta = (t: NonNullable<MensajeCharla['tarjeta']>): t is Tarje
 /** Arriba: "Paso 3 de 6 · Lugares", una barrita de avance y "Seguir" (vuelve a mostrar la tarjeta del paso). */
 function Encabezado({ paso, tarjetaALaVista, pensando, seguir }: { paso: EstadoDelArmado; tarjetaALaVista: boolean; pensando: boolean; seguir: () => void }) {
   if (!paso.actual && paso.paraDespues.length === 0) return null
-  const hechos = paso.actual ? paso.numero - 1 : paso.total
   return (
     <div className={estilos.encabezado} role="status">
       <div className={estilos.encabezadoFila}>
@@ -194,8 +193,8 @@ function Encabezado({ paso, tarjetaALaVista, pensando, seguir }: { paso: EstadoD
         )}
       </div>
       <div className={estilos.avance} aria-hidden="true">
-        {Array.from({ length: paso.total }, (_, i) => (
-          <span key={i} className={i < hechos ? estilos.avanceHecho : i === hechos && paso.actual ? estilos.avanceActual : ''} />
+        {paso.avance.map((estado, i) => (
+          <span key={i} className={estado === 'hecho' ? estilos.avanceHecho : estado === 'actual' ? estilos.avanceActual : ''} />
         ))}
       </div>
     </div>

@@ -52,6 +52,8 @@ export interface EstadoDelArmado {
   paraDespues: Paso[]
   /** Los mismos, con su nombre ("Comercios"), para la pantalla. */
   titulosParaDespues: string[]
+  /** Cada paso en orden, para la barrita: hecho, el actual, o falta (los de más adelante y los dejados para después). */
+  avance: ('hecho' | 'actual' | 'falta')[]
 }
 
 /** Un botón de "¿Cómo puede ir?" en la tarjeta de lugares, marcado si ya estaba guardado. */
@@ -129,6 +131,7 @@ export function estadoDelArmado(c: ConfiguracionAbuelo, mail: string | undefined
     obligatorio: actual ? OBLIGATORIOS.includes(actual) : false,
     paraDespues: pendientes.filter((p) => despues.includes(p)),
     titulosParaDespues: pendientes.filter((p) => despues.includes(p)).map((p) => TITULOS[p]),
+    avance: PASOS.map((p) => (p === actual ? 'actual' : pendientes.includes(p) ? 'falta' : 'hecho')),
   }
 }
 
