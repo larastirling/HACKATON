@@ -187,12 +187,12 @@ export async function guardarLugarSugerido(codigoFamilia: string, id: unknown, n
 export const HERRAMIENTA_GUARDAR_LUGAR_SUGERIDO: Anthropic.Beta.BetaTool = {
   name: 'guardar_lugar_sugerido',
   description:
-    'Guarda un lugar del catálogo que el hijo eligió, SOLO después de que contestó si puede ir solo o necesita permiso ' +
+    'Guarda un lugar del catálogo (o uno que encontró buscar_lugar_en_el_mapa) que el hijo eligió, SOLO después de que contestó si puede ir solo o necesita permiso ' +
     '(el mensaje anterior tuyo tiene que ser esa pregunta). Si no contestó eso, no la uses.',
   input_schema: {
     type: 'object',
     properties: {
-      id: { type: 'string', description: 'El id del lugar del catálogo por el que se le preguntó.' },
+      id: { type: 'string', description: 'El id del lugar por el que se le preguntó (del catálogo, o "mapa:…" si lo encontró el mapa).' },
       necesitaPermiso: { type: 'boolean', description: 'true si el hijo dijo que necesita permiso; false si dijo que puede ir solo.' },
     },
     required: ['id', 'necesitaPermiso'],

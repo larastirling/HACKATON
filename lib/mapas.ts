@@ -256,7 +256,8 @@ export interface LugarDelMapa {
 
 /**
  * Busca TODOS los lugares que el mapa tiene con ese nombre (hasta 40), por ejemplo las sucursales de una cadena.
- * Solo para armar catálogos desde un script: nunca con lo que escribe el hijo.
+ * Para armar catálogos desde un script, y en /familia con buscar_lugar_en_el_mapa (una búsqueda cuando el hijo nombra
+ * un lugar, nunca mientras escribe: el mapa no permite autocompletar). Las dos van a la caché y respetan 1 por segundo.
  */
 export async function buscarVarios(texto: string): Promise<LugarDelMapa[]> {
   const resultados = await buscarEnNominatim(texto, 40)

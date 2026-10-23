@@ -197,7 +197,7 @@ function Botones({ mensaje, mandar }: { mensaje: MensajeCharla; mandar: (m: Mens
     return (
       <div className={estilos.botones} role="group" aria-label="Lugares sugeridos">
         <ListaDeSugerencias
-          titulo="Lugares cerca de su casa"
+          titulo={mensaje.sugerencias[0].id.startsWith('mapa:') ? 'Lo que encontró el mapa' : 'Lugares cerca de su casa'}
           primeros={mensaje.sugerencias}
           todos={mensaje.todosLosLugares}
           alElegir={(l) => mandar({ role: 'user', content: `Va a ${l.nombre}`, eligio: l.id })}

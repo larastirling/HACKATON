@@ -4,6 +4,7 @@ import { leerConfiguracion, type ConfiguracionAbuelo } from '@/lib/datos'
 import { charlarConLaIA, type RespuestaIA } from '@/lib/ia'
 import { leerSesion } from '@/lib/sesion'
 import { guardarAbuelo, HERRAMIENTA_GUARDAR_ABUELO } from './abuelo'
+import { buscarEnElMapa, esDelMapa, guardarLugarDelMapa, HERRAMIENTA_BUSCAR_EN_EL_MAPA, preguntarPermisoDelMapa } from './buscar-en-el-mapa'
 import { borrar, HERRAMIENTA_BORRAR, HERRAMIENTA_PROPONER_BORRAR, proponerBorrar, type PedidoBorrar } from './borrar'
 import { guardarComercio, HERRAMIENTA_GUARDAR_COMERCIO } from './comercios'
 import { guardarFamiliar, HERRAMIENTA_GUARDAR_FAMILIAR } from './familiares'
@@ -47,7 +48,7 @@ export interface MensajeCharla {
   content: string
   /** Si la IA mostró la tabla de reglas en este mensaje. */
   tabla?: TablaReglas
-  /** IA: botones con lugares del catálogo para sugerir (no se guarda nada si no toca ninguno). */
+  /** IA: botones con lugares del catálogo para sugerir, o los que encontró el mapa (no se guarda nada si no toca ninguno). */
   sugerencias?: LugarSugerido[]
   /** Sistema: pregunta "¿Puede ir solo o necesita permiso?" por un lugar sugerido que el hijo tocó. */
   preguntaPermiso?: LugarSugerido
@@ -67,7 +68,7 @@ export interface MensajeCharla {
   confirmaNumero?: { id: string; funciona: boolean }
   /** IA: botones "Sí, borrar" / "No" para algo que el hijo pidió borrar. */
   pedidoBorrar?: PedidoBorrar
-  /** Hijo: tocó una sugerencia (id del catálogo). */
+  /** Hijo: tocó una sugerencia (id del catálogo, o "mapa:…" si la encontró el mapa). */
   eligio?: string
   /** Hijo: tocó un comercio sugerido (id del catálogo de comercios). */
   eligioComercio?: string
@@ -117,7 +118,9 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
 
   // Tocó una sugerencia: antes de guardar SIEMPRE se pregunta si puede ir solo o necesita permiso (sin la IA).
   if (ultimo.eligio) {
-    const { texto, preguntaPermiso } = preguntarPermiso(configuracion, ultimo.eligio)
+    const { texto, preguntaPermiso } = esDelMapa(ultimo.eligio)
+      ? preguntarPermisoDelMapa(configuracion, anterior?.sugerencias?.find((s) => s.id === ultimo.eligio))
+      : preguntarPermiso(configuracion, ultimo.eligio)
     return { ok: true, texto, ...(preguntaPermiso && { preguntaPermiso }), guardado: soloGuardado(configuracion) }
   }
   // Tocó un comercio sugerido: el sistema le dice de dónde salió el número y le pregunta qué pide (sin la IA).
@@ -149,7 +152,8 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
   }
   // Contestó la pregunta del permiso con un botón: recién ahora se guarda.
   if (ultimo.permiso && anterior?.preguntaPermiso?.id === ultimo.permiso.id) {
-    await guardarLugarSugerido(codigo, ultimo.permiso.id, ultimo.permiso.necesitaPermiso)
+    if (esDelMapa(ultimo.permiso.id)) await guardarLugarDelMapa(codigo, anterior.preguntaPermiso, ultimo.permiso.necesitaPermiso)
+    else await guardarLugarSugerido(codigo, ultimo.permiso.id, ultimo.permiso.necesitaPermiso)
   }
   // Confirmó (o no) el borrado con un botón.
   if (ultimo.confirmaBorrar === true && anterior?.pedidoBorrar) {
@@ -191,6 +195,7 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
       HERRAMIENTA_GUARDAR_ABUELO,
       HERRAMIENTA_GUARDAR_LUGAR,
       HERRAMIENTA_UBICAR_CON_LINK,
+      HERRAMIENTA_BUSCAR_EN_EL_MAPA,
       ...(herramientaSugerir ? [herramientaSugerir, HERRAMIENTA_GUARDAR_LUGAR_SUGERIDO] : []),
       HERRAMIENTA_GUARDAR_COMERCIO,
       HERRAMIENTA_REPORTAR_NUMERO,
@@ -215,12 +220,18 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
             if (resultado.sugerencias) sugerencias = resultado.sugerencias
             return resultado.texto
           })
+        case HERRAMIENTA_BUSCAR_EN_EL_MAPA.name:
+          return buscarEnElMapa(configuracionAhora, bloque.input).then((resultado) => {
+            if (resultado.sugerencias) sugerencias = resultado.sugerencias
+            return resultado.texto
+          })
         case HERRAMIENTA_GUARDAR_LUGAR_SUGERIDO.name: {
           // Solo vale si el mensaje anterior fue la pregunta del permiso por ESE lugar (nunca libre por defecto).
           const { id, necesitaPermiso } = bloque.input as { id?: unknown; necesitaPermiso?: unknown }
           if (anterior?.preguntaPermiso?.id !== id || typeof necesitaPermiso !== 'boolean') {
             return 'No se guardó: primero el sistema tiene que preguntarle si puede ir solo o necesita permiso, y el hijo contestar. Si querés guardar uno del catálogo, sugerilo con sugerir_lugares.'
           }
+          if (esDelMapa(id)) return guardarLugarDelMapa(codigo, anterior?.preguntaPermiso, necesitaPermiso)
           return guardarLugarSugerido(codigo, id, necesitaPermiso)
         }
         case HERRAMIENTA_PROPONER_BORRAR.name: {
@@ -285,13 +296,17 @@ const PRIMERO_SE_MUESTRAN = 4
  * A las sugerencias les agrega la lista de "Ver todos los cercanos" (todos a menos de 10 km, del más cerca al más lejos).
  * Lugares: si hay 4 o menos, se muestran todos de entrada y no hace falta el botón.
  * Comercios: de entrada solo los confirmados; con el botón se ven también los sin confirmar (con el aviso).
+ * Lo que encontró buscar_lugar_en_el_mapa (ids "mapa:…") va tal cual y sin "Ver todos": son resultados de esa búsqueda,
+ * no lugares cercanos (y al tocar uno se lo busca entre estas mismas sugerencias).
  */
 async function conTodosLosCercanos(
   configuracion: ConfiguracionAbuelo,
   { sugerencias, comerciosSugeridos }: { sugerencias?: LugarSugerido[]; comerciosSugeridos?: ComercioSugerido[] },
 ): Promise<Pick<RespuestaFamilia, 'sugerencias' | 'todosLosLugares' | 'comerciosSugeridos' | 'todosLosComercios'>> {
   const resultado: Pick<RespuestaFamilia, 'sugerencias' | 'todosLosLugares' | 'comerciosSugeridos' | 'todosLosComercios'> = {}
-  if (sugerencias?.length) {
+  if (sugerencias?.length && sugerencias.some((s) => esDelMapa(s.id))) {
+    resultado.sugerencias = sugerencias
+  } else if (sugerencias?.length) {
     const todos = await todosLosLugaresCercanos(configuracion)
     if (todos.length > PRIMERO_SE_MUESTRAN) {
       resultado.sugerencias = sugerencias
@@ -313,7 +328,7 @@ function paraLaIA(mensaje: MensajeCharla) {
   const { role, content, tabla } = mensaje
   const notas = [
     mensaje.sugerencias && `[Botones de sugerencia que vio el hijo: ${mensaje.sugerencias.map((l) => `${l.nombre} (${l.id})`).join(', ')} y "Ninguno". Si no toca ninguno, no se guarda nada.]`,
-    mensaje.preguntaPermiso && `[Pregunta del sistema por el lugar del catálogo ${mensaje.preguntaPermiso.id}. Con lo que conteste, usá guardar_lugar_sugerido.]`,
+    mensaje.preguntaPermiso && `[Pregunta del sistema por el lugar ${mensaje.preguntaPermiso.id}. Con lo que conteste, usá guardar_lugar_sugerido.]`,
     mensaje.comerciosSugeridos &&
       `[Botones de comercios sugeridos que vio el hijo: ${mensaje.comerciosSugeridos.map((c) => `${c.nombre} (${c.id})`).join(', ')} y "Ninguno". Si no toca ninguno, no se guarda nada.]`,
     mensaje.preguntaPedido && `[Pregunta del sistema por el comercio del catálogo ${mensaje.preguntaPedido.id}. Con lo que conteste, usá guardar_comercio_sugerido.]`,
