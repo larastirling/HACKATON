@@ -81,7 +81,8 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
 **Estacionamiento**
 4. **Confirmar con la web de la Intendencia** el WhatsApp 099 019 500 y las palabras "estacionamiento" / "fin" (dato
    que pasó Felipe), y el SMS de respaldo (466, "E MATRÍCULA MINUTOS"). Anotar el link y la fecha en
-   `lib/estacionamiento-config.ts` y poner `confirmado: true` en el SMS recién con la fuente oficial.
+   `lib/estacionamiento-config.ts` y poner `confirmado: true` en el SMS recién con la fuente oficial (hasta entonces
+   el botón "mandar SMS" NO se le muestra al abuelo).
 5. Probarlo en un celular de verdad: que el link abra WhatsApp con la palabra escrita y que el SMS abra los mensajes.
 
 **Catálogo y comercios**

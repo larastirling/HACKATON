@@ -71,9 +71,12 @@ function whatsappDeLaIntendencia(texto: string) {
   return { numero, texto, link: `https://wa.me/${numero.replace(/\D/g, '')}?text=${encodeURIComponent(texto)}` }
 }
 
-/** Al estacionar: WhatsApp con "estacionamiento" y, si dijo los minutos, el SMS de respaldo. */
-export function tarjetaParaEmpezar(abierto: EstacionamientoAbierto): TarjetaDeEstacionamiento {
-  const sms = abierto.minutos ? armarMensajeDeEstacionamiento(abierto.matricula, abierto.minutos) : null
+/**
+ * Al estacionar: WhatsApp con "estacionamiento" y, si dijo los minutos, el SMS de respaldo. El SMS se muestra recién
+ * cuando el número y el formato estén confirmados con la Intendencia (ESTACIONAMIENTO_POR_SMS.confirmado).
+ */
+export function tarjetaParaEmpezar(abierto: EstacionamientoAbierto, smsConfirmado: boolean = ESTACIONAMIENTO_POR_SMS.confirmado): TarjetaDeEstacionamiento {
+  const sms = smsConfirmado && abierto.minutos ? armarMensajeDeEstacionamiento(abierto.matricula, abierto.minutos) : null
   return {
     accion: 'empezar',
     matricula: mostrarMatricula(abierto.matricula),

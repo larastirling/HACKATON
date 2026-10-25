@@ -22,7 +22,8 @@ export const ESTACIONAMIENTO_POR_WHATSAPP = {
 } as const
 
 /**
- * El respaldo, si WhatsApp no anda: un SMS. Solo se arma si el abuelo dijo cuántos minutos va a estar.
+ * El respaldo, si WhatsApp no anda: un SMS. Solo se arma si el abuelo dijo cuántos minutos va a estar, y NO se le
+ * muestra al abuelo hasta que `confirmado` sea true.
  * FUENTE: A CONFIRMAR EN LA WEB DE LA INTENDENCIA DE MONTEVIDEO (montevideo.gub.uy, "Estacionamiento tarifado").
  */
 export const ESTACIONAMIENTO_POR_SMS = {

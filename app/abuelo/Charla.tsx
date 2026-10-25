@@ -72,7 +72,9 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
         const respuesta = await responderAlAbuelo(nuevaCharla)
         if (respuesta.ok) {
           const { texto, viaje, emergencia, estafa, pedido, aprobacion, llamar, estacionamiento } = respuesta
-          setCharla([...nuevaCharla, { de: 'ia', texto, viaje, emergencia, estafa, pedido, aprobacion, llamar, estacionamiento }])
+          // Se agrega a lo que haya ahora (no a la charla de cuando se mandó): así no se pierde nada que se sumó mientras
+          // tanto, por ejemplo la tarjeta de "Ya me voy".
+          setCharla((antes) => [...antes, { de: 'ia', texto, viaje, emergencia, estafa, pedido, aprobacion, llamar, estacionamiento }])
           if (estacionamiento) setEstacionado(estacionamiento.accion === 'empezar' ? estacionamiento.desde : null)
         } else setHayError(true)
       } catch {
@@ -101,6 +103,7 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
 
   // "Ya me voy" del aviso: la tarjeta con "fin", sin la IA.
   function terminarEstacionamiento() {
+    if (pensando || enviando.current) return // el asistente está contestando: el botón vuelve a andar al terminar
     empezar(async () => {
       try {
         const tarjeta = await terminarEstacionamientoAhora()
@@ -133,7 +136,7 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
         </button>
       )}
 
-      {estacionado && <AvisoEstacionamiento desde={estacionado} alTerminar={terminarEstacionamiento} />}
+      {estacionado && <AvisoEstacionamiento desde={estacionado} alTerminar={terminarEstacionamiento} esperando={pensando} />}
 
       <div className="charla" aria-live="polite">
         {charla.length === 0 && (
@@ -419,7 +422,7 @@ function TarjetaEstacionamiento({ estacionamiento: e }: { estacionamiento: Tarje
  * Mientras está estacionado: un aviso arriba de la charla. Pasada una hora, avisa que ya pasó más de una hora
  * (por si se olvidó de terminarlo). "Ya me voy" arma el WhatsApp con "fin" sin la IA.
  */
-function AvisoEstacionamiento({ desde, alTerminar }: { desde: string; alTerminar: () => void }) {
+function AvisoEstacionamiento({ desde, alTerminar, esperando }: { desde: string; alTerminar: () => void; esperando: boolean }) {
   const t = useTrato()
   const [ahora, setAhora] = useState(() => Date.now())
   useEffect(() => {
@@ -437,7 +440,8 @@ function AvisoEstacionamiento({ desde, alTerminar }: { desde: string; alTerminar
             )
           : t(`Está estacionado hace ${textoDeMinutos(minutosDesde(desde, ahora))}.`, `Estás estacionado hace ${textoDeMinutos(minutosDesde(desde, ahora))}.`)}
       </p>
-      <button type="button" className="boton boton-principal" onClick={alTerminar}>
+      {/* Mientras el asistente piensa, espera: así la tarjeta con "fin" no se cruza con la respuesta. */}
+      <button type="button" className="boton boton-principal" onClick={alTerminar} disabled={esperando}>
         Ya me voy
       </button>
     </div>

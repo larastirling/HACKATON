@@ -286,9 +286,12 @@ export async function conversarConElAbuelo(
   async function preguntarleALaFamilia(duda: unknown): Promise<string> {
     const texto = typeof duda === 'string' ? duda.trim().slice(0, 200) : ''
     if (!texto) return 'No se le preguntó a nadie: falta la duda.'
-    const avisados = await avisarDudaALaFamilia(configuracion, texto)
+    const { avisados, repetida } = await avisarDudaALaFamilia(configuracion, texto)
     const [primero] = contactosParaLlamar(configuracion.familiares)
     if (primero) llamar = primero
+    if (repetida) {
+      return `Esta duda NO se le mandó a la familia: hace menos de 10 minutos ya les contaste otra, y para no llenarles el celular se espera un rato. No digas que les avisaste.${primero ? ` Debajo de tu respuesta ve un botón "Llamar a ${primero.nombre}": sugerile llamar si es urgente.` : ' Sugerile que pruebe de nuevo en un rato.'} Decíselo con calma, en una o dos frases.`
+    }
     if (avisados.length === 0) {
       return `No se le pudo avisar a nadie de la familia.${primero ? ` Debajo de tu respuesta ve un botón "Llamar a ${primero.nombre}".` : ''} Decíselo con calma.`
     }
@@ -394,7 +397,7 @@ function herramientaEmpezarEstacionamiento(matriculaGuardada: string | undefined
     name: 'empezar_estacionamiento',
     description:
       'Estacionamiento tarifado, al estacionar: le muestra al abuelo una tarjeta con su matrícula y un botón que abre el WhatsApp ' +
-      'de la Intendencia con "estacionamiento" escrito (y, si dijo los minutos, un SMS de respaldo). NO manda nada: él aprieta Enviar. ' +
+      'de la Intendencia con "estacionamiento" escrito. NO manda nada: él aprieta Enviar. ' +
       'Usala recién cuando confirmó la matrícula. La app anota desde cuándo está estacionado.',
     input_schema: {
       type: 'object',
@@ -440,7 +443,7 @@ const HERRAMIENTA_LLAMAR_A_LA_FAMILIA: Anthropic.Beta.BetaTool = {
 const HERRAMIENTA_PREGUNTARLE_A_LA_FAMILIA: Anthropic.Beta.BetaTool = {
   name: 'preguntarle_a_la_familia',
   description:
-    'Cuando una duda del día a día no se pudo resolver por chat y el abuelo DIJO QUE SÍ a "¿Querés que le pregunte a…?": ' +
+    'Cuando una duda del día a día no se pudo resolver por chat y el abuelo DIJO QUE SÍ a que le preguntes a la familia: ' +
     'les cuenta la duda a los familiares (mail y celular) para que lo llamen. No es un permiso. Nunca para salud, plata ni emergencias.',
   input_schema: {
     type: 'object',
@@ -596,6 +599,10 @@ function instruccionesParaElAbuelo(
   abierto: EstacionamientoAbierto | null,
 ): string {
   const { abuelo, reglas } = configuracion
+  // Los ejemplos entre comillas van en su trato: la IA a veces los copia tal cual.
+  const deVos = tratoDe(abuelo.comoLeGustaQueLeHablen) === 'vos'
+  const segunTrato = (usted: string, vos: string) => (deVos ? vos : usted)
+  const primerFamiliar = contactosParaLlamar(configuracion.familiares)[0]?.nombre ?? 'la familia'
   // La IA no recibe coordenadas ni números de WhatsApp: nunca los necesita y así no los puede escribir.
   const configuracionParaLaIA = {
     ...configuracion,
@@ -609,7 +616,7 @@ CÓMO HABLAR
 - ${instruccionesDelTrato(tratoDe(abuelo.comoLeGustaQueLeHablen), abuelo.comoLeGustaQueLeHablen)}
 - Respuestas breves: dos o tres frases como máximo.
 - Si te falta información para ayudarlo, preguntá de a UNA cosa por vez.
-- Muchas veces te habla con el dictado por voz, que puede entender mal algunas palabras (por ejemplo "cree lo de mi hija" en vez de "llevame a lo de mi hija", o nombres cambiados). Interpretá con sentido común según la charla y sus lugares, comercios y familiares. Si no estás seguro de qué quiso decir, preguntale de forma simple antes de usar una herramienta (por ejemplo: "¿Quiere que lo lleve a lo de su hija?").
+- Muchas veces te habla con el dictado por voz, que puede entender mal algunas palabras (por ejemplo "cree lo de mi hija" en vez de "llevame a lo de mi hija", o nombres cambiados). Interpretá con sentido común según la charla y sus lugares, comercios y familiares. Si no estás seguro de qué quiso decir, preguntale de forma simple antes de usar una herramienta (por ejemplo: "${segunTrato('¿Quiere que lo lleve a lo de su hija?', '¿Querés que te lleve a lo de tu hija?')}").
 - Sin listas, títulos, emojis ni formato: solo texto simple.
 
 LO QUE CONOCÉS DE SU VIDA
@@ -655,10 +662,10 @@ Si cuenta que estacionó (por ejemplo "estacioné en 18 de Julio, voy a estar un
 
 DUDAS DEL DÍA A DÍA
 Si pregunta algo práctico (la tele no anda, cómo sacar el silencio del celular, qué cocinar con lo que tiene), ayudalo vos:
-- Palabras simples y frases cortas. Un paso por vez: decile solo el primer paso y preguntale "¿Pudiste?" antes de dar el siguiente.
+- Palabras simples y frases cortas. Un paso por vez: decile solo el primer paso y preguntale "${segunTrato('¿Pudo?', '¿Pudiste?')}" antes de dar el siguiente.
 - Si hace falta un dato para ayudarlo (qué celular o qué tele tiene, de qué marca), preguntalo primero, de a uno.
 - En recetas: dos o tres opciones simples con lo que tiene, sin cosas difíciles. Cuando elija una, los pasos de a uno.
-- Si después de dos o tres intentos no se resuelve, o es muy difícil por chat, preguntale "¿Querés que le pregunte a ${contactosParaLlamar(configuracion.familiares)[0]?.nombre ?? 'la familia'}?". Recién si dice que sí, usá preguntarle_a_la_familia.
+- Si después de dos o tres intentos no se resuelve, o es muy difícil por chat, preguntale "${segunTrato(`¿Quiere que le pregunte a ${primerFamiliar}?`, `¿Querés que le pregunte a ${primerFamiliar}?`)}". Recién si dice que sí, usá preguntarle_a_la_familia.
 - Si es algo peligroso (olor a gas, chispas o cables, una pérdida de agua grande), no le des pasos para arreglarlo: decile que no toque nada, que llame a un técnico o a la familia, y usá ofrecer_llamar_a_la_familia. Si hay humo, fuego o alguien lastimado, usá mostrar_emergencia.
 - Nunca consejos médicos (ni de remedios): decile que lo hable con su médico o con la familia.
 - Nunca datos bancarios, claves, códigos ni plata (para la plata está avisar_pedido_de_plata).

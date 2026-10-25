@@ -25,13 +25,16 @@ const NO_VAN_DE_USTED = palabras([
   'escribí', 'contame', 'quedate', 'tranquilizate', 'tenés', 'podés', 'querés', 'sabés', 'estás', 'sentís', 'vos',
   // tuteo
   'enciende', 'tienes', 'puedes', 'quieres', 'sabes', 'sientes', 'dime', 'cuéntame', 'quédate', 'fíjate',
-  // pronombres de tú y vos
-  'te', 'tu', 'tus', 'contigo',
+  // pronombres de tú y vos ("contigo" no: es el nombre de la app)
+  'te', 'tu', 'tus',
 ])
 
-/** Si se le habla de vos, estas no van (son de usted). */
+/**
+ * Si se le habla de vos, estas no van (son de usted). Sin las que también son subjuntivo y aparecen en frases correctas
+ * de vos ("cuando se abra el mapa", "que no se apague", "que salga el colectivo", "un toque"): solo las inconfundibles.
+ */
 const NO_VAN_DE_VOS = palabras([
-  'usted', 'toque', 'salga', 'apriete', 'fíjese', 'dígame', 'cuénteme', 'quédese', 'llámeme', 'tranquilícese', 'encienda', 'apague', 'abra',
+  'usted', 'fíjese', 'dígame', 'cuénteme', 'quédese', 'llámeme', 'tranquilícese', 'avíseme', 'escríbame', 'tóquelo', 'ábralo', 'pruébelo',
 ])
 
 /** Las palabras de la respuesta que son del otro trato (vacío si está bien). */
