@@ -127,7 +127,7 @@ function TarjetaDatos({ t, mandar }: { t: Extract<Tarjeta, { tipo: 'datos' }>; m
       </Campo>
       <Campo
         titulo="Si maneja: la matrícula del auto (si querés)"
-        ayuda="Para pagar el estacionamiento con un SMS. El auto tiene que estar registrado en el sistema de estacionamiento de la Intendencia (matrícula, padrón y su celular): eso lo hace la familia una vez."
+        ayuda="Para pagar el estacionamiento desde su celular, con el WhatsApp de la Intendencia. El auto tiene que estar registrado en el sistema de estacionamiento de la Intendencia (matrícula, padrón y su celular): eso lo hace la familia una vez."
       >
         <input
           className={estilos.entradaTarjeta}

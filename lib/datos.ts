@@ -28,7 +28,7 @@ export interface Abuelo {
   ubicacion?: { latitud: number; longitud: number; direccionDelMapa: string; fuente: string }
   /**
    * Si maneja: la matrícula del auto, en mayúsculas y sin espacios ("SBA1234"), para pagar el estacionamiento
-   * tarifado por SMS desde /abuelo (lib/estacionamiento.ts). Opcional. El auto tiene que estar registrado en el
+   * tarifado desde /abuelo, con el WhatsApp de la Intendencia (lib/estacionamiento.ts). Opcional. El auto tiene que estar registrado en el
    * sistema de estacionamiento de la Intendencia: eso lo hace la familia una vez.
    */
   matricula?: string
@@ -534,6 +534,14 @@ export async function crearAprobacion(
 
 export async function leerAprobacion(id: string): Promise<PedidoDeAprobacion | null> {
   return leer<PedidoDeAprobacion>(claveAprobacion(id))
+}
+
+/** Varios pedidos de una sola vez (un solo viaje a Redis), en el mismo orden; null los que no existen. */
+export async function leerAprobaciones(ids: string[]): Promise<(PedidoDeAprobacion | null)[]> {
+  if (ids.length === 0) return []
+  const claves = ids.map(claveAprobacion)
+  if (redis) return redis.mget<(PedidoDeAprobacion | null)[]>(...claves)
+  return claves.map((clave) => (memoria.get(clave) as PedidoDeAprobacion | undefined) ?? null)
 }
 
 /** El último pedido de aprobación de la familia (para retomarlo si el abuelo vuelve a abrir la pantalla). */

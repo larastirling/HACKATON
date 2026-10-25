@@ -31,7 +31,7 @@ export default function RecuadrosGuardado({ guardado }: { guardado: Guardado }) 
         </li>
         {abuelo.matricula && (
           <li>
-            <strong>Auto:</strong> {mostrarMatricula(abuelo.matricula)} (para pagar el estacionamiento por SMS)
+            <strong>Auto:</strong> {mostrarMatricula(abuelo.matricula)} (para pagar el estacionamiento)
           </li>
         )}
         <li>

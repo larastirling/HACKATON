@@ -1,6 +1,6 @@
 import 'server-only'
 import { actualizarSiVencio } from './aprobaciones'
-import { agregarALoQuePaso, leerAprobacion, leerLoQuePaso, type EstadoAprobacion } from './datos'
+import { agregarALoQuePaso, leerAprobaciones, leerLoQuePaso, type EstadoAprobacion } from './datos'
 import { textoDeMinutos, type TarjetaDeEstacionamiento } from './estacionamiento'
 import type { Viaje } from './viajes'
 import type { Pedido } from './whatsapp'
@@ -42,9 +42,14 @@ export const sinDatosDeContacto = (texto: string) =>
   texto
     .replace(/\b(?:https?:\/\/|www\.)\S+/gi, '[link]')
     .replace(/\S+@\S+\.\S+/g, '[mail]')
-    .replace(/\+?\d[\d\s().-]{6,}\d/g, '[teléfono]')
+    .replace(DOMINIO_SUELTO, '[link]')
+    // Un monto con puntos de miles ("1.500.000") no es un teléfono.
+    .replace(/\+?\d[\d\s().-]{6,}\d/g, (m) => (/^\d{1,3}(\.\d{3})+$/.test(m) ? m : '[teléfono]'))
     .replace(/\s+/g, ' ')
     .trim()
+
+/** "brou-seguridad.com", "pagos.ejemplo.com.uy": un dominio sin http ni www. */
+const DOMINIO_SUELTO = /\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|net|org|uy|ar|br|es|info|biz|xyz|online|site|top|shop|store|io|co|app|link|click|live|me)(?:\.[a-z]{2})?\b(?:\/\S*)?/gi
 
 const corto = (texto: string, max = MAXIMO_LETRAS) => (texto.length > max ? `${texto.slice(0, max - 1)}…` : texto)
 
@@ -123,11 +128,15 @@ function esCosaQuePaso(dato: unknown): dato is CosaQuePaso {
 /** Todo lo que pasó, del más nuevo al más viejo. En los permisos, cómo terminó (si venció, "nadie contestó"). */
 export async function loQuePaso(codigoFamilia: string): Promise<CosaParaMostrar[]> {
   const cosas = (await leerLoQuePaso(codigoFamilia)).filter(esCosaQuePaso)
+  // Todos los pedidos de permiso de una sola vez (no uno por uno: pueden ser cientos).
+  const ids = [...new Set(cosas.flatMap((c) => (c.aprobacionId ? [c.aprobacionId] : [])))]
+  const indice = new Map(ids.map((id, i) => [id, i] as const))
+  const leidas = await leerAprobaciones(ids)
   const conEstado = await Promise.all(
     cosas.map(async (c): Promise<CosaParaMostrar> => {
-      if (!c.aprobacionId) return c
-      const aprobacion = await leerAprobacion(c.aprobacionId)
+      const aprobacion = c.aprobacionId ? leidas[indice.get(c.aprobacionId)!] : null
       if (!aprobacion) return c
+      // Solo escribe si un pedido que seguía esperando ya venció (pasa a "nadie contestó").
       const alDia = await actualizarSiVencio(aprobacion)
       return { ...c, estado: alDia.estado, ...(alDia.respondidoPor && { respondidoPor: alDia.respondidoPor }) }
     }),

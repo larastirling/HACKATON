@@ -87,7 +87,8 @@ export async function preguntarALaIA(pregunta: string): Promise<RespuestaIA> {
  * La usa /familia.
  */
 export async function charlarConLaIA(
-  instrucciones: string | undefined,
+  /** Texto, o bloques (para cachear lo fijo con cache_control). */
+  instrucciones: string | Anthropic.Beta.BetaTextBlockParam[] | undefined,
   mensajes: Anthropic.MessageParam[],
   herramientas?: Pick<Parameters<typeof llamarALaIA>[0], 'tools' | 'usarHerramienta'>,
 ): Promise<RespuestaIA> {
@@ -268,6 +269,8 @@ export async function conversarConElAbuelo(
     const matricula = abierto?.matricula ?? configuracion.abuelo.matricula
     if (!matricula) return 'No hay ningún estacionamiento anotado ni matrícula guardada. Preguntale si estacionó con el WhatsApp de la Intendencia.'
     estacionamiento = tarjetaParaTerminar(abierto ?? { desde: new Date().toISOString(), matricula })
+    // Si no había nada anotado, no se sabe cuánto estuvo: no se dice.
+    if (!abierto) delete estacionamiento.estuvo
     const estuvo = abierto ? ` Estuvo estacionado ${textoDeMinutos(estacionamiento.estuvo ?? 0)}.` : ''
     await cerrarEstacionamiento(configuracion.codigoFamilia)
     abierto = null
@@ -597,19 +600,24 @@ function instruccionesParaElAbuelo(
   lugares: ({ id: string } & ConfiguracionAbuelo['lugares'][number])[],
   comercios: ({ id: string } & ConfiguracionAbuelo['comercios'][number])[],
   abierto: EstacionamientoAbierto | null,
-): string {
+): Anthropic.Beta.BetaTextBlockParam[] {
   const { abuelo, reglas } = configuracion
   // Los ejemplos entre comillas van en su trato: la IA a veces los copia tal cual.
   const deVos = tratoDe(abuelo.comoLeGustaQueLeHablen) === 'vos'
   const segunTrato = (usted: string, vos: string) => (deVos ? vos : usted)
   const primerFamiliar = contactosParaLlamar(configuracion.familiares)[0]?.nombre ?? 'la familia'
-  // La IA no recibe coordenadas ni números de WhatsApp: nunca los necesita y así no los puede escribir.
+  // Solo lo que la IA usa: sin teléfonos, mails, coordenadas ni números de WhatsApp (nunca los necesita y así no los
+  // puede escribir), sin las reglas (el nivel y las fijas van en el texto) ni el avance de la carga. JSON sin sangría:
+  // cada mensaje cuesta menos.
   const configuracionParaLaIA = {
-    ...configuracion,
+    abuelo: { nombre: abuelo.nombre, comoLeGustaQueLeHablen: abuelo.comoLeGustaQueLeHablen, direccion: abuelo.direccion },
+    familiares: [...configuracion.familiares].sort((a, b) => a.orden - b.orden).map(({ nombre, relacion, orden }) => ({ nombre, relacion, orden })),
     lugares: lugares.map(({ id, nombre, apodos, direccion, necesitaPermiso }) => ({ id, nombre, apodos, direccion, necesitaPermiso })),
     comercios: comercios.map(({ id, nombre, apodos, pedidoHabitual, pedidoPor }) => ({ id, nombre, apodos, pedidoHabitual, pedidoPor: pedidoPor ?? 'whatsapp' })),
   }
-  return `Sos el "Asistente de confianza" de ${abuelo.nombre}, una persona mayor que no sabe usar tecnología. Te escribe desde el celular.
+  // Lo fijo va primero y se cachea (la API cobra el 10% al releerlo); lo que cambia en cada mensaje (la hora y el
+  // estacionamiento) va en un bloque aparte, al final. Si algo que cambia quedara adentro, el caché nunca se usaría.
+  const fijo = `Sos el "Asistente de confianza" de ${abuelo.nombre}, una persona mayor que no sabe usar tecnología. Te escribe desde el celular.
 
 CÓMO HABLAR
 - Hablá en español rioplatense (Uruguay), con frases cortas y palabras simples. Nada técnico.
@@ -648,11 +656,7 @@ Vos nunca mandás nada ni llamás.
 
 ESTACIONAMIENTO TARIFADO (CON EL WHATSAPP DE LA INTENDENCIA)
 ${configuracion.abuelo.matricula ? `Matrícula guardada de su auto: ${mostrarMatricula(configuracion.abuelo.matricula)}.` : 'No tiene matrícula guardada.'}
-${
-  abierto
-    ? `AHORA TIENE EL ESTACIONAMIENTO ABIERTO desde hace ${textoDeMinutos(minutosDesde(abierto.desde))}${abierto.minutos ? ` (dijo que iba a estar ${textoDeMinutos(abierto.minutos)})` : ''}.${pasoElTiempoDeAvisar(abierto.desde) ? ' Ya pasó más de una hora: al principio de tu respuesta recordáselo con calma y preguntale si ya se va (si dice que sí, usá terminar_estacionamiento).' : ''}`
-    : 'Ahora no tiene ningún estacionamiento abierto.'
-}
+Si ahora tiene el estacionamiento abierto, lo dice AHORA (al final).
 Si cuenta que estacionó (por ejemplo "estacioné en 18 de Julio, voy a estar una hora"):
 - Primero confirmale la matrícula en una pregunta (por ejemplo: "¿Es el auto SBA 1234?").
 - Cuando diga que sí, usá empezar_estacionamiento (con los minutos si los dijo; si no, 0). La pantalla le muestra su matrícula y un botón que abre el WhatsApp de la Intendencia con "estacionamiento" escrito; él aprieta Enviar y sigue lo que le contestan. Si le piden la matrícula, recordásela.
@@ -681,7 +685,7 @@ PEDIDOS FUERA DE LO COMÚN
 Si pide algo raro o fuera de lo común (un lugar que no está guardado, un viaje muy lejos, algo a una hora rara), no le digas que no.
 - Usá consultar_a_la_familia y decile con amabilidad, en una o dos frases, que lo vas a consultar con la familia y que espere: la pantalla le avisa cuando contesten.
 - Si la familia dice que no o nadie contesta, la pantalla le ofrece llamar a un familiar.
-- Ahora son las ${new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit', timeZone: ZONA_HORARIA })} (hora de Uruguay).
+- La hora de ahora está en AHORA (al final).
 - Nunca para plata, emergencias ni temas de salud: esas tienen sus propias reglas (abajo).
 
 LO QUE TODAVÍA NO PODÉS HACER
@@ -699,13 +703,27 @@ ${reglas.fijas.map((regla) => `- ${regla}`).join('\n')}
 NIVEL DE AYUDA: ${reglas.nivel}
 
 CONFIGURACIÓN
-${JSON.stringify(configuracionParaLaIA, null, 2)}`
+${JSON.stringify(configuracionParaLaIA)}`
+
+  const ahora = `AHORA
+- Hora en Uruguay: ${new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: ZONA_HORARIA })}.
+- ${
+    abierto
+      ? `TIENE EL ESTACIONAMIENTO ABIERTO desde hace ${textoDeMinutos(minutosDesde(abierto.desde))}${abierto.minutos ? ` (dijo que iba a estar ${textoDeMinutos(abierto.minutos)})` : ''}.${pasoElTiempoDeAvisar(abierto.desde) ? ' Ya pasó más de una hora: al principio de tu respuesta recordáselo con calma y preguntale si ya se va (si dice que sí, usá terminar_estacionamiento).' : ''}`
+      : 'No tiene ningún estacionamiento abierto.'
+  }`
+
+  return [
+    { type: 'text', text: fijo, cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: ahora },
+  ]
 }
 
 const MAXIMO_VUELTAS_CON_HERRAMIENTAS = 4
 
 async function llamarALaIA(pedido: {
-  system?: string
+  /** Texto, o bloques (para cachear lo fijo con cache_control). */
+  system?: string | Anthropic.Beta.BetaTextBlockParam[]
   messages: Anthropic.Beta.BetaMessageParam[]
   tools?: Anthropic.Beta.BetaTool[]
   /** Ejecuta una herramienta que pidió la IA y devuelve el resultado en texto (puede tardar, ej. buscar en el mapa). */
@@ -728,6 +746,12 @@ async function llamarALaIA(pedido: {
         ...(pedido.tools && { tools: pedido.tools }),
         messages: mensajes,
       })
+
+      // Para ver el costo en el registro: lo leído del caché cuesta el 10%; lo escrito, el 125% (una vez).
+      const u = respuesta.usage
+      console.log(
+        `[ia] tokens: ${u.input_tokens} de entrada + ${u.cache_read_input_tokens ?? 0} leídos del caché + ${u.cache_creation_input_tokens ?? 0} guardados en el caché, ${u.output_tokens} de salida`,
+      )
 
       if (respuesta.stop_reason === 'refusal') {
         return { ok: false, error: 'La IA no quiso responder esa pregunta' }

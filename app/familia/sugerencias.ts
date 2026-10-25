@@ -107,7 +107,7 @@ export async function lugaresCercanos(configuracion: ConfiguracionAbuelo, yaMost
  * Cuántos de cada tipo ve la IA (los más cercanos): con ~300 lugares, mandarlos todos haría cada mensaje mucho más caro.
  * El hijo igual ve todos en "Ver todos los cercanos".
  */
-const POR_TIPO_PARA_LA_IA = 5
+const POR_TIPO_PARA_LA_IA = 3
 
 /**
  * La lista que ve la IA: solo puede sugerir estos. Va agrupada por tipo (primero el tipo que tiene el más cercano)

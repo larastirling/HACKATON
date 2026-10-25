@@ -1,4 +1,4 @@
-import { timingSafeEqual } from 'node:crypto'
+import { clavesIguales } from '@/lib/clave'
 import { leerConfiguracion } from '@/lib/datos'
 
 // Devuelve la configuración de un abuelo. La usa el Google Apps Script de Gmail.
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   }
 
   const tokenRecibido = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '') ?? ''
-  if (!tokensIguales(tokenRecibido, tokenEsperado)) {
+  if (!clavesIguales(tokenRecibido, tokenEsperado)) {
     return Response.json({ error: 'Token inválido' }, { status: 401 })
   }
 
@@ -27,10 +27,4 @@ export async function GET(request: Request) {
     return Response.json({ error: 'No existe esa familia' }, { status: 404 })
   }
   return Response.json(configuracion)
-}
-
-function tokensIguales(a: string, b: string): boolean {
-  const bufferA = Buffer.from(a)
-  const bufferB = Buffer.from(b)
-  return bufferA.length === bufferB.length && timingSafeEqual(bufferA, bufferB)
 }

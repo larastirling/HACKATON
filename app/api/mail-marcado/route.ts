@@ -1,4 +1,4 @@
-import { timingSafeEqual } from 'node:crypto'
+import { clavesIguales } from '@/lib/clave'
 import { leerConfiguracion } from '@/lib/datos'
 import { anotarMail, type CategoriaDeMail } from '@/lib/lo-que-paso'
 
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Falta configurar CONFIG_API_TOKEN en el servidor' }, { status: 503 })
   }
   const tokenRecibido = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '') ?? ''
-  if (!tokensIguales(tokenRecibido, tokenEsperado)) {
+  if (!clavesIguales(tokenRecibido, tokenEsperado)) {
     return Response.json({ error: 'Token inválido' }, { status: 401 })
   }
 
@@ -39,10 +39,4 @@ export async function POST(request: Request) {
   const asunto = texto('asunto', 300)
   await anotarMail(configuracion.codigoFamilia, { categoria, motivo, ...(de && { de }), ...(asunto && { asunto }) })
   return Response.json({ ok: true })
-}
-
-function tokensIguales(a: string, b: string): boolean {
-  const bufferA = Buffer.from(a)
-  const bufferB = Buffer.from(b)
-  return bufferA.length === bufferB.length && timingSafeEqual(bufferA, bufferB)
 }

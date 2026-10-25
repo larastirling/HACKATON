@@ -1,5 +1,6 @@
 'use server'
 
+import type Anthropic from '@anthropic-ai/sdk'
 import { leerConfiguracion, type ConfiguracionAbuelo } from '@/lib/datos'
 import { charlarConLaIA, type RespuestaIA } from '@/lib/ia'
 import { leerSesion } from '@/lib/sesion'
@@ -218,14 +219,30 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
   // La IA ve lo que ya está guardado, así no lo repite y puede corregirlo.
   // Lo que escribió el hijo (sin el mensaje oculto del inicio): guardar_lugar verifica ahí lo que dijo del permiso.
   const loQueEscribioElHijo = mensajes.filter((m) => m.role === 'user' && !m.content.startsWith('(Abrí la pantalla')).map((m) => m.content)
-  const instrucciones = [
-    INSTRUCCIONES_FAMILIA,
-    quienEscribeParaLaIA(configuracionAhora, sesion.mail),
-    cargaParaLaIA(estadoDelArmado(configuracionAhora, sesion.mail)),
-    guardadoParaLaIA(configuracionAhora),
-    await catalogoParaLaIA(configuracionAhora),
-    await catalogoComerciosParaLaIA(configuracionAhora),
+  // En bloques, para que la API cachee lo que no cambia (releerlo cuesta el 10%):
+  //   1. las instrucciones (iguales para todas las familias),
+  //   2. los catálogos (cambian solo al guardar un lugar o comercio), y solo cuando sirven: en el paso de lugares o de
+  //      comercios, o con la carga terminada (el hijo puede pedir que le sugieran algo). En los otros pasos, no se mandan.
+  //   3. lo que cambia en cada mensaje: quién escribe, cómo va la carga y lo guardado.
+  const armado = estadoDelArmado(configuracionAhora, sesion.mail)
+  const conLugares = armado.actual === 'lugares' || armado.actual === null
+  const conComercios = armado.actual === 'comercios' || armado.actual === null
+  const catalogos = [
+    conLugares
+      ? await catalogoParaLaIA(configuracionAhora)
+      : 'CATÁLOGO DE LUGARES: no se manda en este paso (los lugares se eligen en la tarjeta del paso 3). No uses sugerir_lugares ahora.',
+    conComercios
+      ? await catalogoComerciosParaLaIA(configuracionAhora)
+      : 'CATÁLOGO DE COMERCIOS: no se manda en este paso (los comercios se eligen en la tarjeta del paso 4). No uses sugerir_comercios ahora.',
   ].join('\n\n')
+  const instrucciones: Anthropic.Beta.BetaTextBlockParam[] = [
+    { type: 'text', text: INSTRUCCIONES_FAMILIA, cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: catalogos, cache_control: { type: 'ephemeral' } },
+    {
+      type: 'text',
+      text: [quienEscribeParaLaIA(configuracionAhora, sesion.mail), cargaParaLaIA(armado), guardadoParaLaIA(configuracionAhora)].join('\n\n'),
+    },
+  ]
   const herramientaSugerir = herramientaSugerirLugares()
   const herramientaSugerirComercio = herramientaSugerirComercios()
   // Del catálogo solo se pueden guardar los comercios que el hijo eligió tocando su botón.

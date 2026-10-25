@@ -4,17 +4,17 @@ import { mostrarMatricula, normalizarMatricula } from '@/lib/estacionamiento'
 import { cambiarConfiguracion } from './guardar'
 
 // Herramienta "guardar_matricula": si la persona mayor maneja, la matrícula del auto (abuelo.matricula), para pagar el
-// estacionamiento tarifado por SMS desde /abuelo. También se carga en la tarjeta del paso 1 (pasos.ts).
+// estacionamiento tarifado desde /abuelo (con el WhatsApp de la Intendencia). También se carga en la tarjeta del paso 1 (pasos.ts).
 
 /** Lo que se le cuenta al hijo cada vez que se guarda una matrícula (en la tarjeta y en la charla). */
 export const AVISO_REGISTRO_DEL_AUTO =
-  'Para que pueda pagar el estacionamiento con un SMS, el auto tiene que estar registrado en el sistema de estacionamiento ' +
+  'Para que pueda pagar el estacionamiento desde su celular (con el WhatsApp de la Intendencia), el auto tiene que estar registrado en el sistema de estacionamiento ' +
   'de la Intendencia (con la matrícula, el padrón y su celular). Eso lo hace la familia una sola vez.'
 
 export const HERRAMIENTA_GUARDAR_MATRICULA: Anthropic.Beta.BetaTool = {
   name: 'guardar_matricula',
   description:
-    'Si la persona mayor maneja: guarda la matrícula de su auto (para pagar el estacionamiento tarifado con un SMS). ' +
+    'Si la persona mayor maneja: guarda la matrícula de su auto (para pagar el estacionamiento tarifado con el WhatsApp de la Intendencia). ' +
     'Usala solo con la matrícula que escribió el hijo, tal cual. Con "" se borra (si dice que ya no maneja).',
   input_schema: {
     type: 'object',

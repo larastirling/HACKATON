@@ -346,7 +346,7 @@ export async function responderTarjeta(
       if (!esTexto(r.direccion) || !r.direccion.trim()) return deNuevo('Falta la dirección (calle, número y barrio).')
       const telefono = esTexto(r.telefono) && r.telefono.trim() ? normalizarTelefono(r.telefono) : PENDIENTE
       if (!telefono) return deNuevo(`No entiendo el teléfono "${r.telefono}". Escribilo como 099 123 456.`)
-      // Si maneja (opcional): la matrícula del auto, para pagar el estacionamiento por SMS desde /abuelo.
+      // Si maneja (opcional): la matrícula del auto, para pagar el estacionamiento desde /abuelo (WhatsApp de la Intendencia).
       const escrita = esTexto(r.matricula, 20) ? r.matricula.trim() : ''
       const matricula = escrita ? normalizarMatricula(escrita) : null
       if (escrita && !matricula) return deNuevo(`"${escrita}" no parece una matrícula. Escribila como SBA 1234 (o dejala vacía).`)
@@ -354,13 +354,14 @@ export async function responderTarjeta(
       const apodo = esTexto(r.apodo) && r.apodo.trim() ? r.apodo.trim() : primerNombre(nombre)
       const direccion = r.direccion.trim()
       let abuelo = c.abuelo
-      await cambiarConfiguracion(codigo, (x) => {
+      const noSeGuardo = await cambiarConfiguracion(codigo, (x) => {
         abuelo = { ...x.abuelo, nombre, comoLeGustaQueLeHablen: `${apodo}, de ${r.trato}`, telefono, direccion }
         if (x.abuelo.direccion !== direccion) delete abuelo.ubicacion // dirección nueva: se ubica de nuevo
         if (matricula) abuelo.matricula = matricula
         else delete abuelo.matricula
         return { ...x, abuelo }
       })
+      if (noSeGuardo) return deNuevo(`No pude guardar los datos: ${noSeGuardo} Probá de nuevo.`)
       const casa = abuelo.ubicacion ?? (await ubicarYGuardarLaCasa(codigo, abuelo))
       const dondeQueda = casa
         ? `Ubiqué la casa en el mapa: ${casa.direccionDelMapa}.`
@@ -374,7 +375,8 @@ export async function responderTarjeta(
       const plata = COMO_SE_MANEJA.plata.find((o) => o === r.plata)
       if (!tecnologia || !plata) return deNuevo('Tocá una opción en cada una.')
       const comoEs: ComoEs = { tecnologia, plata }
-      await cambiarConfiguracion(codigo, (x) => ({ ...x, comoEs }))
+      const noSeGuardo = await cambiarConfiguracion(codigo, (x) => ({ ...x, comoEs }))
+      if (noSeGuardo) return deNuevo(`No pude guardarlo: ${noSeGuardo} Probá de nuevo.`)
       return seguir('Anotado.')
     }
 
@@ -388,13 +390,17 @@ export async function responderTarjeta(
           : `Puede ir ${comoPuedeIr(formas.elegidas)}${formas.elegidas.includes('caminando') ? ` (caminando, solo a lugares a menos de ${KM_CAMINANDO} km)` : ''}.`
       const elegidos = Array.isArray(r.elegidos) ? r.elegidos.slice(0, 50) : []
       const guardados: string[] = []
+      const problemas: string[] = []
       for (const e of elegidos) {
         const lugar = buscarEnCatalogo(e?.id)
         if (!lugar || typeof e.vaSolo !== 'boolean') continue
         // Libre solo si el hijo tocó "Va solo"; si no, con permiso (nunca libre por defecto).
-        await guardarLugarSugerido(codigo, lugar.id, !e.vaSolo)
-        guardados.push(`${lugar.nombre} (${e.vaSolo ? 'va solo' : 'con permiso'})`)
+        const resultado = await guardarLugarSugerido(codigo, lugar.id, !e.vaSolo)
+        // "Guardado …" o "… ya estaba guardado" son los que salieron bien; cualquier otro texto es un problema.
+        if (resultado.startsWith('Guardado') || resultado.includes('ya estaba guardado')) guardados.push(`${lugar.nombre} (${e.vaSolo ? 'va solo' : 'con permiso'})`)
+        else problemas.push(`${lugar.nombre}: ${resultado}`)
       }
+      if (problemas.length) return deNuevo(`No pude guardar todo: ${problemas.join('; ')} Probá de nuevo.`)
       await marcar(codigo, 'lugares', 'hecho')
       const lugares = guardados.length ? `Guardé ${guardados.length === 1 ? 'un lugar' : `${guardados.length} lugares`}: ${guardados.join(', ')}.` : 'No guardé ningún lugar de la lista.'
       return seguir(`${lugares} ${comoVa}`)
