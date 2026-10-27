@@ -106,7 +106,7 @@ Cómo puede ir la persona mayor a los lugares. La familia activa las que quiera;
 |---|---|
 | `"uber"` | Botón **"Ir en Uber"**: abre Uber con el destino puesto. El auto lo pide la persona mayor. |
 | `"caminando"` | Botón **"Ir caminando"**: le explica en voz alta y abre Google Maps caminando con el destino puesto. Solo se ofrece si el lugar queda a menos de 1,5 km de su casa. |
-| `"colectivo"` | Botón **"Ir en colectivo"**: le explica en voz alta y abre Google Maps en modo colectivo (muestra qué colectivo tomar, la parada y dónde bajarse). |
+| `"colectivo"` | Botón **"Ir en colectivo"**: le explica en voz alta y abre Moovit con el destino puesto (muestra qué colectivo tomar, la parada y dónde bajarse). Si no tiene Moovit instalado, se abre la web de Moovit. |
 
 - Es una lista, por ejemplo `["uber", "caminando", "colectivo"]`. Puede ir vacía (no se ofrecen viajes).
 - **No es obligatorio:** si falta (familias guardadas antes de que existiera), se toma como `["uber"]`.

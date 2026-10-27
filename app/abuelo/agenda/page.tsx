@@ -20,7 +20,7 @@ const conMayuscula = (texto: string) => texto.charAt(0).toUpperCase() + texto.sl
 async function viajeA(a: Actividad, configuracion: ConfiguracionAbuelo | null) {
   if (!a.direccion || !configuracion) return null
   const destino = { nombre: dondeEs(a) ?? a.titulo, direccion: a.direccion.texto, latitud: a.direccion.latitud, longitud: a.direccion.longitud }
-  const armado = await armarViaje(destino, configuracion, undefined, { colectivoConMoovit: true })
+  const armado = await armarViaje(destino, configuracion)
   return armado.ok ? armado.viaje : null
 }
 

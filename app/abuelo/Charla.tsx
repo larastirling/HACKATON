@@ -264,7 +264,7 @@ const antesDeAbrirElMapa = (forma: Exclude<FormaDeViajar, 'uber'>, t: T, app?: '
 
 // Tarjeta del viaje: un botón grande por cada forma de viajar que activó la familia.
 // Uber abre la app (el auto lo pide el abuelo). Caminando y colectivo primero le explican en voz alta
-// qué va a pasar y después abren Google Maps (o Moovit, desde la agenda) con el destino puesto (en iPhone una app solo se abre con un toque).
+// qué va a pasar y después abren Google Maps (caminando) o Moovit (colectivo) con el destino puesto (en iPhone una app solo se abre con un toque).
 // También la usa /abuelo/agenda ("¿Cómo voy?").
 export function TarjetaViaje({ viaje }: { viaje: Viaje }) {
   const t = useTrato()

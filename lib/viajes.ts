@@ -5,8 +5,8 @@ import { formasDeViajarDe, type ConfiguracionAbuelo, type FormaDeViajar, type Lu
 // Viajes: las formas de ir a un lugar (Uber, caminando, colectivo). El servidor arma todos los links
 // con las coordenadas GUARDADAS; la IA nunca escribe links ni coordenadas.
 //   - Uber: abre la app con el destino puesto. El auto lo pide el abuelo.
-//   - Caminando y colectivo: abren Google Maps con el destino puesto (gratis, sin clave). Google Maps
-//     guía caminando hasta el lugar, o hasta la parada, en el colectivo y dónde bajarse.
+//   - Caminando: abre Google Maps con el destino puesto (gratis, sin clave), que lo guía hasta el lugar.
+//   - Colectivo: abre Moovit con el destino puesto: qué colectivo tomar, dónde está la parada y dónde bajarse.
 
 /** Caminando solo se ofrece si el lugar queda a menos de esto de su casa. */
 export const KM_MAXIMOS_CAMINANDO = 1.5
@@ -14,7 +14,7 @@ export const KM_MAXIMOS_CAMINANDO = 1.5
 export interface OpcionDeViaje {
   forma: FormaDeViajar
   link: string
-  /** Colectivo con Moovit en vez de Google Maps (en la agenda). */
+  /** El colectivo se abre en Moovit (los viajes guardados antes no lo tienen: abrían Google Maps). */
   app?: 'moovit'
 }
 
@@ -43,7 +43,6 @@ export async function armarViaje(
   destino: Destino,
   configuracion: Pick<ConfiguracionAbuelo, 'abuelo' | 'formasDeViajar'>,
   preferida?: FormaDeViajar,
-  { colectivoConMoovit = false } = {},
 ): Promise<ResultadoViaje> {
   if (typeof destino.latitud !== 'number' || typeof destino.longitud !== 'number') return { ok: false, motivo: 'sin-ubicacion' }
   const punto = { latitud: destino.latitud, longitud: destino.longitud }
@@ -66,7 +65,7 @@ export async function armarViaje(
       nombre: destino.nombre,
       direccion: destino.direccion,
       opciones: enOrden.map((forma) =>
-        forma === 'colectivo' && colectivoConMoovit
+        forma === 'colectivo'
           ? { forma, link: linkDeMoovit(destino, punto), app: 'moovit' as const }
           : { forma, link: linkPara(forma, destino, punto) },
       ),
@@ -85,9 +84,8 @@ function linkPara(forma: FormaDeViajar, destino: Destino, punto: { latitud: numb
       `&dropoff[formatted_address]=${encodeURIComponent(destino.direccion)}`
     )
   }
-  // Google Maps (link universal: abre la app si está instalada; si no, la web).
-  const modo = forma === 'caminando' ? 'walking' : 'transit'
-  return `https://www.google.com/maps/dir/?api=1&destination=${punto.latitud},${punto.longitud}&travelmode=${modo}`
+  // Caminando: Google Maps (link universal: abre la app si está instalada; si no, la web).
+  return `https://www.google.com/maps/dir/?api=1&destination=${punto.latitud},${punto.longitud}&travelmode=walking`
 }
 
 /** Moovit con el destino puesto (link universal: abre la app si está instalada; si no, la web). Sale desde donde está. */
