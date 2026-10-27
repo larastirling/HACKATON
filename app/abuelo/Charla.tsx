@@ -27,8 +27,9 @@ export default function Charla({ inicial = [], estacionadoDesde = null }: { inic
   const [puedeHablar, setPuedeHablar] = useState(false)
   const dictado = useDictado(setTexto, (dicho) => enviar(dicho))
 
-  // Siempre mostrar lo último de la charla
+  // Siempre mostrar lo último de la charla (sin charla todavía, no se mueve: lo de arriba, como la agenda, queda a la vista)
   useEffect(() => {
+    if (charla.length === 0 && !pensando && !hayError) return
     final.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [charla, pensando, hayError])
 

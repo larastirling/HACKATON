@@ -1,6 +1,6 @@
 import 'server-only'
 import webpush from 'web-push'
-import { leerSuscripciones, quitarSuscripcion, type SuscripcionPush } from './datos'
+import { leerSuscripciones, leerSuscripcionesDelAbuelo, quitarSuscripcion, quitarSuscripcionDelAbuelo, type SuscripcionPush } from './datos'
 
 // Notificaciones en el celular de la familia (Web Push estándar con claves VAPID).
 // Las claves van en variables de entorno: VAPID_PUBLIC_KEY y VAPID_PRIVATE_KEY.
@@ -90,6 +90,25 @@ export async function notificarAFamiliar(codigoFamilia: string, familiar: string
     return llego
   } catch (error) {
     console.error('No se pudieron mandar las notificaciones:', error)
+    return false
+  }
+}
+
+/**
+ * Manda la notificación a los celulares del abuelo (si activó los avisos en /abuelo/agenda). Devuelve true si llegó a
+ * alguno. Nunca lanza errores: si falla, el aviso igual aparece en su pantalla cuando abre la app.
+ */
+export async function notificarAlAbuelo(codigoFamilia: string, notificacion: Notificacion): Promise<boolean> {
+  try {
+    let llego = false
+    for (const suscripcion of await leerSuscripcionesDelAbuelo(codigoFamilia)) {
+      const resultado = await notificarASuscripcion(suscripcion, notificacion)
+      if (resultado === 'ok') llego = true
+      if (resultado === 'ya-no-existe') await quitarSuscripcionDelAbuelo(codigoFamilia, suscripcion.endpoint)
+    }
+    return llego
+  } catch (error) {
+    console.error('No se pudieron mandar las notificaciones al abuelo:', error)
     return false
   }
 }

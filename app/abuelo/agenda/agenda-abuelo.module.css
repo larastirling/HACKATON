@@ -1,0 +1,34 @@
+/* Agenda del abuelo: letra bien grande, una tarjeta por actividad. */
+.avisos { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.avisos p { margin: 0; font-size: 1.1rem; }
+.lista { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.actividad {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px;
+  border: 2px solid var(--linea-fuerte);
+  border-radius: 18px;
+  background: var(--fondo-tarjeta);
+}
+.hoy { border-color: var(--principal); background: var(--principal-suave); }
+.actividad p { margin: 0; overflow-wrap: anywhere; }
+.cuando { font-size: 1.15rem; font-weight: 800; color: var(--principal); }
+.que { font-size: 1.4rem; font-weight: 800; color: var(--texto-titulo); line-height: 1.3; }
+.detalle { font-size: 1.1rem; color: var(--texto); }
+.vacio { font-size: 1.2rem; }
+
+/* Arriba de /abuelo: lo nuevo y lo que viene pronto */
+.avisosArriba { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.aviso {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 2px solid var(--principal);
+  border-radius: 16px;
+  background: var(--principal-suave);
+}
+.aviso p { margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--texto-titulo); }
+.botonesAviso { display: flex; flex-wrap: wrap; gap: 10px; }
+.botonesAviso > * { flex: 1 1 auto; }

@@ -68,6 +68,18 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
 
 ## Pendiente (al 2026-10-23, después de subir a main cd0c84a)
 
+**Agenda: activar los recordatorios (Felipe, una vez)**
+0. Sin esto, el aviso de "te agregaron algo" llega igual, pero los de "un día antes" y "2 horas antes" no salen.
+   - En Vercel: el proyecto → Settings → Environment Variables → que exista `CRON_SECRET` (ya la usa el resumen
+     diario). Copiar su valor.
+   - Crear una cuenta gratis en https://cron-job.org → "Create cronjob":
+     URL `https://hackaton-felain.vercel.app/api/recordatorios`, "Every 10 minutes", y en "Advanced" → Headers:
+     `Authorization` = `Bearer <el valor de CRON_SECRET>`. Guardar.
+   - Probar con "Test run": tiene que contestar 200 con `{"mandados":0,"llegaron":0}` (o los que haya mandado).
+     Si contesta 401, la clave está mal copiada.
+   - El abuelo tiene que activar los avisos una vez, en su celular: botón "Agenda" → "Activar avisos" (en iPhone,
+     con la app instalada en la pantalla de inicio).
+
 **Inés**
 1. **`clasp push`** de `gmail/` (`avisar-a-la-app.gs` nuevo y dos líneas en `proteger-mails.gs`): sin eso, los mails
    ESTAFA o DUDOSO no aparecen en /familia → "Lo que pasó". Después, probar con `protegerUltimosMails`.

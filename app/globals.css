@@ -577,3 +577,6 @@ a.boton {
 .aviso-estacionamiento p { margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--texto-titulo); }
 .aviso-estacionamiento-hora { border-color: var(--error); background: var(--error-suave); }
 .boton-sms { font-size: 1rem; }
+
+/* Botón "Agenda de …" arriba de /familia */
+.boton-agenda { margin-bottom: 16px; }

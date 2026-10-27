@@ -1,0 +1,43 @@
+/* Agenda (familia y abuelo): tarjetas grandes, una por actividad, letra grande para el celu. */
+.estadoAvisos { margin: 0 0 16px; font-size: 1rem; }
+.activados { background: var(--ok-suave); border-color: var(--ok); color: var(--ok); }
+.formulario { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+.titulo { margin: 8px 0 12px; font-size: 1.3rem; }
+.formulario .titulo { margin: 0; }
+/* Día y hora uno debajo del otro: lado a lado no entran en un celular angosto (el selector de hora se salía). */
+.diaYHora { display: flex; flex-direction: column; gap: 14px; }
+/* Lo que se escribe, tal cual (el estilo de .campo pone MAYÚSCULAS, que es para el código de la familia). */
+.formulario input { width: 100%; min-width: 0; box-sizing: border-box; font-size: 1.2rem; text-transform: none; }
+.falta { margin: 0; color: var(--error); font-weight: 700; }
+.lista { list-style: none; margin: 0 0 24px; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.actividad {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--linea);
+  border-radius: 16px;
+  background: var(--fondo-tarjeta);
+  box-shadow: var(--sombra);
+}
+.actividad p { margin: 0; overflow-wrap: anywhere; }
+.cuando { font-size: 1rem; font-weight: 800; color: var(--principal); }
+.que { font-size: 1.25rem; font-weight: 800; color: var(--texto-titulo); line-height: 1.3; }
+.detalle { font-size: 1rem; color: var(--texto-suave); }
+.vacio { font-size: 1.1rem; color: var(--texto-suave); }
+.borrar {
+  align-self: flex-start;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  color: var(--error);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.confirmar { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.confirmar p { font-weight: 700; }

@@ -12,7 +12,7 @@ import type { Pedido } from './whatsapp'
 //   - los mails que el script de Gmail marcó como ESTAFA o DUDOSO (llegan por /api/mail-marcado).
 // Se guarda en lib/datos.ts (agregarALoQuePaso). Anotar nunca rompe lo que está haciendo el abuelo.
 
-export type TipoDeCosa = 'viaje' | 'pedido' | 'llamada' | 'estacionamiento' | 'permiso' | 'aviso' | 'mail'
+export type TipoDeCosa = 'viaje' | 'pedido' | 'llamada' | 'estacionamiento' | 'agenda' | 'permiso' | 'aviso' | 'mail'
 export type CategoriaDeMail = 'ESTAFA' | 'DUDOSO'
 
 export interface CosaQuePaso {
@@ -87,6 +87,9 @@ export const anotarEstacionamiento = (codigoFamilia: string, t: TarjetaDeEstacio
         ...(t.estuvo !== undefined && { detalle: `Estuvo estacionado ${textoDeMinutos(t.estuvo)}` }),
       })
 
+/** Un familiar le agregó algo a la agenda del abuelo (lib/agenda.ts). */
+export const anotarAgenda = (codigoFamilia: string, texto: string, detalle: string) => anotar(codigoFamilia, { tipo: 'agenda', texto, detalle })
+
 /** Se le pidió permiso a la familia. */
 export const anotarPermiso = (codigoFamilia: string, aprobacionId: string, descripcion: string, preguntados: string[]) =>
   anotar(codigoFamilia, {
@@ -118,7 +121,7 @@ const lista = (nombres: string[]) => (nombres.length <= 1 ? (nombres[0] ?? '') :
 
 // ── Lo que se muestra ───────────────────────────────────────
 
-const TIPOS: readonly TipoDeCosa[] = ['viaje', 'pedido', 'llamada', 'estacionamiento', 'permiso', 'aviso', 'mail']
+const TIPOS: readonly TipoDeCosa[] = ['viaje', 'pedido', 'llamada', 'estacionamiento', 'agenda', 'permiso', 'aviso', 'mail']
 
 function esCosaQuePaso(dato: unknown): dato is CosaQuePaso {
   const c = dato as Partial<CosaQuePaso> | null

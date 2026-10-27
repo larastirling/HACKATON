@@ -36,6 +36,7 @@ import {
 import { instruccionesDelTrato, palabrasDelOtroTrato, tratoDe } from './trato'
 import { buscarCoordenadas } from './mapas'
 import { juntarNombres } from './texto'
+import { agendaParaLaIA } from './agenda'
 import { armarViaje, nombresDeFormas, type Viaje } from './viajes'
 import { armarPedido, type Pedido } from './whatsapp'
 
@@ -323,7 +324,7 @@ export async function conversarConElAbuelo(
   }
 
   const respuesta = await llamarALaIA({
-    system: instruccionesParaElAbuelo(configuracion, lugares, comercios, abierto),
+    system: instruccionesParaElAbuelo(configuracion, lugares, comercios, abierto, await agendaParaLaIA(configuracion.codigoFamilia)),
     messages: charla.map((mensaje) => ({
       role: mensaje.de === 'abuelo' ? ('user' as const) : ('assistant' as const),
       content: mensaje.texto,
@@ -600,6 +601,8 @@ function instruccionesParaElAbuelo(
   lugares: ({ id: string } & ConfiguracionAbuelo['lugares'][number])[],
   comercios: ({ id: string } & ConfiguracionAbuelo['comercios'][number])[],
   abierto: EstacionamientoAbierto | null,
+  /** Lo que tiene en la agenda (lib/agenda.ts): va en AHORA porque cambia. */
+  agenda: string,
 ): Anthropic.Beta.BetaTextBlockParam[] {
   const { abuelo, reglas } = configuracion
   // Los ejemplos entre comillas van en su trato: la IA a veces los copia tal cual.
@@ -688,6 +691,11 @@ Si pide algo raro o fuera de lo común (un lugar que no está guardado, un viaje
 - La hora de ahora está en AHORA (al final).
 - Nunca para plata, emergencias ni temas de salud: esas tienen sus propias reglas (abajo).
 
+AGENDA
+Su familia le carga actividades (cumpleaños, médico, visitas) en su agenda; las que vienen están en AHORA, al final.
+- Si pregunta qué tiene (hoy, mañana, esta semana), contáselo con día y hora, en una o dos frases.
+- Vos no podés agregar ni cambiar nada de la agenda: si quiere anotar algo, decile que se lo pida a la familia. La puede ver tocando "Agenda" abajo.
+
 LO QUE TODAVÍA NO PODÉS HACER
 Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails ni llamar vos por teléfono (a un comercio guardado que se pide llamando, llama él con el botón de proponer_pedido; el WhatsApp del estacionamiento lo manda él con los botones de empezar_estacionamiento y terminar_estacionamiento). Los permisos de la familia los pide el sistema solo, cuando usás las herramientas. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).
 Nunca ofrezcas ni digas que hiciste algo que no podés hacer desde esta charla (como anotar algo en un papel).
@@ -711,7 +719,8 @@ ${JSON.stringify(configuracionParaLaIA)}`
     abierto
       ? `TIENE EL ESTACIONAMIENTO ABIERTO desde hace ${textoDeMinutos(minutosDesde(abierto.desde))}${abierto.minutos ? ` (dijo que iba a estar ${textoDeMinutos(abierto.minutos)})` : ''}.${pasoElTiempoDeAvisar(abierto.desde) ? ' Ya pasó más de una hora: al principio de tu respuesta recordáselo con calma y preguntale si ya se va (si dice que sí, usá terminar_estacionamiento).' : ''}`
       : 'No tiene ningún estacionamiento abierto.'
-  }`
+  }
+- ${agenda}`
 
   return [
     { type: 'text', text: fijo, cache_control: { type: 'ephemeral' } },

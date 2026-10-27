@@ -13,6 +13,12 @@ export default function BarraNavegacion({ rol, contactos }: { rol: Rol; contacto
         Inicio
       </Link>
       {contactos && <BotonAyuda contactos={contactos} />}
+      {rol === 'abuelo' && (
+        <Link href="/abuelo/agenda" className="barra-boton">
+          <Icono trazos="M4 6.5h16V20H4V6.5ZM4 10.5h16M8.5 4v4M15.5 4v4" />
+          Agenda
+        </Link>
+      )}
       {rol === 'familiar' && (
         <Link href="/familia/lo-que-paso" className="barra-boton">
           <Icono trazos="M12 7.5V12l3 2M20.5 12a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0Z" />

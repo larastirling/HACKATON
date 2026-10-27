@@ -1,10 +1,12 @@
 import BarraNavegacion from '@/components/BarraNavegacion'
+import { avisosParaElAbuelo } from '@/lib/agenda'
 import { leerConfiguracion, leerEstacionamientoAbierto, leerUltimaAprobacion, type PedidoDeAprobacion } from '@/lib/datos'
 import { contactosParaLlamar } from '@/lib/emergencia'
 import { tratoDe, type Trato } from '@/lib/trato'
 import type { MensajeCharla } from '@/lib/ia'
 import { exigirSesion } from '@/lib/sesion'
 import Charla from './Charla'
+import AvisosDeAgenda from './agenda/AvisosDeAgenda'
 import InvitarAInstalar from './InvitarAInstalar'
 import { ConTrato } from './trato'
 
@@ -21,12 +23,15 @@ export default async function PaginaAbuelo() {
 
   // Los textos fijos siguen el trato que eligió la familia (si no eligió, de usted).
   const trato = tratoDe(configuracion?.abuelo.comoLeGustaQueLeHablen ?? '') ?? 'usted'
+  // La agenda: lo nuevo que le agregaron y lo que tiene en menos de un día (lib/agenda.ts).
+  const avisosAgenda = configuracion ? await avisosParaElAbuelo(configuracion) : []
 
   return (
     <ConTrato trato={trato}>
       <main className="pagina pagina-charla">
         <InvitarAInstalar />
         <h1>{trato === 'vos' ? '¿En qué te ayudo?' : '¿En qué lo ayudo?'}</h1>
+        <AvisosDeAgenda avisos={avisosAgenda} />
         <Charla inicial={paraRetomar(pendiente, trato)} estacionadoDesde={estacionamiento?.desde ?? null} />
       </main>
       <BarraNavegacion rol={sesion.rol} contactos={contactosParaLlamar(configuracion?.familiares ?? [])} />

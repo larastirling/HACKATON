@@ -155,6 +155,30 @@ Authorization: Bearer <CONFIG_API_TOKEN>
 { "codigo": "DEMO", "categoria": "ESTAFA", "motivo": "Pide la clave del banco", "de": "BROU Seguridad", "asunto": "Su cuenta será bloqueada" }
 ```
 
+## 10. Agenda (se guarda aparte, NO va en la configuración)
+
+Lo que la familia le carga al abuelo en **/familia/agenda** y él ve en **/abuelo/agenda** (botón "Agenda" de su barra).
+Código: `lib/agenda.ts`. Clave `agenda:<CÓDIGO>`, una lista; las actividades se borran solas un día después de pasadas.
+"Restaurar DEMO" la vacía.
+
+| Campo | Qué significa | Ejemplo |
+|---|---|---|
+| `id` | Identificador. | `"9f2c1a…"` |
+| `titulo` | Qué es, como lo escribió el familiar. | `"Cumple de tu sobrina Sofi"` |
+| `cuando` | Cuándo (ISO). La familia elige día y hora de Uruguay (siempre UTC-3). | `"2026-11-13T20:00:00.000Z"` |
+| `lugar` | Opcional: dónde. | `"lo de Laura"` |
+| `agregadaPor` | El familiar que la agregó (su nombre). | `"José"` |
+| `creadaEl` | Cuándo se agregó (ISO). | |
+| `vistaPorElAbuelo` | Si ya la vio (deja de mostrarse arriba de /abuelo como novedad). | `true` |
+| `avisos` | Cuándo se mandó cada aviso: `agregada`, `diaAntes`, `horasAntes` (ISO, o `"no hacía falta"` si se agregó con menos de un día o de 2 horas). | |
+
+**Avisos al abuelo:** apenas se agrega ("Tu hijo José agregó a tu agenda: «Cumple de Sofi», el viernes 13 a las 17:00."),
+un día antes y 2 horas antes, en el trato de la familia. Llegan como notificación si el abuelo activó los avisos en
+/abuelo/agenda (sus celulares se guardan en `avisos-abuelo:<CÓDIGO>`, aparte de los de los familiares), y siempre
+aparecen arriba de /abuelo cuando abre la app. Los recordatorios los manda `GET /api/recordatorios`
+(`Authorization: Bearer <CRON_SECRET>`), que llama cron-job.org cada 10 minutos.
+
+
 ---
 
 ## Ejemplo completo: familia DEMO (Montevideo)

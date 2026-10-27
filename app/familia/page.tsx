@@ -1,6 +1,7 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import BarraNavegacion from '@/components/BarraNavegacion'
-import { leerConfiguracion } from '@/lib/datos'
+import { leerConfiguracion, PENDIENTE, primerNombre } from '@/lib/datos'
 import { exigirSesion } from '@/lib/sesion'
 import Charla from './Charla'
 
@@ -15,6 +16,11 @@ export default async function PaginaFamilia() {
       <main className="pagina">
         <h1>Familia</h1>
         <p className="subtitulo">Contame de tu papá o tu mamá y armamos juntos su asistente.</p>
+        {configuracion.abuelo.nombre !== PENDIENTE && (
+          <Link href="/familia/agenda" className="boton boton-secundario boton-agenda">
+            📅 Agenda de {primerNombre(configuracion.abuelo.nombre)}
+          </Link>
+        )}
         <Charla
           guardadoInicial={{
             codigoFamilia: configuracion.codigoFamilia,

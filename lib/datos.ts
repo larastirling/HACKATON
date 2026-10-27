@@ -732,6 +732,47 @@ export async function familiasConDiario(fecha = fechaDeHoy()): Promise<string[]>
   return (await clavesQueEmpiezanCon(prefijo)).map((clave) => clave.slice(prefijo.length))
 }
 
+// ── Agenda (lib/agenda.ts) ──────────────────────────────────
+// Las actividades que los familiares le cargan al abuelo (/familia/agenda), con los avisos que ya se le mandaron.
+// Una lista por familia. No es parte de la configuración.
+
+const claveAgenda = (codigoFamilia: string) => `agenda:${normalizarCodigo(codigoFamilia)}`
+
+export async function leerAgenda(codigoFamilia: string): Promise<unknown[]> {
+  return (await leer<unknown[]>(claveAgenda(codigoFamilia))) ?? []
+}
+
+export async function guardarAgenda(codigoFamilia: string, actividades: unknown[]): Promise<void> {
+  await guardar(claveAgenda(codigoFamilia), actividades)
+}
+
+/** Los códigos de las familias que tienen algo en la agenda (para los recordatorios). */
+export async function familiasConAgenda(): Promise<string[]> {
+  return (await clavesQueEmpiezanCon('agenda:')).map((clave) => clave.slice('agenda:'.length))
+}
+
+// ── Avisos en el celular del abuelo (Web Push) ──────────────
+// Como los de los familiares, pero con su propia clave (avisos-abuelo:<CÓDIGO>): así nunca se mezclan con un familiar.
+
+const claveSuscripcionesDelAbuelo = (codigoFamilia: string) => `avisos-abuelo:${normalizarCodigo(codigoFamilia)}`
+
+export async function leerSuscripcionesDelAbuelo(codigoFamilia: string): Promise<SuscripcionPush[]> {
+  return (await leer<SuscripcionPush[]>(claveSuscripcionesDelAbuelo(codigoFamilia))) ?? []
+}
+
+/** Guarda el celular del abuelo (y lo saca de los familiares, si estaba anotado como de alguno). */
+export async function guardarSuscripcionDelAbuelo(configuracion: ConfiguracionAbuelo, suscripcion: SuscripcionPush): Promise<void> {
+  for (const familiar of configuracion.familiares) await quitarSuscripcion(configuracion.codigoFamilia, familiar.nombre, suscripcion.endpoint)
+  const actuales = await leerSuscripcionesDelAbuelo(configuracion.codigoFamilia)
+  await guardar(claveSuscripcionesDelAbuelo(configuracion.codigoFamilia), [...actuales.filter((s) => s.endpoint !== suscripcion.endpoint), suscripcion])
+}
+
+export async function quitarSuscripcionDelAbuelo(codigoFamilia: string, endpoint: string): Promise<void> {
+  const actuales = await leerSuscripcionesDelAbuelo(codigoFamilia)
+  const quedan = actuales.filter((s) => s.endpoint !== endpoint)
+  if (quedan.length !== actuales.length) await guardar(claveSuscripcionesDelAbuelo(codigoFamilia), quedan)
+}
+
 // ── Estacionamiento abierto (lib/estacionamiento.ts) ────────
 // Cuando el abuelo estaciona, se anota desde cuándo, para recordarle terminarlo ("ya me voy") y avisarle si pasó
 // más de una hora. Se borra al terminar. No es parte de la configuración.
@@ -833,6 +874,7 @@ export async function restaurarFamiliaDemo(): Promise<{ pendientesBorrados: numb
   await soltarCandado(`estafa:${codigo}`)
   await borrar(claveDiario(codigo, fechaDeHoy())) // el resumen de hoy arranca de cero
   await borrar(claveEstacionamiento(codigo)) // sin estacionamiento abierto
+  await borrar(claveAgenda(codigo)) // la agenda arranca vacía
   await borrar(claveLoQuePaso(codigo)) // "Lo que pasó" arranca vacío
   return { pendientesBorrados }
 }
