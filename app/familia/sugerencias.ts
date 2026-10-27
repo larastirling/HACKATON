@@ -21,6 +21,8 @@ export interface LugarSugerido {
   barrio?: string
   /** A cuánto queda de la casa ("a 1,2 km"), si se sabe. */
   distancia?: string
+  /** Qué comida tiene, si el mapa lo dice (para el buscador). */
+  comida?: string[]
 }
 
 export const MAXIMO_SUGERENCIAS = 4
@@ -29,13 +31,14 @@ const yaGuardado = (c: ConfiguracionAbuelo, lugar: LugarDelCatalogo) => c.lugare
 
 export const buscarEnCatalogo = (id: unknown) => CATALOGO_LUGARES.find((l) => l.id === id)
 
-const paraMostrar = ({ id, nombre, tipo, direccion, barrio }: LugarDelCatalogo, km?: number): LugarSugerido => ({
+const paraMostrar = ({ id, nombre, tipo, direccion, barrio, comida }: LugarDelCatalogo, km?: number): LugarSugerido => ({
   id,
   nombre,
   tipo,
   direccion,
   barrio,
   ...(km !== undefined && { distancia: textoDistancia(km) }),
+  ...(comida && { comida }),
 })
 
 interface Disponible {
@@ -74,6 +77,7 @@ const TIPOS_PRIMERO = [
   'Club',
   'Centro de jubilados',
   'Café',
+  'Restaurante',
   'Shopping',
   'Correo',
   'Biblioteca',

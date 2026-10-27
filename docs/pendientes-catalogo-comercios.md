@@ -62,6 +62,10 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
   que el mapa no confirmó, y "Disco (Malvín)" y "Géant (Jacinto Vera)" (lista `NO_INCLUIR` del script).
   Para volver a armarlo, correr UNA vez `npx tsx@4.20.3 --conditions=react-server scripts/verificar-catalogo.ts`
   (si el mapa falla, para y no escribe nada; lo ya buscado queda en la caché).
+- **Lugares de comida (2026-10-27)**: el catálogo pasó a 766 lugares (Montevideo 632, Ciudad de la Costa 111, Las Piedras 23):
+  restaurantes, parrillas, pizzerías, comida rápida y heladerías 350, cafés 88. Del mapa, por zonas chicas (`partirAntes`),
+  hasta 10 por barrio (`porBarrio`), primero los barrios con menos. El tipo de comida (`comida`: pizza, parrilla, helados…)
+  solo si el mapa lo dice (`cuisine`); lo tienen 145. Revisar a mano algún nombre raro que venga del mapa.
 - **Buscador en "Ver todos los cercanos"** (`app/familia/buscar.ts`): caja con lupa y botones de categoría; filtra en el
   navegador (sin IA ni servidor) por nombre, tipo, barrio, dirección y tipo de comida (`comida` en el catálogo de
   comercios, solo si la fuente lo dice). La IA ve solo los 5 más cercanos de cada tipo (antes, todos).

@@ -269,6 +269,8 @@ export interface LugarDelMapa {
   ciudad?: string
   /** Quién lo atiende (operator) o de qué marca es, si el mapa lo dice. Solo en las búsquedas con zona. */
   quienAtiende?: string
+  /** Qué cocina, si el mapa lo dice (cuisine): "pizza;burger". Solo en las búsquedas con zona. */
+  cocina?: string
 }
 
 /**
@@ -290,6 +292,7 @@ export async function buscarVarios(texto: string, zona?: Zona): Promise<LugarDel
       barrio: r.address?.suburb ?? r.address?.neighbourhood ?? r.address?.city_district,
       ciudad: r.address?.city,
       ...((r.extratags?.operator ?? r.extratags?.brand) && { quienAtiende: r.extratags?.operator ?? r.extratags?.brand }),
+      ...(r.extratags?.cuisine && { cocina: r.extratags.cuisine }),
     }))
 }
 

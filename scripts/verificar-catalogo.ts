@@ -42,6 +42,7 @@ type Tipo =
   | 'Cine'
   | 'Teatro'
   | 'Café'
+  | 'Restaurante'
   | 'Mercado'
   | 'Cementerio'
   | 'Paseo'
@@ -151,13 +152,18 @@ interface Fuente {
   categorias: string[]
   /** Quién lo atiende, según el mapa (o su nombre): por ejemplo, ASSE. */
   atiende?: RegExp
-  /** Cuántos como máximo (uno por barrio). */
+  /** Cuántos como máximo (uno por barrio, o `porBarrio`). */
   maximo: number
+  /** Cuántos por barrio (si no, uno): para restaurantes y cafés, que no son sucursales de una cadena. */
+  porBarrio?: number
+  /** Partir cada zona en 4 estas veces ANTES de buscar: el mapa da pocos restaurantes si se le pide toda la ciudad. */
+  partirAntes?: number
 }
 
 const FARMACIA = ['amenity/pharmacy', 'shop/chemist']
 const SUPERMERCADO = ['shop/supermarket']
 const SALUD = ['amenity/hospital', 'amenity/clinic', 'amenity/doctors']
+const COMIDA = ['amenity/restaurant', 'amenity/fast_food', 'amenity/ice_cream']
 
 const FUENTES: Fuente[] = [
   // Pagos
@@ -222,6 +228,17 @@ const FUENTES: Fuente[] = [
     categorias: ['amenity/community_centre', 'amenity/social_facility', 'office/ngo', 'office/association', 'club/social', 'building/yes', 'amenity/social_centre'],
     maximo: 10,
   },
+  // Comida: restaurantes, parrillas, pizzerías, heladerías y cafés, varios por barrio (los barrios con menos, primero).
+  {
+    tipo: 'Restaurante',
+    buscar: ['restaurant in {zona}', 'restaurante en {zona}', 'restaurant', 'parrilla', 'pizzería', 'fast food in {zona}', 'fast food', 'heladería'],
+    nombreNoDice: /^(restaurante?|restaurant|parrilla|pizzer[ií]a|helader[ií]a|bar|cantina|comedor)$/i,
+    categorias: COMIDA,
+    maximo: 350,
+    porBarrio: 10,
+    partirAntes: 2,
+  },
+  { tipo: 'Café', buscar: ['cafe in {zona}', 'cafe', 'cafetería', 'confitería'], nombreNoDice: /^(caf[eé]|cafeter[ií]a|confiter[ií]a)$/i, categorias: ['amenity/cafe'], maximo: 80, porBarrio: 3, partirAntes: 2 },
   { tipo: 'Cementerio', buscar: ['cementerio en {zona}', 'cemetery in {zona}'], nombreDice: /cementerio/i, categorias: ['landuse/cemetery', 'amenity/grave_yard'], maximo: 6 },
 ]
 
@@ -278,6 +295,8 @@ interface LugarDelCatalogo extends Punto {
   direccion: string
   barrio: string
   ciudad: Ciudad
+  /** Qué comida tiene, solo si el mapa lo dice (para el buscador: "pizza", "parrilla"). */
+  comida?: string[]
 }
 
 const entraron: LugarDelCatalogo[] = []
@@ -432,10 +451,48 @@ const ciudadDe = (l: LugarDelMapa): Ciudad | undefined => CIUDADES.find((c) => c
 /** Nombres que no dicen cuál es ("Policlínica", "Centro Cultural"): se les agrega el barrio. */
 const NOMBRE_GENERICO = /^(policl[ií]nica|centro cultural|centro de salud|iglesia( evang[eé]lica)?|capilla|parroquia|biblioteca|cine|teatro|club)$/i
 
+/**
+ * Lo que dice el mapa de su cocina ("pizza;burger"), con las palabras del buscador de /familia (app/familia/buscar.ts).
+ * Solo lo que el mapa dice: lo que no está en la lista no se agrega (nada de suponer "pastas" porque es italiano).
+ */
+const COCINAS: Record<string, string> = {
+  pizza: 'pizza',
+  burger: 'hamburguesas',
+  empanada: 'empanadas',
+  empanadas: 'empanadas',
+  chivito: 'chivitos',
+  ice_cream: 'helados',
+  milanesa: 'milanesas',
+  pasta: 'pastas',
+  sushi: 'sushi',
+  steak_house: 'parrilla',
+  grill: 'parrilla',
+  barbecue: 'parrilla',
+  parrilla: 'parrilla',
+  asado: 'parrilla',
+  chicken: 'pollo',
+  seafood: 'pescado',
+  fish: 'pescado',
+  chinese: 'china',
+  japanese: 'japonesa',
+  mexican: 'mexicana',
+  italian: 'italiana',
+  vegetarian: 'vegetariana',
+  vegan: 'vegetariana',
+  sandwich: 'sándwiches',
+  coffee_shop: 'café',
+}
+const comidaDe = (cocina: string | undefined) =>
+  [...new Set((cocina ?? '').split(/[;,]/).map((c) => COCINAS[c.trim().toLowerCase()]).filter((c): c is string => Boolean(c)))]
+
 async function verificarFuente(fuente: Fuente) {
   const etiqueta = fuente.nombre ?? `${fuente.tipo} (${fuente.buscar.join(', ')})`
   const delMapa: LugarDelMapa[] = []
-  for (const { nombre, zona } of ZONAS) for (const texto of fuente.buscar) delMapa.push(...(await buscarEnLaZona(texto.replace('{zona}', nombre), zona)))
+  for (const { nombre, zona } of ZONAS) {
+    let partes = [zona]
+    for (let i = 0; i < (fuente.partirAntes ?? 0); i++) partes = partes.flatMap(partir)
+    for (const parte of partes) for (const texto of fuente.buscar) delMapa.push(...(await buscarEnLaZona(texto.replace('{zona}', nombre), parte)))
+  }
   const esDeLaFuente = (l: LugarDelMapa) =>
     (!fuente.nombresEnElMapa ||
       fuente.nombresEnElMapa.some((n) => sinTildes(l.nombre) === sinTildes(n) || sinTildes(l.nombre).startsWith(`${sinTildes(n)} `))) &&
@@ -447,12 +504,12 @@ async function verificarFuente(fuente: Fuente) {
     return esDeLaFuente(l) && fuente.categorias.includes(l.categoria) && ciudad && (l.barrio || ciudad === 'Las Piedras')
   })
   // Por barrio, el que tiene número de puerta primero.
-  const porBarrio = new Map<string, LugarDelMapa>()
+  const porBarrio = new Map<string, LugarDelMapa[]>()
   for (const l of validas) {
     const barrio = barrioBase(l.barrio ?? 'Las Piedras')
-    const anterior = porBarrio.get(barrio)
-    if (!anterior || (!anterior.numero && l.numero)) porBarrio.set(barrio, l)
+    porBarrio.set(barrio, [...(porBarrio.get(barrio) ?? []), l])
   }
+  for (const lista of porBarrio.values()) lista.sort((a, b) => Number(!!b.numero) - Number(!!a.numero))
   // Primero los barrios con menos lugares en el catálogo; si empatan, los de BARRIOS_PRIMERO.
   const barrios = [...porBarrio.keys()].sort((a, b) => cuantosHayEn(a) - cuantosHayEn(b) || prioridadDelBarrio(a) - prioridadDelBarrio(b))
   let cuantas = 0
@@ -467,22 +524,27 @@ async function verificarFuente(fuente: Fuente) {
     conservadas++
     console.log(`YA ESTABA ${lugar.nombre}  →  ${lugar.direccion}`)
   }
-  for (const barrioDeLaLista of barrios) {
-    if (cuantas + conservadas >= fuente.maximo) break // lo que ya estaba entra siempre; los nuevos completan hasta el máximo
-    const lugar = armarLugar(porBarrio.get(barrioDeLaLista)!)
-    const barrio = lugar.barrio
-    if (NO_INCLUIR[lugar.nombre]) {
-      dejarAfuera(`${lugar.nombre}: ${NO_INCLUIR[lugar.nombre]}`)
-      continue
+  // De a una vuelta por todos los barrios (así quedan repartidos), hasta `porBarrio` en cada uno.
+  for (let vuelta = 0; vuelta < (fuente.porBarrio ?? 1); vuelta++) {
+    for (const barrioDeLaLista of barrios) {
+      if (cuantas + conservadas >= fuente.maximo) break // lo que ya estaba entra siempre; los nuevos completan hasta el máximo
+      // En cada barrio, el siguiente que no esté repetido.
+      const lista = porBarrio.get(barrioDeLaLista)!
+      let lugar: LugarDelCatalogo | undefined
+      while (lista.length && !lugar) {
+        const candidato = armarLugar(lista.shift()!)
+        if (NO_INCLUIR[candidato.nombre]) dejarAfuera(`${candidato.nombre}: ${NO_INCLUIR[candidato.nombre]}`)
+        else {
+          const igual = repetido(candidato)
+          if (igual) repetidas.push(`${candidato.barrio} (ya está "${igual.nombre}")`)
+          else lugar = candidato
+        }
+      }
+      if (!lugar) continue
+      entraron.push(lugar)
+      cuantas++
+      console.log(`OK     ${lugar.nombre}  →  ${lugar.direccion}${lugar.comida ? ` [${lugar.comida.join(', ')}]` : ''}`)
     }
-    const igual = repetido(lugar)
-    if (igual) {
-      repetidas.push(`${barrio} (ya está "${igual.nombre}")`)
-      continue
-    }
-    entraron.push(lugar)
-    cuantas++
-    console.log(`OK     ${lugar.nombre}  →  ${lugar.direccion}`)
   }
   console.log(
     `FUENTE ${etiqueta}: el mapa devolvió ${delMapa.length}, ${validas.length} sirven, en ${porBarrio.size} barrios; ` +
@@ -512,6 +574,8 @@ async function verificarFuente(fuente: Fuente) {
       latitud: Number(l.latitud.toFixed(7)),
       longitud: Number(l.longitud.toFixed(7)),
     }
+    const comida = comidaDe(l.cocina)
+    if (comida.length) lugar.comida = comida
     return lugar
   }
 }
@@ -546,6 +610,8 @@ export interface LugarDelCatalogo {
   ciudad: string
   latitud: number
   longitud: number
+  /** Qué comida tiene, solo si el mapa lo dice ("pizza", "parrilla"). */
+  comida?: string[]
 }
 
 export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = ${JSON.stringify(entraron, null, 2)}

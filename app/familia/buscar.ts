@@ -7,7 +7,7 @@ export interface Buscable {
   tipo: string
   direccion: string
   barrio?: string
-  /** Solo comercios de comida: lo que venden según su fuente ("pizza", "empanadas"). */
+  /** Comercios y lugares de comida: lo que tienen según su fuente o el mapa ("pizza", "empanadas"). */
   comida?: string[]
 }
 
@@ -74,6 +74,11 @@ const SINONIMOS: { palabras: string[]; tipos?: string[]; comida?: string[] }[] =
   { palabras: ['milanesa'], comida: ['milanesas'] },
   { palabras: ['pasta', 'fideo', 'ravioles', 'noquis'], comida: ['pastas'] },
   { palabras: ['sushi'], comida: ['sushi'] },
+  { palabras: ['parrilla', 'asado', 'carne', 'churrasco'], comida: ['parrilla'] },
+  { palabras: ['pollo'], comida: ['pollo'] },
+  { palabras: ['pescado', 'marisco'], comida: ['pescado'] },
+  { palabras: ['sandwich', 'sanguche'], comida: ['sándwiches'] },
+  { palabras: ['vegetariano', 'vegano'], comida: ['vegetariana'] },
 ]
 
 /** Palabras que no ayudan a buscar ("una farmacia en la rambla"). */
