@@ -1,10 +1,12 @@
 'use server'
 
 import type Anthropic from '@anthropic-ai/sdk'
+import { agendaParaLaFamilia } from '@/lib/agenda'
 import { leerConfiguracion, type ConfiguracionAbuelo } from '@/lib/datos'
 import { charlarConLaIA, type RespuestaIA } from '@/lib/ia'
 import { leerSesion } from '@/lib/sesion'
 import { guardarAbuelo, HERRAMIENTA_GUARDAR_ABUELO } from './abuelo'
+import { agregarALaAgendaDesdeLaCharla, HERRAMIENTA_AGREGAR_A_LA_AGENDA } from './agenda-charla'
 import { guardarMatricula, HERRAMIENTA_GUARDAR_MATRICULA } from './auto'
 import { buscarEnElMapa, esDelMapa, guardarLugarDelMapa, HERRAMIENTA_BUSCAR_EN_EL_MAPA, preguntarPermisoDelMapa } from './buscar-en-el-mapa'
 import { borrar, HERRAMIENTA_BORRAR, HERRAMIENTA_PROPONER_BORRAR, proponerBorrar, type PedidoBorrar } from './borrar'
@@ -240,7 +242,7 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
     { type: 'text', text: catalogos, cache_control: { type: 'ephemeral' } },
     {
       type: 'text',
-      text: [quienEscribeParaLaIA(configuracionAhora, sesion.mail), cargaParaLaIA(armado), guardadoParaLaIA(configuracionAhora)].join('\n\n'),
+      text: [quienEscribeParaLaIA(configuracionAhora, sesion.mail), cargaParaLaIA(armado), guardadoParaLaIA(configuracionAhora), await agendaParaLaFamilia(codigo)].join('\n\n'),
     },
   ]
   const herramientaSugerir = herramientaSugerirLugares()
@@ -266,6 +268,7 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
       HERRAMIENTA_BORRAR,
       HERRAMIENTA_MOSTRAR_REGLAS,
       HERRAMIENTA_GUARDAR_REGLAS,
+      HERRAMIENTA_AGREGAR_A_LA_AGENDA,
     ],
     usarHerramienta: (bloque) => {
       switch (bloque.name) {
@@ -329,6 +332,8 @@ export async function responder(charla: MensajeCharla[]): Promise<RespuestaFamil
           return conLaTabla((c) => mostrarReglas(c, bloque.input))
         case HERRAMIENTA_GUARDAR_REGLAS.name:
           return conLaTabla((c) => guardarReglas(codigo, c, bloque.input))
+        case HERRAMIENTA_AGREGAR_A_LA_AGENDA.name:
+          return agregarALaAgendaDesdeLaCharla(configuracionAhora, sesion.mail, bloque.input)
         default:
           return `No existe la herramienta "${bloque.name}".`
       }

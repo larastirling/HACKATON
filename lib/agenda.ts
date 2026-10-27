@@ -240,6 +240,23 @@ export async function avisosParaElAbuelo(configuracion: ConfiguracionAbuelo, aho
   return [...nuevas, ...pronto].slice(0, 3)
 }
 
+/**
+ * Para la IA de /familia (en la parte que cambia en cada mensaje): la fecha de hoy y los próximos días con su fecha
+ * (para pasar "mañana" o "el viernes" a una fecha sin errores), y lo que ya está en la agenda.
+ */
+export async function agendaParaLaFamilia(codigoFamilia: string, ahora = Date.now()): Promise<string> {
+  const dias = Array.from({ length: 8 }, (_, i) => ahora + i * 24 * HORA).map(
+    (m, i) => `${i === 0 ? 'hoy ' : i === 1 ? 'mañana ' : ''}${parteDe(m, { weekday: 'long' }).toLowerCase()} ${parteDe(m, { day: 'numeric' })} = ${diaDe(m)}`,
+  )
+  const vienen = (await actividadesQueVienen(codigoFamilia, ahora)).slice(0, 10)
+  return [
+    `HOY Y LOS PRÓXIMOS DÍAS (hora de Uruguay, ahora son las ${horaDe(ahora)}): ${dias.join('; ')}.`,
+    vienen.length
+      ? `AGENDA (lo que ya está cargado): ${vienen.map((a) => `${textoCuando(a.cuando, ahora)}: ${queYDonde(a)} (lo agregó ${a.agregadaPor})`).join('; ')}.`
+      : 'AGENDA: no hay nada cargado.',
+  ].join('\n')
+}
+
 /** Para la IA del abuelo (en AHORA, al final del prompt): lo que tiene en los próximos 14 días, como mucho 5. */
 export async function agendaParaLaIA(codigoFamilia: string, ahora = Date.now()): Promise<string> {
   const vienen = (await actividadesQueVienen(codigoFamilia, ahora)).filter((a) => Date.parse(a.cuando) - ahora <= 14 * 24 * HORA).slice(0, 5)
