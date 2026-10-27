@@ -8,7 +8,7 @@ import { agregarComoFamiliar, type ResultadoAgenda } from './agregar'
 
 // Lo que hace la familia en /familia/agenda (sin la IA).
 
-export async function agregarALaAgenda(datos: { titulo: string; fecha: string; hora: string; lugar: string }): Promise<ResultadoAgenda> {
+export async function agregarALaAgenda(datos: { titulo: string; fecha: string; hora: string; lugar: string; direccion: string }): Promise<ResultadoAgenda> {
   const sesion = await leerSesion()
   if (sesion?.rol !== 'familiar') return { ok: false, mensaje: 'Tenés que entrar como familiar.' }
   const configuracion = await leerConfiguracion(sesion.codigoFamilia)

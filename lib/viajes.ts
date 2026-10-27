@@ -14,6 +14,8 @@ export const KM_MAXIMOS_CAMINANDO = 1.5
 export interface OpcionDeViaje {
   forma: FormaDeViajar
   link: string
+  /** Colectivo con Moovit en vez de Google Maps (en la agenda). */
+  app?: 'moovit'
 }
 
 /** Lo que necesita la pantalla para mostrar la tarjeta del viaje. */
@@ -41,6 +43,7 @@ export async function armarViaje(
   destino: Destino,
   configuracion: Pick<ConfiguracionAbuelo, 'abuelo' | 'formasDeViajar'>,
   preferida?: FormaDeViajar,
+  { colectivoConMoovit = false } = {},
 ): Promise<ResultadoViaje> {
   if (typeof destino.latitud !== 'number' || typeof destino.longitud !== 'number') return { ok: false, motivo: 'sin-ubicacion' }
   const punto = { latitud: destino.latitud, longitud: destino.longitud }
@@ -62,7 +65,11 @@ export async function armarViaje(
     viaje: {
       nombre: destino.nombre,
       direccion: destino.direccion,
-      opciones: enOrden.map((forma) => ({ forma, link: linkPara(forma, destino, punto) })),
+      opciones: enOrden.map((forma) =>
+        forma === 'colectivo' && colectivoConMoovit
+          ? { forma, link: linkDeMoovit(destino, punto), app: 'moovit' as const }
+          : { forma, link: linkPara(forma, destino, punto) },
+      ),
     },
     ...(caminandoNo && { caminandoNo }),
   }
@@ -81,6 +88,11 @@ function linkPara(forma: FormaDeViajar, destino: Destino, punto: { latitud: numb
   // Google Maps (link universal: abre la app si está instalada; si no, la web).
   const modo = forma === 'caminando' ? 'walking' : 'transit'
   return `https://www.google.com/maps/dir/?api=1&destination=${punto.latitud},${punto.longitud}&travelmode=${modo}`
+}
+
+/** Moovit con el destino puesto (link universal: abre la app si está instalada; si no, la web). Sale desde donde está. */
+function linkDeMoovit(destino: Destino, punto: { latitud: number; longitud: number }): string {
+  return `https://moovitapp.com/?to=${encodeURIComponent(destino.nombre)}&tll=${punto.latitud}_${punto.longitud}&lang=es`
 }
 
 /** "Uber, caminando o colectivo", para que la IA sepa qué ofrecer. */

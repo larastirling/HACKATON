@@ -4,12 +4,13 @@ import { useState, useTransition, type FormEvent } from 'react'
 import { agregarALaAgenda, borrarDeLaAgenda } from './acciones'
 import estilos from './agenda.module.css'
 
-// Cargar una actividad en la agenda del abuelo: qué, día, hora y dónde (opcional). Sin la IA.
+// Cargar una actividad en la agenda del abuelo: qué, día, hora, dónde y la dirección (opcionales). Sin la IA.
 export function FormularioAgenda({ hoy }: { hoy: string }) {
   const [titulo, setTitulo] = useState('')
   const [fecha, setFecha] = useState('')
   const [hora, setHora] = useState('')
   const [lugar, setLugar] = useState('')
+  const [direccion, setDireccion] = useState('')
   const [resultado, setResultado] = useState<{ ok: boolean; mensaje: string } | null>(null)
   const [guardando, empezar] = useTransition()
   const falta = !titulo.trim() ? 'qué es' : !fecha ? 'el día' : !hora ? 'la hora' : ''
@@ -19,13 +20,14 @@ export function FormularioAgenda({ hoy }: { hoy: string }) {
     if (falta) return
     empezar(async () => {
       try {
-        const r = await agregarALaAgenda({ titulo, fecha, hora, lugar })
+        const r = await agregarALaAgenda({ titulo, fecha, hora, lugar, direccion })
         setResultado(r)
         if (r.ok) {
           setTitulo('')
           setFecha('')
           setHora('')
           setLugar('')
+          setDireccion('')
         }
       } catch {
         setResultado({ ok: false, mensaje: 'No se pudo guardar. Probá de nuevo.' })
@@ -53,6 +55,11 @@ export function FormularioAgenda({ hoy }: { hoy: string }) {
       <label className="campo">
         Dónde (si querés)
         <input value={lugar} onChange={(e) => setLugar(e.target.value)} placeholder="Lo de Laura" maxLength={120} autoComplete="off" />
+      </label>
+      <label className="campo">
+        Dirección (si querés)
+        <input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Av. Brasil 2550" maxLength={120} autoComplete="off" />
+        <span className={estilos.ayuda}>Con la dirección puede pedir el Uber o ver qué colectivo tomar desde su agenda.</span>
       </label>
       {falta && (titulo || fecha || hora) && <p className={estilos.falta}>Falta {falta}.</p>}
       <button type="submit" className="boton boton-principal" disabled={!!falta || guardando}>

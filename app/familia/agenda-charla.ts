@@ -18,6 +18,7 @@ export const HERRAMIENTA_AGREGAR_A_LA_AGENDA: Anthropic.Beta.BetaTool = {
       fecha: { type: 'string', description: 'AAAA-MM-DD, ej. "2026-10-28".' },
       hora: { type: 'string', description: 'HH:MM en 24 horas, ej. "20:00".' },
       lugar: { type: 'string', description: 'Dónde, solo si el hijo lo dijo (ej. "lo de Laura"). Si no, "".' },
+      direccion: { type: 'string', description: 'Calle y número, solo si el hijo la escribió, tal cual (ej. "Av. Brasil 2550"). Con ella el abuelo puede pedir el Uber. Si no, "".' },
     },
     required: ['titulo', 'fecha', 'hora'],
     additionalProperties: false,

@@ -9,7 +9,7 @@ export type ResultadoAgenda = { ok: true; mensaje: string } | { ok: false; mensa
 export async function agregarComoFamiliar(
   configuracion: ConfiguracionAbuelo,
   mail: string | undefined,
-  datos: { titulo?: unknown; fecha?: unknown; hora?: unknown; lugar?: unknown },
+  datos: { titulo?: unknown; fecha?: unknown; hora?: unknown; lugar?: unknown; direccion?: unknown },
 ): Promise<ResultadoAgenda> {
   const texto = (v: unknown) => (typeof v === 'string' ? v.slice(0, 200) : '')
   // Quién la agrega: el familiar que entró con ese mail (si no se encuentra, el primero).
@@ -21,6 +21,7 @@ export async function agregarComoFamiliar(
     fecha: texto(datos?.fecha),
     hora: texto(datos?.hora),
     lugar: texto(datos?.lugar),
+    direccion: texto(datos?.direccion),
   })
   if (!resultado.ok) return { ok: false, mensaje: resultado.problema }
   const nombre = configuracion.abuelo.nombre.split(' ')[0]

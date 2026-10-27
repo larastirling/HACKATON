@@ -46,6 +46,7 @@ export default async function PaginaAgendaFamilia() {
                 <p className={estilos.cuando}>{textoCuando(a.cuando).replace(/^./, (c) => c.toUpperCase())}</p>
                 <p className={estilos.que}>{a.titulo}</p>
                 {a.lugar && <p className={estilos.detalle}>En {a.lugar}</p>}
+                {a.direccion && <p className={estilos.detalle}>📍 {a.direccion.texto} (puede pedir el Uber o ver cómo ir)</p>}
                 <p className={estilos.detalle}>Lo agregó {a.agregadaPor}</p>
                 <BotonBorrar id={a.id} titulo={a.titulo} />
               </li>

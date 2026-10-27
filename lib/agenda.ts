@@ -2,6 +2,7 @@ import 'server-only'
 import { randomBytes } from 'node:crypto'
 import { familiasConAgenda, guardarAgenda, leerAgenda, leerConfiguracion, PENDIENTE, tomarCandado, ZONA_HORARIA, type ConfiguracionAbuelo } from './datos'
 import { anotarAgenda } from './lo-que-paso'
+import { buscarCoordenadas } from './mapas'
 import { notificarAlAbuelo } from './notificaciones'
 import { tratoDe } from './trato'
 
@@ -19,6 +20,8 @@ export interface Actividad {
   cuando: string
   /** Dónde, si lo dijo: "lo de Laura". */
   lugar?: string
+  /** La dirección, si la cargó: con ella el abuelo puede pedir el Uber o ver cómo ir en colectivo. Ubicada en el mapa al guardar. */
+  direccion?: { texto: string; latitud: number; longitud: number }
   /** El familiar que la agregó (su nombre). */
   agregadaPor: string
   creadaEl: string
@@ -77,7 +80,9 @@ function quienLaAgrego(configuracion: ConfiguracionAbuelo, nombre: string): stri
   return relacion ? `${posesivo(configuracion).tu} ${relacion} ${nombre}` : nombre
 }
 
-const queYDonde = (a: Actividad) => `«${a.titulo}»${a.lugar ? `, en ${a.lugar}` : ''}`
+/** "lo de Laura", o la dirección si no puso el nombre del lugar. */
+export const dondeEs = (a: Pick<Actividad, 'lugar' | 'direccion'>) => a.lugar ?? a.direccion?.texto
+const queYDonde = (a: Actividad) => `«${a.titulo}»${dondeEs(a) ? `, en ${dondeEs(a)}` : ''}`
 
 /** "Tu hijo José agregó a tu agenda: «Cumple de Sofi», el viernes 15 a las 17:00." */
 export function textoAgregada(configuracion: ConfiguracionAbuelo, a: Actividad, ahora = Date.now()): string {
@@ -119,17 +124,24 @@ export type ResultadoAgregar = { ok: true; actividad: Actividad; avisado: boolea
 export async function agregarActividad(
   configuracion: ConfiguracionAbuelo,
   familiar: string,
-  datos: { titulo: string; fecha: string; hora: string; lugar?: string },
+  datos: { titulo: string; fecha: string; hora: string; lugar?: string; direccion?: string },
   ahora = Date.now(),
 ): Promise<ResultadoAgregar> {
   const titulo = datos.titulo.trim().replace(/\s+/g, ' ')
   const lugar = (datos.lugar ?? '').trim().replace(/\s+/g, ' ')
+  const direccion = (datos.direccion ?? '').trim().replace(/\s+/g, ' ')
   if (titulo.length < 2) return { ok: false, problema: 'Escribí qué es (por ejemplo "Cumple de Sofi").' }
-  if (titulo.length > MAXIMO_LETRAS || lugar.length > MAXIMO_LETRAS) return { ok: false, problema: `Escribilo más corto (hasta ${MAXIMO_LETRAS} letras).` }
+  if (titulo.length > MAXIMO_LETRAS || lugar.length > MAXIMO_LETRAS || direccion.length > MAXIMO_LETRAS) return { ok: false, problema: `Escribilo más corto (hasta ${MAXIMO_LETRAS} letras).` }
   const momento = momentoDe(datos.fecha, datos.hora)
   if (!momento) return { ok: false, problema: 'Elegí el día y la hora.' }
   if (momento <= ahora) return { ok: false, problema: 'Ese día y hora ya pasaron.' }
   if (momento > ahora + 400 * 24 * HORA) return { ok: false, problema: 'Elegí una fecha de este año o del que viene.' }
+
+  // La dirección se ubica en el mapa ahora: el Uber y el colectivo usan esas coordenadas, nunca el texto.
+  const ubicada = direccion ? await buscarCoordenadas(direccion) : null
+  if (direccion && !ubicada) {
+    return { ok: false, problema: `No encontré "${direccion}" en el mapa. Revisá la calle y el número (por ejemplo "Av. Brasil 2550"), o dejala vacía.` }
+  }
 
   const falta = momento - ahora
   const actividad: Actividad = {
@@ -137,6 +149,7 @@ export async function agregarActividad(
     titulo,
     cuando: new Date(momento).toISOString(),
     ...(lugar && { lugar }),
+    ...(ubicada && { direccion: { texto: direccion, latitud: ubicada.latitud, longitud: ubicada.longitud } }),
     agregadaPor: familiar,
     creadaEl: new Date(ahora).toISOString(),
     avisos: {
@@ -159,7 +172,7 @@ export async function agregarActividad(
   await anotarAgenda(
     configuracion.codigoFamilia,
     `${familiar} agregó a la agenda: «${titulo}»`,
-    `${conMayuscula(textoCuando(actividad.cuando, ahora))}${lugar ? `, en ${lugar}` : ''}. ${avisado ? `Le llegó el aviso al celular de ${nombre}.` : `${nombre} lo va a ver cuando abra la app (no tiene los avisos activados).`}`,
+    `${conMayuscula(textoCuando(actividad.cuando, ahora))}${dondeEs(actividad) ? `, en ${dondeEs(actividad)}` : ''}. ${avisado ? `Le llegó el aviso al celular de ${nombre}.` : `${nombre} lo va a ver cuando abra la app (no tiene los avisos activados).`}`,
   )
   return { ok: true, actividad, avisado }
 }

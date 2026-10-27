@@ -167,6 +167,7 @@ Código: `lib/agenda.ts`. Clave `agenda:<CÓDIGO>`, una lista; las actividades s
 | `titulo` | Qué es, como lo escribió el familiar. | `"Cumple de tu sobrina Sofi"` |
 | `cuando` | Cuándo (ISO). La familia elige día y hora de Uruguay (siempre UTC-3). | `"2026-11-13T20:00:00.000Z"` |
 | `lugar` | Opcional: dónde. | `"lo de Laura"` |
+| `direccion` | Opcional: la dirección, ubicada en el mapa al guardar (`texto`, `latitud`, `longitud`). Si el mapa no la encuentra, no se guarda la actividad y se le pide revisarla. Con ella el abuelo tiene "¿Cómo voy?" en su agenda: Uber, caminando o colectivo (con Moovit), según las formas de viajar de la familia. | `{ "texto": "Av. Brasil 2550", "latitud": -34.91, "longitud": -56.15 }` |
 | `agregadaPor` | El familiar que la agregó (su nombre). | `"José"` |
 | `creadaEl` | Cuándo se agregó (ISO). | |
 | `vistaPorElAbuelo` | Si ya la vio (deja de mostrarse arriba de /abuelo como novedad). | `true` |

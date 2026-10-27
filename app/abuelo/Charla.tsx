@@ -246,8 +246,13 @@ const TEXTO_DEL_BOTON: Record<FormaDeViajar, string> = {
 }
 
 /** Lo que se le dice (y se le muestra) antes de abrir el mapa. */
-const antesDeAbrirElMapa = (forma: Exclude<FormaDeViajar, 'uber'>, t: T) =>
-  forma === 'caminando'
+const antesDeAbrirElMapa = (forma: Exclude<FormaDeViajar, 'uber'>, t: T, app?: 'moovit') =>
+  app === 'moovit'
+    ? t(
+        'Le abro Moovit. Ahí le muestra qué colectivo tomar, dónde está la parada y dónde bajarse.',
+        'Te abro Moovit. Ahí te muestra qué colectivo tomar, dónde está la parada y dónde bajarte.',
+      )
+    : forma === 'caminando'
     ? t(
         'Le abro el mapa para ir caminando. Cuando se abra, toque "Iniciar" y siga la flecha azul.',
         'Te abro el mapa para ir caminando. Cuando se abra, tocá "Iniciar" y seguí la flecha azul.',
@@ -259,8 +264,9 @@ const antesDeAbrirElMapa = (forma: Exclude<FormaDeViajar, 'uber'>, t: T) =>
 
 // Tarjeta del viaje: un botón grande por cada forma de viajar que activó la familia.
 // Uber abre la app (el auto lo pide el abuelo). Caminando y colectivo primero le explican en voz alta
-// qué va a pasar y después abren Google Maps con el destino puesto (en iPhone una app solo se abre con un toque).
-function TarjetaViaje({ viaje }: { viaje: Viaje }) {
+// qué va a pasar y después abren Google Maps (o Moovit, desde la agenda) con el destino puesto (en iPhone una app solo se abre con un toque).
+// También la usa /abuelo/agenda ("¿Cómo voy?").
+export function TarjetaViaje({ viaje }: { viaje: Viaje }) {
   const t = useTrato()
   const opciones = viaje.opciones ?? (viaje.link ? [{ forma: 'uber' as const, link: viaje.link }] : [])
   const [elegida, setElegida] = useState<(typeof opciones)[number] | null>(null)
@@ -268,7 +274,7 @@ function TarjetaViaje({ viaje }: { viaje: Viaje }) {
   function elegir(opcion: (typeof opciones)[number]) {
     if (opcion.forma === 'uber') return
     setElegida(opcion)
-    decirEnVozAlta(antesDeAbrirElMapa(opcion.forma, t), { enEsteToque: true })
+    decirEnVozAlta(antesDeAbrirElMapa(opcion.forma, t, opcion.app), { enEsteToque: true })
   }
 
   return (
@@ -280,10 +286,10 @@ function TarjetaViaje({ viaje }: { viaje: Viaje }) {
       {elegida && elegida.forma !== 'uber' ? (
         <>
           <p className="tarjeta-viaje-explicacion" role="status">
-            {antesDeAbrirElMapa(elegida.forma, t)}
+            {antesDeAbrirElMapa(elegida.forma, t, elegida.app)}
           </p>
           <a className={`boton boton-${elegida.forma}`} href={elegida.link} target="_blank" rel="noopener noreferrer">
-            Abrir el mapa
+            {elegida.app === 'moovit' ? 'Abrir Moovit' : 'Abrir el mapa'}
           </a>
           <button type="button" className="boton boton-secundario" onClick={() => setElegida(null)}>
             Volver
