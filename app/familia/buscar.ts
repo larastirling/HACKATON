@@ -122,6 +122,9 @@ export function entender(texto: string): Consulta {
 /** El texto donde se busca, sin tildes. */
 const textoDe = (x: Buscable) => sinTildes([x.nombre, x.tipo, x.barrio, x.direccion, ...(x.comida ?? [])].filter(Boolean).join(' '))
 
+/** "bar" está en "bar facal" y en "bares", pero no en "barrio". */
+const palabraEntera = (texto: string, palabra: string) => new RegExp(`(^|[^a-z0-9ñ])${palabra}(s|es)?($|[^a-z0-9ñ])`).test(texto)
+
 /** Si coincide con lo que escribió: cada palabra tiene que estar (en el texto, o por lo que significa). */
 export function coincide(x: Buscable, consulta: Consulta): boolean {
   const texto = textoDe(x)
@@ -132,8 +135,9 @@ export function coincide(x: Buscable, consulta: Consulta): boolean {
       (s) =>
         (s.tipos?.includes(x.tipo) ?? false) ||
         (s.comida?.some((c) => x.comida?.includes(c)) ?? false) ||
-        // Si la palabra está escrita en el lugar ("Pizza Subte", "Bar Facal"), también vale.
-        esta(s.palabra),
+        // Si la palabra está escrita en el lugar ("Pizza Subte", "Bar Facal"), también vale: entera o en plural
+        // (así "comer" no trae los de "La Comercial").
+        palabraEntera(texto, s.palabra),
     )
   )
 }

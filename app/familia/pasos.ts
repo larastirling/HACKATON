@@ -21,7 +21,7 @@ import { comoPuedeIr, guardarFormas, KM_CAMINANDO, NOMBRES_FORMAS } from './form
 import { cambiarConfiguracion, nombreValido, normalizarTelefono } from './guardar'
 import { reglasSinElegir } from './instrucciones'
 import { guardarReglas, mostrarReglas, type TablaReglas } from './reglas'
-import { buscarEnCatalogo, guardarLugarSugerido, todosLosLugaresCercanos, type LugarSugerido } from './sugerencias'
+import { buscarEnCatalogo, guardarLugarSugerido, lugaresCercanos, todosLosLugaresCercanos, type LugarSugerido } from './sugerencias'
 import { guardarComercioDeLaTarjeta, todosLosComerciosCercanos, type ComercioSugerido } from './sugerencias-comercios'
 
 // Cargar a la persona mayor en /familia, en 6 pasos guiados con tarjetas (sin la IA, así es rápido y no gasta):
@@ -233,7 +233,8 @@ export async function tarjetaDelPaso(c: ConfiguracionAbuelo, paso: Paso, mail: s
       const formas = FORMAS_DE_VIAJAR.map((id) => ({ id, nombre: NOMBRES_FORMAS[id], marcada: guardadas.includes(id) }))
       return {
         texto: sinCasa ? 'Todavía no pude ubicar su casa en el mapa, así que no te puedo mostrar lugares cercanos. ¿A qué lugares va? Escribilos abajo.' : texto,
-        tarjeta: { tipo: 'lugares', primeros: todos.slice(0, PRIMERO_SE_MUESTRAN), todos, ...(sinCasa && { sinCasa }), formas },
+        // Primero, el más cercano de los tipos más útiles (no los 4 más cercanos: con tantos restaurantes, serían todos de comida).
+        tarjeta: { tipo: 'lugares', primeros: (await lugaresCercanos(c, [])) ?? todos.slice(0, PRIMERO_SE_MUESTRAN), todos, ...(sinCasa && { sinCasa }), formas },
       }
     }
     case 'comercios': {
