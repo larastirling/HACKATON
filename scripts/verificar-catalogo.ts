@@ -43,6 +43,7 @@ type Tipo =
   | 'Teatro'
   | 'Café'
   | 'Restaurante'
+  | 'Baño'
   | 'Mercado'
   | 'Cementerio'
   | 'Paseo'
@@ -152,6 +153,14 @@ interface Fuente {
   categorias: string[]
   /** Quién lo atiende, según el mapa (o su nombre): por ejemplo, ASSE. */
   atiende?: RegExp
+  /** Además, lo que diga el mapa tiene que cumplir esto (por ejemplo, que el baño sea público). */
+  soloSi?: (l: LugarDelMapa) => boolean
+  /** Se agrega al nombre: "Tres Cruces (baño)". */
+  sufijo?: string
+  /** De dónde sale el dato (va en el catálogo, para los baños). */
+  fuenteDelDato?: string
+  /** Si el mapa no lo confirma: por qué queda "sin confirmar" (va en el catálogo). */
+  sinConfirmar?: string
   /** Cuántos como máximo (uno por barrio, o `porBarrio`). */
   maximo: number
   /** Cuántos por barrio (si no, uno): para restaurantes y cafés, que no son sucursales de una cadena. */
@@ -160,6 +169,10 @@ interface Fuente {
   partirAntes?: number
 }
 
+/** Que el baño se pueda usar sin ser cliente: ni privado, ni "solo clientes" (según el mapa). */
+const NO_PUBLICO = /^(private|no|customers|permit)$/i
+const banoPublico = (l: LugarDelMapa) => !NO_PUBLICO.test(l.bano?.acceso ?? '') && !NO_PUBLICO.test(l.bano?.accesoAlLugar ?? '')
+
 const FARMACIA = ['amenity/pharmacy', 'shop/chemist']
 const SUPERMERCADO = ['shop/supermarket']
 const SALUD = ['amenity/hospital', 'amenity/clinic', 'amenity/doctors']
@@ -167,8 +180,8 @@ const COMIDA = ['amenity/restaurant', 'amenity/fast_food', 'amenity/ice_cream']
 
 const FUENTES: Fuente[] = [
   // Pagos
-  { nombre: 'Abitab', tipo: 'Pagos', buscar: ['Abitab'], nombresEnElMapa: ['Abitab'], categorias: ['amenity/payment_centre', 'amenity/bureau_de_change'], maximo: 40 },
-  { nombre: 'RedPagos', tipo: 'Pagos', buscar: ['Redpagos'], nombresEnElMapa: ['Redpagos', 'Red Pagos'], categorias: ['amenity/payment_centre', 'amenity/bureau_de_change', 'shop/stationery', 'shop/yes'], maximo: 19 },
+  { nombre: 'Abitab', tipo: 'Pagos', buscar: ['Abitab'], nombresEnElMapa: ['Abitab'], categorias: ['amenity/payment_centre', 'amenity/bureau_de_change'], maximo: 90, porBarrio: 2 },
+  { nombre: 'RedPagos', tipo: 'Pagos', buscar: ['Redpagos'], nombresEnElMapa: ['Redpagos', 'Red Pagos'], categorias: ['amenity/payment_centre', 'amenity/bureau_de_change', 'shop/stationery', 'shop/yes'], maximo: 60, porBarrio: 2 },
   // Salud: mutualistas y policlínicas de ASSE
   { nombre: 'CASMU', tipo: 'Salud', buscar: ['CASMU'], nombresEnElMapa: ['CASMU'], categorias: SALUD, maximo: 5 },
   { nombre: 'Médica Uruguaya', tipo: 'Salud', buscar: ['Médica Uruguaya'], nombresEnElMapa: ['Médica Uruguaya'], categorias: SALUD, maximo: 5 },
@@ -182,7 +195,16 @@ const FUENTES: Fuente[] = [
     nombreDice: /policl[ií]nica|centro de salud|asse/i,
     categorias: SALUD,
     atiende: /\bASSE\b|Administraci[oó]n de los Servicios de Salud/i,
-    maximo: 15,
+    maximo: 40,
+  },
+  // Policlínicas de la Intendencia
+  {
+    tipo: 'Salud',
+    buscar: ['policlínica', 'clinic in {zona}', 'centro de salud'],
+    nombreDice: /policl[ií]nica|centro de salud/i,
+    categorias: SALUD,
+    atiende: /Intendencia|municipal/i,
+    maximo: 25,
   },
   // Supermercados
   { nombre: 'Disco', tipo: 'Supermercado', buscar: ['Disco'], nombresEnElMapa: ['Disco'], categorias: SUPERMERCADO, maximo: 8 },
@@ -193,23 +215,78 @@ const FUENTES: Fuente[] = [
   { nombre: 'El Dorado', tipo: 'Supermercado', buscar: ['El Dorado'], nombresEnElMapa: ['El Dorado'], categorias: SUPERMERCADO, maximo: 6 },
   { nombre: 'Macro Mercado', tipo: 'Supermercado', buscar: ['Macro Mercado'], nombresEnElMapa: ['Macro Mercado', 'Macromercado'], categorias: SUPERMERCADO, maximo: 4 },
   { nombre: 'Géant', tipo: 'Supermercado', buscar: ['Géant'], nombresEnElMapa: ['Géant'], categorias: SUPERMERCADO, maximo: 2 },
+  // Los demás supermercados del mapa (con su nombre), hasta 3 por barrio
+  {
+    tipo: 'Supermercado',
+    buscar: ['supermarket', 'supermercado'],
+    nombreNoDice: /^(supermercado|supermarket|autoservicio|almac[eé]n|minimercado)$/i,
+    categorias: SUPERMERCADO,
+    maximo: 120,
+    porBarrio: 3,
+    partirAntes: 2,
+  },
   // Farmacias
-  { nombre: 'Farmashop', tipo: 'Farmacia', buscar: ['Farmashop'], nombresEnElMapa: ['Farmashop'], categorias: FARMACIA, maximo: 15 },
-  { nombre: 'Farmacia San Roque', tipo: 'Farmacia', buscar: ['San Roque'], nombresEnElMapa: ['San Roque'], categorias: FARMACIA, maximo: 16 },
+  { nombre: 'Farmashop', tipo: 'Farmacia', buscar: ['Farmashop'], nombresEnElMapa: ['Farmashop'], categorias: FARMACIA, maximo: 30 },
+  { nombre: 'Farmacia San Roque', tipo: 'Farmacia', buscar: ['San Roque'], nombresEnElMapa: ['San Roque'], categorias: FARMACIA, maximo: 30 },
   { nombre: 'Farmacia El Túnel', tipo: 'Farmacia', buscar: ['Farmacia El Túnel'], nombresEnElMapa: ['El Túnel'], categorias: FARMACIA, maximo: 4 },
+  // Las farmacias de barrio (con su nombre en el mapa), hasta 3 por barrio
+  {
+    tipo: 'Farmacia',
+    buscar: ['pharmacy', 'farmacia'],
+    nombreNoDice: /^(farmacia|pharmacy|droguer[ií]a)$|farmashop|san roque|el t[uú]nel|veterinari/i,
+    categorias: FARMACIA,
+    maximo: 120,
+    porBarrio: 3,
+    partirAntes: 2,
+  },
   // Bancos y trámites
-  { nombre: 'BROU', tipo: 'Banco', buscar: ['BROU'], nombresEnElMapa: ['República', 'BROU'], categorias: ['amenity/bank'], maximo: 15 },
-  { nombre: 'BPS', tipo: 'Trámites', buscar: ['Banco de Previsión Social', 'BPS'], nombresEnElMapa: ['Banco de Previsión Social', 'BPS'], categorias: ['office/government'], maximo: 4 },
-  { nombre: 'Correo Uruguayo', tipo: 'Correo', buscar: ['Correo Uruguayo'], nombresEnElMapa: ['Correo Uruguayo'], categorias: ['amenity/post_office'], maximo: 10 },
+  { nombre: 'BROU', tipo: 'Banco', buscar: ['BROU'], nombresEnElMapa: ['República', 'BROU'], categorias: ['amenity/bank'], maximo: 30 },
+  // Los otros bancos (Santander, Itaú, BBVA, Scotiabank, HSBC, BHU…), hasta 2 por barrio
+  {
+    tipo: 'Banco',
+    buscar: ['bank', 'banco'],
+    nombreNoDice: /^(banco|bank)$|rep[uú]blica|brou|cajero|\batm\b|cambio/i,
+    categorias: ['amenity/bank'],
+    maximo: 70,
+    porBarrio: 2,
+    partirAntes: 2,
+  },
+  { nombre: 'BPS', tipo: 'Trámites', buscar: ['Banco de Previsión Social', 'BPS'], nombresEnElMapa: ['Banco de Previsión Social', 'BPS'], categorias: ['office/government'], maximo: 12 },
+  // Centros comunales de la Intendencia (trámites del barrio)
+  {
+    tipo: 'Trámites',
+    buscar: ['Centro Comunal Zonal', 'CCZ'],
+    nombreDice: /comunal|\bccz\b/i,
+    categorias: ['office/government', 'amenity/townhall', 'amenity/community_centre', 'office/yes', 'building/yes'],
+    maximo: 18,
+  },
+  { nombre: 'Correo Uruguayo', tipo: 'Correo', buscar: ['Correo Uruguayo'], nombresEnElMapa: ['Correo Uruguayo'], categorias: ['amenity/post_office'], maximo: 35 },
   // Vida social
   {
     tipo: 'Iglesia',
     buscar: ['church in {zona}', 'place of worship in {zona}'],
     nombreDice: /iglesia|parroquia|capilla|catedral|bas[ií]lica|santuario|templo|sinagoga/i,
     categorias: ['amenity/place_of_worship'],
-    maximo: 20,
+    maximo: 70,
+    porBarrio: 2,
+    partirAntes: 1,
   },
-  { tipo: 'Biblioteca', buscar: ['biblioteca en {zona}', 'library in {zona}'], categorias: ['amenity/library'], maximo: 10 },
+  { tipo: 'Biblioteca', buscar: ['biblioteca en {zona}', 'library in {zona}'], categorias: ['amenity/library'], maximo: 25 },
+  // Plazas y parques del barrio (con nombre), hasta 2 por barrio
+  {
+    tipo: 'Plaza',
+    buscar: ['park in {zona}', 'plaza'],
+    nombreDice: /^(plaza|parque|plazoleta|espacio libre)/i,
+    nombreNoDice: /estacionamiento|parking|industrial|tecnol[oó]gico|empresarial|de diversiones/i,
+    categorias: ['leisure/park', 'place/square', 'leisure/garden'],
+    maximo: 70,
+    porBarrio: 2,
+    partirAntes: 1,
+  },
+  // Ferias y mercados
+  { tipo: 'Mercado', buscar: ['marketplace in {zona}', 'feria', 'mercado'], nombreDice: /mercado|feria/i, categorias: ['amenity/marketplace'], maximo: 20 },
+  // Shoppings que no están en los candidatos
+  { tipo: 'Shopping', buscar: ['mall in {zona}', 'shopping'], nombreNoDice: /^(shopping|galer[ií]a)$/i, categorias: ['shop/mall'], maximo: 15 },
   { tipo: 'Cine', buscar: ['cine en {zona}', 'cinema in {zona}'], categorias: ['amenity/cinema'], maximo: 8 },
   { tipo: 'Teatro', buscar: ['teatro en {zona}', 'theatre in {zona}'], nombreNoDice: /anfiteatro/i, categorias: ['amenity/theatre'], maximo: 10 },
   {
@@ -218,7 +295,7 @@ const FUENTES: Fuente[] = [
     nombreDice: /^(club|centro social|centro cultural|asociaci[oó]n|sociedad|ateneo)/i,
     nombreNoDice: /municipio|ccz|policl/i,
     categorias: ['amenity/community_centre', 'leisure/sports_centre', 'club/sport', 'club/social'],
-    maximo: 20,
+    maximo: 40,
   },
   {
     tipo: 'Centro de jubilados',
@@ -239,6 +316,43 @@ const FUENTES: Fuente[] = [
     partirAntes: 2,
   },
   { tipo: 'Café', buscar: ['cafe in {zona}', 'cafe', 'cafetería', 'confitería'], nombreNoDice: /^(caf[eé]|cafeter[ií]a|confiter[ií]a)$/i, categorias: ['amenity/cafe'], maximo: 80, porBarrio: 3, partirAntes: 2 },
+  // Baños: el abuelo dice "quiero ir al baño" y se le sugieren los más cercanos a su casa (lib/ia.ts).
+  // 1. Baños públicos del mapa (amenity=toilets), que no sean privados ni solo para clientes.
+  {
+    tipo: 'Baño',
+    buscar: ['toilets in {zona}', 'toilets', 'baño público'],
+    categorias: ['amenity/toilets'],
+    soloSi: banoPublico,
+    fuenteDelDato: 'OpenStreetMap: baño público (amenity=toilets)',
+    maximo: 120,
+    porBarrio: 4,
+    partirAntes: 2,
+  },
+  // 2. Shoppings, terminales y estaciones de servicio donde el mapa dice que hay baño (toilets=yes) y no es privado.
+  {
+    tipo: 'Baño',
+    buscar: ['mall in {zona}', 'shopping', 'bus station in {zona}', 'terminal', 'fuel in {zona}', 'estación de servicio'],
+    categorias: ['shop/mall', 'amenity/bus_station', 'amenity/fuel'],
+    soloSi: (l) => l.bano?.hay === 'yes' && banoPublico(l),
+    sufijo: ' (baño)',
+    fuenteDelDato: 'OpenStreetMap: el lugar tiene baño (toilets=yes)',
+    maximo: 80,
+    porBarrio: 3,
+    partirAntes: 1,
+  },
+  // 3. Shoppings y terminales donde el mapa no dice nada del baño: suelen tener, pero quedan "sin confirmar".
+  {
+    tipo: 'Baño',
+    buscar: ['mall in {zona}', 'shopping', 'bus station in {zona}', 'terminal'],
+    categorias: ['shop/mall', 'amenity/bus_station'],
+    soloSi: (l) => !l.bano?.hay,
+    sufijo: ' (baño)',
+    fuenteDelDato: 'OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público',
+    sinConfirmar: 'el mapa no confirma que el baño esté abierto al público',
+    maximo: 40,
+    porBarrio: 2,
+    partirAntes: 1,
+  },
   { tipo: 'Cementerio', buscar: ['cementerio en {zona}', 'cemetery in {zona}'], nombreDice: /cementerio/i, categorias: ['landuse/cemetery', 'amenity/grave_yard'], maximo: 6 },
 ]
 
@@ -297,6 +411,10 @@ interface LugarDelCatalogo extends Punto {
   ciudad: Ciudad
   /** Qué comida tiene, solo si el mapa lo dice (para el buscador: "pizza", "parrilla"). */
   comida?: string[]
+  /** De dónde sale el dato (los baños). */
+  fuente?: string
+  /** Por qué no está confirmado (los baños de shoppings y terminales que el mapa no confirma). */
+  sinConfirmar?: string
 }
 
 const entraron: LugarDelCatalogo[] = []
@@ -352,7 +470,10 @@ function repetido(lugar: Pick<LugarDelCatalogo, 'nombre' | 'tipo' | 'latitud' | 
   return entraron.find(
     (l) =>
       slug(l.nombre) === slug(lugar.nombre) ||
-      (marca(l.nombre) === marca(lugar.nombre) && distanciaEnMetros(l, lugar) < METROS_MISMO_LUGAR) ||
+      // (El baño de un shopping es otro lugar que el shopping, aunque se llamen igual.)
+      (marca(l.nombre) === marca(lugar.nombre) &&
+        (l.tipo === lugar.tipo || (l.tipo !== 'Baño' && lugar.tipo !== 'Baño')) &&
+        distanciaEnMetros(l, lugar) < METROS_MISMO_LUGAR) ||
       (l.tipo === lugar.tipo && distanciaEnMetros(l, lugar) < METROS_MISMO_PUNTO),
   )
 }
@@ -449,7 +570,7 @@ const cuantosHayEn = (barrio: string) => entraron.filter((l) => barrioBase(l.bar
 const ciudadDe = (l: LugarDelMapa): Ciudad | undefined => CIUDADES.find((c) => c === l.ciudad)
 
 /** Nombres que no dicen cuál es ("Policlínica", "Centro Cultural"): se les agrega el barrio. */
-const NOMBRE_GENERICO = /^(policl[ií]nica|centro cultural|centro de salud|iglesia( evang[eé]lica)?|capilla|parroquia|biblioteca|cine|teatro|club)$/i
+const NOMBRE_GENERICO = /^(policl[ií]nica|centro cultural|centro de salud|iglesia( evang[eé]lica)?|capilla|parroquia|biblioteca|cine|teatro|club|ba[ñn]o p[uú]blico)$/i
 
 /**
  * Lo que dice el mapa de su cocina ("pizza;burger"), con las palabras del buscador de /familia (app/familia/buscar.ts).
@@ -501,7 +622,7 @@ async function verificarFuente(fuente: Fuente) {
     (!fuente.atiende || fuente.atiende.test(l.quienAtiende ?? '') || fuente.atiende.test(l.nombre))
   const validas = delMapa.filter((l) => {
     const ciudad = ciudadDe(l)
-    return esDeLaFuente(l) && fuente.categorias.includes(l.categoria) && ciudad && (l.barrio || ciudad === 'Las Piedras')
+    return esDeLaFuente(l) && fuente.categorias.includes(l.categoria) && (!fuente.soloSi || fuente.soloSi(l)) && ciudad && (l.barrio || ciudad === 'Las Piedras')
   })
   // Por barrio, el que tiene número de puerta primero.
   const porBarrio = new Map<string, LugarDelMapa[]>()
@@ -559,11 +680,18 @@ async function verificarFuente(fuente: Fuente) {
     const barrio = l.barrio ?? 'Las Piedras'
     // Con el nombre de la fuente: "Farmashop (Pocitos)". Con el del mapa: tal cual, y el barrio si se repite el nombre.
     const nombreDelMapa = l.nombre.trim()
-    const nombre = fuente.nombre
+    const sufijo = fuente.sufijo ?? ''
+    const usado = (n: string) => entraron.some((x) => slug(x.nombre) === slug(n))
+    let nombre = fuente.nombre
       ? `${fuente.nombre} (${barrio})`
-      : NOMBRE_GENERICO.test(nombreDelMapa) || entraron.some((x) => slug(x.nombre) === slug(nombreDelMapa))
+      : NOMBRE_GENERICO.test(nombreDelMapa) || usado(nombreDelMapa + sufijo)
         ? `${nombreDelMapa} (${barrio})`
-        : nombreDelMapa
+        : nombreDelMapa + sufijo
+    // Otro con el mismo nombre en el mismo barrio (dos Abitab en Pocitos): se agrega la calle.
+    if (usado(nombre) && l.calle) {
+      const calle = `${l.calle}${l.numero ? ` ${l.numero}` : ''}`
+      nombre = nombre.endsWith(')') ? `${nombre.slice(0, -1)}, ${calle})` : `${nombre} (${calle})`
+    }
     const lugar: LugarDelCatalogo = {
       id: slug(nombre),
       nombre,
@@ -576,6 +704,8 @@ async function verificarFuente(fuente: Fuente) {
     }
     const comida = comidaDe(l.cocina)
     if (comida.length) lugar.comida = comida
+    if (fuente.fuenteDelDato) lugar.fuente = fuente.fuenteDelDato + (l.bano?.seCobra === 'yes' ? ' (se cobra)' : '')
+    if (fuente.sinConfirmar) lugar.sinConfirmar = fuente.sinConfirmar
     return lugar
   }
 }
@@ -612,6 +742,10 @@ export interface LugarDelCatalogo {
   longitud: number
   /** Qué comida tiene, solo si el mapa lo dice ("pizza", "parrilla"). */
   comida?: string[]
+  /** De dónde sale el dato (los baños: "OpenStreetMap: baño público"). */
+  fuente?: string
+  /** Si no está confirmado, por qué (por ejemplo, el baño de un shopping que el mapa no confirma). */
+  sinConfirmar?: string
 }
 
 export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = ${JSON.stringify(entraron, null, 2)}

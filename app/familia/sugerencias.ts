@@ -53,7 +53,8 @@ interface Disponible {
 async function disponibles(configuracion: ConfiguracionAbuelo): Promise<Disponible[] | null> {
   const casa = await dondeVive(configuracion)
   if (!casa) return null
-  return CATALOGO_LUGARES.filter((l) => !yaGuardado(configuracion, l))
+  // Los baños no se sugieren a la familia: son para cuando el abuelo dice "quiero ir al baño" (lib/banos.ts).
+  return CATALOGO_LUGARES.filter((l) => l.tipo !== 'Baño' && !yaGuardado(configuracion, l))
     .map((lugar) => ({ lugar, km: kmEntre(casa, lugar) }))
     .filter((d) => d.km <= KM_MAXIMOS)
     .sort((a, b) => a.km - b.km)

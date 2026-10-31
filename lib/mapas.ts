@@ -271,6 +271,8 @@ export interface LugarDelMapa {
   quienAtiende?: string
   /** Qué cocina, si el mapa lo dice (cuisine): "pizza;burger". Solo en las búsquedas con zona. */
   cocina?: string
+  /** Lo que dice el mapa del baño (solo en las búsquedas con zona): toilets, toilets:access, access y fee. */
+  bano?: { hay?: string; acceso?: string; accesoAlLugar?: string; seCobra?: string }
 }
 
 /**
@@ -281,9 +283,10 @@ export interface LugarDelMapa {
 export async function buscarVarios(texto: string, zona?: Zona): Promise<LugarDelMapa[]> {
   const resultados = await buscarEnNominatim(texto, 40, zona)
   return resultados
-    .filter((r) => r.address?.country_code === 'uy' && r.name)
+    // Los baños públicos casi nunca tienen nombre en el mapa: se llaman "Baño público".
+    .filter((r) => r.address?.country_code === 'uy' && (r.name || r.type === 'toilets'))
     .map((r) => ({
-      nombre: r.name!,
+      nombre: r.name || 'Baño público',
       categoria: `${r.category}/${r.type}`,
       latitud: Number(r.lat),
       longitud: Number(r.lon),
@@ -293,6 +296,9 @@ export async function buscarVarios(texto: string, zona?: Zona): Promise<LugarDel
       ciudad: r.address?.city,
       ...((r.extratags?.operator ?? r.extratags?.brand) && { quienAtiende: r.extratags?.operator ?? r.extratags?.brand }),
       ...(r.extratags?.cuisine && { cocina: r.extratags.cuisine }),
+      ...((r.type === 'toilets' || r.extratags?.toilets) && {
+        bano: { hay: r.extratags?.toilets, acceso: r.extratags?.['toilets:access'], accesoAlLugar: r.extratags?.access, seCobra: r.extratags?.fee },
+      }),
     }))
 }
 

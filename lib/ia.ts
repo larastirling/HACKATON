@@ -37,6 +37,7 @@ import { instruccionesDelTrato, palabrasDelOtroTrato, tratoDe } from './trato'
 import { buscarCoordenadas } from './mapas'
 import { juntarNombres } from './texto'
 import { agendaParaLaIA } from './agenda'
+import { banosCercanos, KM_MAXIMOS_BANO, textoDistanciaBano } from './banos'
 import { armarViaje, nombresDeFormas, type Viaje } from './viajes'
 import { armarPedido, type Pedido } from './whatsapp'
 
@@ -302,6 +303,29 @@ export async function conversarConElAbuelo(
     return `Listo: ya les conté la duda a ${juntarNombres(avisados)} para que lo llamen.${primero ? ` Además, debajo de tu respuesta ve un botón "Llamar a ${primero.nombre}" por si quiere llamar él.` : ''} Decíselo en una o dos frases. No escribas números de teléfono.`
   }
 
+  /** "Quiero ir al baño": los más cercanos a su casa (del catálogo, con fuente) y la tarjeta para ir al primero. */
+  async function sugerirBanos(): Promise<string> {
+    const cercanos = await banosCercanos(configuracion)
+    if (!cercanos) return 'No se sabe dónde queda su casa en el mapa: no se pueden buscar baños cercanos. Sugerile con amabilidad que pregunte en un comercio o café cerca de donde está.'
+    if (cercanos.length === 0) {
+      return `No hay ningún baño en la lista a menos de ${KM_MAXIMOS_BANO} km de su casa. Sugerile con amabilidad que pregunte en un comercio, café o estación de servicio cerca de donde está. No inventes lugares.`
+    }
+    const lista = cercanos
+      .map(({ lugar, km }) => `- ${lugar.nombre}, ${lugar.direccion} (${textoDistanciaBano(km)} de su casa)${lugar.sinConfirmar ? ' [SIN CONFIRMAR: el mapa no dice que el baño sea público]' : ''}`)
+      .join('\n')
+    const [primero] = cercanos
+    const armado = await armarViaje(primero.lugar, configuracion)
+    if (armado.ok) viaje = armado.viaje
+    const tarjeta = armado.ok
+      ? ` Debajo de tu respuesta ve una tarjeta para ir a "${primero.lugar.nombre}" con estos botones: ${armado.viaje.opciones.map((o) => BOTON_DE_VIAJE[o.forma]).join(', ')}.`
+      : ''
+    return (
+      `Los baños más cercanos a SU CASA (la app no sabe dónde está él ahora):\n${lista}\n${tarjeta}` +
+      ' Decile el más cercano (nombre y a cuánto queda) en una o dos frases. Si es uno SIN CONFIRMAR, aclarale que no es seguro que lo dejen pasar. ' +
+      'Si no está en su casa, decile que esos quedan cerca de su casa y que, si está en otro lado, pregunte en un comercio o café. No inventes otros lugares.'
+    )
+  }
+
   async function proponerViaje(lugarId: unknown, forma: unknown): Promise<string> {
     const lugar = lugares.find((l) => l.id === lugarId)
     if (!lugar) return 'Ese id no corresponde a ningún lugar guardado. No inventes lugares.'
@@ -340,6 +364,7 @@ export async function conversarConElAbuelo(
       HERRAMIENTA_TERMINAR_ESTACIONAMIENTO,
       HERRAMIENTA_LLAMAR_A_LA_FAMILIA,
       HERRAMIENTA_PREGUNTARLE_A_LA_FAMILIA,
+      HERRAMIENTA_BANOS_CERCANOS,
     ],
     usarHerramienta: (bloque) => {
       if (bloque.name === 'mostrar_emergencia') return mostrarEmergencia()
@@ -350,6 +375,7 @@ export async function conversarConElAbuelo(
       if (bloque.name === 'terminar_estacionamiento') return terminarEstacionamiento()
       if (bloque.name === 'ofrecer_llamar_a_la_familia') return ofrecerLlamarALaFamilia()
       if (bloque.name === 'preguntarle_a_la_familia') return preguntarleALaFamilia((bloque.input as { duda?: unknown }).duda)
+      if (bloque.name === 'banos_cercanos') return sugerirBanos()
       if (bloque.name === 'proponer_viaje') {
         const entrada = bloque.input as { lugar_id?: unknown; forma?: unknown }
         return proponerViaje(entrada.lugar_id, entrada.forma)
@@ -426,6 +452,15 @@ const HERRAMIENTA_TERMINAR_ESTACIONAMIENTO: Anthropic.Beta.BetaTool = {
   description:
     'Estacionamiento tarifado, al irse ("ya me voy", "me voy", "ya saqué el auto"): le muestra un botón que abre el WhatsApp ' +
     'de la Intendencia con "fin" escrito. NO manda nada: él aprieta Enviar. Borra lo anotado.',
+  input_schema: { type: 'object', properties: {}, additionalProperties: false },
+  strict: false,
+}
+
+const HERRAMIENTA_BANOS_CERCANOS: Anthropic.Beta.BetaTool = {
+  name: 'banos_cercanos',
+  description:
+    'Cuando necesita ir al baño ("quiero ir al baño", "dónde hay un baño"): busca los baños más cercanos a su casa (shoppings, ' +
+    'terminales, estaciones de servicio y baños públicos, con fuente) y le muestra una tarjeta para ir al más cercano.',
   input_schema: { type: 'object', properties: {}, additionalProperties: false },
   strict: false,
 }
@@ -695,6 +730,9 @@ AGENDA
 Su familia le carga actividades (cumpleaños, médico, visitas) en su agenda; las que vienen están en AHORA, al final.
 - Si pregunta qué tiene (hoy, mañana, esta semana), contáselo con día y hora, en una o dos frases.
 - Vos no podés agregar ni cambiar nada de la agenda: si quiere anotar algo, decile que se lo pida a la familia. La puede ver tocando "Agenda" abajo.
+
+BAÑOS
+Si necesita ir al baño, usá banos_cercanos: te da los más cercanos a su casa y le muestra cómo ir. Nunca inventes un baño.
 
 LO QUE TODAVÍA NO PODÉS HACER
 Todavía no podés pedir el auto vos, mandar vos mensajes de WhatsApp, mandar mails ni llamar vos por teléfono (a un comercio guardado que se pide llamando, llama él con el botón de proponer_pedido; el WhatsApp del estacionamiento lo manda él con los botones de empezar_estacionamiento y terminar_estacionamiento). Los permisos de la familia los pide el sistema solo, cuando usás las herramientas. Si te pide algo de eso, decile con amabilidad que todavía no lo podés hacer y ofrecé lo que sí podés (por ejemplo, recordarle la dirección o con quién de la familia hablar).

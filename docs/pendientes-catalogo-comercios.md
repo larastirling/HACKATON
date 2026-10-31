@@ -66,6 +66,15 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
   restaurantes, parrillas, pizzerías, comida rápida y heladerías 350, cafés 88. Del mapa, por zonas chicas (`partirAntes`),
   hasta 10 por barrio (`porBarrio`), primero los barrios con menos. El tipo de comida (`comida`: pizza, parrilla, helados…)
   solo si el mapa lo dice (`cuisine`); lo tienen 145. Revisar a mano algún nombre raro que venga del mapa.
+- **Más lugares del día a día (2026-10-30)**: el catálogo pasó a 1242 (Montevideo 1051, Ciudad de la Costa 157, Las Piedras 34).
+  Sumó farmacias de barrio (168 en total), supermercados (183), cobranzas (111), bancos privados además del BROU (64),
+  iglesias (55), plazas (48), shoppings (15), trámites (13: BPS y centros comunales) y ferias (6). Todo del mapa
+  (OpenStreetMap), con la misma verificación; nombres con la calle si hay dos iguales en el barrio.
+- **Baños** (tipo "Baño", 42): baños públicos del mapa (amenity=toilets, ni privados ni solo para clientes), y shoppings,
+  terminales y estaciones de servicio donde el mapa dice que hay baño. Cada uno con `fuente`. Los shoppings y terminales
+  donde el mapa no dice nada quedan con `sinConfirmar` (9). No se muestran a la familia: el abuelo dice "quiero ir al
+  baño" y la IA usa `banos_cercanos` (lib/banos.ts): los 3 más cercanos a su CASA (a menos de 3 km; la app no sabe
+  dónde está él) y la tarjeta para ir al primero.
 - **Buscador en "Ver todos los cercanos"** (`app/familia/buscar.ts`): caja con lupa y botones de categoría; filtra en el
   navegador (sin IA ni servidor) por nombre, tipo, barrio, dirección y tipo de comida (`comida` en el catálogo de
   comercios, solo si la fuente lo dice). La IA ve solo los 5 más cercanos de cada tipo (antes, todos).

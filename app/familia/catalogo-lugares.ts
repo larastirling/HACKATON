@@ -1,7 +1,7 @@
 // Catálogo de lugares comunes (Montevideo, Ciudad de la Costa y Las Piedras) que /familia le puede SUGERIR al hijo.
 // Lo genera scripts/verificar-catalogo.ts: cada lugar se verificó con el mapa (lib/mapas.ts).
 // La IA nunca inventa lugares: solo puede sugerir los de esta lista. No editar a mano.
-// Verificado el 2026-10-27.
+// Verificado el 2026-10-31.
 
 export interface LugarDelCatalogo {
   id: string
@@ -14,6 +14,10 @@ export interface LugarDelCatalogo {
   longitud: number
   /** Qué comida tiene, solo si el mapa lo dice ("pizza", "parrilla"). */
   comida?: string[]
+  /** De dónde sale el dato (los baños: "OpenStreetMap: baño público"). */
+  fuente?: string
+  /** Si no está confirmado, por qué (por ejemplo, el baño de un shopping que el mapa no confirma). */
+  sinConfirmar?: string
 }
 
 export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
@@ -948,6 +952,496 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9819016
   },
   {
+    "id": "abitab-piedras-blancas-matilde-pacheco-de-batlle-y-ordonez",
+    "nombre": "Abitab (Piedras Blancas, Matilde Pacheco de Batlle y Ordóñez)",
+    "tipo": "Pagos",
+    "direccion": "Matilde Pacheco de Batlle y Ordóñez, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8223919,
+    "longitud": -56.1400381
+  },
+  {
+    "id": "abitab-casabo-avenida-carlos-maria-ramirez",
+    "nombre": "Abitab (Casabó, Avenida Carlos María Ramírez)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Carlos María Ramírez, Casabó",
+    "barrio": "Casabó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8762372,
+    "longitud": -56.2661835
+  },
+  {
+    "id": "abitab-sayago-maria-orticochea",
+    "nombre": "Abitab (Sayago, María Orticochea)",
+    "tipo": "Pagos",
+    "direccion": "María Orticochea, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8327425,
+    "longitud": -56.2316196
+  },
+  {
+    "id": "abitab-paso-molino-camino-castro",
+    "nombre": "Abitab (Paso Molino, Camino Castro)",
+    "tipo": "Pagos",
+    "direccion": "Camino Castro, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8553946,
+    "longitud": -56.2114313
+  },
+  {
+    "id": "abitab-las-acacias-jose-a-possolo",
+    "nombre": "Abitab (Las Acacias, José A. Possolo)",
+    "tipo": "Pagos",
+    "direccion": "José A. Possolo, Las Acacias",
+    "barrio": "Las Acacias",
+    "ciudad": "Montevideo",
+    "latitud": -34.8451026,
+    "longitud": -56.1548105
+  },
+  {
+    "id": "abitab-perez-castellanos-avenida-general-flores",
+    "nombre": "Abitab (Pérez Castellanos, Avenida General Flores)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General Flores, Pérez Castellanos",
+    "barrio": "Pérez Castellanos",
+    "ciudad": "Montevideo",
+    "latitud": -34.8536001,
+    "longitud": -56.1618189
+  },
+  {
+    "id": "abitab-belvedere-avenida-general-eugenio-garzon",
+    "nombre": "Abitab (Belvedere, Avenida General Eugenio Garzón)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General Eugenio Garzón, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.8419126,
+    "longitud": -56.2219716
+  },
+  {
+    "id": "abitab-atahualpa-avenida-burgues",
+    "nombre": "Abitab (Atahualpa, Avenida Burgues)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Burgues, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8636022,
+    "longitud": -56.1869658
+  },
+  {
+    "id": "abitab-paso-de-las-duranas-avenida-millan",
+    "nombre": "Abitab (Paso de las Duranas, Avenida Millán)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Millán, Paso de las Duranas",
+    "barrio": "Paso de las Duranas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8472851,
+    "longitud": -56.2004458
+  },
+  {
+    "id": "abitab-brazo-oriental-avenida-general-san-martin-3083",
+    "nombre": "Abitab (Brazo Oriental, Avenida General San Martín 3083)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General San Martín 3083, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8696796,
+    "longitud": -56.1821527
+  },
+  {
+    "id": "abitab-parque-miramar-gabriela-mistral",
+    "nombre": "Abitab (Parque Miramar, Gabriela Mistral)",
+    "tipo": "Pagos",
+    "direccion": "Gabriela Mistral, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8653859,
+    "longitud": -56.0335304
+  },
+  {
+    "id": "abitab-aguada-nueva-york-1267",
+    "nombre": "Abitab (Aguada, Nueva York 1267)",
+    "tipo": "Pagos",
+    "direccion": "Nueva York 1267, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8967737,
+    "longitud": -56.1902392
+  },
+  {
+    "id": "abitab-arroyo-seco-general-fausto-aguilar",
+    "nombre": "Abitab (Arroyo Seco, General Fausto Aguilar)",
+    "tipo": "Pagos",
+    "direccion": "General Fausto Aguilar, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8850775,
+    "longitud": -56.1933778
+  },
+  {
+    "id": "abitab-parque-de-carrasco-ecuador",
+    "nombre": "Abitab (Parque de Carrasco, Ecuador)",
+    "tipo": "Pagos",
+    "direccion": "Ecuador, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8558315,
+    "longitud": -56.0010234
+  },
+  {
+    "id": "abitab-buceo-avenida-mariscal-francisco-solano-lopez",
+    "nombre": "Abitab (Buceo, Avenida Mariscal Francisco Solano López)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Mariscal Francisco Solano López, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.887216,
+    "longitud": -56.1298567
+  },
+  {
+    "id": "abitab-carrasco-avenida-alfredo-arocena",
+    "nombre": "Abitab (Carrasco, Avenida Alfredo Arocena)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Alfredo Arocena, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8896974,
+    "longitud": -56.0565105
+  },
+  {
+    "id": "abitab-parque-rodo-constituyente",
+    "nombre": "Abitab (Parque Rodó, Constituyente)",
+    "tipo": "Pagos",
+    "direccion": "Constituyente, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9077636,
+    "longitud": -56.1724431
+  },
+  {
+    "id": "abitab-las-piedras-avenida-general-artigas",
+    "nombre": "Abitab (Las Piedras, Avenida General Artigas)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7271833,
+    "longitud": -56.218654
+  },
+  {
+    "id": "abitab-jacinto-vera-guadalupe",
+    "nombre": "Abitab (Jacinto Vera, Guadalupe)",
+    "tipo": "Pagos",
+    "direccion": "Guadalupe, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8800128,
+    "longitud": -56.1716359
+  },
+  {
+    "id": "abitab-villa-munoz",
+    "nombre": "Abitab (Villa Muñoz)",
+    "tipo": "Pagos",
+    "direccion": "José L. Terra 2220, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8870912,
+    "longitud": -56.1839881
+  },
+  {
+    "id": "abitab-barrio-sur",
+    "nombre": "Abitab (Barrio Sur)",
+    "tipo": "Pagos",
+    "direccion": "Río Negro 1341, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9062768,
+    "longitud": -56.1936799
+  },
+  {
+    "id": "abitab-parque-batlle",
+    "nombre": "Abitab (Parque Batlle)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Italia, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8875048,
+    "longitud": -56.1449196
+  },
+  {
+    "id": "abitab-cordon-constituyente-1751",
+    "nombre": "Abitab (Cordón, Constituyente 1751)",
+    "tipo": "Pagos",
+    "direccion": "Constituyente 1751, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9063586,
+    "longitud": -56.1785019
+  },
+  {
+    "id": "abitab-malvin-nuevo",
+    "nombre": "Abitab (Malvín Nuevo)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Italia 4206, Malvín Nuevo",
+    "barrio": "Malvín Nuevo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8877986,
+    "longitud": -56.1176824
+  },
+  {
+    "id": "abitab-union",
+    "nombre": "Abitab (Unión)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Italia 3498, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8868552,
+    "longitud": -56.1386551
+  },
+  {
+    "id": "abitab-punta-gorda",
+    "nombre": "Abitab (Punta Gorda)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Bolivia, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8835164,
+    "longitud": -56.0830279
+  },
+  {
+    "id": "abitab-pocitos",
+    "nombre": "Abitab (Pocitos)",
+    "tipo": "Pagos",
+    "direccion": "Francisco Aguilar 843, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9153373,
+    "longitud": -56.1550065
+  },
+  {
+    "id": "abitab-punta-carretas",
+    "nombre": "Abitab (Punta Carretas)",
+    "tipo": "Pagos",
+    "direccion": "José Ellauri, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9228835,
+    "longitud": -56.1594378
+  },
+  {
+    "id": "abitab-la-blanqueada",
+    "nombre": "Abitab (La Blanqueada)",
+    "tipo": "Pagos",
+    "direccion": "República Dominicana, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8857282,
+    "longitud": -56.1501151
+  },
+  {
+    "id": "abitab-centro",
+    "nombre": "Abitab (Centro)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Uruguay 1032 bis, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.903339,
+    "longitud": -56.1943463
+  },
+  {
+    "id": "abitab-tres-cruces",
+    "nombre": "Abitab (Tres Cruces)",
+    "tipo": "Pagos",
+    "direccion": "Bulevar General Artigas 1825, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8934222,
+    "longitud": -56.1662063
+  },
+  {
+    "id": "abitab-ciudad-vieja",
+    "nombre": "Abitab (Ciudad Vieja)",
+    "tipo": "Pagos",
+    "direccion": "Zabala 1384, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9075863,
+    "longitud": -56.2070443
+  },
+  {
+    "id": "abitab-sayago-bulevar-jose-batlle-y-ordonez",
+    "nombre": "Abitab (Sayago, Bulevar José Batlle y Ordóñez)",
+    "tipo": "Pagos",
+    "direccion": "Bulevar José Batlle y Ordóñez, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8335096,
+    "longitud": -56.2102134
+  },
+  {
+    "id": "abitab-brazo-oriental-avenida-general-san-martin",
+    "nombre": "Abitab (Brazo Oriental, Avenida General San Martín)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General San Martín, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8563503,
+    "longitud": -56.1748065
+  },
+  {
+    "id": "abitab-aguada-avenida-libertador-brigadier-general-lavalleja-1945",
+    "nombre": "Abitab (Aguada, Avenida Libertador Brigadier General Lavalleja 1945)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Libertador Brigadier General Lavalleja 1945, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8951063,
+    "longitud": -56.1892938
+  },
+  {
+    "id": "abitab-buceo-avenida-general-rivera",
+    "nombre": "Abitab (Buceo, Avenida General Rivera)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General Rivera, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.901378,
+    "longitud": -56.1393017
+  },
+  {
+    "id": "abitab-carrasco-norte",
+    "nombre": "Abitab (Carrasco Norte)",
+    "tipo": "Pagos",
+    "direccion": "Córcega, Carrasco Norte",
+    "barrio": "Carrasco Norte",
+    "ciudad": "Montevideo",
+    "latitud": -34.8854195,
+    "longitud": -56.069726
+  },
+  {
+    "id": "abitab-parque-rodo-canelones",
+    "nombre": "Abitab (Parque Rodó, Canelones)",
+    "tipo": "Pagos",
+    "direccion": "Canelones, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9070966,
+    "longitud": -56.1673658
+  },
+  {
+    "id": "abitab-villa-munoz-avenida-general-flores-2287",
+    "nombre": "Abitab (Villa Muñoz, Avenida General Flores 2287)",
+    "tipo": "Pagos",
+    "direccion": "Avenida General Flores 2287, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8853164,
+    "longitud": -56.1843592
+  },
+  {
+    "id": "abitab-barrio-sur-maldonado",
+    "nombre": "Abitab (Barrio Sur, Maldonado)",
+    "tipo": "Pagos",
+    "direccion": "Maldonado, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9099211,
+    "longitud": -56.1933335
+  },
+  {
+    "id": "abitab-parque-batlle-avenida-ramon-anador",
+    "nombre": "Abitab (Parque Batlle, Avenida Ramón Anador)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Ramón Anador, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8955485,
+    "longitud": -56.1429019
+  },
+  {
+    "id": "abitab-cordon-constituyente-1661",
+    "nombre": "Abitab (Cordón, Constituyente 1661)",
+    "tipo": "Pagos",
+    "direccion": "Constituyente 1661, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9059664,
+    "longitud": -56.180358
+  },
+  {
+    "id": "abitab-malvin-norte",
+    "nombre": "Abitab (Malvín Norte)",
+    "tipo": "Pagos",
+    "direccion": "Camino Carrasco, Malvín Norte",
+    "barrio": "Malvín Norte",
+    "ciudad": "Montevideo",
+    "latitud": -34.8718977,
+    "longitud": -56.1173302
+  },
+  {
+    "id": "abitab-union-avenida-8-de-octubre",
+    "nombre": "Abitab (Unión, Avenida 8 de Octubre)",
+    "tipo": "Pagos",
+    "direccion": "Avenida 8 de Octubre, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8725247,
+    "longitud": -56.1361127
+  },
+  {
+    "id": "abitab-punta-gorda-avenida-bolivia",
+    "nombre": "Abitab (Punta Gorda, Avenida Bolivia)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Bolivia, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.893256,
+    "longitud": -56.0665684
+  },
+  {
+    "id": "abitab-pocitos-eduardo-mac-eachen",
+    "nombre": "Abitab (Pocitos, Eduardo Mac Eachen)",
+    "tipo": "Pagos",
+    "direccion": "Eduardo Mac Eachen, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9032071,
+    "longitud": -56.1498004
+  },
+  {
+    "id": "abitab-punta-carretas-21-de-setiembre",
+    "nombre": "Abitab (Punta Carretas, 21 de Setiembre)",
+    "tipo": "Pagos",
+    "direccion": "21 de Setiembre, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9134803,
+    "longitud": -56.1623714
+  },
+  {
+    "id": "abitab-centro-avenida-18-de-julio-1204",
+    "nombre": "Abitab (Centro, Avenida 18 de Julio 1204)",
+    "tipo": "Pagos",
+    "direccion": "Avenida 18 de Julio 1204, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9059176,
+    "longitud": -56.1900253
+  },
+  {
+    "id": "abitab-tres-cruces-avenida-18-de-julio",
+    "nombre": "Abitab (Tres Cruces, Avenida 18 de Julio)",
+    "tipo": "Pagos",
+    "direccion": "Avenida 18 de Julio, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8984561,
+    "longitud": -56.1667313
+  },
+  {
     "id": "redpagos-larranaga",
     "nombre": "RedPagos (Larrañaga)",
     "tipo": "Pagos",
@@ -1026,16 +1520,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.907833,
     "longitud": -56.146049
-  },
-  {
-    "id": "redpagos-malvin-nuevo",
-    "nombre": "RedPagos (Malvín Nuevo)",
-    "tipo": "Pagos",
-    "direccion": "Avenida Italia 4206, Malvín Nuevo",
-    "barrio": "Malvín Nuevo",
-    "ciudad": "Montevideo",
-    "latitud": -34.8879241,
-    "longitud": -56.1177325
   },
   {
     "id": "redpagos-cordon",
@@ -1136,6 +1620,36 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Ciudad de la Costa",
     "latitud": -34.815994,
     "longitud": -55.9796047
+  },
+  {
+    "id": "redpagos-malvin",
+    "nombre": "RedPagos (Malvín)",
+    "tipo": "Pagos",
+    "direccion": "Avenida Enrique Legrand 5085, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8895684,
+    "longitud": -56.0985832
+  },
+  {
+    "id": "redpagos-pocitos-jose-marti",
+    "nombre": "RedPagos (Pocitos, José Martí)",
+    "tipo": "Pagos",
+    "direccion": "José Martí, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9132174,
+    "longitud": -56.1481599
+  },
+  {
+    "id": "redpagos-pocitos-26-de-marzo",
+    "nombre": "RedPagos (Pocitos, 26 de Marzo)",
+    "tipo": "Pagos",
+    "direccion": "26 de Marzo, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9116726,
+    "longitud": -56.1517315
   },
   {
     "id": "casmu-la-blanqueada",
@@ -1426,6 +1940,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Ciudad de la Costa",
     "latitud": -34.8003129,
     "longitud": -55.9394116
+  },
+  {
+    "id": "policlinica-punta-de-rieles",
+    "nombre": "Policlínica Punta de Rieles",
+    "tipo": "Salud",
+    "direccion": "Camino Guerra, Punta Rieles",
+    "barrio": "Punta Rieles",
+    "ciudad": "Montevideo",
+    "latitud": -34.8237109,
+    "longitud": -56.1007602
+  },
+  {
+    "id": "policlinica-municipal-yucatan",
+    "nombre": "Policlínica Municipal Yucatán",
+    "tipo": "Salud",
+    "direccion": "Tomás Claramunt 3749, Villa Española",
+    "barrio": "Villa Española",
+    "ciudad": "Montevideo",
+    "latitud": -34.8665841,
+    "longitud": -56.148535
   },
   {
     "id": "disco-flor-de-maronas",
@@ -1998,6 +2532,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2163851
   },
   {
+    "id": "el-dorado-cordon-avenida-18-de-julio",
+    "nombre": "El Dorado (Cordón, Avenida 18 de Julio)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida 18 de Julio, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9006562,
+    "longitud": -56.1723954
+  },
+  {
     "id": "macro-mercado-brazo-oriental",
     "nombre": "Macro Mercado (Brazo Oriental)",
     "tipo": "Supermercado",
@@ -2046,6 +2590,1206 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Ciudad de la Costa",
     "latitud": -34.8651871,
     "longitud": -56.0245281
+  },
+  {
+    "id": "solymar",
+    "nombre": "Solymar",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, El Bosque, Ciudad de la Costa",
+    "barrio": "El Bosque",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8327685,
+    "longitud": -55.9770169
+  },
+  {
+    "id": "supermercado-la-barra",
+    "nombre": "Supermercado La Barra",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Luis Batlle Berres 230, Santiago Vázquez",
+    "barrio": "Santiago Vázquez",
+    "ciudad": "Montevideo",
+    "latitud": -34.7898912,
+    "longitud": -56.3528043
+  },
+  {
+    "id": "unicentro",
+    "nombre": "Unicentro",
+    "tipo": "Supermercado",
+    "direccion": "Veraguas 1907, Lezica",
+    "barrio": "Lezica",
+    "ciudad": "Montevideo",
+    "latitud": -34.7948555,
+    "longitud": -56.249368
+  },
+  {
+    "id": "supermercado-mayorista-don-pepe",
+    "nombre": "Supermercado Mayorista Don Pepe",
+    "tipo": "Supermercado",
+    "direccion": "Camino Petirossi, Manga",
+    "barrio": "Manga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8031426,
+    "longitud": -56.1369673
+  },
+  {
+    "id": "frigo",
+    "nombre": "Frigo",
+    "tipo": "Supermercado",
+    "direccion": "Avenida de las Instrucciones 3086, Casavalle",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8069076,
+    "longitud": -56.161953
+  },
+  {
+    "id": "autoservice-la-chacra",
+    "nombre": "Autoservice La Chacra",
+    "tipo": "Supermercado",
+    "direccion": "Avenida José Belloni 6389, Puntas de Manga",
+    "barrio": "Puntas de Manga",
+    "ciudad": "Montevideo",
+    "latitud": -34.7820414,
+    "longitud": -56.1363405
+  },
+  {
+    "id": "supermercado-donato",
+    "nombre": "Supermercado Donato",
+    "tipo": "Supermercado",
+    "direccion": "Capitán Pedro de Mesa y Castro 7995, Pajas Blancas",
+    "barrio": "Pajas Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8674417,
+    "longitud": -56.3355423
+  },
+  {
+    "id": "super-lalo",
+    "nombre": "Super Lalo",
+    "tipo": "Supermercado",
+    "direccion": "Samuel Lafone 2039, La Paloma Tomkinson",
+    "barrio": "La Paloma Tomkinson",
+    "ciudad": "Montevideo",
+    "latitud": -34.8668871,
+    "longitud": -56.2604009
+  },
+  {
+    "id": "betina",
+    "nombre": "Betina",
+    "tipo": "Supermercado",
+    "direccion": "Avenida José Belloni 3354, Jardines del Hipódromo",
+    "barrio": "Jardines del Hipódromo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8457445,
+    "longitud": -56.1345519
+  },
+  {
+    "id": "devoto-shangrila",
+    "nombre": "Devoto Shangrila",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Calcagno, Shangrila, Ciudad de la Costa",
+    "barrio": "Shangrila",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8498118,
+    "longitud": -55.9988781
+  },
+  {
+    "id": "malba-tahan",
+    "nombre": "Malba Tahan",
+    "tipo": "Supermercado",
+    "direccion": "Carlos de la Vega 5201, Nuevo París",
+    "barrio": "Nuevo París",
+    "ciudad": "Montevideo",
+    "latitud": -34.846066,
+    "longitud": -56.2434993
+  },
+  {
+    "id": "super-edison",
+    "nombre": "SUPER EDISON",
+    "tipo": "Supermercado",
+    "direccion": "Camino Edison 5168, Peñarol",
+    "barrio": "Peñarol",
+    "ciudad": "Montevideo",
+    "latitud": -34.8208266,
+    "longitud": -56.2179032
+  },
+  {
+    "id": "autoservicio-el-petitero",
+    "nombre": "Autoservicio El Petitero",
+    "tipo": "Supermercado",
+    "direccion": "Doctor José Irureta Goyena 3198, Villa Española",
+    "barrio": "Villa Española",
+    "ciudad": "Montevideo",
+    "latitud": -34.8645494,
+    "longitud": -56.1448909
+  },
+  {
+    "id": "super-roy",
+    "nombre": "Super Roy",
+    "tipo": "Supermercado",
+    "direccion": "Camino Corrales 3320, Ituzaingó",
+    "barrio": "Ituzaingó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8550129,
+    "longitud": -56.1441828
+  },
+  {
+    "id": "supermercado-bidenux",
+    "nombre": "Supermercado Bidenux?",
+    "tipo": "Supermercado",
+    "direccion": "Camino Chacarita de los Padres 3374, Punta Rieles",
+    "barrio": "Punta Rieles",
+    "ciudad": "Montevideo",
+    "latitud": -34.8340819,
+    "longitud": -56.1109807
+  },
+  {
+    "id": "la-gastroteca",
+    "nombre": "La Gastroteca",
+    "tipo": "Supermercado",
+    "direccion": "Portugal 3302, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8920863,
+    "longitud": -56.2498074
+  },
+  {
+    "id": "super-frigo",
+    "nombre": "Super Frigo",
+    "tipo": "Supermercado",
+    "direccion": "Avenida de las Instrucciones 1388, Paso de las Duranas",
+    "barrio": "Paso de las Duranas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8376801,
+    "longitud": -56.1936726
+  },
+  {
+    "id": "cuspide",
+    "nombre": "Cúspide",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General Eugenio Garzón 223, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.8498408,
+    "longitud": -56.2239474
+  },
+  {
+    "id": "supermarket-ofermak",
+    "nombre": "Supermarket Ofermak",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Agraciada, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8725404,
+    "longitud": -56.2022522
+  },
+  {
+    "id": "express-2",
+    "nombre": "Express 2",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Millán 2683, Reducto",
+    "barrio": "Reducto",
+    "ciudad": "Montevideo",
+    "latitud": -34.8764141,
+    "longitud": -56.1875968
+  },
+  {
+    "id": "super-dino",
+    "nombre": "Super Dino",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Millán 3294, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8668351,
+    "longitud": -56.1920351
+  },
+  {
+    "id": "la-clave",
+    "nombre": "La Clave",
+    "tipo": "Supermercado",
+    "direccion": "Bulevar José Batlle y Ordóñez 4750, Aires Puros",
+    "barrio": "Aires Puros",
+    "ciudad": "Montevideo",
+    "latitud": -34.8501917,
+    "longitud": -56.1850414
+  },
+  {
+    "id": "express-6",
+    "nombre": "Express 6",
+    "tipo": "Supermercado",
+    "direccion": "Conciliación 3910, Capurro",
+    "barrio": "Capurro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8648493,
+    "longitud": -56.2203582
+  },
+  {
+    "id": "super-express",
+    "nombre": "Super Express",
+    "tipo": "Supermercado",
+    "direccion": "Veracierto 2798, Maroñas",
+    "barrio": "Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8660763,
+    "longitud": -56.120546
+  },
+  {
+    "id": "dunny-2",
+    "nombre": "Dunny 2",
+    "tipo": "Supermercado",
+    "direccion": "Quijote 2499, La Comercial",
+    "barrio": "La Comercial",
+    "ciudad": "Montevideo",
+    "latitud": -34.8810001,
+    "longitud": -56.1653525
+  },
+  {
+    "id": "super-meka-s",
+    "nombre": "Super Meka's",
+    "tipo": "Supermercado",
+    "direccion": "Isidoro de María 1326, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8863623,
+    "longitud": -56.189699
+  },
+  {
+    "id": "el-abasto",
+    "nombre": "El Abasto",
+    "tipo": "Supermercado",
+    "direccion": "Martín Fierro 2581, Larrañaga",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8811576,
+    "longitud": -56.1634071
+  },
+  {
+    "id": "disco-23",
+    "nombre": "Disco 23",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8056762,
+    "longitud": -55.9274673
+  },
+  {
+    "id": "super-san-jose",
+    "nombre": "Super San José",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, San José de Carrasco, Ciudad de la Costa",
+    "barrio": "San José de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8425098,
+    "longitud": -55.9947664
+  },
+  {
+    "id": "la-pollita",
+    "nombre": "La Pollita",
+    "tipo": "Supermercado",
+    "direccion": "Camino Domingo Arena 4254, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8174125,
+    "longitud": -56.1431983
+  },
+  {
+    "id": "hazlo-simple",
+    "nombre": "Hazlo Simple",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Carlos María Ramírez 300, La Teja",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.8584543,
+    "longitud": -56.2272083
+  },
+  {
+    "id": "supermercado-5-hermanos",
+    "nombre": "Supermercado 5 Hermanos",
+    "tipo": "Supermercado",
+    "direccion": "Venezuela 1409, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8935128,
+    "longitud": -56.1873711
+  },
+  {
+    "id": "el-grillito",
+    "nombre": "El Grillito",
+    "tipo": "Supermercado",
+    "direccion": "Ecuador, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8559949,
+    "longitud": -56.0005892
+  },
+  {
+    "id": "la-palmera",
+    "nombre": "La Palmera",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Luis Batlle Berres 4656, Tres Ombúes",
+    "barrio": "Tres Ombúes",
+    "ciudad": "Montevideo",
+    "latitud": -34.8545988,
+    "longitud": -56.234241
+  },
+  {
+    "id": "del-fuerte",
+    "nombre": "Del Fuerte",
+    "tipo": "Supermercado",
+    "direccion": "Del Fuerte 5302, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8519683,
+    "longitud": -56.11746
+  },
+  {
+    "id": "devoto-san-martin-ii",
+    "nombre": "Devoto San Martín II",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General San Martín 3083, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8695555,
+    "longitud": -56.1825594
+  },
+  {
+    "id": "marymar",
+    "nombre": "Marymar",
+    "tipo": "Supermercado",
+    "direccion": "San Quintín 4276, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8552006,
+    "longitud": -56.221059
+  },
+  {
+    "id": "3e-distribuidora",
+    "nombre": "3e Distribuidora",
+    "tipo": "Supermercado",
+    "direccion": "Colorado 2059, La Figurita",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.8786268,
+    "longitud": -56.1744987
+  },
+  {
+    "id": "fresh-market",
+    "nombre": "Fresh Market",
+    "tipo": "Supermercado",
+    "direccion": "Avenida de las Américas 6000, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8699655,
+    "longitud": -56.0310018
+  },
+  {
+    "id": "frog-9",
+    "nombre": "Frog 9",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Gonzalo Ramírez 1345, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9119762,
+    "longitud": -56.1863621
+  },
+  {
+    "id": "disco",
+    "nombre": "Disco",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Naciones Unidas, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8041542,
+    "longitud": -55.9081487
+  },
+  {
+    "id": "parada-dos",
+    "nombre": "Parada Dos",
+    "tipo": "Supermercado",
+    "direccion": "Yegros 2062, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8008841,
+    "longitud": -56.2286678
+  },
+  {
+    "id": "don-alberto",
+    "nombre": "Don Alberto",
+    "tipo": "Supermercado",
+    "direccion": "Camino General Máximo Santos 5207, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8236815,
+    "longitud": -56.2201329
+  },
+  {
+    "id": "autoservice-180",
+    "nombre": "AUTOSERVICE 180",
+    "tipo": "Supermercado",
+    "direccion": "Jaime Roldos y Pons 4051, Pérez Castellanos",
+    "barrio": "Pérez Castellanos",
+    "ciudad": "Montevideo",
+    "latitud": -34.8599959,
+    "longitud": -56.1548569
+  },
+  {
+    "id": "geant",
+    "nombre": "Géant",
+    "tipo": "Supermercado",
+    "direccion": "Gualeguay 3350, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8680718,
+    "longitud": -56.1704131
+  },
+  {
+    "id": "multi-ahorro",
+    "nombre": "Multi Ahorro",
+    "tipo": "Supermercado",
+    "direccion": "Canelones 888, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9092523,
+    "longitud": -56.1970702
+  },
+  {
+    "id": "autoservice-quique",
+    "nombre": "Autoservice Quique",
+    "tipo": "Supermercado",
+    "direccion": "Democracia 2498, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8826329,
+    "longitud": -56.1776759
+  },
+  {
+    "id": "devoto-santa-monica",
+    "nombre": "Devoto Santa Mónica",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Italia 6958, Carrasco Norte",
+    "barrio": "Carrasco Norte",
+    "ciudad": "Montevideo",
+    "latitud": -34.8778204,
+    "longitud": -56.0573141
+  },
+  {
+    "id": "frog-26",
+    "nombre": "Frog 26",
+    "tipo": "Supermercado",
+    "direccion": "Canelones 2185, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9068355,
+    "longitud": -56.1677785
+  },
+  {
+    "id": "percat-1",
+    "nombre": "Percat 1",
+    "tipo": "Supermercado",
+    "direccion": "Ramón Ortiz 51, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7369361,
+    "longitud": -56.223349
+  },
+  {
+    "id": "super-chance",
+    "nombre": "Super Chance",
+    "tipo": "Supermercado",
+    "direccion": "Magariños Cervantes 1913, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8910173,
+    "longitud": -56.1404981
+  },
+  {
+    "id": "devoto",
+    "nombre": "Devoto",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General José María Paz 1404, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8935359,
+    "longitud": -56.0795988
+  },
+  {
+    "id": "ta-ta",
+    "nombre": "Ta-Ta",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8283371,
+    "longitud": -55.9684543
+  },
+  {
+    "id": "la-chacra-2",
+    "nombre": "La Chacra 2",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General Rivera 3840/44, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8999242,
+    "longitud": -56.1300374
+  },
+  {
+    "id": "almacen-asere-con-ashe",
+    "nombre": "Almacén Asere con Ashé",
+    "tipo": "Supermercado",
+    "direccion": "José Antonio Cabrera 4002, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8733603,
+    "longitud": -56.1348022
+  },
+  {
+    "id": "ageran",
+    "nombre": "Ageran",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General José Garibaldi 2876, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8905657,
+    "longitud": -56.1575197
+  },
+  {
+    "id": "cooperativa-bancaria",
+    "nombre": "Cooperativa Bancaria",
+    "tipo": "Supermercado",
+    "direccion": "Sarandí, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.908214,
+    "longitud": -56.2072664
+  },
+  {
+    "id": "cornermarket",
+    "nombre": "CornerMarket",
+    "tipo": "Supermercado",
+    "direccion": "Lagunillas, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.921905,
+    "longitud": -56.1607302
+  },
+  {
+    "id": "disco-legrand",
+    "nombre": "Disco Legrand",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Enrique Legrand 5085, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8893286,
+    "longitud": -56.0984505
+  },
+  {
+    "id": "cofa-s",
+    "nombre": "Cofa's",
+    "tipo": "Supermercado",
+    "direccion": "Acevedo Díaz 1663, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8966688,
+    "longitud": -56.1678205
+  },
+  {
+    "id": "super-mekas",
+    "nombre": "Super Mekas",
+    "tipo": "Supermercado",
+    "direccion": "Doctor Aquiles R. Lanza 1270, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9071601,
+    "longitud": -56.1876842
+  },
+  {
+    "id": "frog-15",
+    "nombre": "Frog 15",
+    "tipo": "Supermercado",
+    "direccion": "Constituyente 1788, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.906732,
+    "longitud": -56.1778699
+  },
+  {
+    "id": "portisur-alimentos-congelados",
+    "nombre": "Portisur Alimentos Congelados",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Brasil 2540, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9075554,
+    "longitud": -56.15908
+  },
+  {
+    "id": "tata",
+    "nombre": "Tata",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Lezica 6345, Lezica",
+    "barrio": "Lezica",
+    "ciudad": "Montevideo",
+    "latitud": -34.7966847,
+    "longitud": -56.2479459
+  },
+  {
+    "id": "los-paraisos",
+    "nombre": "Los Paraísos",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Don Pedro de Mendoza 5388, Casavalle",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8062262,
+    "longitud": -56.1610906
+  },
+  {
+    "id": "el-morro",
+    "nombre": "El Morro",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Cibils 4484, La Paloma Tomkinson",
+    "barrio": "La Paloma Tomkinson",
+    "ciudad": "Montevideo",
+    "latitud": -34.8714826,
+    "longitud": -56.2669893
+  },
+  {
+    "id": "macromercado-paso-de-la-arena",
+    "nombre": "MacroMercado Paso de la Arena",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Luis Batlle Berres, Nuevo París",
+    "barrio": "Nuevo París",
+    "ciudad": "Montevideo",
+    "latitud": -34.8390823,
+    "longitud": -56.2630699
+  },
+  {
+    "id": "la-familia",
+    "nombre": "La Familia",
+    "tipo": "Supermercado",
+    "direccion": "Camino Coronel Raíz 1604, Peñarol",
+    "barrio": "Peñarol",
+    "ciudad": "Montevideo",
+    "latitud": -34.8271377,
+    "longitud": -56.2003804
+  },
+  {
+    "id": "macromercado",
+    "nombre": "Macromercado",
+    "tipo": "Supermercado",
+    "direccion": "Camino Maldonado 6783, Punta Rieles",
+    "barrio": "Punta Rieles",
+    "ciudad": "Montevideo",
+    "latitud": -34.8240275,
+    "longitud": -56.1021927
+  },
+  {
+    "id": "supermercado-tata",
+    "nombre": "Supermercado Tata",
+    "tipo": "Supermercado",
+    "direccion": "República Argentina, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8902825,
+    "longitud": -56.2478759
+  },
+  {
+    "id": "devoto-hermanos-san-quintin",
+    "nombre": "Devoto Hermanos (San Quintín)",
+    "tipo": "Supermercado",
+    "direccion": "San Quintín, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.8523506,
+    "longitud": -56.222905
+  },
+  {
+    "id": "la-italiana",
+    "nombre": "La Italiana",
+    "tipo": "Supermercado",
+    "direccion": "Ciclovía Boulevard, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8714343,
+    "longitud": -56.186188
+  },
+  {
+    "id": "devoto-el-prado",
+    "nombre": "Devoto El Prado",
+    "tipo": "Supermercado",
+    "direccion": "Caigua, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8642497,
+    "longitud": -56.1953387
+  },
+  {
+    "id": "eco-market-3",
+    "nombre": "Eco Market 3",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Burgues, Aires Puros",
+    "barrio": "Aires Puros",
+    "ciudad": "Montevideo",
+    "latitud": -34.850418,
+    "longitud": -56.1794631
+  },
+  {
+    "id": "el-tio",
+    "nombre": "El Tío",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General José Garibaldi 2511, La Comercial",
+    "barrio": "La Comercial",
+    "ciudad": "Montevideo",
+    "latitud": -34.8857024,
+    "longitud": -56.1644328
+  },
+  {
+    "id": "multi-ahorro-arroyo-seco",
+    "nombre": "Multi Ahorro (Arroyo Seco)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Agraciada 2560, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8846169,
+    "longitud": -56.1932129
+  },
+  {
+    "id": "el-encanto",
+    "nombre": "El Encanto",
+    "tipo": "Supermercado",
+    "direccion": "Gaviotas, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8165403,
+    "longitud": -55.9276411
+  },
+  {
+    "id": "supermercado-continente",
+    "nombre": "Supermercado Continente",
+    "tipo": "Supermercado",
+    "direccion": "Avenida José Belloni 4752, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8166618,
+    "longitud": -56.1389006
+  },
+  {
+    "id": "super-express-la-teja",
+    "nombre": "Super Express (La Teja)",
+    "tipo": "Supermercado",
+    "direccion": "Doctor Martín Berinduague 870, La Teja",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.8691687,
+    "longitud": -56.2319401
+  },
+  {
+    "id": "fenix",
+    "nombre": "Fénix",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General Rondeau 2132, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8906071,
+    "longitud": -56.1927777
+  },
+  {
+    "id": "supermercadio",
+    "nombre": "Supermercadio",
+    "tipo": "Supermercado",
+    "direccion": "Bulevar Doctor Manuel Herrera y Obes, Tres Ombúes",
+    "barrio": "Tres Ombúes",
+    "ciudad": "Montevideo",
+    "latitud": -34.8551046,
+    "longitud": -56.230785
+  },
+  {
+    "id": "la-bohemia",
+    "nombre": "La Bohemia",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Luis Alberto de Herrera 3846, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8628745,
+    "longitud": -56.1785309
+  },
+  {
+    "id": "el-clon",
+    "nombre": "El Clon",
+    "tipo": "Supermercado",
+    "direccion": "Juan Antonio Artigas 4120, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8577261,
+    "longitud": -56.2179124
+  },
+  {
+    "id": "super-vero",
+    "nombre": "Super Vero",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General José Garibaldi, La Figurita",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.8766183,
+    "longitud": -56.1794697
+  },
+  {
+    "id": "expres",
+    "nombre": "Expres",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Gonzalo Ramírez 1811, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9117752,
+    "longitud": -56.1755199
+  },
+  {
+    "id": "el-pinar",
+    "nombre": "El Pinar",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Naciones Unidas, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8037802,
+    "longitud": -55.9083707
+  },
+  {
+    "id": "devoto-colon",
+    "nombre": "Devoto (Colón)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General Eugenio Garzón 1945, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8052345,
+    "longitud": -56.2229343
+  },
+  {
+    "id": "frigo-sayago",
+    "nombre": "Frigo (Sayago)",
+    "tipo": "Supermercado",
+    "direccion": "Camino Ariel 4835, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8337812,
+    "longitud": -56.2166746
+  },
+  {
+    "id": "prisma",
+    "nombre": "Prisma",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General Flores 3327, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8672409,
+    "longitud": -56.1722194
+  },
+  {
+    "id": "planeta",
+    "nombre": "Planeta",
+    "tipo": "Supermercado",
+    "direccion": "Andes 1427, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9048778,
+    "longitud": -56.1984105
+  },
+  {
+    "id": "sluckis",
+    "nombre": "Sluckis",
+    "tipo": "Supermercado",
+    "direccion": "Arenal Grande 2193, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8886199,
+    "longitud": -56.1814014
+  },
+  {
+    "id": "devoto-express",
+    "nombre": "Devoto Express",
+    "tipo": "Supermercado",
+    "direccion": "Camino Carrasco 6955, Carrasco Norte",
+    "barrio": "Carrasco Norte",
+    "ciudad": "Montevideo",
+    "latitud": -34.8699138,
+    "longitud": -56.0724271
+  },
+  {
+    "id": "devoto-express-parque-rodo",
+    "nombre": "Devoto Express (Parque Rodó)",
+    "tipo": "Supermercado",
+    "direccion": "Bulevar General Artigas 1205, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9065795,
+    "longitud": -56.16394
+  },
+  {
+    "id": "el-minisuper-de-las-piedras",
+    "nombre": "El Minisuper De Las Piedras",
+    "tipo": "Supermercado",
+    "direccion": "República Argentina 816, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7247858,
+    "longitud": -56.2104248
+  },
+  {
+    "id": "frog",
+    "nombre": "Frog",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Ramón Anador 3272, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.89627,
+    "longitud": -56.1460255
+  },
+  {
+    "id": "devoto-punta-gorda-avenida-bolivia",
+    "nombre": "Devoto (Punta Gorda, Avenida Bolivia)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Bolivia, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8934262,
+    "longitud": -56.0664293
+  },
+  {
+    "id": "disco-solymar",
+    "nombre": "Disco (Solymar)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.826298,
+    "longitud": -55.9651137
+  },
+  {
+    "id": "supermercado-1210",
+    "nombre": "Supermercado 1210",
+    "tipo": "Supermercado",
+    "direccion": "Pedro Bustamante 1210, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9024287,
+    "longitud": -56.1333792
+  },
+  {
+    "id": "super-compras",
+    "nombre": "Super Compras",
+    "tipo": "Supermercado",
+    "direccion": "Comercio 2069, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8839404,
+    "longitud": -56.1338691
+  },
+  {
+    "id": "asociacion-cooperativa-electoral",
+    "nombre": "Asociación Cooperativa Electoral",
+    "tipo": "Supermercado",
+    "direccion": "Avenida 8 de Octubre 2897, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8855144,
+    "longitud": -56.1572042
+  },
+  {
+    "id": "devoto-punta-carretas",
+    "nombre": "Devoto Punta Carretas",
+    "tipo": "Supermercado",
+    "direccion": "Coronel Mora, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9191801,
+    "longitud": -56.15747
+  },
+  {
+    "id": "portisur",
+    "nombre": "Portisur",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Italia 4452, Malvín Nuevo",
+    "barrio": "Malvín Nuevo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8876311,
+    "longitud": -56.1130941
+  },
+  {
+    "id": "ta-ta-tres-cruces",
+    "nombre": "Ta-Ta (Tres Cruces)",
+    "tipo": "Supermercado",
+    "direccion": "Miguelete 2224, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8925172,
+    "longitud": -56.1708593
+  },
+  {
+    "id": "super-frigo-centro",
+    "nombre": "Super Frigo (Centro)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Uruguay 1104, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9032844,
+    "longitud": -56.1926442
+  },
+  {
+    "id": "don-paulino",
+    "nombre": "Don Paulino",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Daniel Fernández Crespo 1685, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8994872,
+    "longitud": -56.1769922
+  },
+  {
+    "id": "frog-maxishop-7",
+    "nombre": "Frog Maxishop 7",
+    "tipo": "Supermercado",
+    "direccion": "Luis B. Cavia 3058, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9136084,
+    "longitud": -56.1512717
+  },
+  {
+    "id": "super-bambu",
+    "nombre": "Super BAMBÚ",
+    "tipo": "Supermercado",
+    "direccion": "Capitán Tula 4711, Casavalle",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.822028,
+    "longitud": -56.1561773
+  },
+  {
+    "id": "super-tren",
+    "nombre": "SUPER TREN",
+    "tipo": "Supermercado",
+    "direccion": "Camino Coronel Raíz 1672, Peñarol",
+    "barrio": "Peñarol",
+    "ciudad": "Montevideo",
+    "latitud": -34.825279,
+    "longitud": -56.2003161
+  },
+  {
+    "id": "disco-agraciada",
+    "nombre": "Disco Agraciada",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Agraciada, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8757995,
+    "longitud": -56.1982016
+  },
+  {
+    "id": "buenas-migas",
+    "nombre": "Buenas Migas",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Amelia Ramírez de García Lagos, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8194734,
+    "longitud": -55.9388945
+  },
+  {
+    "id": "marymar-piedras-blancas",
+    "nombre": "MARYMAR (Piedras Blancas)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida José Belloni 4208, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8269653,
+    "longitud": -56.1407042
+  },
+  {
+    "id": "multi-ahorro-la-teja",
+    "nombre": "Multi Ahorro (La Teja)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Carlos María Ramírez, La Teja",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.8664889,
+    "longitud": -56.2371087
+  },
+  {
+    "id": "coop-policial",
+    "nombre": "Coop. Policial",
+    "tipo": "Supermercado",
+    "direccion": "Nueva York 1335, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8970842,
+    "longitud": -56.1891109
+  },
+  {
+    "id": "super-dioma",
+    "nombre": "Super Dioma",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Luis Alberto de Herrera 4008, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8621557,
+    "longitud": -56.1834704
+  },
+  {
+    "id": "nuevo-porvenir",
+    "nombre": "Nuevo Porvenir",
+    "tipo": "Supermercado",
+    "direccion": "Ángel Salvo 80, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8621845,
+    "longitud": -56.2154966
+  },
+  {
+    "id": "tata-la-figurita",
+    "nombre": "TaTa (La Figurita)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General Flores, La Figurita",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.8737973,
+    "longitud": -56.1772299
+  },
+  {
+    "id": "super-xxi",
+    "nombre": "Super XXI",
+    "tipo": "Supermercado",
+    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.7974331,
+    "longitud": -55.9357854
+  },
+  {
+    "id": "ta-ta-colon",
+    "nombre": "Ta-Ta (Colón)",
+    "tipo": "Supermercado",
+    "direccion": "Avenida General Eugenio Garzón 1952, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8044738,
+    "longitud": -56.2226354
+  },
+  {
+    "id": "tata-sayago",
+    "nombre": "TaTa (Sayago)",
+    "tipo": "Supermercado",
+    "direccion": "Bulevar José Batlle y Ordóñez, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8254834,
+    "longitud": -56.2240111
+  },
+  {
+    "id": "kinko",
+    "nombre": "Kinko",
+    "tipo": "Supermercado",
+    "direccion": "General Máximo Tajes, Carrasco Norte",
+    "barrio": "Carrasco Norte",
+    "ciudad": "Montevideo",
+    "latitud": -34.8767918,
+    "longitud": -56.0669699
   },
   {
     "id": "farmashop-tres-cruces",
@@ -2206,6 +3950,46 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Ciudad de la Costa",
     "latitud": -34.8408431,
     "longitud": -55.9729976
+  },
+  {
+    "id": "farmashop-barrio-sur-convencion",
+    "nombre": "Farmashop (Barrio Sur, Convención)",
+    "tipo": "Farmacia",
+    "direccion": "Convención, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9052235,
+    "longitud": -56.1969893
+  },
+  {
+    "id": "farmashop-punta-carretas-21-de-setiembre-2752",
+    "nombre": "Farmashop (Punta Carretas, 21 de Setiembre 2752)",
+    "tipo": "Farmacia",
+    "direccion": "21 de Setiembre 2752, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9144244,
+    "longitud": -56.1603464
+  },
+  {
+    "id": "farmashop-tres-cruces-avenida-italia-2490",
+    "nombre": "Farmashop (Tres Cruces, Avenida Italia 2490)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Italia 2490, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8936989,
+    "longitud": -56.1615849
+  },
+  {
+    "id": "farmashop-cordon-avenida-18-de-julio-1649",
+    "nombre": "Farmashop (Cordón, Avenida 18 de Julio 1649)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 18 de Julio 1649, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9035955,
+    "longitud": -56.1807917
   },
   {
     "id": "farmacia-san-roque-centro",
@@ -2378,6 +4162,56 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9936243
   },
   {
+    "id": "farmacia-san-roque-union-avenida-italia-3830",
+    "nombre": "Farmacia San Roque (Unión, Avenida Italia 3830)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Italia 3830, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8871065,
+    "longitud": -56.1290201
+  },
+  {
+    "id": "farmacia-san-roque-punta-carretas-jose-ellauri-350",
+    "nombre": "Farmacia San Roque (Punta Carretas, José Ellauri 350)",
+    "tipo": "Farmacia",
+    "direccion": "José Ellauri 350, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9238107,
+    "longitud": -56.1587422
+  },
+  {
+    "id": "farmacia-san-roque-centro-avenida-18-de-julio-1078",
+    "nombre": "Farmacia San Roque (Centro, Avenida 18 de Julio 1078)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 18 de Julio 1078, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9061904,
+    "longitud": -56.19299
+  },
+  {
+    "id": "farmacia-san-roque-tres-cruces",
+    "nombre": "Farmacia San Roque (Tres Cruces)",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar General Artigas 1825, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8936913,
+    "longitud": -56.1664102
+  },
+  {
+    "id": "farmacia-san-roque-cordon-avenida-general-rivera-2102",
+    "nombre": "Farmacia San Roque (Cordón, Avenida General Rivera 2102)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General Rivera 2102, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9023404,
+    "longitud": -56.1700912
+  },
+  {
     "id": "farmacia-el-tunel-punta-carretas",
     "nombre": "Farmacia El Túnel (Punta Carretas)",
     "tipo": "Farmacia",
@@ -2436,6 +4270,1206 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8914295,
     "longitud": -56.1090522
+  },
+  {
+    "id": "manga",
+    "nombre": "Manga",
+    "tipo": "Farmacia",
+    "direccion": "Avenida José Belloni, Manga",
+    "barrio": "Manga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8068051,
+    "longitud": -56.136837
+  },
+  {
+    "id": "acuario",
+    "nombre": "Acuario",
+    "tipo": "Farmacia",
+    "direccion": "Avenida José Belloni 6374, Puntas de Manga",
+    "barrio": "Puntas de Manga",
+    "ciudad": "Montevideo",
+    "latitud": -34.7820679,
+    "longitud": -56.13583
+  },
+  {
+    "id": "giannycal",
+    "nombre": "Giannycal",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Shangrila, Ciudad de la Costa",
+    "barrio": "Shangrila",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8469259,
+    "longitud": -56.0033901
+  },
+  {
+    "id": "mensar",
+    "nombre": "Mensar",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Don Pedro de Mendoza 4096, Ituzaingó",
+    "barrio": "Ituzaingó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8340014,
+    "longitud": -56.1513084
+  },
+  {
+    "id": "las-vegas",
+    "nombre": "Las Vegas",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General Flores 4733, Las Acacias",
+    "barrio": "Las Acacias",
+    "ciudad": "Montevideo",
+    "latitud": -34.8446585,
+    "longitud": -56.1542798
+  },
+  {
+    "id": "colombes",
+    "nombre": "Colombes",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 8 de Octubre, Villa Española",
+    "barrio": "Villa Española",
+    "ciudad": "Montevideo",
+    "latitud": -34.8656013,
+    "longitud": -56.1339374
+  },
+  {
+    "id": "macarem",
+    "nombre": "Macarem",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Lezica 6170, Lezica",
+    "barrio": "Lezica",
+    "ciudad": "Montevideo",
+    "latitud": -34.8006354,
+    "longitud": -56.2428431
+  },
+  {
+    "id": "uriel",
+    "nombre": "Uriel",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Don Pedro de Mendoza 5345, Casavalle",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8073908,
+    "longitud": -56.1613999
+  },
+  {
+    "id": "timbo",
+    "nombre": "Timbó",
+    "tipo": "Farmacia",
+    "direccion": "Carlos de la Vega 5143 bis, Nuevo París",
+    "barrio": "Nuevo París",
+    "ciudad": "Montevideo",
+    "latitud": -34.8468844,
+    "longitud": -56.2419993
+  },
+  {
+    "id": "farmacia-san-esteban",
+    "nombre": "Farmacia San Esteban",
+    "tipo": "Farmacia",
+    "direccion": "Etiopía 2662, Casabó",
+    "barrio": "Casabó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8872785,
+    "longitud": -56.2681091
+  },
+  {
+    "id": "san-jose",
+    "nombre": "San José",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Millán, Paso de las Duranas",
+    "barrio": "Paso de las Duranas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8494673,
+    "longitud": -56.1982146
+  },
+  {
+    "id": "gilda",
+    "nombre": "Gilda",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Millán 2744, Reducto",
+    "barrio": "Reducto",
+    "ciudad": "Montevideo",
+    "latitud": -34.8759568,
+    "longitud": -56.187508
+  },
+  {
+    "id": "hector",
+    "nombre": "Héctor",
+    "tipo": "Farmacia",
+    "direccion": "Camino Maldonado, Punta Rieles",
+    "barrio": "Punta Rieles",
+    "ciudad": "Montevideo",
+    "latitud": -34.8361027,
+    "longitud": -56.1153726
+  },
+  {
+    "id": "avicena",
+    "nombre": "Avicena",
+    "tipo": "Farmacia",
+    "direccion": "Monte Caseros 3050, Larrañaga",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8810737,
+    "longitud": -56.1577412
+  },
+  {
+    "id": "elhordoy",
+    "nombre": "Elhordoy",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Doctor Juan Carlos Blanco 3420, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8684347,
+    "longitud": -56.2008051
+  },
+  {
+    "id": "del-cerro",
+    "nombre": "Del Cerro",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Carlos María Ramírez, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8738589,
+    "longitud": -56.2508641
+  },
+  {
+    "id": "penarol",
+    "nombre": "Peñarol",
+    "tipo": "Farmacia",
+    "direccion": "Camino Coronel Raíz 1607, Peñarol",
+    "barrio": "Peñarol",
+    "ciudad": "Montevideo",
+    "latitud": -34.8269988,
+    "longitud": -56.2006582
+  },
+  {
+    "id": "belvedere",
+    "nombre": "Belvedere",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Carlos María Ramírez 50, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.8551088,
+    "longitud": -56.2228878
+  },
+  {
+    "id": "rita",
+    "nombre": "Rita",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar José Batlle y Ordóñez 4701, Aires Puros",
+    "barrio": "Aires Puros",
+    "ciudad": "Montevideo",
+    "latitud": -34.8510655,
+    "longitud": -56.184713
+  },
+  {
+    "id": "tami",
+    "nombre": "Tami",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Millán 2952, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8720889,
+    "longitud": -56.189634
+  },
+  {
+    "id": "tiendafarma",
+    "nombre": "Tiendafarma",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar José Batlle y Ordóñez, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8657725,
+    "longitud": -56.1645807
+  },
+  {
+    "id": "veraciento",
+    "nombre": "Veraciento",
+    "tipo": "Farmacia",
+    "direccion": "Camino Carrasco 4720, Maroñas",
+    "barrio": "Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8712221,
+    "longitud": -56.1155805
+  },
+  {
+    "id": "roosvelt",
+    "nombre": "Roosvelt",
+    "tipo": "Farmacia",
+    "direccion": "General Fausto Aguilar, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8850817,
+    "longitud": -56.1937539
+  },
+  {
+    "id": "farma-cor",
+    "nombre": "Farma-Cor",
+    "tipo": "Farmacia",
+    "direccion": "Cufré 2351, La Comercial",
+    "barrio": "La Comercial",
+    "ciudad": "Montevideo",
+    "latitud": -34.884154,
+    "longitud": -56.1701243
+  },
+  {
+    "id": "pigalle",
+    "nombre": "Pigalle",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Calcagno, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.850172,
+    "longitud": -55.9996769
+  },
+  {
+    "id": "diu-drogueria-industrial-uruguaya",
+    "nombre": "DIU - Droguería Industrial Uruguaya",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, San José de Carrasco, Ciudad de la Costa",
+    "barrio": "San José de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8399427,
+    "longitud": -55.9904849
+  },
+  {
+    "id": "aleluya-iii",
+    "nombre": "Aleluya III",
+    "tipo": "Farmacia",
+    "direccion": "Camino Maldonado 4902, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8552613,
+    "longitud": -56.1312171
+  },
+  {
+    "id": "bella-vista",
+    "nombre": "Bella Vista",
+    "tipo": "Farmacia",
+    "direccion": "Uruguayana 3152, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8746996,
+    "longitud": -56.2019049
+  },
+  {
+    "id": "drogueria-montevideo",
+    "nombre": "Droguería Montevideo",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8342133,
+    "longitud": -55.9797154
+  },
+  {
+    "id": "la-gracia",
+    "nombre": "La Gracia",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8053235,
+    "longitud": -55.9274493
+  },
+  {
+    "id": "luxor",
+    "nombre": "Luxor",
+    "tipo": "Farmacia",
+    "direccion": "Avenida José Belloni, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8175183,
+    "longitud": -56.1389628
+  },
+  {
+    "id": "maresca",
+    "nombre": "Maresca",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Carlos María Ramírez 900, La Teja",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.8661445,
+    "longitud": -56.2363612
+  },
+  {
+    "id": "cerrito",
+    "nombre": "Cerrito",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General Flores, Pérez Castellanos",
+    "barrio": "Pérez Castellanos",
+    "ciudad": "Montevideo",
+    "latitud": -34.8562972,
+    "longitud": -56.1632886
+  },
+  {
+    "id": "farma-uy",
+    "nombre": "Farma.uy",
+    "tipo": "Farmacia",
+    "direccion": "Maldonado 1801, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9084916,
+    "longitud": -56.1760617
+  },
+  {
+    "id": "amistad",
+    "nombre": "Amistad",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Libertador Brigadier General Lavalleja 1601, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.9010994,
+    "longitud": -56.1922881
+  },
+  {
+    "id": "gerard",
+    "nombre": "Gerard",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Carlos María Ramírez 1097, Tres Ombúes",
+    "barrio": "Tres Ombúes",
+    "ciudad": "Montevideo",
+    "latitud": -34.8689224,
+    "longitud": -56.2393119
+  },
+  {
+    "id": "drogueria-paysandu",
+    "nombre": "Droguería Paysandú",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Luis Alberto de Herrera 3430, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8679696,
+    "longitud": -56.1696372
+  },
+  {
+    "id": "parque-miramar",
+    "nombre": "Parque Miramar",
+    "tipo": "Farmacia",
+    "direccion": "Gabriela Mistral, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8653828,
+    "longitud": -56.0334073
+  },
+  {
+    "id": "farmacia-del-pinar-atenea",
+    "nombre": "Farmacia Del Pinar Atenea",
+    "tipo": "Farmacia",
+    "direccion": "Avenida José \"Pepe\" D'Elía, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8029101,
+    "longitud": -55.9082333
+  },
+  {
+    "id": "paris-2",
+    "nombre": "Paris 2",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General Eugenio Garzón 1999 bis, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8031364,
+    "longitud": -56.2237006
+  },
+  {
+    "id": "osacar",
+    "nombre": "Osacar",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Millán 4502, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8418693,
+    "longitud": -56.2088068
+  },
+  {
+    "id": "pose",
+    "nombre": "Pose",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General San Martín 3680, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.857528,
+    "longitud": -56.1755759
+  },
+  {
+    "id": "justicia",
+    "nombre": "Justicia",
+    "tipo": "Farmacia",
+    "direccion": "Justicia 2302, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8871242,
+    "longitud": -56.1792474
+  },
+  {
+    "id": "san-salvador",
+    "nombre": "San Salvador",
+    "tipo": "Farmacia",
+    "direccion": "Doctor Manuel Quintela 3202, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8926487,
+    "longitud": -56.1489073
+  },
+  {
+    "id": "ibirapita",
+    "nombre": "Ibirapitá",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Uruguay, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8267362,
+    "longitud": -55.9688598
+  },
+  {
+    "id": "farmacia-dover",
+    "nombre": "Farmacia Dover",
+    "tipo": "Farmacia",
+    "direccion": "Doctor Joaquín Requena 1250, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.90507,
+    "longitud": -56.1686738
+  },
+  {
+    "id": "del-camino",
+    "nombre": "Del Camino",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7274389,
+    "longitud": -56.227186
+  },
+  {
+    "id": "drogueria-uruguayana",
+    "nombre": "Droguería Uruguayana",
+    "tipo": "Farmacia",
+    "direccion": "Ángel Salvo 94, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8623646,
+    "longitud": -56.2161291
+  },
+  {
+    "id": "corominas",
+    "nombre": "Corominas",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 8 de Octubre 2689, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8895625,
+    "longitud": -56.1605555
+  },
+  {
+    "id": "zabala",
+    "nombre": "Zabala",
+    "tipo": "Farmacia",
+    "direccion": "25 de Mayo 392, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9066881,
+    "longitud": -56.2078254
+  },
+  {
+    "id": "pigalle-punta-gorda",
+    "nombre": "Pigalle (Punta Gorda)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Bolivia 1429, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8931774,
+    "longitud": -56.0666914
+  },
+  {
+    "id": "guarino",
+    "nombre": "Guarino",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Mariscal Francisco Solano López 1546, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8944247,
+    "longitud": -56.12277
+  },
+  {
+    "id": "avelino",
+    "nombre": "Avelino",
+    "tipo": "Farmacia",
+    "direccion": "Santa Mónica 2533, Carrasco Norte",
+    "barrio": "Carrasco Norte",
+    "ciudad": "Montevideo",
+    "latitud": -34.8680096,
+    "longitud": -56.0603553
+  },
+  {
+    "id": "tabare",
+    "nombre": "Tabaré",
+    "tipo": "Farmacia",
+    "direccion": "Río Negro 1152, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9096619,
+    "longitud": -56.1931387
+  },
+  {
+    "id": "panama",
+    "nombre": "Panamá",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 8 de Octubre 3606, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8770631,
+    "longitud": -56.143786
+  },
+  {
+    "id": "machado-2",
+    "nombre": "Machado 2",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar General Artigas 1999, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8907574,
+    "longitud": -56.1656645
+  },
+  {
+    "id": "pigalle-punta-carretas",
+    "nombre": "Pigalle (Punta Carretas)",
+    "tipo": "Farmacia",
+    "direccion": "21 de Setiembre 2948, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9196508,
+    "longitud": -56.1534177
+  },
+  {
+    "id": "antartida",
+    "nombre": "Antartida",
+    "tipo": "Farmacia",
+    "direccion": "Colonia 1475, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9041842,
+    "longitud": -56.1846241
+  },
+  {
+    "id": "pitagoras",
+    "nombre": "Pitágoras",
+    "tipo": "Farmacia",
+    "direccion": "Alberto Zum Felde 2057, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8788273,
+    "longitud": -56.1007025
+  },
+  {
+    "id": "farmaglobal",
+    "nombre": "FarmaGlobal",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General Rivera 2690 A, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9032687,
+    "longitud": -56.1563328
+  },
+  {
+    "id": "homeopatia-alemana",
+    "nombre": "Homeopatía Alemana",
+    "tipo": "Farmacia",
+    "direccion": "Carlos Roxlo 1494, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9024991,
+    "longitud": -56.1821804
+  },
+  {
+    "id": "gasmart",
+    "nombre": "Gasmart",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Calcagno, Shangrila, Ciudad de la Costa",
+    "barrio": "Shangrila",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8486236,
+    "longitud": -56.001644
+  },
+  {
+    "id": "industria-2",
+    "nombre": "Industria 2",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Dámaso Antonio Larrañaga 4548, Ituzaingó",
+    "barrio": "Ituzaingó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8496946,
+    "longitud": -56.1477047
+  },
+  {
+    "id": "de-las-acacias",
+    "nombre": "De Las Acacias",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General Flores, Las Acacias",
+    "barrio": "Las Acacias",
+    "ciudad": "Montevideo",
+    "latitud": -34.846458,
+    "longitud": -56.155191
+  },
+  {
+    "id": "ferpa",
+    "nombre": "Ferpa",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Lezica 6326, Lezica",
+    "barrio": "Lezica",
+    "ciudad": "Montevideo",
+    "latitud": -34.7969238,
+    "longitud": -56.2470986
+  },
+  {
+    "id": "estefania",
+    "nombre": "Estefanía",
+    "tipo": "Farmacia",
+    "direccion": "Doctor Isidro Más de Ayala 5351, Casavalle",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8326105,
+    "longitud": -56.1726409
+  },
+  {
+    "id": "paris",
+    "nombre": "París",
+    "tipo": "Farmacia",
+    "direccion": "Santa Lucía, Nuevo París",
+    "barrio": "Nuevo París",
+    "ciudad": "Montevideo",
+    "latitud": -34.843616,
+    "longitud": -56.2399962
+  },
+  {
+    "id": "san-pablo",
+    "nombre": "San Pablo",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General San Martín 2443, Reducto",
+    "barrio": "Reducto",
+    "ciudad": "Montevideo",
+    "latitud": -34.8812698,
+    "longitud": -56.1864406
+  },
+  {
+    "id": "guarani",
+    "nombre": "Guaraní",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Luis Alberto de Herrera 2569, Larrañaga",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8817334,
+    "longitud": -56.1530614
+  },
+  {
+    "id": "del-prado",
+    "nombre": "Del Prado",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 19 de Abril 3544, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8640921,
+    "longitud": -56.2026355
+  },
+  {
+    "id": "setiembre",
+    "nombre": "Setiembre",
+    "tipo": "Farmacia",
+    "direccion": "Enrique George, Peñarol",
+    "barrio": "Peñarol",
+    "ciudad": "Montevideo",
+    "latitud": -34.818889,
+    "longitud": -56.2144631
+  },
+  {
+    "id": "de-leon",
+    "nombre": "De León",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Carlos María Ramírez 180, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.8566558,
+    "longitud": -56.2247898
+  },
+  {
+    "id": "del-norte",
+    "nombre": "Del Norte",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar José Batlle y Ordóñez, Aires Puros",
+    "barrio": "Aires Puros",
+    "ciudad": "Montevideo",
+    "latitud": -34.8530163,
+    "longitud": -56.1817321
+  },
+  {
+    "id": "carmen",
+    "nombre": "Carmen",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar General Artigas 3847, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8713935,
+    "longitud": -56.1872454
+  },
+  {
+    "id": "de-marco",
+    "nombre": "De Marco",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Luis Alberto de Herrera, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8749742,
+    "longitud": -56.158855
+  },
+  {
+    "id": "marilouz",
+    "nombre": "Marilouz",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General San Martín, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8867446,
+    "longitud": -56.1882013
+  },
+  {
+    "id": "ralf",
+    "nombre": "Ralf",
+    "tipo": "Farmacia",
+    "direccion": "Doctor Juan José de Amézaga 2300, La Comercial",
+    "barrio": "La Comercial",
+    "ciudad": "Montevideo",
+    "latitud": -34.8841941,
+    "longitud": -56.1676672
+  },
+  {
+    "id": "torre-18",
+    "nombre": "Torre 18",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8566689,
+    "longitud": -56.0111616
+  },
+  {
+    "id": "zipirtia",
+    "nombre": "Zipirtía",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 8 de Octubre 4701, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.857972,
+    "longitud": -56.1338894
+  },
+  {
+    "id": "duzar",
+    "nombre": "Duzar",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar General Artigas 4396, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8719909,
+    "longitud": -56.2018961
+  },
+  {
+    "id": "farmaglobal-lagomar",
+    "nombre": "FarmaGlobal (Lagomar)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8360478,
+    "longitud": -55.9832057
+  },
+  {
+    "id": "san-giovanni",
+    "nombre": "San Giovanni",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Tuyutí, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8156898,
+    "longitud": -55.9274676
+  },
+  {
+    "id": "san-bernardo",
+    "nombre": "San Bernardo",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Carlos María Ramírez 515, La Teja",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.861327,
+    "longitud": -56.2299984
+  },
+  {
+    "id": "antibes",
+    "nombre": "Antibes",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Gonzalo Ramírez 1840, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9121132,
+    "longitud": -56.1750674
+  },
+  {
+    "id": "ferrero",
+    "nombre": "Ferrero",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Daniel Fernández Crespo 2221, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8930208,
+    "longitud": -56.1849702
+  },
+  {
+    "id": "machado-i",
+    "nombre": "Machado I",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar General Artigas 2947, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8731264,
+    "longitud": -56.1676496
+  },
+  {
+    "id": "20-de-setiembre",
+    "nombre": "20 de Setiembre",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8024124,
+    "longitud": -55.9224253
+  },
+  {
+    "id": "lecocq",
+    "nombre": "Lecocq",
+    "tipo": "Farmacia",
+    "direccion": "Camino Lecocq, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8131522,
+    "longitud": -56.2307038
+  },
+  {
+    "id": "calveira",
+    "nombre": "Calveira",
+    "tipo": "Farmacia",
+    "direccion": "Camino Ariel 4926, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.832916,
+    "longitud": -56.2175253
+  },
+  {
+    "id": "don-bosco",
+    "nombre": "Don Bosco",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General San Martín 3659, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8574999,
+    "longitud": -56.1759693
+  },
+  {
+    "id": "aboire",
+    "nombre": "Aboire",
+    "tipo": "Farmacia",
+    "direccion": "Isidoro de María 1669, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8886446,
+    "longitud": -56.1830809
+  },
+  {
+    "id": "tres",
+    "nombre": "Tres",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ramón Anador 3549, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8943408,
+    "longitud": -56.139324
+  },
+  {
+    "id": "la-botica",
+    "nombre": "La Botica",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8255699,
+    "longitud": -55.9639855
+  },
+  {
+    "id": "mykonos",
+    "nombre": "Mykonos",
+    "tipo": "Farmacia",
+    "direccion": "Canelones 2301, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9067213,
+    "longitud": -56.1648311
+  },
+  {
+    "id": "elisar-centro",
+    "nombre": "Elisar Centro",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7271456,
+    "longitud": -56.2171792
+  },
+  {
+    "id": "costa-rosa",
+    "nombre": "Costa Rosa",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Agraciada 4140, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8572709,
+    "longitud": -56.2187384
+  },
+  {
+    "id": "estadio",
+    "nombre": "Estadio",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Italia 2795, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8907362,
+    "longitud": -56.1541418
+  },
+  {
+    "id": "canabis-protectio",
+    "nombre": "Cañabis Protectio",
+    "tipo": "Farmacia",
+    "direccion": "Alzáibar, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9082821,
+    "longitud": -56.2079558
+  },
+  {
+    "id": "rubira",
+    "nombre": "Rubira",
+    "tipo": "Farmacia",
+    "direccion": "Líbano, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8918101,
+    "longitud": -56.0716397
+  },
+  {
+    "id": "3-esquinas",
+    "nombre": "3 Esquinas",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Mariscal Francisco Solano López 1855, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8877176,
+    "longitud": -56.1292267
+  },
+  {
+    "id": "thompson-ltda",
+    "nombre": "Thompson Ltda",
+    "tipo": "Farmacia",
+    "direccion": "Cooper, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.880061,
+    "longitud": -56.0673124
+  },
+  {
+    "id": "olivencia",
+    "nombre": "Olivencia",
+    "tipo": "Farmacia",
+    "direccion": "Maldonado 1349, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9092395,
+    "longitud": -56.1866028
+  },
+  {
+    "id": "potosi",
+    "nombre": "Potosi",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 8 de Octubre, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8725989,
+    "longitud": -56.1367572
+  },
+  {
+    "id": "miguelete",
+    "nombre": "Miguelete",
+    "tipo": "Farmacia",
+    "direccion": "Miguelete 2145, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.892231,
+    "longitud": -56.1733079
+  },
+  {
+    "id": "castano-homeopatia",
+    "nombre": "Castaño Homeopatía",
+    "tipo": "Farmacia",
+    "direccion": "21 de Setiembre 2967, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.919579,
+    "longitud": -56.1527665
+  },
+  {
+    "id": "astral",
+    "nombre": "Astral",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Uruguay 1350, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9028695,
+    "longitud": -56.1872954
+  },
+  {
+    "id": "nesant",
+    "nombre": "Nesant",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Italia 5016, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8861305,
+    "longitud": -56.0995594
+  },
+  {
+    "id": "pigalle-pocitos",
+    "nombre": "Pigalle (Pocitos)",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Brasil 2570, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9077296,
+    "longitud": -56.1583755
+  },
+  {
+    "id": "libra",
+    "nombre": "Libra",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Daniel Fernández Crespo 1651, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.899902,
+    "longitud": -56.1764542
+  },
+  {
+    "id": "rodrimar",
+    "nombre": "Rodrimar",
+    "tipo": "Farmacia",
+    "direccion": "Camino Edison, Peñarol",
+    "barrio": "Peñarol",
+    "ciudad": "Montevideo",
+    "latitud": -34.8361057,
+    "longitud": -56.1927037
+  },
+  {
+    "id": "cosmos",
+    "nombre": "Cosmos",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Luis Alberto de Herrera, Aires Puros",
+    "barrio": "Aires Puros",
+    "ciudad": "Montevideo",
+    "latitud": -34.857332,
+    "longitud": -56.1957055
+  },
+  {
+    "id": "ani",
+    "nombre": "ANI",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Millán 3014, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8709805,
+    "longitud": -56.1903538
+  },
+  {
+    "id": "machado",
+    "nombre": "Machado",
+    "tipo": "Farmacia",
+    "direccion": "Bulevar General Artigas 2251, La Comercial",
+    "barrio": "La Comercial",
+    "ciudad": "Montevideo",
+    "latitud": -34.8859177,
+    "longitud": -56.1661836
+  },
+  {
+    "id": "paysandu",
+    "nombre": "Paysandú",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8509725,
+    "longitud": -56.0068193
+  },
+  {
+    "id": "2da-font",
+    "nombre": "2da Font",
+    "tipo": "Farmacia",
+    "direccion": "Avenida 8 de Octubre 4716, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8582737,
+    "longitud": -56.1335122
+  },
+  {
+    "id": "asuncion",
+    "nombre": "Asunción",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Joaquín Suárez 3188, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8715021,
+    "longitud": -56.1963028
+  },
+  {
+    "id": "el-balde",
+    "nombre": "El Balde",
+    "tipo": "Farmacia",
+    "direccion": "Enrique Erro, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8195649,
+    "longitud": -55.9390705
+  },
+  {
+    "id": "pigalle-palermo",
+    "nombre": "Pigalle (Palermo)",
+    "tipo": "Farmacia",
+    "direccion": "Doctor Carlos María Morales 946, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.912696,
+    "longitud": -56.1832157
+  },
+  {
+    "id": "congreso",
+    "nombre": "Congreso",
+    "tipo": "Farmacia",
+    "direccion": "Avenida Libertador Brigadier General Lavalleja 1953, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8948237,
+    "longitud": -56.1892275
+  },
+  {
+    "id": "garibaldi",
+    "nombre": "Garibaldi",
+    "tipo": "Farmacia",
+    "direccion": "Avenida General José Garibaldi 2250, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.880946,
+    "longitud": -56.1706403
   },
   {
     "id": "brou-cordon",
@@ -2638,6 +5672,446 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9931565
   },
   {
+    "id": "brou-las-piedras",
+    "nombre": "BROU (Las Piedras)",
+    "tipo": "Banco",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7267996,
+    "longitud": -56.2161424
+  },
+  {
+    "id": "brou-ciudad-vieja",
+    "nombre": "BROU (Ciudad Vieja)",
+    "tipo": "Banco",
+    "direccion": "Piedras 369, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9054639,
+    "longitud": -56.2086994
+  },
+  {
+    "id": "brou-buceo-avenida-luis-alberto-de-herrera-1290",
+    "nombre": "BROU (Buceo, Avenida Luis Alberto de Herrera 1290)",
+    "tipo": "Banco",
+    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9036677,
+    "longitud": -56.1369076
+  },
+  {
+    "id": "brou-barrio-sur",
+    "nombre": "BROU (Barrio Sur)",
+    "tipo": "Banco",
+    "direccion": "Avenida 18 de Julio 1000, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9062902,
+    "longitud": -56.1948592
+  },
+  {
+    "id": "brou-union",
+    "nombre": "BROU (Unión)",
+    "tipo": "Banco",
+    "direccion": "Avenida 8 de Octubre 3847, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8740021,
+    "longitud": -56.1392023
+  },
+  {
+    "id": "brou-punta-carretas-jose-ellauri-350",
+    "nombre": "BROU (Punta Carretas, José Ellauri 350)",
+    "tipo": "Banco",
+    "direccion": "José Ellauri 350, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9240989,
+    "longitud": -56.1588356
+  },
+  {
+    "id": "brou-centro-avenida-uruguay-1002",
+    "nombre": "BROU (Centro, Avenida Uruguay 1002)",
+    "tipo": "Banco",
+    "direccion": "Avenida Uruguay 1002, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9035086,
+    "longitud": -56.1947728
+  },
+  {
+    "id": "brou-pocitos-avenida-general-rivera-2700",
+    "nombre": "BROU (Pocitos, Avenida General Rivera 2700)",
+    "tipo": "Banco",
+    "direccion": "Avenida General Rivera 2700, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9032863,
+    "longitud": -56.1561847
+  },
+  {
+    "id": "brou-cordon-constituyente-1450",
+    "nombre": "BROU (Cordón, Constituyente 1450)",
+    "tipo": "Banco",
+    "direccion": "Constituyente 1450, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9057637,
+    "longitud": -56.1847538
+  },
+  {
+    "id": "hsbc",
+    "nombre": "HSBC",
+    "tipo": "Banco",
+    "direccion": "Avenida Agraciada 2352, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8881251,
+    "longitud": -56.1888486
+  },
+  {
+    "id": "itau",
+    "nombre": "Itaú",
+    "tipo": "Banco",
+    "direccion": "Bulevar General Artigas 3967, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.871661,
+    "longitud": -56.1902628
+  },
+  {
+    "id": "bbva",
+    "nombre": "BBVA",
+    "tipo": "Banco",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8391407,
+    "longitud": -55.988789
+  },
+  {
+    "id": "itau-la-figurita",
+    "nombre": "Itaú (La Figurita)",
+    "tipo": "Banco",
+    "direccion": "Avenida General Flores 2966, La Figurita",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.8728894,
+    "longitud": -56.1765151
+  },
+  {
+    "id": "itau-parque-miramar",
+    "nombre": "Itaú (Parque Miramar)",
+    "tipo": "Banco",
+    "direccion": "Avenida de las Américas, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8698244,
+    "longitud": -56.0310629
+  },
+  {
+    "id": "scotiabank",
+    "nombre": "Scotiabank",
+    "tipo": "Banco",
+    "direccion": "Avenida Millán 4434, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8430765,
+    "longitud": -56.2068848
+  },
+  {
+    "id": "bbva-aguada",
+    "nombre": "BBVA (Aguada)",
+    "tipo": "Banco",
+    "direccion": "Galicia 1167, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.9001513,
+    "longitud": -56.1912744
+  },
+  {
+    "id": "scotiabank-colon",
+    "nombre": "Scotiabank (Colón)",
+    "tipo": "Banco",
+    "direccion": "Avenida General Eugenio Garzón, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8040182,
+    "longitud": -56.2227068
+  },
+  {
+    "id": "bbva-jacinto-vera",
+    "nombre": "BBVA (Jacinto Vera)",
+    "tipo": "Banco",
+    "direccion": "Avenida Luis Alberto de Herrera 3301, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8700376,
+    "longitud": -56.1664098
+  },
+  {
+    "id": "scotiabank-las-piedras",
+    "nombre": "Scotiabank (Las Piedras)",
+    "tipo": "Banco",
+    "direccion": "Rivera, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7270807,
+    "longitud": -56.2158235
+  },
+  {
+    "id": "banco-santander",
+    "nombre": "Banco Santander",
+    "tipo": "Banco",
+    "direccion": "Avenida Agraciada 4228, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8560564,
+    "longitud": -56.2199395
+  },
+  {
+    "id": "santander",
+    "nombre": "Santander",
+    "tipo": "Banco",
+    "direccion": "Avenida 8 de Octubre 2738, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8889815,
+    "longitud": -56.1593954
+  },
+  {
+    "id": "bbva-ciudad-vieja",
+    "nombre": "BBVA (Ciudad Vieja)",
+    "tipo": "Banco",
+    "direccion": "Sarandí 689, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9064536,
+    "longitud": -56.2012689
+  },
+  {
+    "id": "bbva-punta-gorda",
+    "nombre": "BBVA (Punta Gorda)",
+    "tipo": "Banco",
+    "direccion": "Avenida Italia 5775, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8814063,
+    "longitud": -56.0817779
+  },
+  {
+    "id": "santander-carrasco",
+    "nombre": "Santander (Carrasco)",
+    "tipo": "Banco",
+    "direccion": "Avenida Pedro Blanes Viale 6399, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8899121,
+    "longitud": -56.0584246
+  },
+  {
+    "id": "bbva-buceo",
+    "nombre": "BBVA (Buceo)",
+    "tipo": "Banco",
+    "direccion": "Avenida Luis Alberto de Herrera 1248, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9053801,
+    "longitud": -56.1364793
+  },
+  {
+    "id": "bbva-union",
+    "nombre": "BBVA (Unión)",
+    "tipo": "Banco",
+    "direccion": "Avenida 8 de Octubre 3858, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8741356,
+    "longitud": -56.1384844
+  },
+  {
+    "id": "bbva-tres-cruces",
+    "nombre": "BBVA (Tres Cruces)",
+    "tipo": "Banco",
+    "direccion": "Bulevar General Artigas 1952, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8913705,
+    "longitud": -56.1650957
+  },
+  {
+    "id": "santander-punta-carretas",
+    "nombre": "Santander (Punta Carretas)",
+    "tipo": "Banco",
+    "direccion": "21 de Setiembre 3021, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9196072,
+    "longitud": -56.1517401
+  },
+  {
+    "id": "itau-centro",
+    "nombre": "Itaú (Centro)",
+    "tipo": "Banco",
+    "direccion": "Avenida General Rondeau 1502, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9029484,
+    "longitud": -56.1915502
+  },
+  {
+    "id": "itau-pocitos",
+    "nombre": "Itaú (Pocitos)",
+    "tipo": "Banco",
+    "direccion": "Juan Benito Blanco 876, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9155517,
+    "longitud": -56.1496798
+  },
+  {
+    "id": "bbva-cordon",
+    "nombre": "BBVA (Cordón)",
+    "tipo": "Banco",
+    "direccion": "Avenida 18 de Julio 1632, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9040222,
+    "longitud": -56.1808831
+  },
+  {
+    "id": "santander-lagomar",
+    "nombre": "Santander (Lagomar)",
+    "tipo": "Banco",
+    "direccion": "Río Uruguay, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8373495,
+    "longitud": -55.985679
+  },
+  {
+    "id": "itau-aguada",
+    "nombre": "Itaú (Aguada)",
+    "tipo": "Banco",
+    "direccion": "Avenida Libertador Brigadier General Lavalleja 2084, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.892965,
+    "longitud": -56.1877975
+  },
+  {
+    "id": "santander-jacinto-vera",
+    "nombre": "Santander (Jacinto Vera)",
+    "tipo": "Banco",
+    "direccion": "Avenida General Flores 3208, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8696391,
+    "longitud": -56.1735405
+  },
+  {
+    "id": "santander-las-piedras",
+    "nombre": "Santander (Las Piedras)",
+    "tipo": "Banco",
+    "direccion": "General Leandro Gómez, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7267809,
+    "longitud": -56.2147367
+  },
+  {
+    "id": "scotiabank-ciudad-vieja",
+    "nombre": "Scotiabank (Ciudad Vieja)",
+    "tipo": "Banco",
+    "direccion": "Rincón, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9073338,
+    "longitud": -56.2073571
+  },
+  {
+    "id": "bbva-carrasco",
+    "nombre": "BBVA (Carrasco)",
+    "tipo": "Banco",
+    "direccion": "Avenida Alfredo Arocena 1675, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8869861,
+    "longitud": -56.0584731
+  },
+  {
+    "id": "scotiabank-buceo",
+    "nombre": "Scotiabank (Buceo)",
+    "tipo": "Banco",
+    "direccion": "Avenida Luis Alberto de Herrera 1248, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9047587,
+    "longitud": -56.1368883
+  },
+  {
+    "id": "scotiabank-union",
+    "nombre": "Scotiabank (Unión)",
+    "tipo": "Banco",
+    "direccion": "Avenida 8 de Octubre, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8735465,
+    "longitud": -56.1383137
+  },
+  {
+    "id": "hsbc-tres-cruces",
+    "nombre": "HSBC (Tres Cruces)",
+    "tipo": "Banco",
+    "direccion": "Bulevar General Artigas 2073, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8893032,
+    "longitud": -56.1659534
+  },
+  {
+    "id": "hsbc-punta-carretas",
+    "nombre": "HSBC (Punta Carretas)",
+    "tipo": "Banco",
+    "direccion": "Ramón Fernández 296, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9244319,
+    "longitud": -56.1603995
+  },
+  {
+    "id": "santander-centro",
+    "nombre": "Santander (Centro)",
+    "tipo": "Banco",
+    "direccion": "Avenida 18 de Julio 1321, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9055021,
+    "longitud": -56.1875398
+  },
+  {
+    "id": "santander-pocitos",
+    "nombre": "Santander (Pocitos)",
+    "tipo": "Banco",
+    "direccion": "Bulevar España 2640, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9132726,
+    "longitud": -56.1570464
+  },
+  {
+    "id": "itau-cordon",
+    "nombre": "Itaú (Cordón)",
+    "tipo": "Banco",
+    "direccion": "Constituyente 1426, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9056971,
+    "longitud": -56.1850917
+  },
+  {
     "id": "bps-cordon",
     "nombre": "BPS (Cordón)",
     "tipo": "Trámites",
@@ -2676,6 +6150,76 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8546256,
     "longitud": -56.2224329
+  },
+  {
+    "id": "centro-comunal-zonal-11",
+    "nombre": "Centro Comunal Zonal 11",
+    "tipo": "Trámites",
+    "direccion": "Bage, Las Acacias",
+    "barrio": "Las Acacias",
+    "ciudad": "Montevideo",
+    "latitud": -34.8455634,
+    "longitud": -56.1543116
+  },
+  {
+    "id": "centro-comunal-zonal-16",
+    "nombre": "Centro Comunal Zonal 16",
+    "tipo": "Trámites",
+    "direccion": "Avenida Agraciada 3622, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8659166,
+    "longitud": -56.208461
+  },
+  {
+    "id": "centro-comunal-zonal-10",
+    "nombre": "Centro Comunal Zonal 10",
+    "tipo": "Trámites",
+    "direccion": "Capitán Tula, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8216265,
+    "longitud": -56.1409515
+  },
+  {
+    "id": "centro-comunal-zonal-9",
+    "nombre": "Centro Comunal Zonal 9",
+    "tipo": "Trámites",
+    "direccion": "Avenida 8 de Octubre, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8587508,
+    "longitud": -56.133527
+  },
+  {
+    "id": "ccz-4-municipio-ch",
+    "nombre": "CCZ 4 Municipio CH",
+    "tipo": "Trámites",
+    "direccion": "Avenida Centenario 2886, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8885161,
+    "longitud": -56.1536792
+  },
+  {
+    "id": "centro-comunal-zonal-8",
+    "nombre": "Centro Comunal Zonal 8",
+    "tipo": "Trámites",
+    "direccion": "Avenida Bolivia, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8782744,
+    "longitud": -56.0884536
+  },
+  {
+    "id": "centro-comunal-zonal-7",
+    "nombre": "Centro Comunal Zonal 7",
+    "tipo": "Trámites",
+    "direccion": "Míchigan, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8950983,
+    "longitud": -56.0991759
   },
   {
     "id": "correo-uruguayo-union",
@@ -2778,6 +6322,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9941564
   },
   {
+    "id": "correo-uruguayo-centro-avenida-libertador-brigadier-general-lavalleja-1440",
+    "nombre": "Correo Uruguayo (Centro, Avenida Libertador Brigadier General Lavalleja 1440)",
+    "tipo": "Correo",
+    "direccion": "Avenida Libertador Brigadier General Lavalleja 1440, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9044277,
+    "longitud": -56.1935955
+  },
+  {
+    "id": "parroquia-san-isidro-labrador",
+    "nombre": "Parroquia San Isidro Labrador",
+    "tipo": "Iglesia",
+    "direccion": "Flores 654, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.727687,
+    "longitud": -56.2171315
+  },
+  {
     "id": "capilla-juan-pablo-ii",
     "nombre": "Capilla Juan Pablo II",
     "tipo": "Iglesia",
@@ -2871,7 +6435,7 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "id": "parroquia-san-miguel-arcangel",
     "nombre": "Parroquia San Miguel Arcángel",
     "tipo": "Iglesia",
-    "direccion": "Concepción Arenal 1893, La Figurita",
+    "direccion": "Concepción Arenal, La Figurita",
     "barrio": "La Figurita",
     "ciudad": "Montevideo",
     "latitud": -34.881776,
@@ -2968,14 +6532,354 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9434188
   },
   {
-    "id": "parroquia-san-isidro-labrador",
-    "nombre": "Parroquia San Isidro Labrador",
+    "id": "capilla-santa-monica",
+    "nombre": "Capilla Santa Mónica",
     "tipo": "Iglesia",
-    "direccion": "Flores 654, Las Piedras",
+    "direccion": "Antonio María Márquez 5644, Conciliación",
+    "barrio": "Conciliación",
+    "ciudad": "Montevideo",
+    "latitud": -34.8173057,
+    "longitud": -56.2287958
+  },
+  {
+    "id": "parroquia-nuestra-senora-de-la-guardia-y-san-luis-gonzaga",
+    "nombre": "Parroquia Nuestra Señora de la Guardia y San Luis Gonzaga",
+    "tipo": "Iglesia",
+    "direccion": "Silvestre Ochoa 434, Santiago Vázquez",
+    "barrio": "Santiago Vázquez",
+    "ciudad": "Montevideo",
+    "latitud": -34.7897019,
+    "longitud": -56.3507549
+  },
+  {
+    "id": "iglesia-de-dios-de-la-profecia",
+    "nombre": "Iglesia de Dios de la profecía",
+    "tipo": "Iglesia",
+    "direccion": "Cuacziola 5641, Barrio Abayubá",
+    "barrio": "Barrio Abayubá",
+    "ciudad": "Montevideo",
+    "latitud": -34.7674252,
+    "longitud": -56.2240944
+  },
+  {
+    "id": "capilla-santa-cruz",
+    "nombre": "Capilla Santa Cruz",
+    "tipo": "Iglesia",
+    "direccion": "Camino la Boyada 1871, La Paloma Tomkinson",
+    "barrio": "La Paloma Tomkinson",
+    "ciudad": "Montevideo",
+    "latitud": -34.8593197,
+    "longitud": -56.2578495
+  },
+  {
+    "id": "capilla-virgen-de-los-treinta-y-tres",
+    "nombre": "Capilla Virgen de los Treinta y Tres",
+    "tipo": "Iglesia",
+    "direccion": "Avenida Profesor Jorge Chebataroff 2457, Casabó",
+    "barrio": "Casabó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8888879,
+    "longitud": -56.2648313
+  },
+  {
+    "id": "capilla-madre-paulina",
+    "nombre": "Capilla Madre Paulina",
+    "tipo": "Iglesia",
+    "direccion": "Carmelo de Arzadum 6023, Nuevo París",
+    "barrio": "Nuevo París",
+    "ciudad": "Montevideo",
+    "latitud": -34.8282843,
+    "longitud": -56.2431899
+  },
+  {
+    "id": "capilla-casa-provincial",
+    "nombre": "Capilla Casa Provincial",
+    "tipo": "Iglesia",
+    "direccion": "Avenida Lezica 6187, Lezica",
+    "barrio": "Lezica",
+    "ciudad": "Montevideo",
+    "latitud": -34.8007137,
+    "longitud": -56.2436974
+  },
+  {
+    "id": "iglesia-de-dios",
+    "nombre": "Iglesia de Dios",
+    "tipo": "Iglesia",
+    "direccion": "Avenida General San Martín, Reducto",
+    "barrio": "Reducto",
+    "ciudad": "Montevideo",
+    "latitud": -34.8747702,
+    "longitud": -56.1847717
+  },
+  {
+    "id": "iglesia-santa-maria-de-la-ayuda",
+    "nombre": "Iglesia Santa Maria de la Ayuda",
+    "tipo": "Iglesia",
+    "direccion": "Bogotá 3585, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8875176,
+    "longitud": -56.2522754
+  },
+  {
+    "id": "capilla-san-vicente-pallotti",
+    "nombre": "Capilla San Vicente Pallotti",
+    "tipo": "Iglesia",
+    "direccion": "Sancho Panza 3056, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8717495,
+    "longitud": -56.1650357
+  },
+  {
+    "id": "catedral-de-nuestra-senora-de-bzommar",
+    "nombre": "Catedral de Nuestra Señora de Bzommar",
+    "tipo": "Iglesia",
+    "direccion": "Avenida 19 de Abril 3325, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8685276,
+    "longitud": -56.2047477
+  },
+  {
+    "id": "capilla-motserrat-teresas",
+    "nombre": "Capilla Motserrat (Teresas)",
+    "tipo": "Iglesia",
+    "direccion": "Alaska 748, Tres Ombúes",
+    "barrio": "Tres Ombúes",
+    "ciudad": "Montevideo",
+    "latitud": -34.8566488,
+    "longitud": -56.2429207
+  },
+  {
+    "id": "parroquia-san-francisco-de-asis",
+    "nombre": "Parroquia San Francisco de Asís",
+    "tipo": "Iglesia",
+    "direccion": "Vitoria 59, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.8517846,
+    "longitud": -56.2287975
+  },
+  {
+    "id": "iglesia-presbiteriana-del-uruguay",
+    "nombre": "Iglesia Presbiteriana del Uruguay",
+    "tipo": "Iglesia",
+    "direccion": "General Farías 2764, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.878852,
+    "longitud": -56.199418
+  },
+  {
+    "id": "parroquia-nuestra-senora-de-la-guardia",
+    "nombre": "Parroquia Nuestra Señora de la Guardia",
+    "tipo": "Iglesia",
+    "direccion": "Porongos 2278, La Figurita",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.8866778,
+    "longitud": -56.1810663
+  },
+  {
+    "id": "parroquia-san-vicente-pallotti",
+    "nombre": "Parroquia San Vicente Pallotti",
+    "tipo": "Iglesia",
+    "direccion": "Olazabal 1027, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8280312,
+    "longitud": -56.2243858
+  },
+  {
+    "id": "santuario-nacional-del-corazon-de-jesus",
+    "nombre": "Santuario Nacional del Corazón de Jesús",
+    "tipo": "Iglesia",
+    "direccion": "Norberto Ortiz 3880, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8569236,
+    "longitud": -56.1700779
+  },
+  {
+    "id": "capilla-san-jose-salesianas",
+    "nombre": "Capilla San José (Salesianas)",
+    "tipo": "Iglesia",
+    "direccion": "Avenida General Eugenio Garzón 1867, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8081955,
+    "longitud": -56.2219418
+  },
+  {
+    "id": "la-iglesia-de-jesucristo-de-los-santos-de-los-ultimos-dias",
+    "nombre": "La Iglesia de Jesucristo de los Santos de los Últimos Días",
+    "tipo": "Iglesia",
+    "direccion": "Avenida General Flores, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8686719,
+    "longitud": -56.1734529
+  },
+  {
+    "id": "iglesia-adventista-del-septimo-dia",
+    "nombre": "Iglesia Adventista del Septimo Día",
+    "tipo": "Iglesia",
+    "direccion": "Avenida General Artigas, Las Piedras",
     "barrio": "Las Piedras",
     "ciudad": "Las Piedras",
-    "latitud": -34.727687,
-    "longitud": -56.2171315
+    "latitud": -34.7275077,
+    "longitud": -56.2263926
+  },
+  {
+    "id": "capilla-domingo-savio-barrio-abayuba",
+    "nombre": "Capilla Domingo Savio (Barrio Abayubá)",
+    "tipo": "Iglesia",
+    "direccion": "Siripo 3229, Barrio Abayubá",
+    "barrio": "Barrio Abayubá",
+    "ciudad": "Montevideo",
+    "latitud": -34.7700498,
+    "longitud": -56.2238391
+  },
+  {
+    "id": "capilla-san-pedro-y-san-pablo",
+    "nombre": "Capilla San Pedro y San Pablo",
+    "tipo": "Iglesia",
+    "direccion": "Fray Luis de León 2478, La Paloma Tomkinson",
+    "barrio": "La Paloma Tomkinson",
+    "ciudad": "Montevideo",
+    "latitud": -34.848343,
+    "longitud": -56.2738891
+  },
+  {
+    "id": "parroquia-nuestra-senora-de-fatima",
+    "nombre": "Parroquia Nuestra Señora de Fátima",
+    "tipo": "Iglesia",
+    "direccion": "Bélgica 1765, Casabó",
+    "barrio": "Casabó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8798219,
+    "longitud": -56.2515476
+  },
+  {
+    "id": "capilla-divino-espiritu-santo",
+    "nombre": "Capilla Divino Espíritu Santo",
+    "tipo": "Iglesia",
+    "direccion": "Avenida Millán 5766, Nuevo París",
+    "barrio": "Nuevo París",
+    "ciudad": "Montevideo",
+    "latitud": -34.8241545,
+    "longitud": -56.2386938
+  },
+  {
+    "id": "santuario-nacional-de-maria-auxiliadora",
+    "nombre": "Santuario Nacional de María Auxiliadora",
+    "tipo": "Iglesia",
+    "direccion": "Avenida Lezica 6375, Lezica",
+    "barrio": "Lezica",
+    "ciudad": "Montevideo",
+    "latitud": -34.796269,
+    "longitud": -56.249439
+  },
+  {
+    "id": "capilla-santa-clara-congregacion-de-las-religiosas-de-san-jose",
+    "nombre": "Capilla Santa Clara (Congregación de las Religiosas de San José)",
+    "tipo": "Iglesia",
+    "direccion": "Bogotá 3275, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8930769,
+    "longitud": -56.2510541
+  },
+  {
+    "id": "parroquia-nuestra-senora-de-la-fundacion",
+    "nombre": "Parroquia Nuestra Señora de la Fundación",
+    "tipo": "Iglesia",
+    "direccion": "Rafael Eguren 3362, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8624124,
+    "longitud": -56.1615605
+  },
+  {
+    "id": "la-iglesia-de-jesucristo-de-los-santos-de-los-ultimos-dias-prado",
+    "nombre": "La Iglesia de Jesucristo de los Santos de los Últimos Días (Prado)",
+    "tipo": "Iglesia",
+    "direccion": "Pantaleón Sotelo, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8566762,
+    "longitud": -56.1967549
+  },
+  {
+    "id": "capilla-santuario-de-la-beata-francisca-rubatto",
+    "nombre": "Capilla Santuario de la Beata Francisca Rubatto",
+    "tipo": "Iglesia",
+    "direccion": "Avenida Carlos María Ramírez 56, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.855391,
+    "longitud": -56.223321
+  },
+  {
+    "id": "catedral-san-nerses-shnorhali",
+    "nombre": "Catedral San Nerses Shnorhali",
+    "tipo": "Iglesia",
+    "direccion": "Avenida Agraciada, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8781856,
+    "longitud": -56.1959911
+  },
+  {
+    "id": "iglesia-puerta-de-bendicion",
+    "nombre": "Iglesia Puerta de Bendicion",
+    "tipo": "Iglesia",
+    "direccion": "Calle 3 Metros, La Figurita",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.8771721,
+    "longitud": -56.1745487
+  },
+  {
+    "id": "capilla-de-las-hermanas-del-perpetuo-socorro",
+    "nombre": "Capilla de las Hermanas del Perpetuo Socorro",
+    "tipo": "Iglesia",
+    "direccion": "Avenida Sayago 1090, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8325363,
+    "longitud": -56.2150126
+  },
+  {
+    "id": "parroquia-virgen-de-los-treinta-y-tres",
+    "nombre": "Parroquia Virgen de los Treinta y Tres",
+    "tipo": "Iglesia",
+    "direccion": "Santiago Figueredo 4319, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8456735,
+    "longitud": -56.1717998
+  },
+  {
+    "id": "parroquia-santa-maria-madre-de-la-iglesia-y-san-juan-bosco",
+    "nombre": "Parroquia Santa María Madre de la Iglesia y San Juan Bosco",
+    "tipo": "Iglesia",
+    "direccion": "Avenida General Eugenio Garzón 2024, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8020293,
+    "longitud": -56.2226824
+  },
+  {
+    "id": "capilla-divino-salvador",
+    "nombre": "Capilla Divino Salvador",
+    "tipo": "Iglesia",
+    "direccion": "Calpino, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7462761,
+    "longitud": -56.2230599
   },
   {
     "id": "biblioteca-popular-cina-cina",
@@ -3068,6 +6972,446 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.0054316
   },
   {
+    "id": "plaza-inclusiva-las-cometas",
+    "nombre": "Plaza Inclusiva Las Cometas",
+    "tipo": "Plaza",
+    "direccion": "La Tablada, Montevideo",
+    "barrio": "La Tablada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8100479,
+    "longitud": -56.2465926
+  },
+  {
+    "id": "parque-vacacional-de-b-s-e",
+    "nombre": "Parque Vacacional de B.S.E",
+    "tipo": "Plaza",
+    "direccion": "Conciliación, Montevideo",
+    "barrio": "Conciliación",
+    "ciudad": "Montevideo",
+    "latitud": -34.8183223,
+    "longitud": -56.2163377
+  },
+  {
+    "id": "parque-tomkinson",
+    "nombre": "Parque Tomkinson",
+    "tipo": "Plaza",
+    "direccion": "La Paloma Tomkinson, Montevideo",
+    "barrio": "La Paloma Tomkinson",
+    "ciudad": "Montevideo",
+    "latitud": -34.8467301,
+    "longitud": -56.2800141
+  },
+  {
+    "id": "plazoleta-quinta-de-la-paraguaya",
+    "nombre": "Plazoleta Quinta de la Paraguaya",
+    "tipo": "Plaza",
+    "direccion": "Larrañaga, Montevideo",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8838155,
+    "longitud": -56.1594697
+  },
+  {
+    "id": "plaza-casavalle",
+    "nombre": "Plaza Casavalle",
+    "tipo": "Plaza",
+    "direccion": "Casavalle, Montevideo",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8355704,
+    "longitud": -56.1729317
+  },
+  {
+    "id": "plaza-de-la-inmigracion",
+    "nombre": "Plaza De La Inmigracion",
+    "tipo": "Plaza",
+    "direccion": "Cerro, Montevideo",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.887408,
+    "longitud": -56.2514374
+  },
+  {
+    "id": "plaza-congreso-de-abril",
+    "nombre": "Plaza Congreso de Abril",
+    "tipo": "Plaza",
+    "direccion": "Peñarol, Montevideo",
+    "barrio": "Peñarol",
+    "ciudad": "Montevideo",
+    "latitud": -34.8249874,
+    "longitud": -56.2047039
+  },
+  {
+    "id": "plazoleta-arquitecto-vittorio-meano",
+    "nombre": "Plazoleta Arquitecto Vittorio Meano",
+    "tipo": "Plaza",
+    "direccion": "Arroyo Seco, Montevideo",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8898727,
+    "longitud": -56.1881513
+  },
+  {
+    "id": "espacio-libre-republica-de-eslovenia",
+    "nombre": "Espacio Libre Republica De Eslovenia",
+    "tipo": "Plaza",
+    "direccion": "Atahualpa, Montevideo",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8664254,
+    "longitud": -56.1963127
+  },
+  {
+    "id": "parque-de-la-magistratura",
+    "nombre": "Parque De La Magistratura",
+    "tipo": "Plaza",
+    "direccion": "Bolívar, Montevideo",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8682921,
+    "longitud": -56.1673297
+  },
+  {
+    "id": "plaza-1-de-mayo",
+    "nombre": "Plaza 1º De Mayo",
+    "tipo": "Plaza",
+    "direccion": "Villa Muñoz, Montevideo",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8896505,
+    "longitud": -56.1859993
+  },
+  {
+    "id": "parque-batlle-parque-batlle",
+    "nombre": "Parque Batlle (Parque Batlle)",
+    "tipo": "Plaza",
+    "direccion": "Parque Batlle, Montevideo",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8950582,
+    "longitud": -56.1552253
+  },
+  {
+    "id": "parque-prado",
+    "nombre": "Parque Prado",
+    "tipo": "Plaza",
+    "direccion": "Prado, Montevideo",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8563528,
+    "longitud": -56.2090178
+  },
+  {
+    "id": "parque-de-calistenia",
+    "nombre": "Parque de Calistenia",
+    "tipo": "Plaza",
+    "direccion": "Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8780936,
+    "longitud": -56.0312057
+  },
+  {
+    "id": "plaza-de-las-misiones",
+    "nombre": "Plaza de las Misiones",
+    "tipo": "Plaza",
+    "direccion": "La Figurita, Montevideo",
+    "barrio": "La Figurita",
+    "ciudad": "Montevideo",
+    "latitud": -34.8786985,
+    "longitud": -56.1778637
+  },
+  {
+    "id": "espacio-libre-plebiscito-del-30-11-1980",
+    "nombre": "Espacio Libre Plebiscito del 30/11/1980",
+    "tipo": "Plaza",
+    "direccion": "Aguada, Montevideo",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8910378,
+    "longitud": -56.1855248
+  },
+  {
+    "id": "parque-bellan",
+    "nombre": "Parque Bellán",
+    "tipo": "Plaza",
+    "direccion": "Paso Molino, Montevideo",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8568908,
+    "longitud": -56.2211705
+  },
+  {
+    "id": "plaza-sayago-norte",
+    "nombre": "Plaza Sayago Norte",
+    "tipo": "Plaza",
+    "direccion": "Sayago, Montevideo",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8248743,
+    "longitud": -56.2329275
+  },
+  {
+    "id": "parque-safons",
+    "nombre": "Parque Safons",
+    "tipo": "Plaza",
+    "direccion": "Colón, Montevideo",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8054348,
+    "longitud": -56.2334325
+  },
+  {
+    "id": "plaza-guruyu",
+    "nombre": "Plaza Guruyu",
+    "tipo": "Plaza",
+    "direccion": "Ciudad Vieja, Montevideo",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9113916,
+    "longitud": -56.2112898
+  },
+  {
+    "id": "plaza-de-la-restauracion",
+    "nombre": "Plaza de la Restauración",
+    "tipo": "Plaza",
+    "direccion": "Unión, Montevideo",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8755335,
+    "longitud": -56.1391535
+  },
+  {
+    "id": "parque-general-liber-seregni",
+    "nombre": "Parque General Líber Seregni",
+    "tipo": "Plaza",
+    "direccion": "Tres Cruces, Montevideo",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8968836,
+    "longitud": -56.1719081
+  },
+  {
+    "id": "plazoleta-lorenzo-justiniano-perez",
+    "nombre": "Plazoleta Lorenzo Justiniano Pérez",
+    "tipo": "Plaza",
+    "direccion": "Centro, Montevideo",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9054073,
+    "longitud": -56.1847264
+  },
+  {
+    "id": "espacio-libre-arquitecto-ildefonso-arostegui",
+    "nombre": "Espacio Libre Arquitecto Ildefonso Arostegui",
+    "tipo": "Plaza",
+    "direccion": "Cordón, Montevideo",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8994902,
+    "longitud": -56.1759483
+  },
+  {
+    "id": "parque-debora-cespedes",
+    "nombre": "Parque Débora Céspedes",
+    "tipo": "Plaza",
+    "direccion": "Cerro, Montevideo",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8816889,
+    "longitud": -56.2471319
+  },
+  {
+    "id": "espacio-libre",
+    "nombre": "Espacio Libre",
+    "tipo": "Plaza",
+    "direccion": "Aguada, Montevideo",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8917163,
+    "longitud": -56.1856039
+  },
+  {
+    "id": "plaza-de-la-policia",
+    "nombre": "Plaza de la Policía",
+    "tipo": "Plaza",
+    "direccion": "Paso Molino, Montevideo",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8625311,
+    "longitud": -56.2112879
+  },
+  {
+    "id": "plaza-andres-brandi",
+    "nombre": "Plaza Andrés Brandi",
+    "tipo": "Plaza",
+    "direccion": "Sayago, Montevideo",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8229993,
+    "longitud": -56.2237183
+  },
+  {
+    "id": "plaza-francisco-vidiella",
+    "nombre": "Plaza Francisco Vidiella",
+    "tipo": "Plaza",
+    "direccion": "Colón, Montevideo",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.805975,
+    "longitud": -56.2215624
+  },
+  {
+    "id": "plaza-jose-herrera-y-sotomayor",
+    "nombre": "Plaza José Herrera Y Sotomayor",
+    "tipo": "Plaza",
+    "direccion": "Ciudad Vieja, Montevideo",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9113455,
+    "longitud": -56.2093826
+  },
+  {
+    "id": "plaza-de-la-democracia",
+    "nombre": "Plaza de La Democracia",
+    "tipo": "Plaza",
+    "direccion": "Tres Cruces, Montevideo",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8936737,
+    "longitud": -56.1642968
+  },
+  {
+    "id": "plazoleta-doctor-tomas-g-brena",
+    "nombre": "Plazoleta Doctor Tomas G. Brena",
+    "tipo": "Plaza",
+    "direccion": "Centro, Montevideo",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9049343,
+    "longitud": -56.193872
+  },
+  {
+    "id": "feria-shangrila",
+    "nombre": "Feria Shangrilá",
+    "tipo": "Mercado",
+    "direccion": "San Francisco, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8564629,
+    "longitud": -56.0078309
+  },
+  {
+    "id": "mercado-garzon",
+    "nombre": "Mercado Garzón",
+    "tipo": "Mercado",
+    "direccion": "Avenida General Eugenio Garzón, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.8491667,
+    "longitud": -56.2236464
+  },
+  {
+    "id": "mercado-agricola-de-montevideo",
+    "nombre": "Mercado Agrícola de Montevideo",
+    "tipo": "Mercado",
+    "direccion": "José L. Terra 2220, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8869732,
+    "longitud": -56.1834097
+  },
+  {
+    "id": "feria-de-villa-biarritz",
+    "nombre": "Feria de Villa Biarritz",
+    "tipo": "Mercado",
+    "direccion": "Doctor Juan Alejandro Apolant, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9200241,
+    "longitud": -56.1553921
+  },
+  {
+    "id": "mall-del-lago",
+    "nombre": "Mall del Lago",
+    "tipo": "Shopping",
+    "direccion": "Río Santa Lucía, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8387865,
+    "longitud": -55.9881339
+  },
+  {
+    "id": "via-disegno",
+    "nombre": "Via Disegno",
+    "tipo": "Shopping",
+    "direccion": "Camino de los Grillos, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8441774,
+    "longitud": -56.0164403
+  },
+  {
+    "id": "galeria-marquez-castro",
+    "nombre": "Galería Márquez Castro",
+    "tipo": "Shopping",
+    "direccion": "Avenida Eduardo Márquez Castro, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8225928,
+    "longitud": -55.9582248
+  },
+  {
+    "id": "portal-americas",
+    "nombre": "Portal Américas",
+    "tipo": "Shopping",
+    "direccion": "Avenida de las Américas 6000, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8700656,
+    "longitud": -56.0311692
+  },
+  {
+    "id": "portones-shopping-punta-gorda",
+    "nombre": "Portones Shopping (Punta Gorda)",
+    "tipo": "Shopping",
+    "direccion": "Avenida Italia 5775, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8812008,
+    "longitud": -56.0808727
+  },
+  {
+    "id": "plaza-italia-shopping-outlet",
+    "nombre": "Plaza Italia Shopping Outlet",
+    "tipo": "Shopping",
+    "direccion": "Avenida Italia 4206, Malvín Nuevo",
+    "barrio": "Malvín Nuevo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8880522,
+    "longitud": -56.1178276
+  },
+  {
+    "id": "tiendas-montevideo",
+    "nombre": "Tiendas Montevideo",
+    "tipo": "Shopping",
+    "direccion": "Sarandí, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9074924,
+    "longitud": -56.2041836
+  },
+  {
+    "id": "shopping-tres-cruces",
+    "nombre": "Shopping Tres Cruces",
+    "tipo": "Shopping",
+    "direccion": "Bulevar General Artigas 1825, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8937958,
+    "longitud": -56.1664023
+  },
+  {
     "id": "cine-opera",
     "nombre": "Cine Opera",
     "tipo": "Cine",
@@ -3096,6 +7440,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9052459,
     "longitud": -56.1870141
+  },
+  {
+    "id": "complejo-cultural-plaza",
+    "nombre": "Complejo Cultural Plaza",
+    "tipo": "Cine",
+    "direccion": "General Doctor Arturo J. Baliñas, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9053443,
+    "longitud": -56.19183
   },
   {
     "id": "cinemateca",
@@ -3136,16 +7490,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9038284,
     "longitud": -56.136877
-  },
-  {
-    "id": "complejo-cultural-plaza",
-    "nombre": "Complejo Cultural Plaza",
-    "tipo": "Cine",
-    "direccion": "General Doctor Arturo J. Baliñas, Centro",
-    "barrio": "Centro",
-    "ciudad": "Montevideo",
-    "latitud": -34.9053443,
-    "longitud": -56.19183
   },
   {
     "id": "auditorio-mario-benedetti",
@@ -3348,6 +7692,59 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1659463
   },
   {
+    "id": "pizzeria-municipio",
+    "nombre": "Pizzeria Municipio",
+    "tipo": "Restaurante",
+    "direccion": "Luis Batlle Berres, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7295517,
+    "longitud": -56.2273443
+  },
+  {
+    "id": "munche-s",
+    "nombre": "Munche's",
+    "tipo": "Restaurante",
+    "direccion": "Luis Batlle Berres, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7340856,
+    "longitud": -56.2274854
+  },
+  {
+    "id": "churreria",
+    "nombre": "Churreria",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Luis Batlle Berres, Santiago Vázquez",
+    "barrio": "Santiago Vázquez",
+    "ciudad": "Montevideo",
+    "latitud": -34.7941855,
+    "longitud": -56.3327868
+  },
+  {
+    "id": "bouza-bodega-boutique",
+    "nombre": "Bouza Bodega Boutique",
+    "tipo": "Restaurante",
+    "direccion": "Camino de la Redención 7658 Bis, Melilla",
+    "barrio": "Melilla",
+    "ciudad": "Montevideo",
+    "latitud": -34.7913199,
+    "longitud": -56.2767495,
+    "comida": [
+      "parrilla"
+    ]
+  },
+  {
+    "id": "grido",
+    "nombre": "Grido",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Lezica 6330, Lezica",
+    "barrio": "Lezica",
+    "ciudad": "Montevideo",
+    "latitud": -34.7968591,
+    "longitud": -56.2471997
+  },
+  {
     "id": "el-pobre-acuna",
     "nombre": "El Pobre Acuña",
     "tipo": "Restaurante",
@@ -3361,6 +7758,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
+    "id": "polleria-los-lenos",
+    "nombre": "Pollería Los Leños",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7272003,
+    "longitud": -56.219523
+  },
+  {
     "id": "costa-azul",
     "nombre": "Costa Azul",
     "tipo": "Restaurante",
@@ -3369,6 +7776,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Las Piedras",
     "latitud": -34.7271486,
     "longitud": -56.2172731
+  },
+  {
+    "id": "pizzeria-los-hermanos",
+    "nombre": "Pizzeria Los Hermanos",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7273056,
+    "longitud": -56.2209167
   },
   {
     "id": "nuevo-patriota",
@@ -3411,6 +7828,115 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2147127
   },
   {
+    "id": "monfra",
+    "nombre": "MonfrÀ",
+    "tipo": "Restaurante",
+    "direccion": "Sendero de Paso, Toledo Chico",
+    "barrio": "Toledo Chico",
+    "ciudad": "Montevideo",
+    "latitud": -34.7398997,
+    "longitud": -56.1587725,
+    "comida": [
+      "parrilla"
+    ]
+  },
+  {
+    "id": "luz-violeta",
+    "nombre": "Luz Violeta",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General Artigas, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7272061,
+    "longitud": -56.2240048
+  },
+  {
+    "id": "comidas-al-paso-m-y-n",
+    "nombre": "Comidas al Paso M y N",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Don Pedro de Mendoza, Casavalle",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8181138,
+    "longitud": -56.1569043
+  },
+  {
+    "id": "la-pasiva",
+    "nombre": "La Pasiva",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General Eugenio Garzón, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8055998,
+    "longitud": -56.2220844
+  },
+  {
+    "id": "pizzeria-mediterranea",
+    "nombre": "Pizzeria Mediterranea",
+    "tipo": "Restaurante",
+    "direccion": "Avenida José Belloni, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8169879,
+    "longitud": -56.1390362,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "parrillada-san-jorge",
+    "nombre": "Parrillada San Jorge",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Don Pedro de Mendoza, Casavalle",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8198504,
+    "longitud": -56.1561655
+  },
+  {
+    "id": "pizzeria-los-amigos",
+    "nombre": "Pizzería Los Amigos",
+    "tipo": "Restaurante",
+    "direccion": "Francisco Pizarro, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8135468,
+    "longitud": -56.2163016,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "pick-out",
+    "nombre": "Pick&Out",
+    "tipo": "Restaurante",
+    "direccion": "Carnot, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.8030671,
+    "longitud": -56.2237974
+  },
+  {
+    "id": "la-razon-sandwicheria",
+    "nombre": "La Razon Sandwicheria",
+    "tipo": "Restaurante",
+    "direccion": "Avenida José Belloni, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8172726,
+    "longitud": -56.1390359
+  },
+  {
+    "id": "carrito-el-duende",
+    "nombre": "Carrito El Duende",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Don Pedro de Mendoza, Casavalle",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8062494,
+    "longitud": -56.1614657
+  },
+  {
     "id": "heladeria-grido",
     "nombre": "Heladería Grido",
     "tipo": "Restaurante",
@@ -3419,6 +7945,221 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8071816,
     "longitud": -56.2215315
+  },
+  {
+    "id": "pizza-a-la-pala",
+    "nombre": "Pizza a La Pala",
+    "tipo": "Restaurante",
+    "direccion": "Calle 1, La Tablada",
+    "barrio": "La Tablada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8206506,
+    "longitud": -56.2488892,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "granja-santa-rosa-2",
+    "nombre": "Granja Santa Rosa 2",
+    "tipo": "Restaurante",
+    "direccion": "Santa Lucía, Nuevo París",
+    "barrio": "Nuevo París",
+    "ciudad": "Montevideo",
+    "latitud": -34.8438887,
+    "longitud": -56.2401837
+  },
+  {
+    "id": "la-flor-de-italia",
+    "nombre": "La Flor de Italia",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General Eugenio Garzón, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.821127,
+    "longitud": -56.2202073,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "la-facha",
+    "nombre": "La Facha",
+    "tipo": "Restaurante",
+    "direccion": "Camino Ariel, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8327407,
+    "longitud": -56.2178024
+  },
+  {
+    "id": "neuvo-canton",
+    "nombre": "Neuvo Canton",
+    "tipo": "Restaurante",
+    "direccion": "Bell, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.83551,
+    "longitud": -56.2128815
+  },
+  {
+    "id": "pizzeria-la-elena",
+    "nombre": "Pizzería La Elena",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar Doctor Manuel Herrera y Obes 4343, La Teja",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.85754,
+    "longitud": -56.227055,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "dos-avenidas",
+    "nombre": "Dos Avenidas",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Carlos María Ramírez, Belvedere",
+    "barrio": "Belvedere",
+    "ciudad": "Montevideo",
+    "latitud": -34.8551577,
+    "longitud": -56.2223277
+  },
+  {
+    "id": "pizzeria-la-razon",
+    "nombre": "Pizzería La razón",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Carlos María Ramírez 514, La Teja",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.8611226,
+    "longitud": -56.2301148
+  },
+  {
+    "id": "los-lobizones",
+    "nombre": "Los lobizones",
+    "tipo": "Restaurante",
+    "direccion": "Pedro Giralt 4310, Tres Ombúes",
+    "barrio": "Tres Ombúes",
+    "ciudad": "Montevideo",
+    "latitud": -34.8646555,
+    "longitud": -56.2349858,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "mccain",
+    "nombre": "McCain",
+    "tipo": "Restaurante",
+    "direccion": "Camino Molinos de Raffo, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.846965,
+    "longitud": -56.2126332
+  },
+  {
+    "id": "pizzeria-los-yorio",
+    "nombre": "Pizzería Los Yorio",
+    "tipo": "Restaurante",
+    "direccion": "Doctor Martín Berinduague, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8609272,
+    "longitud": -56.2214699,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "pizzeria-chiviteria-parrillada",
+    "nombre": "Pizzeria Chiviteria Parrillada",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Millán, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8426572,
+    "longitud": -56.2082505,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "los-gauchos",
+    "nombre": "Los Gauchos",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Carlos María Ramírez, Tres Ombúes",
+    "barrio": "Tres Ombúes",
+    "ciudad": "Montevideo",
+    "latitud": -34.8689148,
+    "longitud": -56.2391987
+  },
+  {
+    "id": "don-napolitano",
+    "nombre": "Don Napolitano",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Agraciada, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8579545,
+    "longitud": -56.2178025,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "juancho",
+    "nombre": "Juancho",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Carlos María Ramírez, Tres Ombúes",
+    "barrio": "Tres Ombúes",
+    "ciudad": "Montevideo",
+    "latitud": -34.8734944,
+    "longitud": -56.2477559
+  },
+  {
+    "id": "pizza-coma",
+    "nombre": "Pizza Coma",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Carlos María Ramírez, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8741071,
+    "longitud": -56.2500867
+  },
+  {
+    "id": "la-fortaleza",
+    "nombre": "La Fortaleza",
+    "tipo": "Restaurante",
+    "direccion": "Grecia, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8749327,
+    "longitud": -56.2512763,
+    "comida": [
+      "pizza",
+      "café"
+    ]
+  },
+  {
+    "id": "viandas-hotel-del-prado",
+    "nombre": "Viandas Hotel del Prado",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Gabriela Mistral 4223, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8545303,
+    "longitud": -56.2077282
+  },
+  {
+    "id": "parrillada-el-urraca",
+    "nombre": "Parrillada El Urraca",
+    "tipo": "Restaurante",
+    "direccion": "Grecia, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8761532,
+    "longitud": -56.2510486
   },
   {
     "id": "lo-de-clemente",
@@ -3454,6 +8195,19 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1992343
   },
   {
+    "id": "horno-de-mathias",
+    "nombre": "Horno de Mathias",
+    "tipo": "Restaurante",
+    "direccion": "Uruguayana, Bella Vista",
+    "barrio": "Bella Vista",
+    "ciudad": "Montevideo",
+    "latitud": -34.8754289,
+    "longitud": -56.2009091,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
     "id": "bar-san-martin",
     "nombre": "Bar San Martin",
     "tipo": "Restaurante",
@@ -3462,6 +8216,55 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8755449,
     "longitud": -56.1990556
+  },
+  {
+    "id": "carrito-el-26",
+    "nombre": "Carrito el 26",
+    "tipo": "Restaurante",
+    "direccion": "Juan Bautista Saá, Sayago",
+    "barrio": "Sayago",
+    "ciudad": "Montevideo",
+    "latitud": -34.8296787,
+    "longitud": -56.2303107
+  },
+  {
+    "id": "burger-king",
+    "nombre": "Burger King",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Agraciada 4252, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8557725,
+    "longitud": -56.2204575,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "mcdonald-s",
+    "nombre": "McDonald's",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Agraciada 4168, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8568226,
+    "longitud": -56.2190271,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "mostaza",
+    "nombre": "Mostaza",
+    "tipo": "Restaurante",
+    "direccion": "Mariano Sagasta, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8574054,
+    "longitud": -56.21912,
+    "comida": [
+      "hamburguesas"
+    ]
   },
   {
     "id": "vanessa-denis",
@@ -3512,6 +8315,125 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8645061,
     "longitud": -56.2102896
+  },
+  {
+    "id": "la-curva",
+    "nombre": "La Curva",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Carlos María Ramírez, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8738548,
+    "longitud": -56.250794
+  },
+  {
+    "id": "grido-la-teja",
+    "nombre": "Grido (La Teja)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Carlos María Ramírez 771, La Teja",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.8647354,
+    "longitud": -56.2341813
+  },
+  {
+    "id": "salsa-pizca",
+    "nombre": "Salsa Pizca",
+    "tipo": "Restaurante",
+    "direccion": "Juan B. Viacaba, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8880466,
+    "longitud": -56.2520134
+  },
+  {
+    "id": "pizzeria-lele",
+    "nombre": "Pizzería Lele",
+    "tipo": "Restaurante",
+    "direccion": "Etiopía 2744, Casabó",
+    "barrio": "Casabó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8875972,
+    "longitud": -56.2702527,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "empanadas-carolina",
+    "nombre": "Empanadas Carolina",
+    "tipo": "Restaurante",
+    "direccion": "Piedras 237, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9056339,
+    "longitud": -56.2118053
+  },
+  {
+    "id": "lindolfo",
+    "nombre": "Lindolfo",
+    "tipo": "Restaurante",
+    "direccion": "Juan Lindolfo Cuestas 1388, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9094932,
+    "longitud": -56.2128599
+  },
+  {
+    "id": "es-mercat",
+    "nombre": "Es Mercat",
+    "tipo": "Restaurante",
+    "direccion": "Colón 1550, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9056184,
+    "longitud": -56.2101719,
+    "comida": [
+      "pescado"
+    ]
+  },
+  {
+    "id": "la-fonda",
+    "nombre": "La Fonda",
+    "tipo": "Restaurante",
+    "direccion": "Pérez Castellano 1422, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9078915,
+    "longitud": -56.2103059
+  },
+  {
+    "id": "primuseum",
+    "nombre": "Primuseum",
+    "tipo": "Restaurante",
+    "direccion": "Pérez Castellano 1389, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9085101,
+    "longitud": -56.2102355
+  },
+  {
+    "id": "pizzeria-consul",
+    "nombre": "Pizzería Consul",
+    "tipo": "Restaurante",
+    "direccion": "Ucrania 3700, Casabó",
+    "barrio": "Casabó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8873556,
+    "longitud": -56.2663132,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "rotiseria-la-tuna",
+    "nombre": "Rotisería La Tuna",
+    "tipo": "Restaurante",
+    "direccion": "Etiopía, Casabó",
+    "barrio": "Casabó",
+    "ciudad": "Montevideo",
+    "latitud": -34.8883136,
+    "longitud": -56.273131
   },
   {
     "id": "oriental",
@@ -3640,6 +8562,19 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1758326
   },
   {
+    "id": "monforte-bar-pizzeria",
+    "nombre": "Monforte Bar & Pizzeria",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar José Batlle y Ordóñez, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.8605176,
+    "longitud": -56.1728311,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
     "id": "britanico-parrillada",
     "nombre": "Británico Parrillada",
     "tipo": "Restaurante",
@@ -3686,6 +8621,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
+    "id": "primata-prado",
+    "nombre": "Primata Prado",
+    "tipo": "Restaurante",
+    "direccion": "Caigua, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8648777,
+    "longitud": -56.1961601
+  },
+  {
     "id": "jacinto-luna",
     "nombre": "Jacinto Luna",
     "tipo": "Restaurante",
@@ -3710,6 +8655,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
       "helados",
       "hamburguesas"
     ]
+  },
+  {
+    "id": "pizzeria-pancho-y-cisco",
+    "nombre": "Pizzeria Pancho y Cisco",
+    "tipo": "Restaurante",
+    "direccion": "Cufré, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8768177,
+    "longitud": -56.1709297
   },
   {
     "id": "d-la-ribera",
@@ -3851,6 +8806,170 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
+    "id": "la-terraza",
+    "nombre": "La Terraza",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar José Batlle y Ordóñez, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8689628,
+    "longitud": -56.1618869
+  },
+  {
+    "id": "il-buon-mangiare",
+    "nombre": "Il Buon Mangiare",
+    "tipo": "Restaurante",
+    "direccion": "Canstatt, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8734773,
+    "longitud": -56.1604109
+  },
+  {
+    "id": "brother-s-bar",
+    "nombre": "Brother's Bar",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Luis Alberto de Herrera 2751, Larrañaga",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8792564,
+    "longitud": -56.1554602,
+    "comida": [
+      "pizza",
+      "parrilla"
+    ]
+  },
+  {
+    "id": "pizzeria-el-tejado",
+    "nombre": "Pizzería El Tejado",
+    "tipo": "Restaurante",
+    "direccion": "Juan Arrieta, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8726271,
+    "longitud": -56.1613488
+  },
+  {
+    "id": "las-palmeras",
+    "nombre": "Las Palmeras",
+    "tipo": "Restaurante",
+    "direccion": "Doctor Luis Alberto Surraco, Larrañaga",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8781963,
+    "longitud": -56.1564823
+  },
+  {
+    "id": "pizzeria-maktub",
+    "nombre": "Pizzeria Maktub",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Luis Alberto de Herrera, Larrañaga",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8770429,
+    "longitud": -56.1566874
+  },
+  {
+    "id": "pizzeria-31-de-enero",
+    "nombre": "Pizzeria 31 de Enero",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Don Pedro de Mendoza, Casavalle",
+    "barrio": "Casavalle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8297103,
+    "longitud": -56.1547167,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "rotiseria-piria",
+    "nombre": "Rotiseria Piria",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar Aparicio Saravia, Jardines del Hipódromo",
+    "barrio": "Jardines del Hipódromo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8309072,
+    "longitud": -56.1281169
+  },
+  {
+    "id": "la-previa",
+    "nombre": "La Previa",
+    "tipo": "Restaurante",
+    "direccion": "Francisco Sainz Rosas, Jardines del Hipódromo",
+    "barrio": "Jardines del Hipódromo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8460039,
+    "longitud": -56.1354149
+  },
+  {
+    "id": "mediterranea-2",
+    "nombre": "Mediterránea 2",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General Flores 5463, Piedras Blancas",
+    "barrio": "Piedras Blancas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8300225,
+    "longitud": -56.1422654,
+    "comida": [
+      "hamburguesas",
+      "sándwiches",
+      "parrilla",
+      "helados",
+      "café",
+      "pastas",
+      "pizza",
+      "pollo",
+      "pescado"
+    ]
+  },
+  {
+    "id": "parrillada",
+    "nombre": "Parrillada",
+    "tipo": "Restaurante",
+    "direccion": "Joanicó, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8749486,
+    "longitud": -56.1423024
+  },
+  {
+    "id": "el-club-de-la-papa-frita",
+    "nombre": "El Club de la Papa Frita",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre 3650, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8765661,
+    "longitud": -56.1429796,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "bar-san-pedro",
+    "nombre": "Bar San Pedro",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8783242,
+    "longitud": -56.1459573
+  },
+  {
+    "id": "no-hay-2-sin-3",
+    "nombre": "No hay 2 sin 3",
+    "tipo": "Restaurante",
+    "direccion": "Ramón de Santiago, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8691658,
+    "longitud": -56.1861476,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
     "id": "las-paulinas",
     "nombre": "Las Paulinas",
     "tipo": "Restaurante",
@@ -3874,6 +8993,19 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1767884
   },
   {
+    "id": "friends",
+    "nombre": "Friends",
+    "tipo": "Restaurante",
+    "direccion": "Gualeguay, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8676026,
+    "longitud": -56.1702898,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
     "id": "rico-rincon",
     "nombre": "Rico Rincón",
     "tipo": "Restaurante",
@@ -3882,6 +9014,19 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8761005,
     "longitud": -56.1760635
+  },
+  {
+    "id": "mcdonald-s-jacinto-vera",
+    "nombre": "McDonald's (Jacinto Vera)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Luis Alberto de Herrera, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8697554,
+    "longitud": -56.1697171,
+    "comida": [
+      "hamburguesas"
+    ]
   },
   {
     "id": "ipanema",
@@ -3918,8 +9063,8 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
-    "id": "mcdonald-s",
-    "nombre": "McDonald's",
+    "id": "mcdonald-s-prado",
+    "nombre": "McDonald's (Prado)",
     "tipo": "Restaurante",
     "direccion": "Avenida Joaquín Suárez 3774, Prado",
     "barrio": "Prado",
@@ -4152,6 +9297,19 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
+    "id": "parrillada-jardines-del-hipodromo",
+    "nombre": "Parrillada (Jardines del Hipódromo)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General Flores, Jardines del Hipódromo",
+    "barrio": "Jardines del Hipódromo",
+    "ciudad": "Montevideo",
+    "latitud": -34.839609,
+    "longitud": -56.1496253,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
     "id": "heladeria-garcia",
     "nombre": "Heladería García",
     "tipo": "Restaurante",
@@ -4172,8 +9330,18 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1358711
   },
   {
-    "id": "grido",
-    "nombre": "Grido",
+    "id": "grido-brazo-oriental",
+    "nombre": "Grido (Brazo Oriental)",
+    "tipo": "Restaurante",
+    "direccion": "Andrés Lamas, Brazo Oriental",
+    "barrio": "Brazo Oriental",
+    "ciudad": "Montevideo",
+    "latitud": -34.865725,
+    "longitud": -56.171212
+  },
+  {
+    "id": "grido-larranaga",
+    "nombre": "Grido (Larrañaga)",
     "tipo": "Restaurante",
     "direccion": "Thompson, Larrañaga",
     "barrio": "Larrañaga",
@@ -4192,6 +9360,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1825037
   },
   {
+    "id": "piu",
+    "nombre": "PIU",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Millán, Atahualpa",
+    "barrio": "Atahualpa",
+    "ciudad": "Montevideo",
+    "latitud": -34.8602828,
+    "longitud": -56.1951537
+  },
+  {
+    "id": "chentola",
+    "nombre": "Chentola",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Agraciada 4018, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.859332,
+    "longitud": -56.2160774
+  },
+  {
     "id": "grido-union",
     "nombre": "Grido (Unión)",
     "tipo": "Restaurante",
@@ -4202,14 +9390,346 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.147403
   },
   {
-    "id": "chentola",
-    "nombre": "Chéntola",
+    "id": "chentola-bella-vista",
+    "nombre": "Chéntola (Bella Vista)",
     "tipo": "Restaurante",
     "direccion": "Buricayupi, Bella Vista",
     "barrio": "Bella Vista",
     "ciudad": "Montevideo",
     "latitud": -34.8751463,
     "longitud": -56.1988679
+  },
+  {
+    "id": "parador-oriental",
+    "nombre": "Parador Oriental",
+    "tipo": "Restaurante",
+    "direccion": "Camino Maldonado, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.842947,
+    "longitud": -56.124653
+  },
+  {
+    "id": "las-gardenas",
+    "nombre": "Las Gardenas",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8559349,
+    "longitud": -56.132023
+  },
+  {
+    "id": "sweet-house",
+    "nombre": "Sweet House",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8563299,
+    "longitud": -56.1323759
+  },
+  {
+    "id": "qiana-uctrial",
+    "nombre": "Qiana Uctrial",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8589802,
+    "longitud": -56.133533
+  },
+  {
+    "id": "alacena",
+    "nombre": "Alacena",
+    "tipo": "Restaurante",
+    "direccion": "Tacuari 1144, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8744773,
+    "longitud": -56.0306927
+  },
+  {
+    "id": "asencio-bar",
+    "nombre": "Asencio Bar",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Alfredo Arocena 1999, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8811163,
+    "longitud": -56.0617736
+  },
+  {
+    "id": "el-chavo",
+    "nombre": "El Chavo",
+    "tipo": "Restaurante",
+    "direccion": "Canovas del Castillo, Maroñas",
+    "barrio": "Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8650349,
+    "longitud": -56.1175268
+  },
+  {
+    "id": "la-fiaca",
+    "nombre": "La Fiaca",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8656455,
+    "longitud": -56.023852,
+    "comida": [
+      "pizza",
+      "sándwiches",
+      "pastas"
+    ]
+  },
+  {
+    "id": "alberto-s",
+    "nombre": "Alberto's",
+    "tipo": "Restaurante",
+    "direccion": "Vaimaca Perú, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.878145,
+    "longitud": -56.030334
+  },
+  {
+    "id": "kamikaze-sushi-house",
+    "nombre": "Kamikaze Sushi House",
+    "tipo": "Restaurante",
+    "direccion": "Avenida a la Playa, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8657718,
+    "longitud": -56.0215179,
+    "comida": [
+      "japonesa",
+      "sushi"
+    ]
+  },
+  {
+    "id": "lo-de-monica",
+    "nombre": "Lo de Mónica",
+    "tipo": "Restaurante",
+    "direccion": "Javier de Viana, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8713065,
+    "longitud": -56.0230961
+  },
+  {
+    "id": "la-nueva-chopera",
+    "nombre": "La Nueva Chopera",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre, Villa Española",
+    "barrio": "Villa Española",
+    "ciudad": "Montevideo",
+    "latitud": -34.8658684,
+    "longitud": -56.1342965
+  },
+  {
+    "id": "reyna",
+    "nombre": "Reyna",
+    "tipo": "Restaurante",
+    "direccion": "Camino Corrales, Villa Española",
+    "barrio": "Villa Española",
+    "ciudad": "Montevideo",
+    "latitud": -34.8642367,
+    "longitud": -56.1375972
+  },
+  {
+    "id": "pasta-pasta",
+    "nombre": "Pasta & Pasta",
+    "tipo": "Restaurante",
+    "direccion": "Rostand 1560, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8895942,
+    "longitud": -56.0558413,
+    "comida": [
+      "italiana"
+    ]
+  },
+  {
+    "id": "dackel",
+    "nombre": "Dackel",
+    "tipo": "Restaurante",
+    "direccion": "Doctor Gabriel Otero 6438, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8893239,
+    "longitud": -56.0575136
+  },
+  {
+    "id": "restaurant-shang-hai",
+    "nombre": "Restaurant Shang Hai",
+    "tipo": "Restaurante",
+    "direccion": "Rostand 1560, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8898519,
+    "longitud": -56.0556932,
+    "comida": [
+      "china"
+    ]
+  },
+  {
+    "id": "la-peatonal",
+    "nombre": "La Peatonal",
+    "tipo": "Restaurante",
+    "direccion": "Carlos Sáez 6697, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8899292,
+    "longitud": -56.055332
+  },
+  {
+    "id": "origen",
+    "nombre": "Origen",
+    "tipo": "Restaurante",
+    "direccion": "Carlos Sáez 6433, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8902522,
+    "longitud": -56.0570319
+  },
+  {
+    "id": "los-redonditos",
+    "nombre": "Los Redonditos",
+    "tipo": "Restaurante",
+    "direccion": "Camino Carrasco, Maroñas",
+    "barrio": "Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8709005,
+    "longitud": -56.1151711
+  },
+  {
+    "id": "la-clasica",
+    "nombre": "La Clasica",
+    "tipo": "Restaurante",
+    "direccion": "General José Villagrán, Villa Española",
+    "barrio": "Villa Española",
+    "ciudad": "Montevideo",
+    "latitud": -34.8684651,
+    "longitud": -56.1348645
+  },
+  {
+    "id": "la-redonda",
+    "nombre": "La Redonda",
+    "tipo": "Restaurante",
+    "direccion": "Camino Carrasco, Maroñas",
+    "barrio": "Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8704737,
+    "longitud": -56.111004,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "la-pasiva-punta-gorda",
+    "nombre": "La Pasiva (Punta Gorda)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Italia 5775, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.881002,
+    "longitud": -56.0815889
+  },
+  {
+    "id": "la-pizzarrita",
+    "nombre": "La Pizzarrita",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General José María Paz 1444, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.892853,
+    "longitud": -56.0797896
+  },
+  {
+    "id": "como-la-vaca-al-toro",
+    "nombre": "Como la vaca al toro",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Bolivia 1505, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8924446,
+    "longitud": -56.0687671,
+    "comida": [
+      "parrilla"
+    ]
+  },
+  {
+    "id": "rodelu",
+    "nombre": "Rodelu",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Bolivia 1428, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8928281,
+    "longitud": -56.0660387
+  },
+  {
+    "id": "el-club-de-la-papa-frita-malvin",
+    "nombre": "El Club de la Papa Frita (Malvín)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Enrique Legrand 5187, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8905796,
+    "longitud": -56.0970168,
+    "comida": [
+      "pizza",
+      "parrilla"
+    ]
+  },
+  {
+    "id": "la-criolla",
+    "nombre": "La Criolla",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Bolivia 1408, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8931202,
+    "longitud": -56.065647
+  },
+  {
+    "id": "alta-pizza",
+    "nombre": "Alta Pizza",
+    "tipo": "Restaurante",
+    "direccion": "Missouri 1401, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8955901,
+    "longitud": -56.0957015,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "decano",
+    "nombre": "Decano",
+    "tipo": "Restaurante",
+    "direccion": "Orinoco 4943, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8957657,
+    "longitud": -56.0998794,
+    "comida": [
+      "pizza",
+      "parrilla"
+    ]
+  },
+  {
+    "id": "soprano-s",
+    "nombre": "Soprano's",
+    "tipo": "Restaurante",
+    "direccion": "Río de la Plata 1395, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.895904,
+    "longitud": -56.1022164
   },
   {
     "id": "mlcalentitas",
@@ -4245,6 +9765,607 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.0242707
   },
   {
+    "id": "el-horno-de-juan",
+    "nombre": "El Horno de Juan",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Italia 5654, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8837612,
+    "longitud": -56.0849627,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "grido-maronas",
+    "nombre": "Grido (Maroñas)",
+    "tipo": "Restaurante",
+    "direccion": "Hipólito Yrigoyen, Maroñas",
+    "barrio": "Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8710743,
+    "longitud": -56.1158522
+  },
+  {
+    "id": "chivitos-lo-de-pepe",
+    "nombre": "Chivitos Lo de Pepe",
+    "tipo": "Restaurante",
+    "direccion": "José L. Terra 2220, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.886448,
+    "longitud": -56.1835374
+  },
+  {
+    "id": "chekere-de-cuba",
+    "nombre": "Chekere de Cuba",
+    "tipo": "Restaurante",
+    "direccion": "José L. Terra 2220, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8865985,
+    "longitud": -56.1830901
+  },
+  {
+    "id": "gran-arenal",
+    "nombre": "Gran Arenal",
+    "tipo": "Restaurante",
+    "direccion": "Libres, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.88626,
+    "longitud": -56.1807287
+  },
+  {
+    "id": "alcala",
+    "nombre": "Alcala",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General Flores, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8890242,
+    "longitud": -56.1864493
+  },
+  {
+    "id": "quentin-bar",
+    "nombre": "Quentin Bar",
+    "tipo": "Restaurante",
+    "direccion": "Marcelino Sosa 2125, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8877164,
+    "longitud": -56.187326
+  },
+  {
+    "id": "cocina-y-cafe",
+    "nombre": "Cocina y café",
+    "tipo": "Restaurante",
+    "direccion": "Justicia, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8879032,
+    "longitud": -56.1791508
+  },
+  {
+    "id": "bar-silva",
+    "nombre": "Bar Silva",
+    "tipo": "Restaurante",
+    "direccion": "Colombia 1347, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8900311,
+    "longitud": -56.1886692,
+    "comida": [
+      "parrilla"
+    ]
+  },
+  {
+    "id": "el-rey-del-sabor-villa-munoz",
+    "nombre": "El rey del sabor (Villa Muñoz)",
+    "tipo": "Restaurante",
+    "direccion": "Doctor Juan José de Amézaga, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8865369,
+    "longitud": -56.1771218
+  },
+  {
+    "id": "la-tasca-dels-cuiners",
+    "nombre": "La Tasca dels Cuiners",
+    "tipo": "Restaurante",
+    "direccion": "César Díaz 1254, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8894648,
+    "longitud": -56.190723
+  },
+  {
+    "id": "gaucho-s-grill",
+    "nombre": "Gaucho's Grill",
+    "tipo": "Restaurante",
+    "direccion": "General Fausto Aguilar, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.883998,
+    "longitud": -56.1909606
+  },
+  {
+    "id": "ciudad-bar",
+    "nombre": "Ciudad Bar",
+    "tipo": "Restaurante",
+    "direccion": "Miguelete, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8960406,
+    "longitud": -56.1817828
+  },
+  {
+    "id": "urumex",
+    "nombre": "Urumex",
+    "tipo": "Restaurante",
+    "direccion": "Gaboto, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8963342,
+    "longitud": -56.1825643
+  },
+  {
+    "id": "charly",
+    "nombre": "Charly",
+    "tipo": "Restaurante",
+    "direccion": "Paraguay 2141, Arroyo Seco",
+    "barrio": "Arroyo Seco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8913179,
+    "longitud": -56.1947828,
+    "comida": [
+      "café"
+    ]
+  },
+  {
+    "id": "jueves-5",
+    "nombre": "Jueves 5",
+    "tipo": "Restaurante",
+    "direccion": "Coquimbo, La Comercial",
+    "barrio": "La Comercial",
+    "ciudad": "Montevideo",
+    "latitud": -34.8863193,
+    "longitud": -56.170954
+  },
+  {
+    "id": "el-vencedor",
+    "nombre": "El Vencedor",
+    "tipo": "Restaurante",
+    "direccion": "Valparaíso, Aguada",
+    "barrio": "Aguada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8981031,
+    "longitud": -56.1908095
+  },
+  {
+    "id": "mi-casa",
+    "nombre": "Mi Casa",
+    "tipo": "Restaurante",
+    "direccion": "Nueva Palmira 2076, Villa Muñoz",
+    "barrio": "Villa Muñoz",
+    "ciudad": "Montevideo",
+    "latitud": -34.8885343,
+    "longitud": -56.1700857
+  },
+  {
+    "id": "nippon",
+    "nombre": "Nippon",
+    "tipo": "Restaurante",
+    "direccion": "Magallanes 1566, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9005863,
+    "longitud": -56.1810268
+  },
+  {
+    "id": "la-tortuguita",
+    "nombre": "La Tortuguita",
+    "tipo": "Restaurante",
+    "direccion": "Tristán Narvaja 1597, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.900899,
+    "longitud": -56.178371,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "la-isla",
+    "nombre": "La Isla",
+    "tipo": "Restaurante",
+    "direccion": "Ejido 1545, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9019302,
+    "longitud": -56.1873567,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "touring",
+    "nombre": "Touring",
+    "tipo": "Restaurante",
+    "direccion": "Minas 1487, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9028987,
+    "longitud": -56.1811233,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "gran-sportman",
+    "nombre": "Gran Sportman",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 18 de Julio 1803, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9022081,
+    "longitud": -56.1772152
+  },
+  {
+    "id": "fans-cafe",
+    "nombre": "Fans! Café",
+    "tipo": "Restaurante",
+    "direccion": "Constituyente 1515, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.905719,
+    "longitud": -56.182667,
+    "comida": [
+      "sándwiches"
+    ]
+  },
+  {
+    "id": "el-club-de-la-papa-frita-centro",
+    "nombre": "El Club de la Papa Frita (Centro)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 18 de Julio 1261, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9055834,
+    "longitud": -56.1888136,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "comi-k",
+    "nombre": "Comi.k",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 18 de Julio 994, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9062876,
+    "longitud": -56.1950264
+  },
+  {
+    "id": "guacamole",
+    "nombre": "Guacamole",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 18 de Julio 1070, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9065723,
+    "longitud": -56.1930103,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "biobar",
+    "nombre": "Biobar",
+    "tipo": "Restaurante",
+    "direccion": "Circunvalación Doctor Enrique Tarigo 1126, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9065385,
+    "longitud": -56.1918249
+  },
+  {
+    "id": "el-fogon",
+    "nombre": "El Fogón",
+    "tipo": "Restaurante",
+    "direccion": "San José 1080, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9071042,
+    "longitud": -56.1929113
+  },
+  {
+    "id": "la-pasiva-barrio-sur",
+    "nombre": "La Pasiva (Barrio Sur)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 18 de Julio 899, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9061747,
+    "longitud": -56.1971731,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "bar-madison",
+    "nombre": "Bar Madison",
+    "tipo": "Restaurante",
+    "direccion": "Andes 1403, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9052839,
+    "longitud": -56.1983786
+  },
+  {
+    "id": "el-paraiso-de-eva",
+    "nombre": "El Paraiso de Eva",
+    "tipo": "Restaurante",
+    "direccion": "José Germán Araújo 1280, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9078995,
+    "longitud": -56.1978809
+  },
+  {
+    "id": "bar-gula",
+    "nombre": "Bar Gula",
+    "tipo": "Restaurante",
+    "direccion": "Canelones 1150, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9088236,
+    "longitud": -56.1911718
+  },
+  {
+    "id": "andale-taqueria-vegana",
+    "nombre": "Andale Taqueria Vegana",
+    "tipo": "Restaurante",
+    "direccion": "Canelones 1552, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9081304,
+    "longitud": -56.1819098
+  },
+  {
+    "id": "palermo-viejo",
+    "nombre": "Palermo Viejo",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Gonzalo Ramírez 1446, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9126747,
+    "longitud": -56.1838804
+  },
+  {
+    "id": "santa-clara",
+    "nombre": "Santa Clara",
+    "tipo": "Restaurante",
+    "direccion": "Canelones 1648, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9079854,
+    "longitud": -56.1797244
+  },
+  {
+    "id": "la-pasiva-buceo",
+    "nombre": "La Pasiva (Buceo)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9032568,
+    "longitud": -56.1370037
+  },
+  {
+    "id": "sirocco",
+    "nombre": "Sirocco",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre 3110, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8824672,
+    "longitud": -56.1528933,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "los-horneros",
+    "nombre": "Los Horneros",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Luis Alberto de Herrera, Larrañaga",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.881146,
+    "longitud": -56.1530885
+  },
+  {
+    "id": "pizzeria-belgrano",
+    "nombre": "Pizzería Belgrano",
+    "tipo": "Restaurante",
+    "direccion": "Belgrano 2881, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8896572,
+    "longitud": -56.15351,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "rocco-s-pizza",
+    "nombre": "Rocco´s Pizza",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar José Batlle y Ordóñez 2598, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8827505,
+    "longitud": -56.1429529
+  },
+  {
+    "id": "abril",
+    "nombre": "Abril",
+    "tipo": "Restaurante",
+    "direccion": "Coronel Lucas Píriz, Larrañaga",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.883646,
+    "longitud": -56.1612959,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "el-club-de-la-papa-frita-la-blanqueada",
+    "nombre": "El Club de la papa frita (La Blanqueada)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre 2704, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8894063,
+    "longitud": -56.159913,
+    "comida": [
+      "pizza",
+      "sándwiches",
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "pizzeria-braga",
+    "nombre": "Pizzería Braga",
+    "tipo": "Restaurante",
+    "direccion": "Monte Caseros 2802, Larrañaga",
+    "barrio": "Larrañaga",
+    "ciudad": "Montevideo",
+    "latitud": -34.8844962,
+    "longitud": -56.1619386,
+    "comida": [
+      "sándwiches",
+      "pizza"
+    ]
+  },
+  {
+    "id": "rodelu-la-blanqueada",
+    "nombre": "Rodelu (La Blanqueada)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre 2688, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8898766,
+    "longitud": -56.1603124,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "casa-degli-italiani",
+    "nombre": "Casa degli Italiani",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 8 de Octubre 2651, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8901147,
+    "longitud": -56.1611585
+  },
+  {
+    "id": "el-arabito",
+    "nombre": "El Arabito",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar General Artigas, La Comercial",
+    "barrio": "La Comercial",
+    "ciudad": "Montevideo",
+    "latitud": -34.8862947,
+    "longitud": -56.1656674
+  },
+  {
+    "id": "la-barra-de-gerardo",
+    "nombre": "La Barra de Gerardo",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Ramón Anador 3211, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8957036,
+    "longitud": -56.147004
+  },
+  {
+    "id": "bar-dublin",
+    "nombre": "Bar Dublin",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Ramón Anador 3431, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8952196,
+    "longitud": -56.1424173,
+    "comida": [
+      "parrilla",
+      "pizza"
+    ]
+  },
+  {
+    "id": "lo-de-silverio",
+    "nombre": "Lo de Silverio",
+    "tipo": "Restaurante",
+    "direccion": "Alejo Rosell y Rius 1655, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8970743,
+    "longitud": -56.147006,
+    "comida": [
+      "parrilla"
+    ]
+  },
+  {
+    "id": "bar-los-4",
+    "nombre": "Bar Los 4",
+    "tipo": "Restaurante",
+    "direccion": "Carlos Berg 2550, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9135863,
+    "longitud": -56.1577594
+  },
+  {
+    "id": "sushi-time",
+    "nombre": "Sushi Time",
+    "tipo": "Restaurante",
+    "direccion": "Luis Franzini 970, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9131473,
+    "longitud": -56.1588698,
+    "comida": [
+      "sushi"
+    ]
+  },
+  {
+    "id": "dilema-cafe-restobar",
+    "nombre": "Dilema Café & Restobar",
+    "tipo": "Restaurante",
+    "direccion": "Tomás Diago 879, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9149983,
+    "longitud": -56.1518302
+  },
+  {
+    "id": "hugo-soca",
+    "nombre": "Hugo Soca",
+    "tipo": "Restaurante",
+    "direccion": "Luis Franzini 955, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9134513,
+    "longitud": -56.1590792
+  },
+  {
     "id": "parrilla-eladio",
     "nombre": "Parrilla Eladio",
     "tipo": "Restaurante",
@@ -4253,6 +10374,92 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9123776,
     "longitud": -56.1527191
+  },
+  {
+    "id": "el-local-rotiseria",
+    "nombre": "El Local - Rotisería",
+    "tipo": "Restaurante",
+    "direccion": "Libertad 2504, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.911305,
+    "longitud": -56.1589383
+  },
+  {
+    "id": "tintos-rubias",
+    "nombre": "Tintos & Rubias",
+    "tipo": "Restaurante",
+    "direccion": "Pedro Francisco Berro 797, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9164188,
+    "longitud": -56.1533256,
+    "comida": [
+      "parrilla"
+    ]
+  },
+  {
+    "id": "hummus",
+    "nombre": "Hummus",
+    "tipo": "Restaurante",
+    "direccion": "Doctor José Scosería 2500, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9155302,
+    "longitud": -56.1588299
+  },
+  {
+    "id": "primitivo",
+    "nombre": "Primitivo",
+    "tipo": "Restaurante",
+    "direccion": "El Viejo Pancho 2457, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9101,
+    "longitud": -56.1603718,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "soprano-s-pocitos",
+    "nombre": "Soprano’s Pocitos",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar España 2494, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9120118,
+    "longitud": -56.1605837
+  },
+  {
+    "id": "bruta",
+    "nombre": "Bruta",
+    "tipo": "Restaurante",
+    "direccion": "Luis de la Torre 818, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9157895,
+    "longitud": -56.155992
+  },
+  {
+    "id": "la-barra-1114",
+    "nombre": "La Barra 1114",
+    "tipo": "Restaurante",
+    "direccion": "Libertad 2436, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9125001,
+    "longitud": -56.1608085
+  },
+  {
+    "id": "himalayan",
+    "nombre": "Himalayan",
+    "tipo": "Restaurante",
+    "direccion": "General Arquitecto Alfredo Baldomir 2463, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9086433,
+    "longitud": -56.1603153
   },
   {
     "id": "la-otra-parrilla",
@@ -4291,6 +10498,261 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.160484,
     "comida": [
       "parrilla"
+    ]
+  },
+  {
+    "id": "sin-berretines",
+    "nombre": "Sin berretines",
+    "tipo": "Restaurante",
+    "direccion": "Juan D. Jackson 940, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.912083,
+    "longitud": -56.1725575
+  },
+  {
+    "id": "bar-rodo",
+    "nombre": "Bar Rodo",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Gonzalo Ramírez 2000, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9118622,
+    "longitud": -56.1716719
+  },
+  {
+    "id": "la-isla-palermo",
+    "nombre": "La Isla (Palermo)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Gonzalo Ramírez, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9119638,
+    "longitud": -56.1758576,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "blanes-restaurante",
+    "nombre": "Blanes Restaurante",
+    "tipo": "Restaurante",
+    "direccion": "Juan Manuel Blanes 997, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9111772,
+    "longitud": -56.1717784,
+    "comida": [
+      "italiana"
+    ]
+  },
+  {
+    "id": "il-trancio-ditalia",
+    "nombre": "Il Trancio Ditalia",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Gonzalo Ramírez 2113, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.911437,
+    "longitud": -56.168928,
+    "comida": [
+      "pastas",
+      "pizza"
+    ]
+  },
+  {
+    "id": "alberto-s-buceo",
+    "nombre": "Alberto's (Buceo)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Luis Alberto de Herrera 1144, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9068831,
+    "longitud": -56.1362621,
+    "comida": [
+      "parrilla",
+      "pizza"
+    ]
+  },
+  {
+    "id": "hard-rock-cafe",
+    "nombre": "Hard Rock Cafe",
+    "tipo": "Restaurante",
+    "direccion": "Rambla Armenia 1624, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9095741,
+    "longitud": -56.134036
+  },
+  {
+    "id": "la-pasiva-26",
+    "nombre": "La Pasiva 26",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar 26 de Marzo 3564, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9055798,
+    "longitud": -56.1353116
+  },
+  {
+    "id": "panini-s",
+    "nombre": "Panini's",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar 26 de Marzo 3586, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9055086,
+    "longitud": -56.1348073,
+    "comida": [
+      "italiana",
+      "pescado"
+    ]
+  },
+  {
+    "id": "pranzo-pocitos",
+    "nombre": "Pranzo Pocitos",
+    "tipo": "Restaurante",
+    "direccion": "Basilio Pereira de la Luz 1354, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.9034355,
+    "longitud": -56.1418108,
+    "comida": [
+      "pizza",
+      "hamburguesas",
+      "sándwiches"
+    ]
+  },
+  {
+    "id": "miniefoods",
+    "nombre": "Miniefoods",
+    "tipo": "Restaurante",
+    "direccion": "Marco Bruto 1386, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.9020454,
+    "longitud": -56.1395785
+  },
+  {
+    "id": "venecia",
+    "nombre": "Venecia",
+    "tipo": "Restaurante",
+    "direccion": "Avenida General Rivera 3351, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.9020771,
+    "longitud": -56.1421819,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "chocara-mvd",
+    "nombre": "ChocAra MVD",
+    "tipo": "Restaurante",
+    "direccion": "20 de Setiembre 1520, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.900425,
+    "longitud": -56.1624726,
+    "comida": [
+      "hamburguesas",
+      "café"
+    ]
+  },
+  {
+    "id": "papiros",
+    "nombre": "Papiros",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 18 de Julio 2092, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8997326,
+    "longitud": -56.1699404,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "castrobo",
+    "nombre": "Castrobo",
+    "tipo": "Restaurante",
+    "direccion": "Avenida 18 de Julio 2150, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8992995,
+    "longitud": -56.1688003,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "a-punto",
+    "nombre": "A Punto",
+    "tipo": "Restaurante",
+    "direccion": "Pedro Campbell 1449, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.9011903,
+    "longitud": -56.1619892,
+    "comida": [
+      "parrilla"
+    ]
+  },
+  {
+    "id": "la-guinda",
+    "nombre": "La Guinda",
+    "tipo": "Restaurante",
+    "direccion": "Maldonado 1983, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9082435,
+    "longitud": -56.1723463
+  },
+  {
+    "id": "rocinante",
+    "nombre": "Rocinante",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Gonzalo Ramírez 1652, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9124008,
+    "longitud": -56.1789598,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
+    "id": "katy-s",
+    "nombre": "Katy's",
+    "tipo": "Restaurante",
+    "direccion": "San Salvador 1644, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.911641,
+    "longitud": -56.1793558
+  },
+  {
+    "id": "jhonny-s",
+    "nombre": "Jhonny's",
+    "tipo": "Restaurante",
+    "direccion": "Agustín Abreu 2441, La Blanqueada",
+    "barrio": "La Blanqueada",
+    "ciudad": "Montevideo",
+    "latitud": -34.8812664,
+    "longitud": -56.1485296
+  },
+  {
+    "id": "ragnar-burgers",
+    "nombre": "Ragnar Burgers",
+    "tipo": "Restaurante",
+    "direccion": "Bulevar José Batlle y Ordóñez 2350, Unión",
+    "barrio": "Unión",
+    "ciudad": "Montevideo",
+    "latitud": -34.8857077,
+    "longitud": -56.1387777,
+    "comida": [
+      "hamburguesas"
     ]
   },
   {
@@ -4434,8 +10896,8 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1906913
   },
   {
-    "id": "piu",
-    "nombre": "Piu",
+    "id": "piu-parque-rodo",
+    "nombre": "Piu (Parque Rodó)",
     "tipo": "Restaurante",
     "direccion": "Constituyente 2039, Parque Rodó",
     "barrio": "Parque Rodó",
@@ -4557,6 +11019,19 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9307115
   },
   {
+    "id": "la-9",
+    "nombre": "La '9",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8059352,
+    "longitud": -55.928624,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
     "id": "empanadas-don-pedro",
     "nombre": "Empanadas Don Pedro",
     "tipo": "Restaurante",
@@ -4608,6 +11083,19 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Ciudad de la Costa",
     "latitud": -34.8201028,
     "longitud": -55.9537458
+  },
+  {
+    "id": "las-casuarinas",
+    "nombre": "Las Casuarinas",
+    "tipo": "Restaurante",
+    "direccion": "Indiana, Lomas de Solymar, Ciudad de la Costa",
+    "barrio": "Lomas de Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8133161,
+    "longitud": -55.9224443,
+    "comida": [
+      "parrilla"
+    ]
   },
   {
     "id": "parador-solymar-beach",
@@ -4719,6 +11207,19 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9719227
   },
   {
+    "id": "marisqueria-el-italiano",
+    "nombre": "Marisquería El Italiano",
+    "tipo": "Restaurante",
+    "direccion": "Bajada 19, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8395354,
+    "longitud": -55.9613275,
+    "comida": [
+      "pescado"
+    ]
+  },
+  {
     "id": "gran-asador",
     "nombre": "Gran Asador",
     "tipo": "Restaurante",
@@ -4729,8 +11230,8 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9785917
   },
   {
-    "id": "sushi-time",
-    "nombre": "Sushi Time",
+    "id": "sushi-time-lagomar",
+    "nombre": "Sushi Time (Lagomar)",
     "tipo": "Restaurante",
     "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
     "barrio": "Lagomar",
@@ -4740,6 +11241,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "comida": [
       "sushi"
     ]
+  },
+  {
+    "id": "pizzeria-y-chiviteria-di-calabria",
+    "nombre": "Pizzería y Chivitería Di Calabria",
+    "tipo": "Restaurante",
+    "direccion": "Atahualpa del Cioppo, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8232122,
+    "longitud": -55.9884014
   },
   {
     "id": "bar-tv",
@@ -4789,8 +11300,8 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
-    "id": "la-pasiva",
-    "nombre": "La Pasiva",
+    "id": "la-pasiva-san-jose-de-carrasco",
+    "nombre": "La Pasiva (San José de Carrasco)",
     "tipo": "Restaurante",
     "direccion": "Avenida Ingeniero Luis Giannattasio, San José de Carrasco, Ciudad de la Costa",
     "barrio": "San José de Carrasco",
@@ -4816,6 +11327,117 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
+    "id": "rapidos-y-sabrositos",
+    "nombre": "Rápidos y Sabrositos",
+    "tipo": "Restaurante",
+    "direccion": "25 de Agosto, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.7961188,
+    "longitud": -55.9357494
+  },
+  {
+    "id": "dona-martina",
+    "nombre": "Doña Martina",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8010348,
+    "longitud": -55.918103,
+    "comida": [
+      "empanadas"
+    ]
+  },
+  {
+    "id": "sushi-ven",
+    "nombre": "sushi ven",
+    "tipo": "Restaurante",
+    "direccion": "Real de Azua, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8253518,
+    "longitud": -55.9668251
+  },
+  {
+    "id": "bocatti-el-pinar",
+    "nombre": "Bocatti (El Pinar)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8048598,
+    "longitud": -55.9032557,
+    "comida": [
+      "empanadas"
+    ]
+  },
+  {
+    "id": "mcdonald-s-solymar",
+    "nombre": "McDonald's (Solymar)",
+    "tipo": "Restaurante",
+    "direccion": "Ruta Interbalnearia General Líber Seregni, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.817514,
+    "longitud": -55.9797704,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "burger-time",
+    "nombre": "Burger Time",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8361579,
+    "longitud": -55.983368,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "bocatti-lagomar",
+    "nombre": "Bocatti (Lagomar)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8364017,
+    "longitud": -55.9838203,
+    "comida": [
+      "empanadas"
+    ]
+  },
+  {
+    "id": "empanadas-de-la-espiga",
+    "nombre": "Empanadas de la Espiga",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8378804,
+    "longitud": -55.9864265,
+    "comida": [
+      "empanadas"
+    ]
+  },
+  {
+    "id": "el-horno-de-juan-lagomar",
+    "nombre": "El Horno de Juan (Lagomar)",
+    "tipo": "Restaurante",
+    "direccion": "Manuel Nelson Varela Cáceres, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8380761,
+    "longitud": -55.987065,
+    "comida": [
+      "pizza"
+    ]
+  },
+  {
     "id": "el-horno-de-jose-ii",
     "nombre": "El Horno de José II",
     "tipo": "Restaurante",
@@ -4829,8 +11451,8 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
-    "id": "mostaza",
-    "nombre": "Mostaza",
+    "id": "mostaza-san-jose-de-carrasco",
+    "nombre": "Mostaza (San José de Carrasco)",
     "tipo": "Restaurante",
     "direccion": "Viejo Pancho, San José de Carrasco, Ciudad de la Costa",
     "barrio": "San José de Carrasco",
@@ -4855,8 +11477,21 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
-    "id": "dona-martina",
-    "nombre": "Doña Martina",
+    "id": "burger-king-san-jose-de-carrasco",
+    "nombre": "Burger King (San José de Carrasco)",
+    "tipo": "Restaurante",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, San José de Carrasco, Ciudad de la Costa",
+    "barrio": "San José de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8415459,
+    "longitud": -55.9934698,
+    "comida": [
+      "hamburguesas"
+    ]
+  },
+  {
+    "id": "dona-martina-san-jose-de-carrasco",
+    "nombre": "Doña Martina (San José de Carrasco)",
     "tipo": "Restaurante",
     "direccion": "Rambla General Liber Seregni, San José de Carrasco, Ciudad de la Costa",
     "barrio": "San José de Carrasco",
@@ -4946,343 +11581,24 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
-    "id": "solymar",
-    "nombre": "Solymar",
+    "id": "grido-solymar",
+    "nombre": "Grido (Solymar)",
     "tipo": "Restaurante",
-    "direccion": "Avenida Secco García, El Bosque, Ciudad de la Costa",
-    "barrio": "El Bosque",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.83262,
-    "longitud": -55.9767814
+    "latitud": -34.828381,
+    "longitud": -55.9690962
   },
   {
-    "id": "churreria",
-    "nombre": "Churreria",
+    "id": "biga",
+    "nombre": "Biga",
     "tipo": "Restaurante",
-    "direccion": "Avenida Luis Batlle Berres, Santiago Vázquez",
-    "barrio": "Santiago Vázquez",
-    "ciudad": "Montevideo",
-    "latitud": -34.7941855,
-    "longitud": -56.3327868
-  },
-  {
-    "id": "bouza-bodega-boutique",
-    "nombre": "Bouza Bodega Boutique",
-    "tipo": "Restaurante",
-    "direccion": "Camino de la Redención 7658 Bis, Melilla",
-    "barrio": "Melilla",
-    "ciudad": "Montevideo",
-    "latitud": -34.7913199,
-    "longitud": -56.2767495,
-    "comida": [
-      "parrilla"
-    ]
-  },
-  {
-    "id": "monfra",
-    "nombre": "MonfrÀ",
-    "tipo": "Restaurante",
-    "direccion": "Sendero de Paso, Toledo Chico",
-    "barrio": "Toledo Chico",
-    "ciudad": "Montevideo",
-    "latitud": -34.7398997,
-    "longitud": -56.1587725,
-    "comida": [
-      "parrilla"
-    ]
-  },
-  {
-    "id": "comidas-al-paso-m-y-n",
-    "nombre": "Comidas al Paso M y N",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Don Pedro de Mendoza, Casavalle",
-    "barrio": "Casavalle",
-    "ciudad": "Montevideo",
-    "latitud": -34.8181138,
-    "longitud": -56.1569043
-  },
-  {
-    "id": "pizza-a-la-pala",
-    "nombre": "Pizza a La Pala",
-    "tipo": "Restaurante",
-    "direccion": "Calle 1, La Tablada",
-    "barrio": "La Tablada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8206506,
-    "longitud": -56.2488892,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "rotiseria-piria",
-    "nombre": "Rotiseria Piria",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar Aparicio Saravia, Jardines del Hipódromo",
-    "barrio": "Jardines del Hipódromo",
-    "ciudad": "Montevideo",
-    "latitud": -34.8309072,
-    "longitud": -56.1281169
-  },
-  {
-    "id": "grido-lezica",
-    "nombre": "Grido (Lezica)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Lezica 6330, Lezica",
-    "barrio": "Lezica",
-    "ciudad": "Montevideo",
-    "latitud": -34.7968591,
-    "longitud": -56.2471997
-  },
-  {
-    "id": "granja-santa-rosa-2",
-    "nombre": "Granja Santa Rosa 2",
-    "tipo": "Restaurante",
-    "direccion": "Santa Lucía, Nuevo París",
-    "barrio": "Nuevo París",
-    "ciudad": "Montevideo",
-    "latitud": -34.8438887,
-    "longitud": -56.2401837
-  },
-  {
-    "id": "la-nueva-chopera",
-    "nombre": "La Nueva Chopera",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre, Villa Española",
-    "barrio": "Villa Española",
-    "ciudad": "Montevideo",
-    "latitud": -34.8658684,
-    "longitud": -56.1342965
-  },
-  {
-    "id": "pizzeria-lele",
-    "nombre": "Pizzería Lele",
-    "tipo": "Restaurante",
-    "direccion": "Etiopía 2744, Casabó",
-    "barrio": "Casabó",
-    "ciudad": "Montevideo",
-    "latitud": -34.8875972,
-    "longitud": -56.2702527,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "primata-prado",
-    "nombre": "Primata Prado",
-    "tipo": "Restaurante",
-    "direccion": "Caigua, Atahualpa",
-    "barrio": "Atahualpa",
-    "ciudad": "Montevideo",
-    "latitud": -34.8648777,
-    "longitud": -56.1961601
-  },
-  {
-    "id": "quentin-bar",
-    "nombre": "Quentin Bar",
-    "tipo": "Restaurante",
-    "direccion": "Marcelino Sosa 2125, Arroyo Seco",
-    "barrio": "Arroyo Seco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8877164,
-    "longitud": -56.187326
-  },
-  {
-    "id": "brother-s-bar",
-    "nombre": "Brother's Bar",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Luis Alberto de Herrera 2751, Larrañaga",
-    "barrio": "Larrañaga",
-    "ciudad": "Montevideo",
-    "latitud": -34.8792564,
-    "longitud": -56.1554602,
-    "comida": [
-      "pizza",
-      "parrilla"
-    ]
-  },
-  {
-    "id": "pizza-coma",
-    "nombre": "Pizza Coma",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Carlos María Ramírez, Cerro",
-    "barrio": "Cerro",
-    "ciudad": "Montevideo",
-    "latitud": -34.8741071,
-    "longitud": -56.2500867
-  },
-  {
-    "id": "mediterranea-2",
-    "nombre": "Mediterránea 2",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General Flores 5463, Piedras Blancas",
-    "barrio": "Piedras Blancas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8300225,
-    "longitud": -56.1422654,
-    "comida": [
-      "hamburguesas",
-      "sándwiches",
-      "parrilla",
-      "helados",
-      "café",
-      "pastas",
-      "pizza",
-      "pollo",
-      "pescado"
-    ]
-  },
-  {
-    "id": "pizzeria-la-elena",
-    "nombre": "Pizzería La Elena",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar Doctor Manuel Herrera y Obes 4343, La Teja",
-    "barrio": "La Teja",
-    "ciudad": "Montevideo",
-    "latitud": -34.85754,
-    "longitud": -56.227055,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "dos-avenidas",
-    "nombre": "Dos Avenidas",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Carlos María Ramírez, Belvedere",
-    "barrio": "Belvedere",
-    "ciudad": "Montevideo",
-    "latitud": -34.8551577,
-    "longitud": -56.2223277
-  },
-  {
-    "id": "jueves-5",
-    "nombre": "Jueves 5",
-    "tipo": "Restaurante",
-    "direccion": "Coquimbo, La Comercial",
-    "barrio": "La Comercial",
-    "ciudad": "Montevideo",
-    "latitud": -34.8863193,
-    "longitud": -56.170954
-  },
-  {
-    "id": "ciudad-bar",
-    "nombre": "Ciudad Bar",
-    "tipo": "Restaurante",
-    "direccion": "Miguelete, Aguada",
-    "barrio": "Aguada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8960406,
-    "longitud": -56.1817828
-  },
-  {
-    "id": "el-chavo",
-    "nombre": "El Chavo",
-    "tipo": "Restaurante",
-    "direccion": "Canovas del Castillo, Maroñas",
-    "barrio": "Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8650349,
-    "longitud": -56.1175268
-  },
-  {
-    "id": "la-flor-de-italia",
-    "nombre": "La Flor de Italia",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General Eugenio Garzón, Sayago",
-    "barrio": "Sayago",
-    "ciudad": "Montevideo",
-    "latitud": -34.821127,
-    "longitud": -56.2202073,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "horno-de-mathias",
-    "nombre": "Horno de Mathias",
-    "tipo": "Restaurante",
-    "direccion": "Uruguayana, Bella Vista",
-    "barrio": "Bella Vista",
-    "ciudad": "Montevideo",
-    "latitud": -34.8754289,
-    "longitud": -56.2009091,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "chivitos-lo-de-pepe",
-    "nombre": "Chivitos Lo de Pepe",
-    "tipo": "Restaurante",
-    "direccion": "José L. Terra 2220, Villa Muñoz",
-    "barrio": "Villa Muñoz",
-    "ciudad": "Montevideo",
-    "latitud": -34.886448,
-    "longitud": -56.1835374
-  },
-  {
-    "id": "andale-taqueria-vegana",
-    "nombre": "Andale Taqueria Vegana",
-    "tipo": "Restaurante",
-    "direccion": "Canelones 1552, Palermo",
-    "barrio": "Palermo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9081304,
-    "longitud": -56.1819098
-  },
-  {
-    "id": "los-lobizones",
-    "nombre": "Los lobizones",
-    "tipo": "Restaurante",
-    "direccion": "Pedro Giralt 4310, Tres Ombúes",
-    "barrio": "Tres Ombúes",
-    "ciudad": "Montevideo",
-    "latitud": -34.8646555,
-    "longitud": -56.2349858,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "la-terraza",
-    "nombre": "La Terraza",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar José Batlle y Ordóñez, Bolívar",
-    "barrio": "Bolívar",
-    "ciudad": "Montevideo",
-    "latitud": -34.8689628,
-    "longitud": -56.1618869
-  },
-  {
-    "id": "parador-oriental",
-    "nombre": "Parador Oriental",
-    "tipo": "Restaurante",
-    "direccion": "Camino Maldonado, Flor de Maroñas",
-    "barrio": "Flor de Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.842947,
-    "longitud": -56.124653
-  },
-  {
-    "id": "la-barra-de-gerardo",
-    "nombre": "La Barra de Gerardo",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Ramón Anador 3211, Parque Batlle",
-    "barrio": "Parque Batlle",
-    "ciudad": "Montevideo",
-    "latitud": -34.8957036,
-    "longitud": -56.147004
-  },
-  {
-    "id": "la-9",
-    "nombre": "La '9",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Lomas de Solymar, Ciudad de la Costa",
-    "barrio": "Lomas de Solymar",
+    "direccion": "Fernando de Magallanes, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8059352,
-    "longitud": -55.928624,
+    "latitud": -34.7990084,
+    "longitud": -55.8900328,
     "comida": [
       "pizza"
     ]
@@ -5303,1938 +11619,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
-    "id": "burger-time",
-    "nombre": "Burger Time",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
-    "barrio": "Lagomar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8361579,
-    "longitud": -55.983368,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "burger-king",
-    "nombre": "Burger King",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, San José de Carrasco, Ciudad de la Costa",
-    "barrio": "San José de Carrasco",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8415459,
-    "longitud": -55.9934698,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "viandas-hotel-del-prado",
-    "nombre": "Viandas Hotel del Prado",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Gabriela Mistral 4223, Prado",
-    "barrio": "Prado",
-    "ciudad": "Montevideo",
-    "latitud": -34.8545303,
-    "longitud": -56.2077282
-  },
-  {
-    "id": "soprano-s-pocitos",
-    "nombre": "Soprano’s Pocitos",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar España 2494, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9120118,
-    "longitud": -56.1605837
-  },
-  {
-    "id": "la-pasiva-colon",
-    "nombre": "La Pasiva (Colón)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General Eugenio Garzón, Colón",
-    "barrio": "Colón",
-    "ciudad": "Montevideo",
-    "latitud": -34.8055998,
-    "longitud": -56.2220844
-  },
-  {
-    "id": "burger-king-paso-molino",
-    "nombre": "Burger King (Paso Molino)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Agraciada 4252, Paso Molino",
-    "barrio": "Paso Molino",
-    "ciudad": "Montevideo",
-    "latitud": -34.8557725,
-    "longitud": -56.2204575,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "marisqueria-el-italiano",
-    "nombre": "Marisquería El Italiano",
-    "tipo": "Restaurante",
-    "direccion": "Bajada 19, Solymar, Ciudad de la Costa",
-    "barrio": "Solymar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8395354,
-    "longitud": -55.9613275,
-    "comida": [
-      "pescado"
-    ]
-  },
-  {
-    "id": "asencio-bar",
-    "nombre": "Asencio Bar",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Alfredo Arocena 1999, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8811163,
-    "longitud": -56.0617736
-  },
-  {
-    "id": "monforte-bar-pizzeria",
-    "nombre": "Monforte Bar & Pizzeria",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar José Batlle y Ordóñez, Brazo Oriental",
-    "barrio": "Brazo Oriental",
-    "ciudad": "Montevideo",
-    "latitud": -34.8605176,
-    "longitud": -56.1728311,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "alacena",
-    "nombre": "Alacena",
-    "tipo": "Restaurante",
-    "direccion": "Tacuari 1144, Parque Miramar, Ciudad de la Costa",
-    "barrio": "Parque Miramar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8744773,
-    "longitud": -56.0306927
-  },
-  {
-    "id": "la-pasiva-punta-gorda",
-    "nombre": "La Pasiva (Punta Gorda)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Italia 5775, Punta Gorda",
-    "barrio": "Punta Gorda",
-    "ciudad": "Montevideo",
-    "latitud": -34.881002,
-    "longitud": -56.0815889
-  },
-  {
-    "id": "sirocco",
-    "nombre": "Sirocco",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre 3110, La Blanqueada",
-    "barrio": "La Blanqueada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8824672,
-    "longitud": -56.1528933,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "la-pasiva-buceo",
-    "nombre": "La Pasiva (Buceo)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9032568,
-    "longitud": -56.1370037
-  },
-  {
-    "id": "pizzeria-pancho-y-cisco",
-    "nombre": "Pizzeria Pancho y Cisco",
-    "tipo": "Restaurante",
-    "direccion": "Cufré, Jacinto Vera",
-    "barrio": "Jacinto Vera",
-    "ciudad": "Montevideo",
-    "latitud": -34.8768177,
-    "longitud": -56.1709297
-  },
-  {
-    "id": "comi-k",
-    "nombre": "Comi.k",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 18 de Julio 994, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9062876,
-    "longitud": -56.1950264
-  },
-  {
-    "id": "el-club-de-la-papa-frita",
-    "nombre": "El Club de la Papa Frita",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre 3650, Unión",
-    "barrio": "Unión",
-    "ciudad": "Montevideo",
-    "latitud": -34.8765661,
-    "longitud": -56.1429796,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "pizzeria-municipio",
-    "nombre": "Pizzeria Municipio",
-    "tipo": "Restaurante",
-    "direccion": "Luis Batlle Berres, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.7295517,
-    "longitud": -56.2273443
-  },
-  {
-    "id": "sushi-time-punta-carretas",
-    "nombre": "Sushi Time (Punta Carretas)",
-    "tipo": "Restaurante",
-    "direccion": "Luis Franzini 970, Punta Carretas",
-    "barrio": "Punta Carretas",
-    "ciudad": "Montevideo",
-    "latitud": -34.9131473,
-    "longitud": -56.1588698,
-    "comida": [
-      "sushi"
-    ]
-  },
-  {
-    "id": "casa-degli-italiani",
-    "nombre": "Casa degli Italiani",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre 2651, Tres Cruces",
-    "barrio": "Tres Cruces",
-    "ciudad": "Montevideo",
-    "latitud": -34.8901147,
-    "longitud": -56.1611585
-  },
-  {
-    "id": "el-club-de-la-papa-frita-malvin",
-    "nombre": "El Club de la Papa Frita (Malvín)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Enrique Legrand 5187, Malvín",
-    "barrio": "Malvín",
-    "ciudad": "Montevideo",
-    "latitud": -34.8905796,
-    "longitud": -56.0970168,
-    "comida": [
-      "pizza",
-      "parrilla"
-    ]
-  },
-  {
-    "id": "bar-los-4",
-    "nombre": "Bar Los 4",
-    "tipo": "Restaurante",
-    "direccion": "Carlos Berg 2550, Pocitos",
-    "barrio": "Pocitos",
-    "ciudad": "Montevideo",
-    "latitud": -34.9135863,
-    "longitud": -56.1577594
-  },
-  {
-    "id": "empanadas-carolina",
-    "nombre": "Empanadas Carolina",
-    "tipo": "Restaurante",
-    "direccion": "Piedras 237, Ciudad Vieja",
-    "barrio": "Ciudad Vieja",
-    "ciudad": "Montevideo",
-    "latitud": -34.9056339,
-    "longitud": -56.2118053
-  },
-  {
-    "id": "la-isla",
-    "nombre": "La Isla",
-    "tipo": "Restaurante",
-    "direccion": "Ejido 1545, Centro",
-    "barrio": "Centro",
-    "ciudad": "Montevideo",
-    "latitud": -34.9019302,
-    "longitud": -56.1873567,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "nippon",
-    "nombre": "Nippon",
-    "tipo": "Restaurante",
-    "direccion": "Magallanes 1566, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.9005863,
-    "longitud": -56.1810268
-  },
-  {
-    "id": "parrillada-san-jorge",
-    "nombre": "Parrillada San Jorge",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Don Pedro de Mendoza, Casavalle",
-    "barrio": "Casavalle",
-    "ciudad": "Montevideo",
-    "latitud": -34.8198504,
-    "longitud": -56.1561655
-  },
-  {
-    "id": "la-previa",
-    "nombre": "La Previa",
-    "tipo": "Restaurante",
-    "direccion": "Francisco Sainz Rosas, Jardines del Hipódromo",
-    "barrio": "Jardines del Hipódromo",
-    "ciudad": "Montevideo",
-    "latitud": -34.8460039,
-    "longitud": -56.1354149
-  },
-  {
-    "id": "reyna",
-    "nombre": "Reyna",
-    "tipo": "Restaurante",
-    "direccion": "Camino Corrales, Villa Española",
-    "barrio": "Villa Española",
-    "ciudad": "Montevideo",
-    "latitud": -34.8642367,
-    "longitud": -56.1375972
-  },
-  {
-    "id": "pizzeria-consul",
-    "nombre": "Pizzería Consul",
-    "tipo": "Restaurante",
-    "direccion": "Ucrania 3700, Casabó",
-    "barrio": "Casabó",
-    "ciudad": "Montevideo",
-    "latitud": -34.8873556,
-    "longitud": -56.2663132,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "no-hay-2-sin-3",
-    "nombre": "No hay 2 sin 3",
-    "tipo": "Restaurante",
-    "direccion": "Ramón de Santiago, Atahualpa",
-    "barrio": "Atahualpa",
-    "ciudad": "Montevideo",
-    "latitud": -34.8691658,
-    "longitud": -56.1861476,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "bar-silva",
-    "nombre": "Bar Silva",
-    "tipo": "Restaurante",
-    "direccion": "Colombia 1347, Arroyo Seco",
-    "barrio": "Arroyo Seco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8900311,
-    "longitud": -56.1886692,
-    "comida": [
-      "parrilla"
-    ]
-  },
-  {
-    "id": "pizzeria-braga",
-    "nombre": "Pizzería Braga",
-    "tipo": "Restaurante",
-    "direccion": "Monte Caseros 2802, Larrañaga",
-    "barrio": "Larrañaga",
-    "ciudad": "Montevideo",
-    "latitud": -34.8844962,
-    "longitud": -56.1619386,
-    "comida": [
-      "sándwiches",
-      "pizza"
-    ]
-  },
-  {
-    "id": "la-fortaleza",
-    "nombre": "La Fortaleza",
-    "tipo": "Restaurante",
-    "direccion": "Grecia, Cerro",
-    "barrio": "Cerro",
-    "ciudad": "Montevideo",
-    "latitud": -34.8749327,
-    "longitud": -56.2512763,
-    "comida": [
-      "pizza",
-      "café"
-    ]
-  },
-  {
-    "id": "pizzeria-mediterranea",
-    "nombre": "Pizzeria Mediterranea",
-    "tipo": "Restaurante",
-    "direccion": "Avenida José Belloni, Piedras Blancas",
-    "barrio": "Piedras Blancas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8169879,
-    "longitud": -56.1390362,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "pizzeria-la-razon",
-    "nombre": "Pizzería La razón",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Carlos María Ramírez 514, La Teja",
-    "barrio": "La Teja",
-    "ciudad": "Montevideo",
-    "latitud": -34.8611226,
-    "longitud": -56.2301148
-  },
-  {
-    "id": "el-arabito",
-    "nombre": "El Arabito",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar General Artigas, La Comercial",
-    "barrio": "La Comercial",
-    "ciudad": "Montevideo",
-    "latitud": -34.8862947,
-    "longitud": -56.1656674
-  },
-  {
-    "id": "urumex",
-    "nombre": "Urumex",
-    "tipo": "Restaurante",
-    "direccion": "Gaboto, Aguada",
-    "barrio": "Aguada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8963342,
-    "longitud": -56.1825643
-  },
-  {
-    "id": "los-redonditos",
-    "nombre": "Los Redonditos",
-    "tipo": "Restaurante",
-    "direccion": "Camino Carrasco, Maroñas",
-    "barrio": "Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8709005,
-    "longitud": -56.1151711
-  },
-  {
-    "id": "la-facha",
-    "nombre": "La Facha",
-    "tipo": "Restaurante",
-    "direccion": "Camino Ariel, Sayago",
-    "barrio": "Sayago",
-    "ciudad": "Montevideo",
-    "latitud": -34.8327407,
-    "longitud": -56.2178024
-  },
-  {
-    "id": "chekere-de-cuba",
-    "nombre": "Chekere de Cuba",
-    "tipo": "Restaurante",
-    "direccion": "José L. Terra 2220, Villa Muñoz",
-    "barrio": "Villa Muñoz",
-    "ciudad": "Montevideo",
-    "latitud": -34.8865985,
-    "longitud": -56.1830901
-  },
-  {
-    "id": "palermo-viejo",
-    "nombre": "Palermo Viejo",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Gonzalo Ramírez 1446, Palermo",
-    "barrio": "Palermo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9126747,
-    "longitud": -56.1838804
-  },
-  {
-    "id": "los-gauchos",
-    "nombre": "Los Gauchos",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Carlos María Ramírez, Tres Ombúes",
-    "barrio": "Tres Ombúes",
-    "ciudad": "Montevideo",
-    "latitud": -34.8689148,
-    "longitud": -56.2391987
-  },
-  {
-    "id": "il-buon-mangiare",
-    "nombre": "Il Buon Mangiare",
-    "tipo": "Restaurante",
-    "direccion": "Canstatt, Bolívar",
-    "barrio": "Bolívar",
-    "ciudad": "Montevideo",
-    "latitud": -34.8734773,
-    "longitud": -56.1604109
-  },
-  {
-    "id": "las-gardenas",
-    "nombre": "Las Gardenas",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre, Flor de Maroñas",
-    "barrio": "Flor de Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8559349,
-    "longitud": -56.132023
-  },
-  {
-    "id": "bar-dublin",
-    "nombre": "Bar Dublin",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Ramón Anador 3431, Parque Batlle",
-    "barrio": "Parque Batlle",
-    "ciudad": "Montevideo",
-    "latitud": -34.8952196,
-    "longitud": -56.1424173,
-    "comida": [
-      "parrilla",
-      "pizza"
-    ]
-  },
-  {
-    "id": "las-casuarinas",
-    "nombre": "Las Casuarinas",
-    "tipo": "Restaurante",
-    "direccion": "Indiana, Lomas de Solymar, Ciudad de la Costa",
-    "barrio": "Lomas de Solymar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8133161,
-    "longitud": -55.9224443,
-    "comida": [
-      "parrilla"
-    ]
-  },
-  {
-    "id": "rapidos-y-sabrositos",
-    "nombre": "Rápidos y Sabrositos",
-    "tipo": "Restaurante",
-    "direccion": "25 de Agosto, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.7961188,
-    "longitud": -55.9357494
-  },
-  {
-    "id": "bocatti-lagomar",
-    "nombre": "Bocatti (Lagomar)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
-    "barrio": "Lagomar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8364017,
-    "longitud": -55.9838203,
-    "comida": [
-      "empanadas"
-    ]
-  },
-  {
-    "id": "himalayan",
-    "nombre": "Himalayan",
-    "tipo": "Restaurante",
-    "direccion": "General Arquitecto Alfredo Baldomir 2463, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9086433,
-    "longitud": -56.1603153
-  },
-  {
-    "id": "pizzeria-los-amigos",
-    "nombre": "Pizzería Los Amigos",
-    "tipo": "Restaurante",
-    "direccion": "Francisco Pizarro, Colón",
-    "barrio": "Colón",
-    "ciudad": "Montevideo",
-    "latitud": -34.8135468,
-    "longitud": -56.2163016,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "mcdonald-s-paso-molino",
-    "nombre": "McDonald's (Paso Molino)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Agraciada 4168, Paso Molino",
-    "barrio": "Paso Molino",
-    "ciudad": "Montevideo",
-    "latitud": -34.8568226,
-    "longitud": -56.2190271,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "pizzeria-y-chiviteria-di-calabria",
-    "nombre": "Pizzería y Chivitería Di Calabria",
-    "tipo": "Restaurante",
-    "direccion": "Atahualpa del Cioppo, Solymar, Ciudad de la Costa",
-    "barrio": "Solymar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8232122,
-    "longitud": -55.9884014
-  },
-  {
-    "id": "pasta-pasta",
-    "nombre": "Pasta & Pasta",
-    "tipo": "Restaurante",
-    "direccion": "Rostand 1560, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8895942,
-    "longitud": -56.0558413,
-    "comida": [
-      "italiana"
-    ]
-  },
-  {
-    "id": "grido-brazo-oriental",
-    "nombre": "Grido (Brazo Oriental)",
-    "tipo": "Restaurante",
-    "direccion": "Andrés Lamas, Brazo Oriental",
-    "barrio": "Brazo Oriental",
-    "ciudad": "Montevideo",
-    "latitud": -34.865725,
-    "longitud": -56.171212
-  },
-  {
-    "id": "la-fiaca",
-    "nombre": "La Fiaca",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Parque Miramar, Ciudad de la Costa",
-    "barrio": "Parque Miramar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8656455,
-    "longitud": -56.023852,
-    "comida": [
-      "pizza",
-      "sándwiches",
-      "pastas"
-    ]
-  },
-  {
-    "id": "la-pizzarrita",
-    "nombre": "La Pizzarrita",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General José María Paz 1444, Punta Gorda",
-    "barrio": "Punta Gorda",
-    "ciudad": "Montevideo",
-    "latitud": -34.892853,
-    "longitud": -56.0797896
-  },
-  {
-    "id": "pizzeria-belgrano",
-    "nombre": "Pizzería Belgrano",
-    "tipo": "Restaurante",
-    "direccion": "Belgrano 2881, La Blanqueada",
-    "barrio": "La Blanqueada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8896572,
-    "longitud": -56.15351,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "alberto-s",
-    "nombre": "Alberto's",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Luis Alberto de Herrera 1144, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9068831,
-    "longitud": -56.1362621,
-    "comida": [
-      "parrilla",
-      "pizza"
-    ]
-  },
-  {
-    "id": "friends",
-    "nombre": "Friends",
-    "tipo": "Restaurante",
-    "direccion": "Gualeguay, Jacinto Vera",
-    "barrio": "Jacinto Vera",
-    "ciudad": "Montevideo",
-    "latitud": -34.8676026,
-    "longitud": -56.1702898,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "la-pasiva-barrio-sur",
-    "nombre": "La Pasiva (Barrio Sur)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 18 de Julio 899, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9061747,
-    "longitud": -56.1971731,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "rocco-s-pizza",
-    "nombre": "Rocco´s Pizza",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar José Batlle y Ordóñez 2598, Unión",
-    "barrio": "Unión",
-    "ciudad": "Montevideo",
-    "latitud": -34.8827505,
-    "longitud": -56.1429529
-  },
-  {
-    "id": "munche-s",
-    "nombre": "Munche's",
-    "tipo": "Restaurante",
-    "direccion": "Luis Batlle Berres, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.7340856,
-    "longitud": -56.2274854
-  },
-  {
-    "id": "hugo-soca",
-    "nombre": "Hugo Soca",
-    "tipo": "Restaurante",
-    "direccion": "Luis Franzini 955, Punta Carretas",
-    "barrio": "Punta Carretas",
-    "ciudad": "Montevideo",
-    "latitud": -34.9134513,
-    "longitud": -56.1590792
-  },
-  {
-    "id": "chocara-mvd",
-    "nombre": "ChocAra MVD",
-    "tipo": "Restaurante",
-    "direccion": "20 de Setiembre 1520, Tres Cruces",
-    "barrio": "Tres Cruces",
-    "ciudad": "Montevideo",
-    "latitud": -34.900425,
-    "longitud": -56.1624726,
-    "comida": [
-      "hamburguesas",
-      "café"
-    ]
-  },
-  {
-    "id": "alta-pizza",
-    "nombre": "Alta Pizza",
-    "tipo": "Restaurante",
-    "direccion": "Missouri 1401, Malvín",
-    "barrio": "Malvín",
-    "ciudad": "Montevideo",
-    "latitud": -34.8955901,
-    "longitud": -56.0957015,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "dilema-cafe-restobar",
-    "nombre": "Dilema Café & Restobar",
-    "tipo": "Restaurante",
-    "direccion": "Tomás Diago 879, Pocitos",
-    "barrio": "Pocitos",
-    "ciudad": "Montevideo",
-    "latitud": -34.9149983,
-    "longitud": -56.1518302
-  },
-  {
-    "id": "lindolfo",
-    "nombre": "Lindolfo",
-    "tipo": "Restaurante",
-    "direccion": "Juan Lindolfo Cuestas 1388, Ciudad Vieja",
-    "barrio": "Ciudad Vieja",
-    "ciudad": "Montevideo",
-    "latitud": -34.9094932,
-    "longitud": -56.2128599
-  },
-  {
-    "id": "el-club-de-la-papa-frita-centro",
-    "nombre": "El Club de la Papa Frita (Centro)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 18 de Julio 1261, Centro",
-    "barrio": "Centro",
-    "ciudad": "Montevideo",
-    "latitud": -34.9055834,
-    "longitud": -56.1888136,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "la-tortuguita",
-    "nombre": "La Tortuguita",
-    "tipo": "Restaurante",
-    "direccion": "Tristán Narvaja 1597, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.900899,
-    "longitud": -56.178371,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "carrito-el-duende",
-    "nombre": "Carrito El Duende",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Don Pedro de Mendoza, Casavalle",
-    "barrio": "Casavalle",
-    "ciudad": "Montevideo",
-    "latitud": -34.8062494,
-    "longitud": -56.1614657
-  },
-  {
-    "id": "parrillada",
-    "nombre": "Parrillada",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General Flores, Jardines del Hipódromo",
-    "barrio": "Jardines del Hipódromo",
-    "ciudad": "Montevideo",
-    "latitud": -34.839609,
-    "longitud": -56.1496253,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "la-clasica",
-    "nombre": "La Clasica",
-    "tipo": "Restaurante",
-    "direccion": "General José Villagrán, Villa Española",
-    "barrio": "Villa Española",
-    "ciudad": "Montevideo",
-    "latitud": -34.8684651,
-    "longitud": -56.1348645
-  },
-  {
-    "id": "rotiseria-la-tuna",
-    "nombre": "Rotisería La Tuna",
-    "tipo": "Restaurante",
-    "direccion": "Etiopía, Casabó",
-    "barrio": "Casabó",
-    "ciudad": "Montevideo",
-    "latitud": -34.8883136,
-    "longitud": -56.273131
-  },
-  {
-    "id": "piu-atahualpa",
-    "nombre": "PIU (Atahualpa)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Millán, Atahualpa",
-    "barrio": "Atahualpa",
-    "ciudad": "Montevideo",
-    "latitud": -34.8602828,
-    "longitud": -56.1951537
-  },
-  {
-    "id": "la-tasca-dels-cuiners",
-    "nombre": "La Tasca dels Cuiners",
-    "tipo": "Restaurante",
-    "direccion": "César Díaz 1254, Arroyo Seco",
-    "barrio": "Arroyo Seco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8894648,
-    "longitud": -56.190723
-  },
-  {
-    "id": "las-palmeras",
-    "nombre": "Las Palmeras",
-    "tipo": "Restaurante",
-    "direccion": "Doctor Luis Alberto Surraco, Larrañaga",
-    "barrio": "Larrañaga",
-    "ciudad": "Montevideo",
-    "latitud": -34.8781963,
-    "longitud": -56.1564823
-  },
-  {
-    "id": "parrillada-el-urraca",
-    "nombre": "Parrillada El Urraca",
-    "tipo": "Restaurante",
-    "direccion": "Grecia, Cerro",
-    "barrio": "Cerro",
-    "ciudad": "Montevideo",
-    "latitud": -34.8761532,
-    "longitud": -56.2510486
-  },
-  {
-    "id": "la-razon-sandwicheria",
-    "nombre": "La Razon Sandwicheria",
-    "tipo": "Restaurante",
-    "direccion": "Avenida José Belloni, Piedras Blancas",
-    "barrio": "Piedras Blancas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8172726,
-    "longitud": -56.1390359
-  },
-  {
-    "id": "grido-la-teja",
-    "nombre": "Grido (La Teja)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Carlos María Ramírez 771, La Teja",
-    "barrio": "La Teja",
-    "ciudad": "Montevideo",
-    "latitud": -34.8647354,
-    "longitud": -56.2341813
-  },
-  {
-    "id": "el-vencedor",
-    "nombre": "El Vencedor",
-    "tipo": "Restaurante",
-    "direccion": "Valparaíso, Aguada",
-    "barrio": "Aguada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8981031,
-    "longitud": -56.1908095
-  },
-  {
-    "id": "la-redonda",
-    "nombre": "La Redonda",
-    "tipo": "Restaurante",
-    "direccion": "Camino Carrasco, Maroñas",
-    "barrio": "Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8704737,
-    "longitud": -56.111004,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "neuvo-canton",
-    "nombre": "Neuvo Canton",
-    "tipo": "Restaurante",
-    "direccion": "Bell, Sayago",
-    "barrio": "Sayago",
-    "ciudad": "Montevideo",
-    "latitud": -34.83551,
-    "longitud": -56.2128815
-  },
-  {
-    "id": "mi-casa",
-    "nombre": "Mi Casa",
-    "tipo": "Restaurante",
-    "direccion": "Nueva Palmira 2076, Villa Muñoz",
-    "barrio": "Villa Muñoz",
-    "ciudad": "Montevideo",
-    "latitud": -34.8885343,
-    "longitud": -56.1700857
-  },
-  {
-    "id": "santa-clara",
-    "nombre": "Santa Clara",
-    "tipo": "Restaurante",
-    "direccion": "Canelones 1648, Palermo",
-    "barrio": "Palermo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9079854,
-    "longitud": -56.1797244
-  },
-  {
-    "id": "juancho",
-    "nombre": "Juancho",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Carlos María Ramírez, Tres Ombúes",
-    "barrio": "Tres Ombúes",
-    "ciudad": "Montevideo",
-    "latitud": -34.8734944,
-    "longitud": -56.2477559
-  },
-  {
-    "id": "pizzeria-el-tejado",
-    "nombre": "Pizzería El Tejado",
-    "tipo": "Restaurante",
-    "direccion": "Juan Arrieta, Bolívar",
-    "barrio": "Bolívar",
-    "ciudad": "Montevideo",
-    "latitud": -34.8726271,
-    "longitud": -56.1613488
-  },
-  {
-    "id": "sweet-house",
-    "nombre": "Sweet House",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre, Flor de Maroñas",
-    "barrio": "Flor de Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8563299,
-    "longitud": -56.1323759
-  },
-  {
-    "id": "lo-de-silverio",
-    "nombre": "Lo de Silverio",
-    "tipo": "Restaurante",
-    "direccion": "Alejo Rosell y Rius 1655, Parque Batlle",
-    "barrio": "Parque Batlle",
-    "ciudad": "Montevideo",
-    "latitud": -34.8970743,
-    "longitud": -56.147006,
-    "comida": [
-      "parrilla"
-    ]
-  },
-  {
-    "id": "dona-martina-el-pinar",
-    "nombre": "Doña Martina (El Pinar)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8010348,
-    "longitud": -55.918103,
-    "comida": [
-      "empanadas"
-    ]
-  },
-  {
-    "id": "empanadas-de-la-espiga",
-    "nombre": "Empanadas de la Espiga",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Lagomar, Ciudad de la Costa",
-    "barrio": "Lagomar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8378804,
-    "longitud": -55.9864265,
-    "comida": [
-      "empanadas"
-    ]
-  },
-  {
-    "id": "sin-berretines",
-    "nombre": "Sin berretines",
-    "tipo": "Restaurante",
-    "direccion": "Juan D. Jackson 940, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.912083,
-    "longitud": -56.1725575
-  },
-  {
-    "id": "pick-out",
-    "nombre": "Pick&Out",
-    "tipo": "Restaurante",
-    "direccion": "Carnot, Colón",
-    "barrio": "Colón",
-    "ciudad": "Montevideo",
-    "latitud": -34.8030671,
-    "longitud": -56.2237974
-  },
-  {
-    "id": "chentola-paso-molino",
-    "nombre": "Chentola (Paso Molino)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Agraciada 4018, Paso Molino",
-    "barrio": "Paso Molino",
-    "ciudad": "Montevideo",
-    "latitud": -34.859332,
-    "longitud": -56.2160774
-  },
-  {
-    "id": "sushi-ven",
-    "nombre": "sushi ven",
-    "tipo": "Restaurante",
-    "direccion": "Real de Azua, Solymar, Ciudad de la Costa",
-    "barrio": "Solymar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8253518,
-    "longitud": -55.9668251
-  },
-  {
-    "id": "dackel",
-    "nombre": "Dackel",
-    "tipo": "Restaurante",
-    "direccion": "Doctor Gabriel Otero 6438, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8893239,
-    "longitud": -56.0575136
-  },
-  {
-    "id": "alberto-s-parque-miramar",
-    "nombre": "Alberto's (Parque Miramar)",
-    "tipo": "Restaurante",
-    "direccion": "Vaimaca Perú, Parque Miramar, Ciudad de la Costa",
-    "barrio": "Parque Miramar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.878145,
-    "longitud": -56.030334
-  },
-  {
-    "id": "como-la-vaca-al-toro",
-    "nombre": "Como la vaca al toro",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Bolivia 1505, Punta Gorda",
-    "barrio": "Punta Gorda",
-    "ciudad": "Montevideo",
-    "latitud": -34.8924446,
-    "longitud": -56.0687671,
-    "comida": [
-      "parrilla"
-    ]
-  },
-  {
-    "id": "el-club-de-la-papa-frita-la-blanqueada",
-    "nombre": "El Club de la papa frita (La Blanqueada)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre 2704, La Blanqueada",
-    "barrio": "La Blanqueada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8894063,
-    "longitud": -56.159913,
-    "comida": [
-      "pizza",
-      "sándwiches",
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "hard-rock-cafe",
-    "nombre": "Hard Rock Cafe",
-    "tipo": "Restaurante",
-    "direccion": "Rambla Armenia 1624, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9095741,
-    "longitud": -56.134036
-  },
-  {
-    "id": "mcdonald-s-jacinto-vera",
-    "nombre": "McDonald's (Jacinto Vera)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Luis Alberto de Herrera, Jacinto Vera",
-    "barrio": "Jacinto Vera",
-    "ciudad": "Montevideo",
-    "latitud": -34.8697554,
-    "longitud": -56.1697171,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "bar-madison",
-    "nombre": "Bar Madison",
-    "tipo": "Restaurante",
-    "direccion": "Andes 1403, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9052839,
-    "longitud": -56.1983786
-  },
-  {
-    "id": "ragnar-burgers",
-    "nombre": "Ragnar Burgers",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar José Batlle y Ordóñez 2350, Unión",
-    "barrio": "Unión",
-    "ciudad": "Montevideo",
-    "latitud": -34.8857077,
-    "longitud": -56.1387777,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "polleria-los-lenos",
-    "nombre": "Pollería Los Leños",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General Artigas, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.7272003,
-    "longitud": -56.219523
-  },
-  {
-    "id": "hummus",
-    "nombre": "Hummus",
-    "tipo": "Restaurante",
-    "direccion": "Doctor José Scosería 2500, Punta Carretas",
-    "barrio": "Punta Carretas",
-    "ciudad": "Montevideo",
-    "latitud": -34.9155302,
-    "longitud": -56.1588299
-  },
-  {
-    "id": "papiros",
-    "nombre": "Papiros",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 18 de Julio 2092, Tres Cruces",
-    "barrio": "Tres Cruces",
-    "ciudad": "Montevideo",
-    "latitud": -34.8997326,
-    "longitud": -56.1699404,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "decano",
-    "nombre": "Decano",
-    "tipo": "Restaurante",
-    "direccion": "Orinoco 4943, Malvín",
-    "barrio": "Malvín",
-    "ciudad": "Montevideo",
-    "latitud": -34.8957657,
-    "longitud": -56.0998794,
-    "comida": [
-      "pizza",
-      "parrilla"
-    ]
-  },
-  {
-    "id": "el-local-rotiseria",
-    "nombre": "El Local - Rotisería",
-    "tipo": "Restaurante",
-    "direccion": "Libertad 2504, Pocitos",
-    "barrio": "Pocitos",
-    "ciudad": "Montevideo",
-    "latitud": -34.911305,
-    "longitud": -56.1589383
-  },
-  {
-    "id": "es-mercat",
-    "nombre": "Es Mercat",
-    "tipo": "Restaurante",
-    "direccion": "Colón 1550, Ciudad Vieja",
-    "barrio": "Ciudad Vieja",
-    "ciudad": "Montevideo",
-    "latitud": -34.9056184,
-    "longitud": -56.2101719,
-    "comida": [
-      "pescado"
-    ]
-  },
-  {
-    "id": "guacamole",
-    "nombre": "Guacamole",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 18 de Julio 1070, Centro",
-    "barrio": "Centro",
-    "ciudad": "Montevideo",
-    "latitud": -34.9065723,
-    "longitud": -56.1930103,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "touring",
-    "nombre": "Touring",
-    "tipo": "Restaurante",
-    "direccion": "Minas 1487, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.9028987,
-    "longitud": -56.1811233,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "pizzeria-31-de-enero",
-    "nombre": "Pizzeria 31 de Enero",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Don Pedro de Mendoza, Casavalle",
-    "barrio": "Casavalle",
-    "ciudad": "Montevideo",
-    "latitud": -34.8297103,
-    "longitud": -56.1547167,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "charly",
-    "nombre": "Charly",
-    "tipo": "Restaurante",
-    "direccion": "Paraguay 2141, Arroyo Seco",
-    "barrio": "Arroyo Seco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8913179,
-    "longitud": -56.1947828,
-    "comida": [
-      "café"
-    ]
-  },
-  {
-    "id": "pizzeria-maktub",
-    "nombre": "Pizzeria Maktub",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Luis Alberto de Herrera, Larrañaga",
-    "barrio": "Larrañaga",
-    "ciudad": "Montevideo",
-    "latitud": -34.8770429,
-    "longitud": -56.1566874
-  },
-  {
-    "id": "la-curva",
-    "nombre": "La Curva",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Carlos María Ramírez, Cerro",
-    "barrio": "Cerro",
-    "ciudad": "Montevideo",
-    "latitud": -34.8738548,
-    "longitud": -56.250794
-  },
-  {
-    "id": "grido-maronas",
-    "nombre": "Grido (Maroñas)",
-    "tipo": "Restaurante",
-    "direccion": "Hipólito Yrigoyen, Maroñas",
-    "barrio": "Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8710743,
-    "longitud": -56.1158522
-  },
-  {
-    "id": "mccain",
-    "nombre": "McCain",
-    "tipo": "Restaurante",
-    "direccion": "Camino Molinos de Raffo, Sayago",
-    "barrio": "Sayago",
-    "ciudad": "Montevideo",
-    "latitud": -34.846965,
-    "longitud": -56.2126332
-  },
-  {
-    "id": "gran-arenal",
-    "nombre": "Gran Arenal",
-    "tipo": "Restaurante",
-    "direccion": "Libres, Villa Muñoz",
-    "barrio": "Villa Muñoz",
-    "ciudad": "Montevideo",
-    "latitud": -34.88626,
-    "longitud": -56.1807287
-  },
-  {
-    "id": "la-guinda",
-    "nombre": "La Guinda",
-    "tipo": "Restaurante",
-    "direccion": "Maldonado 1983, Palermo",
-    "barrio": "Palermo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9082435,
-    "longitud": -56.1723463
-  },
-  {
-    "id": "qiana-uctrial",
-    "nombre": "Qiana Uctrial",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre, Flor de Maroñas",
-    "barrio": "Flor de Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8589802,
-    "longitud": -56.133533
-  },
-  {
-    "id": "pranzo-pocitos",
-    "nombre": "Pranzo Pocitos",
-    "tipo": "Restaurante",
-    "direccion": "Basilio Pereira de la Luz 1354, Parque Batlle",
-    "barrio": "Parque Batlle",
-    "ciudad": "Montevideo",
-    "latitud": -34.9034355,
-    "longitud": -56.1418108,
-    "comida": [
-      "pizza",
-      "hamburguesas",
-      "sándwiches"
-    ]
-  },
-  {
-    "id": "bocatti-el-pinar",
-    "nombre": "Bocatti (El Pinar)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8048598,
-    "longitud": -55.9032557,
-    "comida": [
-      "empanadas"
-    ]
-  },
-  {
-    "id": "el-horno-de-juan",
-    "nombre": "El Horno de Juan",
-    "tipo": "Restaurante",
-    "direccion": "Manuel Nelson Varela Cáceres, Lagomar, Ciudad de la Costa",
-    "barrio": "Lagomar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8380761,
-    "longitud": -55.987065,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "bar-rodo",
-    "nombre": "Bar Rodo",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Gonzalo Ramírez 2000, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9118622,
-    "longitud": -56.1716719
-  },
-  {
-    "id": "pizzeria-los-yorio",
-    "nombre": "Pizzería Los Yorio",
-    "tipo": "Restaurante",
-    "direccion": "Doctor Martín Berinduague, Paso Molino",
-    "barrio": "Paso Molino",
-    "ciudad": "Montevideo",
-    "latitud": -34.8609272,
-    "longitud": -56.2214699,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "mcdonald-s-solymar",
-    "nombre": "McDonald's (Solymar)",
-    "tipo": "Restaurante",
-    "direccion": "Ruta Interbalnearia General Líber Seregni, Solymar, Ciudad de la Costa",
-    "barrio": "Solymar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.817514,
-    "longitud": -55.9797704,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "restaurant-shang-hai",
-    "nombre": "Restaurant Shang Hai",
-    "tipo": "Restaurante",
-    "direccion": "Rostand 1560, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8898519,
-    "longitud": -56.0556932,
-    "comida": [
-      "china"
-    ]
-  },
-  {
-    "id": "kamikaze-sushi-house",
-    "nombre": "Kamikaze Sushi House",
-    "tipo": "Restaurante",
-    "direccion": "Avenida a la Playa, Parque Miramar, Ciudad de la Costa",
-    "barrio": "Parque Miramar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8657718,
-    "longitud": -56.0215179,
-    "comida": [
-      "japonesa",
-      "sushi"
-    ]
-  },
-  {
-    "id": "rodelu",
-    "nombre": "Rodelu",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Bolivia 1428, Punta Gorda",
-    "barrio": "Punta Gorda",
-    "ciudad": "Montevideo",
-    "latitud": -34.8928281,
-    "longitud": -56.0660387
-  },
-  {
-    "id": "rodelu-la-blanqueada",
-    "nombre": "Rodelu (La Blanqueada)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre 2688, La Blanqueada",
-    "barrio": "La Blanqueada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8898766,
-    "longitud": -56.1603124,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "la-pasiva-26",
-    "nombre": "La Pasiva 26",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar 26 de Marzo 3564, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9055798,
-    "longitud": -56.1353116
-  },
-  {
-    "id": "el-paraiso-de-eva",
-    "nombre": "El Paraiso de Eva",
-    "tipo": "Restaurante",
-    "direccion": "José Germán Araújo 1280, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9078995,
-    "longitud": -56.1978809
-  },
-  {
-    "id": "parrillada-union",
-    "nombre": "Parrillada (Unión)",
-    "tipo": "Restaurante",
-    "direccion": "Joanicó, Unión",
-    "barrio": "Unión",
-    "ciudad": "Montevideo",
-    "latitud": -34.8749486,
-    "longitud": -56.1423024
-  },
-  {
-    "id": "pizzeria-los-hermanos",
-    "nombre": "Pizzeria Los Hermanos",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General Artigas, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.7273056,
-    "longitud": -56.2209167
-  },
-  {
-    "id": "bruta",
-    "nombre": "Bruta",
-    "tipo": "Restaurante",
-    "direccion": "Luis de la Torre 818, Punta Carretas",
-    "barrio": "Punta Carretas",
-    "ciudad": "Montevideo",
-    "latitud": -34.9157895,
-    "longitud": -56.155992
-  },
-  {
-    "id": "castrobo",
-    "nombre": "Castrobo",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 18 de Julio 2150, Tres Cruces",
-    "barrio": "Tres Cruces",
-    "ciudad": "Montevideo",
-    "latitud": -34.8992995,
-    "longitud": -56.1688003,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "soprano-s",
-    "nombre": "Soprano's",
-    "tipo": "Restaurante",
-    "direccion": "Río de la Plata 1395, Malvín",
-    "barrio": "Malvín",
-    "ciudad": "Montevideo",
-    "latitud": -34.895904,
-    "longitud": -56.1022164
-  },
-  {
-    "id": "tintos-rubias",
-    "nombre": "Tintos & Rubias",
-    "tipo": "Restaurante",
-    "direccion": "Pedro Francisco Berro 797, Pocitos",
-    "barrio": "Pocitos",
-    "ciudad": "Montevideo",
-    "latitud": -34.9164188,
-    "longitud": -56.1533256,
-    "comida": [
-      "parrilla"
-    ]
-  },
-  {
-    "id": "la-fonda",
-    "nombre": "La Fonda",
-    "tipo": "Restaurante",
-    "direccion": "Pérez Castellano 1422, Ciudad Vieja",
-    "barrio": "Ciudad Vieja",
-    "ciudad": "Montevideo",
-    "latitud": -34.9078915,
-    "longitud": -56.2103059
-  },
-  {
-    "id": "biobar",
-    "nombre": "Biobar",
-    "tipo": "Restaurante",
-    "direccion": "Circunvalación Doctor Enrique Tarigo 1126, Centro",
-    "barrio": "Centro",
-    "ciudad": "Montevideo",
-    "latitud": -34.9065385,
-    "longitud": -56.1918249
-  },
-  {
-    "id": "gran-sportman",
-    "nombre": "Gran Sportman",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 18 de Julio 1803, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.9022081,
-    "longitud": -56.1772152
-  },
-  {
-    "id": "alcala",
-    "nombre": "Alcala",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General Flores, Arroyo Seco",
-    "barrio": "Arroyo Seco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8890242,
-    "longitud": -56.1864493
-  },
-  {
-    "id": "los-horneros",
-    "nombre": "Los Horneros",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Luis Alberto de Herrera, Larrañaga",
-    "barrio": "Larrañaga",
-    "ciudad": "Montevideo",
-    "latitud": -34.881146,
-    "longitud": -56.1530885
-  },
-  {
-    "id": "salsa-pizca",
-    "nombre": "Salsa Pizca",
-    "tipo": "Restaurante",
-    "direccion": "Juan B. Viacaba, Cerro",
-    "barrio": "Cerro",
-    "ciudad": "Montevideo",
-    "latitud": -34.8880466,
-    "longitud": -56.2520134
-  },
-  {
-    "id": "pizzeria-chiviteria-parrillada",
-    "nombre": "Pizzeria Chiviteria Parrillada",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Millán, Sayago",
-    "barrio": "Sayago",
-    "ciudad": "Montevideo",
-    "latitud": -34.8426572,
-    "longitud": -56.2082505,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "cocina-y-cafe",
-    "nombre": "Cocina y café",
-    "tipo": "Restaurante",
-    "direccion": "Justicia, Villa Muñoz",
-    "barrio": "Villa Muñoz",
-    "ciudad": "Montevideo",
-    "latitud": -34.8879032,
-    "longitud": -56.1791508
-  },
-  {
-    "id": "rocinante",
-    "nombre": "Rocinante",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Gonzalo Ramírez 1652, Palermo",
-    "barrio": "Palermo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9124008,
-    "longitud": -56.1789598,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "miniefoods",
-    "nombre": "Miniefoods",
-    "tipo": "Restaurante",
-    "direccion": "Marco Bruto 1386, Parque Batlle",
-    "barrio": "Parque Batlle",
-    "ciudad": "Montevideo",
-    "latitud": -34.9020454,
-    "longitud": -56.1395785
-  },
-  {
-    "id": "biga",
-    "nombre": "Biga",
-    "tipo": "Restaurante",
-    "direccion": "Fernando de Magallanes, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.7990084,
-    "longitud": -55.8900328,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "blanes-restaurante",
-    "nombre": "Blanes Restaurante",
-    "tipo": "Restaurante",
-    "direccion": "Juan Manuel Blanes 997, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9111772,
-    "longitud": -56.1717784,
-    "comida": [
-      "italiana"
-    ]
-  },
-  {
-    "id": "don-napolitano",
-    "nombre": "Don Napolitano",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Agraciada, Paso Molino",
-    "barrio": "Paso Molino",
-    "ciudad": "Montevideo",
-    "latitud": -34.8579545,
-    "longitud": -56.2178025,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "grido-solymar",
-    "nombre": "Grido (Solymar)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Ingeniero Luis Giannattasio, Solymar, Ciudad de la Costa",
-    "barrio": "Solymar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.828381,
-    "longitud": -55.9690962
-  },
-  {
-    "id": "la-peatonal",
-    "nombre": "La Peatonal",
-    "tipo": "Restaurante",
-    "direccion": "Carlos Sáez 6697, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8899292,
-    "longitud": -56.055332
-  },
-  {
-    "id": "lo-de-monica",
-    "nombre": "Lo de Mónica",
-    "tipo": "Restaurante",
-    "direccion": "Javier de Viana, Parque Miramar, Ciudad de la Costa",
-    "barrio": "Parque Miramar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8713065,
-    "longitud": -56.0230961
-  },
-  {
-    "id": "la-criolla",
-    "nombre": "La Criolla",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Bolivia 1408, Punta Gorda",
-    "barrio": "Punta Gorda",
-    "ciudad": "Montevideo",
-    "latitud": -34.8931202,
-    "longitud": -56.065647
-  },
-  {
-    "id": "jhonny-s",
-    "nombre": "Jhonny's",
-    "tipo": "Restaurante",
-    "direccion": "Agustín Abreu 2441, La Blanqueada",
-    "barrio": "La Blanqueada",
-    "ciudad": "Montevideo",
-    "latitud": -34.8812664,
-    "longitud": -56.1485296
-  },
-  {
-    "id": "panini-s",
-    "nombre": "Panini's",
-    "tipo": "Restaurante",
-    "direccion": "Bulevar 26 de Marzo 3586, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9055086,
-    "longitud": -56.1348073,
-    "comida": [
-      "italiana",
-      "pescado"
-    ]
-  },
-  {
-    "id": "bar-gula",
-    "nombre": "Bar Gula",
-    "tipo": "Restaurante",
-    "direccion": "Canelones 1150, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9088236,
-    "longitud": -56.1911718
-  },
-  {
-    "id": "bar-san-pedro",
-    "nombre": "Bar San Pedro",
-    "tipo": "Restaurante",
-    "direccion": "Avenida 8 de Octubre, Unión",
-    "barrio": "Unión",
-    "ciudad": "Montevideo",
-    "latitud": -34.8783242,
-    "longitud": -56.1459573
-  },
-  {
-    "id": "luz-violeta",
-    "nombre": "Luz Violeta",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General Artigas, Las Piedras",
-    "barrio": "Las Piedras",
-    "ciudad": "Las Piedras",
-    "latitud": -34.7272061,
-    "longitud": -56.2240048
-  },
-  {
-    "id": "la-barra-1114",
-    "nombre": "La Barra 1114",
-    "tipo": "Restaurante",
-    "direccion": "Libertad 2436, Punta Carretas",
-    "barrio": "Punta Carretas",
-    "ciudad": "Montevideo",
-    "latitud": -34.9125001,
-    "longitud": -56.1608085
-  },
-  {
-    "id": "a-punto",
-    "nombre": "A Punto",
-    "tipo": "Restaurante",
-    "direccion": "Pedro Campbell 1449, Tres Cruces",
-    "barrio": "Tres Cruces",
-    "ciudad": "Montevideo",
-    "latitud": -34.9011903,
-    "longitud": -56.1619892,
-    "comida": [
-      "parrilla"
-    ]
-  },
-  {
-    "id": "el-horno-de-juan-malvin",
-    "nombre": "El Horno de Juan (Malvín)",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Italia 5654, Malvín",
-    "barrio": "Malvín",
-    "ciudad": "Montevideo",
-    "latitud": -34.8837612,
-    "longitud": -56.0849627,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "primitivo",
-    "nombre": "Primitivo",
-    "tipo": "Restaurante",
-    "direccion": "El Viejo Pancho 2457, Pocitos",
-    "barrio": "Pocitos",
-    "ciudad": "Montevideo",
-    "latitud": -34.9101,
-    "longitud": -56.1603718,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "primuseum",
-    "nombre": "Primuseum",
-    "tipo": "Restaurante",
-    "direccion": "Pérez Castellano 1389, Ciudad Vieja",
-    "barrio": "Ciudad Vieja",
-    "ciudad": "Montevideo",
-    "latitud": -34.9085101,
-    "longitud": -56.2102355
-  },
-  {
-    "id": "el-fogon",
-    "nombre": "El Fogón",
-    "tipo": "Restaurante",
-    "direccion": "San José 1080, Centro",
-    "barrio": "Centro",
-    "ciudad": "Montevideo",
-    "latitud": -34.9071042,
-    "longitud": -56.1929113
-  },
-  {
-    "id": "fans-cafe",
-    "nombre": "Fans! Café",
-    "tipo": "Restaurante",
-    "direccion": "Constituyente 1515, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.905719,
-    "longitud": -56.182667,
-    "comida": [
-      "sándwiches"
-    ]
-  },
-  {
-    "id": "gaucho-s-grill",
-    "nombre": "Gaucho's Grill",
-    "tipo": "Restaurante",
-    "direccion": "General Fausto Aguilar, Arroyo Seco",
-    "barrio": "Arroyo Seco",
-    "ciudad": "Montevideo",
-    "latitud": -34.883998,
-    "longitud": -56.1909606
-  },
-  {
-    "id": "abril",
-    "nombre": "Abril",
-    "tipo": "Restaurante",
-    "direccion": "Coronel Lucas Píriz, Larrañaga",
-    "barrio": "Larrañaga",
-    "ciudad": "Montevideo",
-    "latitud": -34.883646,
-    "longitud": -56.1612959,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
-    "id": "carrito-el-26",
-    "nombre": "Carrito el 26",
-    "tipo": "Restaurante",
-    "direccion": "Juan Bautista Saá, Sayago",
-    "barrio": "Sayago",
-    "ciudad": "Montevideo",
-    "latitud": -34.8296787,
-    "longitud": -56.2303107
-  },
-  {
-    "id": "el-rey-del-sabor-villa-munoz",
-    "nombre": "El rey del sabor (Villa Muñoz)",
-    "tipo": "Restaurante",
-    "direccion": "Doctor Juan José de Amézaga, Villa Muñoz",
-    "barrio": "Villa Muñoz",
-    "ciudad": "Montevideo",
-    "latitud": -34.8865369,
-    "longitud": -56.1771218
-  },
-  {
-    "id": "katy-s",
-    "nombre": "Katy's",
-    "tipo": "Restaurante",
-    "direccion": "San Salvador 1644, Palermo",
-    "barrio": "Palermo",
-    "ciudad": "Montevideo",
-    "latitud": -34.911641,
-    "longitud": -56.1793558
-  },
-  {
-    "id": "venecia",
-    "nombre": "Venecia",
-    "tipo": "Restaurante",
-    "direccion": "Avenida General Rivera 3351, Parque Batlle",
-    "barrio": "Parque Batlle",
-    "ciudad": "Montevideo",
-    "latitud": -34.9020771,
-    "longitud": -56.1421819,
-    "comida": [
-      "pizza"
-    ]
-  },
-  {
     "id": "crab-s",
     "nombre": "Crab's",
     "tipo": "Restaurante",
@@ -7243,43 +11627,6 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Ciudad de la Costa",
     "latitud": -34.7932473,
     "longitud": -55.8806789
-  },
-  {
-    "id": "il-trancio-ditalia",
-    "nombre": "Il Trancio Ditalia",
-    "tipo": "Restaurante",
-    "direccion": "Avenida Gonzalo Ramírez 2113, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.911437,
-    "longitud": -56.168928,
-    "comida": [
-      "pastas",
-      "pizza"
-    ]
-  },
-  {
-    "id": "mostaza-paso-molino",
-    "nombre": "Mostaza (Paso Molino)",
-    "tipo": "Restaurante",
-    "direccion": "Mariano Sagasta, Paso Molino",
-    "barrio": "Paso Molino",
-    "ciudad": "Montevideo",
-    "latitud": -34.8574054,
-    "longitud": -56.21912,
-    "comida": [
-      "hamburguesas"
-    ]
-  },
-  {
-    "id": "origen",
-    "nombre": "Origen",
-    "tipo": "Restaurante",
-    "direccion": "Carlos Sáez 6433, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8902522,
-    "longitud": -56.0570319
   },
   {
     "id": "kneipe-finca",
@@ -7325,6 +11672,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2212723
   },
   {
+    "id": "varaderos-ii",
+    "nombre": "Varaderos II",
+    "tipo": "Café",
+    "direccion": "Avenida Carlos María Ramírez, La Teja",
+    "barrio": "La Teja",
+    "ciudad": "Montevideo",
+    "latitud": -34.8606313,
+    "longitud": -56.2296333
+  },
+  {
     "id": "lo-de-carmelita-charlas-de-cafe",
     "nombre": "lo de Carmelita - Charlas de cafe",
     "tipo": "Café",
@@ -7358,6 +11715,26 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
+    "id": "sinestesia",
+    "nombre": "Sinestesia",
+    "tipo": "Café",
+    "direccion": "Yacaré 1568, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9055442,
+    "longitud": -56.2110619
+  },
+  {
+    "id": "the-lab-coffee-roasters",
+    "nombre": "The Lab coffee roasters",
+    "tipo": "Café",
+    "direccion": "Sarandí 285, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9088759,
+    "longitud": -56.209166
+  },
+  {
     "id": "pan-comido-cafe",
     "nombre": "Pan Comido Cafe",
     "tipo": "Café",
@@ -7389,6 +11766,16 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8454628,
     "longitud": -56.125423
+  },
+  {
+    "id": "pickas-caffeur",
+    "nombre": "Pickas Caffeur",
+    "tipo": "Café",
+    "direccion": "Eusebio Vidal, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8541079,
+    "longitud": -56.1244265
   },
   {
     "id": "8-pm-cofee-time",
@@ -7444,6 +11831,75 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.0245329
   },
   {
+    "id": "saint-germain-cafe-parisien",
+    "nombre": "Saint Germain Café Parisien",
+    "tipo": "Café",
+    "direccion": "Avenida General Rivera 6690, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8861289,
+    "longitud": -56.0572532,
+    "comida": [
+      "café"
+    ]
+  },
+  {
+    "id": "la-madriguera",
+    "nombre": "La madriguera",
+    "tipo": "Café",
+    "direccion": "Doctor Alejandro Schroeder 1666, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8873647,
+    "longitud": -56.0592443
+  },
+  {
+    "id": "starbucks",
+    "nombre": "Starbucks",
+    "tipo": "Café",
+    "direccion": "Avenida Alfredo Arocena 1590, Carrasco",
+    "barrio": "Carrasco",
+    "ciudad": "Montevideo",
+    "latitud": -34.8891916,
+    "longitud": -56.0567202,
+    "comida": [
+      "café"
+    ]
+  },
+  {
+    "id": "arrayan",
+    "nombre": "Arrayan",
+    "tipo": "Café",
+    "direccion": "Camino Carrasco, Maroñas",
+    "barrio": "Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8704495,
+    "longitud": -56.1114356
+  },
+  {
+    "id": "starbucks-punta-gorda",
+    "nombre": "Starbucks (Punta Gorda)",
+    "tipo": "Café",
+    "direccion": "Avenida Italia 5775, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8804819,
+    "longitud": -56.0794302,
+    "comida": [
+      "café"
+    ]
+  },
+  {
+    "id": "brot-haus",
+    "nombre": "Brot Haus",
+    "tipo": "Café",
+    "direccion": "Líbano 1428, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8939342,
+    "longitud": -56.0713244
+  },
+  {
     "id": "portofino",
     "nombre": "Portofino",
     "tipo": "Café",
@@ -7462,6 +11918,29 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.8806845,
     "longitud": -56.1498917
+  },
+  {
+    "id": "gracie-cafe",
+    "nombre": "Gracie café",
+    "tipo": "Café",
+    "direccion": "Alejandro Fleming 1662, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8892697,
+    "longitud": -56.0941073
+  },
+  {
+    "id": "la-pantalla",
+    "nombre": "La Pantalla",
+    "tipo": "Café",
+    "direccion": "Míchigan 1404, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8957734,
+    "longitud": -56.0996194,
+    "comida": [
+      "café"
+    ]
   },
   {
     "id": "craft-cafe",
@@ -7504,6 +11983,39 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1598689
   },
   {
+    "id": "ramona-cafe",
+    "nombre": "Ramona Cafe",
+    "tipo": "Café",
+    "direccion": "Avenida Luis Alberto de Herrera 1196, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9059283,
+    "longitud": -56.1366039
+  },
+  {
+    "id": "nectarena-smoothies-cafe-tradicional",
+    "nombre": "Nectarena. Smoothies & Café Tradicional",
+    "tipo": "Café",
+    "direccion": "Bacacay 1338, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9068536,
+    "longitud": -56.201276
+  },
+  {
+    "id": "saint-germain-boulangerie",
+    "nombre": "Saint Germain Boulangerie",
+    "tipo": "Café",
+    "direccion": "Presidente General Oscar Diego Gestido 2805, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9058371,
+    "longitud": -56.1534443,
+    "comida": [
+      "café"
+    ]
+  },
+  {
     "id": "cafe-montana",
     "nombre": "Café Montaña",
     "tipo": "Café",
@@ -7512,6 +12024,36 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9009345,
     "longitud": -56.1731631
+  },
+  {
+    "id": "starbucks-centro",
+    "nombre": "Starbucks (Centro)",
+    "tipo": "Café",
+    "direccion": "Ejido, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9054496,
+    "longitud": -56.1869928
+  },
+  {
+    "id": "el-cafecito",
+    "nombre": "El Cafecito",
+    "tipo": "Café",
+    "direccion": "Doctor José Scosería 2435, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9159391,
+    "longitud": -56.1593215
+  },
+  {
+    "id": "cafe-gourmand",
+    "nombre": "Café Gourmand",
+    "tipo": "Café",
+    "direccion": "Constituyente 2026, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9079132,
+    "longitud": -56.172613
   },
   {
     "id": "gemitus",
@@ -7544,6 +12086,20 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1676705
   },
   {
+    "id": "starbucks-tres-cruces",
+    "nombre": "Starbucks (Tres Cruces)",
+    "tipo": "Café",
+    "direccion": "Palmar, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.9010466,
+    "longitud": -56.1649666,
+    "comida": [
+      "café",
+      "sándwiches"
+    ]
+  },
+  {
     "id": "bulka",
     "nombre": "Bulka",
     "tipo": "Café",
@@ -7552,6 +12108,46 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9239436,
     "longitud": -56.1561398
+  },
+  {
+    "id": "donut-city",
+    "nombre": "Donut City",
+    "tipo": "Café",
+    "direccion": "21 de Setiembre 2689, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9159297,
+    "longitud": -56.1589268
+  },
+  {
+    "id": "sienna",
+    "nombre": "Sienna",
+    "tipo": "Café",
+    "direccion": "Eduardo Acevedo 1046, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9103839,
+    "longitud": -56.1741425
+  },
+  {
+    "id": "paraiso-cafe",
+    "nombre": "Paraíso Café",
+    "tipo": "Café",
+    "direccion": "Constituyente 1866, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9071212,
+    "longitud": -56.1759629
+  },
+  {
+    "id": "nonna",
+    "nombre": "Nonna",
+    "tipo": "Café",
+    "direccion": "Juan Benito Blanco 1097, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9118159,
+    "longitud": -56.1470858
   },
   {
     "id": "macoco-cafe",
@@ -7564,6 +12160,39 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1767046
   },
   {
+    "id": "escaramuza",
+    "nombre": "Escaramuza",
+    "tipo": "Café",
+    "direccion": "Doctor Pablo de María 1185, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9064978,
+    "longitud": -56.1710095,
+    "comida": [
+      "café"
+    ]
+  },
+  {
+    "id": "rincon-ruski-by-uruvarenik",
+    "nombre": "Rincón Ruski by UruVarenik",
+    "tipo": "Café",
+    "direccion": "Durazno 1451, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9100074,
+    "longitud": -56.1840241
+  },
+  {
+    "id": "la-casa-de-abajo",
+    "nombre": "La Casa de Abajo",
+    "tipo": "Café",
+    "direccion": "Nuestra Señora de la Encina 1663, Palermo",
+    "barrio": "Palermo",
+    "ciudad": "Montevideo",
+    "latitud": -34.909427,
+    "longitud": -56.1790761
+  },
+  {
     "id": "chesterhouse",
     "nombre": "ChesterHouse",
     "tipo": "Café",
@@ -7572,6 +12201,39 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9051398,
     "longitud": -56.2001129
+  },
+  {
+    "id": "bilu-guidai",
+    "nombre": "Bilú Guidaí",
+    "tipo": "Café",
+    "direccion": "Soriano 757, Centro",
+    "barrio": "Centro",
+    "ciudad": "Montevideo",
+    "latitud": -34.9083389,
+    "longitud": -56.1997956
+  },
+  {
+    "id": "starbucks-barrio-sur",
+    "nombre": "Starbucks (Barrio Sur)",
+    "tipo": "Café",
+    "direccion": "Julio Herrera y Obes, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.906269,
+    "longitud": -56.1946279,
+    "comida": [
+      "café"
+    ]
+  },
+  {
+    "id": "inocencio-cafe",
+    "nombre": "Inocencio Café",
+    "tipo": "Café",
+    "direccion": "Constituyente 1794, Cordón",
+    "barrio": "Cordón",
+    "ciudad": "Montevideo",
+    "latitud": -34.9067537,
+    "longitud": -56.1776179
   },
   {
     "id": "iki",
@@ -7594,8 +12256,18 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.2050893
   },
   {
-    "id": "starbucks",
-    "nombre": "Starbucks",
+    "id": "praga",
+    "nombre": "Praga",
+    "tipo": "Café",
+    "direccion": "Plaza Independencia, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9061948,
+    "longitud": -56.1985345
+  },
+  {
+    "id": "starbucks-cordon",
+    "nombre": "Starbucks (Cordón)",
     "tipo": "Café",
     "direccion": "Avenida 18 de Julio 1749, Cordón",
     "barrio": "Cordón",
@@ -7624,6 +12296,36 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -56.1972412
   },
   {
+    "id": "cafe-vincent",
+    "nombre": "Café Vincent",
+    "tipo": "Café",
+    "direccion": "Pedro Bustamante 1238, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9019612,
+    "longitud": -56.1336018
+  },
+  {
+    "id": "pivo-helados",
+    "nombre": "Pivo Helados",
+    "tipo": "Café",
+    "direccion": "Avenida General Rivera 3245, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.9023077,
+    "longitud": -56.1452692
+  },
+  {
+    "id": "carmesi-cafe",
+    "nombre": "Carmesí Café",
+    "tipo": "Café",
+    "direccion": "Simón Bolívar, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.9021068,
+    "longitud": -56.158953
+  },
+  {
     "id": "soy-cafe",
     "nombre": "Soy Café",
     "tipo": "Café",
@@ -7632,6 +12334,36 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "ciudad": "Montevideo",
     "latitud": -34.9020028,
     "longitud": -56.167868
+  },
+  {
+    "id": "the-lab",
+    "nombre": "The Lab",
+    "tipo": "Café",
+    "direccion": "Avenida Luis Alberto de Herrera 1109, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9075626,
+    "longitud": -56.1364042
+  },
+  {
+    "id": "starbucks-punta-carretas",
+    "nombre": "Starbucks (Punta Carretas)",
+    "tipo": "Café",
+    "direccion": "José Ellauri 606, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9192269,
+    "longitud": -56.1560165
+  },
+  {
+    "id": "tavoli",
+    "nombre": "Tavoli",
+    "tipo": "Café",
+    "direccion": "Santiago de Anca 1420, Malvín Nuevo",
+    "barrio": "Malvín Nuevo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8945715,
+    "longitud": -56.1114783
   },
   {
     "id": "bake",
@@ -7674,120 +12406,24 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.9078778
   },
   {
-    "id": "cafe-rock",
-    "nombre": "Cafe Rock",
+    "id": "casa-cafe",
+    "nombre": "Casa-Café",
     "tipo": "Café",
-    "direccion": "Avenida Ingeniero Luis Giannattasio 233, Solymar, Ciudad de la Costa",
-    "barrio": "Solymar",
+    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.831088,
-    "longitud": -55.9741781
+    "latitud": -34.8038504,
+    "longitud": -55.9059682
   },
   {
-    "id": "varaderos-ii",
-    "nombre": "Varaderos II",
+    "id": "cafe-del-museo",
+    "nombre": "Café Del Museo",
     "tipo": "Café",
-    "direccion": "Avenida Carlos María Ramírez, La Teja",
-    "barrio": "La Teja",
-    "ciudad": "Montevideo",
-    "latitud": -34.8606313,
-    "longitud": -56.2296333
-  },
-  {
-    "id": "arrayan",
-    "nombre": "Arrayan",
-    "tipo": "Café",
-    "direccion": "Camino Carrasco, Maroñas",
-    "barrio": "Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8704495,
-    "longitud": -56.1114356
-  },
-  {
-    "id": "pickas-caffeur",
-    "nombre": "Pickas Caffeur",
-    "tipo": "Café",
-    "direccion": "Eusebio Vidal, Flor de Maroñas",
-    "barrio": "Flor de Maroñas",
-    "ciudad": "Montevideo",
-    "latitud": -34.8541079,
-    "longitud": -56.1244265
-  },
-  {
-    "id": "pivo-helados",
-    "nombre": "Pivo Helados",
-    "tipo": "Café",
-    "direccion": "Avenida General Rivera 3245, Parque Batlle",
-    "barrio": "Parque Batlle",
-    "ciudad": "Montevideo",
-    "latitud": -34.9023077,
-    "longitud": -56.1452692
-  },
-  {
-    "id": "la-casa-de-abajo",
-    "nombre": "La Casa de Abajo",
-    "tipo": "Café",
-    "direccion": "Nuestra Señora de la Encina 1663, Palermo",
-    "barrio": "Palermo",
-    "ciudad": "Montevideo",
-    "latitud": -34.909427,
-    "longitud": -56.1790761
-  },
-  {
-    "id": "starbucks-punta-gorda",
-    "nombre": "Starbucks (Punta Gorda)",
-    "tipo": "Café",
-    "direccion": "Avenida Italia 5775, Punta Gorda",
-    "barrio": "Punta Gorda",
-    "ciudad": "Montevideo",
-    "latitud": -34.8804819,
-    "longitud": -56.0794302,
-    "comida": [
-      "café"
-    ]
-  },
-  {
-    "id": "rincon-ruski-by-uruvarenik",
-    "nombre": "Rincón Ruski by UruVarenik",
-    "tipo": "Café",
-    "direccion": "Durazno 1451, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9100074,
-    "longitud": -56.1840241
-  },
-  {
-    "id": "ramona-cafe",
-    "nombre": "Ramona Cafe",
-    "tipo": "Café",
-    "direccion": "Avenida Luis Alberto de Herrera 1196, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9059283,
-    "longitud": -56.1366039
-  },
-  {
-    "id": "saint-germain-cafe-parisien",
-    "nombre": "Saint Germain Café Parisien",
-    "tipo": "Café",
-    "direccion": "Avenida General Rivera 6690, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8861289,
-    "longitud": -56.0572532,
-    "comida": [
-      "café"
-    ]
-  },
-  {
-    "id": "cafe-gourmand",
-    "nombre": "Café Gourmand",
-    "tipo": "Café",
-    "direccion": "Constituyente 2026, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9079132,
-    "longitud": -56.172613
+    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
+    "barrio": "El Pinar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8044116,
+    "longitud": -55.9056327
   },
   {
     "id": "starbucks-solymar",
@@ -7803,283 +12439,14 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     ]
   },
   {
-    "id": "casa-cafe",
-    "nombre": "Casa-Café",
+    "id": "cafe-rock",
+    "nombre": "Cafe Rock",
     "tipo": "Café",
-    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
+    "direccion": "Avenida Ingeniero Luis Giannattasio 233, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
     "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8038504,
-    "longitud": -55.9059682
-  },
-  {
-    "id": "gracie-cafe",
-    "nombre": "Gracie café",
-    "tipo": "Café",
-    "direccion": "Alejandro Fleming 1662, Malvín",
-    "barrio": "Malvín",
-    "ciudad": "Montevideo",
-    "latitud": -34.8892697,
-    "longitud": -56.0941073
-  },
-  {
-    "id": "sinestesia",
-    "nombre": "Sinestesia",
-    "tipo": "Café",
-    "direccion": "Yacaré 1568, Ciudad Vieja",
-    "barrio": "Ciudad Vieja",
-    "ciudad": "Montevideo",
-    "latitud": -34.9055442,
-    "longitud": -56.2110619
-  },
-  {
-    "id": "el-cafecito",
-    "nombre": "El Cafecito",
-    "tipo": "Café",
-    "direccion": "Doctor José Scosería 2435, Punta Carretas",
-    "barrio": "Punta Carretas",
-    "ciudad": "Montevideo",
-    "latitud": -34.9159391,
-    "longitud": -56.1593215
-  },
-  {
-    "id": "starbucks-tres-cruces",
-    "nombre": "Starbucks (Tres Cruces)",
-    "tipo": "Café",
-    "direccion": "Palmar, Tres Cruces",
-    "barrio": "Tres Cruces",
-    "ciudad": "Montevideo",
-    "latitud": -34.9010466,
-    "longitud": -56.1649666,
-    "comida": [
-      "café",
-      "sándwiches"
-    ]
-  },
-  {
-    "id": "bilu-guidai",
-    "nombre": "Bilú Guidaí",
-    "tipo": "Café",
-    "direccion": "Soriano 757, Centro",
-    "barrio": "Centro",
-    "ciudad": "Montevideo",
-    "latitud": -34.9083389,
-    "longitud": -56.1997956
-  },
-  {
-    "id": "saint-germain-boulangerie",
-    "nombre": "Saint Germain Boulangerie",
-    "tipo": "Café",
-    "direccion": "Presidente General Oscar Diego Gestido 2805, Pocitos",
-    "barrio": "Pocitos",
-    "ciudad": "Montevideo",
-    "latitud": -34.9058371,
-    "longitud": -56.1534443,
-    "comida": [
-      "café"
-    ]
-  },
-  {
-    "id": "paraiso-cafe",
-    "nombre": "Paraíso Café",
-    "tipo": "Café",
-    "direccion": "Constituyente 1866, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.9071212,
-    "longitud": -56.1759629
-  },
-  {
-    "id": "la-isla-palermo",
-    "nombre": "La Isla (Palermo)",
-    "tipo": "Café",
-    "direccion": "Avenida Gonzalo Ramírez, Palermo",
-    "barrio": "Palermo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9119648,
-    "longitud": -56.1759196
-  },
-  {
-    "id": "brot-haus",
-    "nombre": "Brot Haus",
-    "tipo": "Café",
-    "direccion": "Líbano 1428, Punta Gorda",
-    "barrio": "Punta Gorda",
-    "ciudad": "Montevideo",
-    "latitud": -34.8939342,
-    "longitud": -56.0713244
-  },
-  {
-    "id": "starbucks-barrio-sur",
-    "nombre": "Starbucks (Barrio Sur)",
-    "tipo": "Café",
-    "direccion": "Julio Herrera y Obes, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.906269,
-    "longitud": -56.1946279,
-    "comida": [
-      "café"
-    ]
-  },
-  {
-    "id": "cafe-vincent",
-    "nombre": "Café Vincent",
-    "tipo": "Café",
-    "direccion": "Pedro Bustamante 1238, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9019612,
-    "longitud": -56.1336018
-  },
-  {
-    "id": "la-madriguera",
-    "nombre": "La madriguera",
-    "tipo": "Café",
-    "direccion": "Doctor Alejandro Schroeder 1666, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8873647,
-    "longitud": -56.0592443
-  },
-  {
-    "id": "sienna",
-    "nombre": "Sienna",
-    "tipo": "Café",
-    "direccion": "Eduardo Acevedo 1046, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9103839,
-    "longitud": -56.1741425
-  },
-  {
-    "id": "cafe-del-museo",
-    "nombre": "Café Del Museo",
-    "tipo": "Café",
-    "direccion": "Avenida Guillermo Pérez Butler, El Pinar, Ciudad de la Costa",
-    "barrio": "El Pinar",
-    "ciudad": "Ciudad de la Costa",
-    "latitud": -34.8044116,
-    "longitud": -55.9056327
-  },
-  {
-    "id": "la-pantalla",
-    "nombre": "La Pantalla",
-    "tipo": "Café",
-    "direccion": "Míchigan 1404, Malvín",
-    "barrio": "Malvín",
-    "ciudad": "Montevideo",
-    "latitud": -34.8957734,
-    "longitud": -56.0996194,
-    "comida": [
-      "café"
-    ]
-  },
-  {
-    "id": "the-lab-coffee-roasters",
-    "nombre": "The Lab coffee roasters",
-    "tipo": "Café",
-    "direccion": "Sarandí 285, Ciudad Vieja",
-    "barrio": "Ciudad Vieja",
-    "ciudad": "Montevideo",
-    "latitud": -34.9088759,
-    "longitud": -56.209166
-  },
-  {
-    "id": "donut-city",
-    "nombre": "Donut City",
-    "tipo": "Café",
-    "direccion": "21 de Setiembre 2689, Punta Carretas",
-    "barrio": "Punta Carretas",
-    "ciudad": "Montevideo",
-    "latitud": -34.9159297,
-    "longitud": -56.1589268
-  },
-  {
-    "id": "carmesi-cafe",
-    "nombre": "Carmesí Café",
-    "tipo": "Café",
-    "direccion": "Simón Bolívar, Tres Cruces",
-    "barrio": "Tres Cruces",
-    "ciudad": "Montevideo",
-    "latitud": -34.9021068,
-    "longitud": -56.158953
-  },
-  {
-    "id": "starbucks-centro",
-    "nombre": "Starbucks (Centro)",
-    "tipo": "Café",
-    "direccion": "Ejido, Centro",
-    "barrio": "Centro",
-    "ciudad": "Montevideo",
-    "latitud": -34.9054496,
-    "longitud": -56.1869928
-  },
-  {
-    "id": "nonna",
-    "nombre": "Nonna",
-    "tipo": "Café",
-    "direccion": "Juan Benito Blanco 1097, Pocitos",
-    "barrio": "Pocitos",
-    "ciudad": "Montevideo",
-    "latitud": -34.9118159,
-    "longitud": -56.1470858
-  },
-  {
-    "id": "inocencio-cafe",
-    "nombre": "Inocencio Café",
-    "tipo": "Café",
-    "direccion": "Constituyente 1794, Cordón",
-    "barrio": "Cordón",
-    "ciudad": "Montevideo",
-    "latitud": -34.9067537,
-    "longitud": -56.1776179
-  },
-  {
-    "id": "praga",
-    "nombre": "Praga",
-    "tipo": "Café",
-    "direccion": "Plaza Independencia, Barrio Sur",
-    "barrio": "Barrio Sur",
-    "ciudad": "Montevideo",
-    "latitud": -34.9061948,
-    "longitud": -56.1985345
-  },
-  {
-    "id": "the-lab",
-    "nombre": "The Lab",
-    "tipo": "Café",
-    "direccion": "Avenida Luis Alberto de Herrera 1109, Buceo",
-    "barrio": "Buceo",
-    "ciudad": "Montevideo",
-    "latitud": -34.9075626,
-    "longitud": -56.1364042
-  },
-  {
-    "id": "starbucks-carrasco",
-    "nombre": "Starbucks (Carrasco)",
-    "tipo": "Café",
-    "direccion": "Avenida Alfredo Arocena 1590, Carrasco",
-    "barrio": "Carrasco",
-    "ciudad": "Montevideo",
-    "latitud": -34.8891916,
-    "longitud": -56.0567202,
-    "comida": [
-      "café"
-    ]
-  },
-  {
-    "id": "escaramuza",
-    "nombre": "Escaramuza",
-    "tipo": "Café",
-    "direccion": "Doctor Pablo de María 1185, Parque Rodó",
-    "barrio": "Parque Rodó",
-    "ciudad": "Montevideo",
-    "latitud": -34.9064978,
-    "longitud": -56.1710095,
-    "comida": [
-      "café"
-    ]
+    "latitud": -34.831088,
+    "longitud": -55.9741781
   },
   {
     "id": "fuentes",
@@ -8092,34 +12459,485 @@ export const CATALOGO_LUGARES: readonly LugarDelCatalogo[] = [
     "longitud": -55.8901954
   },
   {
-    "id": "tavoli",
-    "nombre": "Tavoli",
+    "id": "saint-germain",
+    "nombre": "Saint Germain",
     "tipo": "Café",
-    "direccion": "Santiago de Anca 1420, Malvín Nuevo",
-    "barrio": "Malvín Nuevo",
+    "direccion": "Bulevar General Artigas 1229, Parque Rodó",
+    "barrio": "Parque Rodó",
     "ciudad": "Montevideo",
-    "latitud": -34.8945715,
-    "longitud": -56.1114783
+    "latitud": -34.9051122,
+    "longitud": -56.1641262
   },
   {
-    "id": "nectarena-smoothies-cafe-tradicional",
-    "nombre": "Nectarena. Smoothies & Café Tradicional",
-    "tipo": "Café",
-    "direccion": "Bacacay 1338, Ciudad Vieja",
-    "barrio": "Ciudad Vieja",
+    "id": "bano-publico-santiago-vazquez",
+    "nombre": "Baño público (Santiago Vázquez)",
+    "tipo": "Baño",
+    "direccion": "Avenida Luis Batlle Berres, Santiago Vázquez",
+    "barrio": "Santiago Vázquez",
     "ciudad": "Montevideo",
-    "latitud": -34.9068536,
-    "longitud": -56.201276
+    "latitud": -34.7859189,
+    "longitud": -56.354682,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
   },
   {
-    "id": "starbucks-punta-carretas",
-    "nombre": "Starbucks (Punta Carretas)",
-    "tipo": "Café",
-    "direccion": "José Ellauri 606, Punta Carretas",
+    "id": "bano-publico-cerro",
+    "nombre": "Baño público (Cerro)",
+    "tipo": "Baño",
+    "direccion": "Romeo Bezzoso Tabárez, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.8734501,
+    "longitud": -56.2496542,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-bolivar",
+    "nombre": "Baño público (Bolívar)",
+    "tipo": "Baño",
+    "direccion": "Domingo J. Cruz, Bolívar",
+    "barrio": "Bolívar",
+    "ciudad": "Montevideo",
+    "latitud": -34.8716703,
+    "longitud": -56.154124,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-parque-batlle",
+    "nombre": "Baño público (Parque Batlle)",
+    "tipo": "Baño",
+    "direccion": "Líber Arce, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.8992893,
+    "longitud": -56.1450795,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-prado",
+    "nombre": "Baño público (Prado)",
+    "tipo": "Baño",
+    "direccion": "Sendero Semicircular 1 Botánico, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8581992,
+    "longitud": -56.199972,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-parque-miramar",
+    "nombre": "Baño público (Parque Miramar)",
+    "tipo": "Baño",
+    "direccion": "Avenida Ingeniero Luis Giannattasio, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8655118,
+    "longitud": -56.0240446,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-punta-gorda",
+    "nombre": "Baño público (Punta Gorda)",
+    "tipo": "Baño",
+    "direccion": "Rambla O'Higgins, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.895474,
+    "longitud": -56.0925831,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-paso-molino",
+    "nombre": "Baño público (Paso Molino)",
+    "tipo": "Baño",
+    "direccion": "Avenida Agraciada, Paso Molino",
+    "barrio": "Paso Molino",
+    "ciudad": "Montevideo",
+    "latitud": -34.8609904,
+    "longitud": -56.2135819,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-parque-rodo",
+    "nombre": "Baño público (Parque Rodó)",
+    "tipo": "Baño",
+    "direccion": "Avenida Gonzalo Ramírez, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9115291,
+    "longitud": -56.1667916,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-malvin",
+    "nombre": "Baño público (Malvín)",
+    "tipo": "Baño",
+    "direccion": "Sendero paralela a Bolivia, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8771678,
+    "longitud": -56.0913322,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-punta-carretas",
+    "nombre": "Baño público (Punta Carretas)",
+    "tipo": "Baño",
+    "direccion": "Senda Nelson Landoni, Punta Carretas",
     "barrio": "Punta Carretas",
     "ciudad": "Montevideo",
-    "latitud": -34.9192269,
-    "longitud": -56.1560165
+    "latitud": -34.9167721,
+    "longitud": -56.1674882,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-pocitos",
+    "nombre": "Baño público (Pocitos)",
+    "tipo": "Baño",
+    "direccion": "Rambla República del Perú, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9105326,
+    "longitud": -56.1439906,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-santiago-vazquez-avenida-luis-batlle-berres",
+    "nombre": "Baño público (Santiago Vázquez, Avenida Luis Batlle Berres)",
+    "tipo": "Baño",
+    "direccion": "Avenida Luis Batlle Berres, Santiago Vázquez",
+    "barrio": "Santiago Vázquez",
+    "ciudad": "Montevideo",
+    "latitud": -34.7945372,
+    "longitud": -56.33309,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-parque-batlle-dolores-pereira-de-rosell",
+    "nombre": "Baño público (Parque Batlle, Dolores Pereira de Rosell)",
+    "tipo": "Baño",
+    "direccion": "Dolores Pereira de Rosell, Parque Batlle",
+    "barrio": "Parque Batlle",
+    "ciudad": "Montevideo",
+    "latitud": -34.9022518,
+    "longitud": -56.1438522,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-prado-sendero-6-botanico",
+    "nombre": "Baño público (Prado, Sendero 6 Botánico)",
+    "tipo": "Baño",
+    "direccion": "Sendero 6 Botánico, Prado",
+    "barrio": "Prado",
+    "ciudad": "Montevideo",
+    "latitud": -34.8610995,
+    "longitud": -56.1984658,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-punta-gorda-rambla-o-higgins",
+    "nombre": "Baño público (Punta Gorda, Rambla O'Higgins)",
+    "tipo": "Baño",
+    "direccion": "Rambla O'Higgins, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8969976,
+    "longitud": -56.098655,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-parque-rodo-doctor-antonio-maria-rodriguez",
+    "nombre": "Baño público (Parque Rodó, Doctor Antonio María Rodríguez)",
+    "tipo": "Baño",
+    "direccion": "Doctor Antonio María Rodríguez, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.913745,
+    "longitud": -56.1687542,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-malvin-joaquin-torres-garcia",
+    "nombre": "Baño público (Malvín, Joaquín Torres García)",
+    "tipo": "Baño",
+    "direccion": "Joaquín Torres García, Malvín",
+    "barrio": "Malvín",
+    "ciudad": "Montevideo",
+    "latitud": -34.8810571,
+    "longitud": -56.0927307,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-punta-carretas-sendero-fay-crocker",
+    "nombre": "Baño público (Punta Carretas, Sendero Fay Crocker)",
+    "tipo": "Baño",
+    "direccion": "Sendero Fay Crocker, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9218245,
+    "longitud": -56.1653839,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-pocitos-rambla-presidente-charles-de-gaulle",
+    "nombre": "Baño público (Pocitos, Rambla Presidente Charles de Gaulle)",
+    "tipo": "Baño",
+    "direccion": "Rambla Presidente Charles de Gaulle, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9098142,
+    "longitud": -56.1420671,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-parque-rodo-rambla-wilson",
+    "nombre": "Baño público (Parque Rodó, Rambla Wilson)",
+    "tipo": "Baño",
+    "direccion": "Rambla Wilson, Parque Rodó",
+    "barrio": "Parque Rodó",
+    "ciudad": "Montevideo",
+    "latitud": -34.9168438,
+    "longitud": -56.1692568,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-punta-carretas-rambla-wilson",
+    "nombre": "Baño público (Punta Carretas, Rambla Wilson)",
+    "tipo": "Baño",
+    "direccion": "Rambla Wilson, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9236674,
+    "longitud": -56.1659697,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-pocitos-rambla-republica-del-peru",
+    "nombre": "Baño público (Pocitos, Rambla República del Perú)",
+    "tipo": "Baño",
+    "direccion": "Rambla República del Perú, Pocitos",
+    "barrio": "Pocitos",
+    "ciudad": "Montevideo",
+    "latitud": -34.9150209,
+    "longitud": -56.1484676,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "bano-publico-punta-carretas-jawaharlal-pandit-nehru",
+    "nombre": "Baño público (Punta Carretas, Jawaharlal Pandit Nehru)",
+    "tipo": "Baño",
+    "direccion": "Jawaharlal Pandit Nehru, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9209566,
+    "longitud": -56.1546263,
+    "fuente": "OpenStreetMap: baño público (amenity=toilets)"
+  },
+  {
+    "id": "costa-urbana-shopping-bano",
+    "nombre": "Costa Urbana Shopping (baño)",
+    "tipo": "Baño",
+    "direccion": "Avenida General José Artigas, San José de Carrasco, Ciudad de la Costa",
+    "barrio": "San José de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8409537,
+    "longitud": -55.9941516,
+    "fuente": "OpenStreetMap: el lugar tiene baño (toilets=yes)"
+  },
+  {
+    "id": "almenara-mall-bano",
+    "nombre": "Almenara Mall (baño)",
+    "tipo": "Baño",
+    "direccion": "Ruta Interbalnearia General Líber Seregni, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8268744,
+    "longitud": -55.9973379,
+    "fuente": "OpenStreetMap: el lugar tiene baño (toilets=yes)"
+  },
+  {
+    "id": "portal-americas-bano",
+    "nombre": "Portal Américas (baño)",
+    "tipo": "Baño",
+    "direccion": "Avenida de las Américas 6000, Parque Miramar, Ciudad de la Costa",
+    "barrio": "Parque Miramar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8700656,
+    "longitud": -56.0311692,
+    "fuente": "OpenStreetMap: el lugar tiene baño (toilets=yes)"
+  },
+  {
+    "id": "portones-shopping-bano",
+    "nombre": "Portones Shopping (baño)",
+    "tipo": "Baño",
+    "direccion": "Avenida Italia 5775, Punta Gorda",
+    "barrio": "Punta Gorda",
+    "ciudad": "Montevideo",
+    "latitud": -34.8812008,
+    "longitud": -56.0808727,
+    "fuente": "OpenStreetMap: el lugar tiene baño (toilets=yes)"
+  },
+  {
+    "id": "nuevocentro-shopping-bano",
+    "nombre": "Nuevocentro Shopping (baño)",
+    "tipo": "Baño",
+    "direccion": "Avenida Luis Alberto de Herrera, Jacinto Vera",
+    "barrio": "Jacinto Vera",
+    "ciudad": "Montevideo",
+    "latitud": -34.8688546,
+    "longitud": -56.1697834,
+    "fuente": "OpenStreetMap: el lugar tiene baño (toilets=yes)"
+  },
+  {
+    "id": "montevideo-shopping-bano",
+    "nombre": "Montevideo Shopping (baño)",
+    "tipo": "Baño",
+    "direccion": "Avenida Luis Alberto de Herrera 1290, Buceo",
+    "barrio": "Buceo",
+    "ciudad": "Montevideo",
+    "latitud": -34.9030628,
+    "longitud": -56.1363655,
+    "fuente": "OpenStreetMap: el lugar tiene baño (toilets=yes)"
+  },
+  {
+    "id": "plaza-italia-shopping-outlet-bano",
+    "nombre": "Plaza Italia Shopping Outlet (baño)",
+    "tipo": "Baño",
+    "direccion": "Avenida Italia 4206, Malvín Nuevo",
+    "barrio": "Malvín Nuevo",
+    "ciudad": "Montevideo",
+    "latitud": -34.8880522,
+    "longitud": -56.1178276,
+    "fuente": "OpenStreetMap: el lugar tiene baño (toilets=yes)"
+  },
+  {
+    "id": "shopping-tres-cruces-bano",
+    "nombre": "Shopping Tres Cruces (baño)",
+    "tipo": "Baño",
+    "direccion": "Bulevar General Artigas 1825, Tres Cruces",
+    "barrio": "Tres Cruces",
+    "ciudad": "Montevideo",
+    "latitud": -34.8937958,
+    "longitud": -56.1664023,
+    "fuente": "OpenStreetMap: el lugar tiene baño (toilets=yes)"
+  },
+  {
+    "id": "punta-carretas-shopping-bano",
+    "nombre": "Punta Carretas Shopping (baño)",
+    "tipo": "Baño",
+    "direccion": "Víctor Soliño, Punta Carretas",
+    "barrio": "Punta Carretas",
+    "ciudad": "Montevideo",
+    "latitud": -34.9239559,
+    "longitud": -56.158593,
+    "fuente": "OpenStreetMap: el lugar tiene baño (toilets=yes)"
+  },
+  {
+    "id": "las-piedras-shopping-bano",
+    "nombre": "Las Piedras Shopping (baño)",
+    "tipo": "Baño",
+    "direccion": "Sauce, Las Piedras",
+    "barrio": "Las Piedras",
+    "ciudad": "Las Piedras",
+    "latitud": -34.7253315,
+    "longitud": -56.2036048,
+    "fuente": "OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público",
+    "sinConfirmar": "el mapa no confirma que el baño esté abierto al público"
+  },
+  {
+    "id": "intercambiador-belloni-bano",
+    "nombre": "Intercambiador Belloni (baño)",
+    "tipo": "Baño",
+    "direccion": "Avenida 8 de Octubre, Flor de Maroñas",
+    "barrio": "Flor de Maroñas",
+    "ciudad": "Montevideo",
+    "latitud": -34.8556102,
+    "longitud": -56.1326495,
+    "fuente": "OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público",
+    "sinConfirmar": "el mapa no confirma que el baño esté abierto al público"
+  },
+  {
+    "id": "via-disegno-bano",
+    "nombre": "Via Disegno (baño)",
+    "tipo": "Baño",
+    "direccion": "Camino de los Grillos, Parque de Carrasco, Ciudad de la Costa",
+    "barrio": "Parque de Carrasco",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8441774,
+    "longitud": -56.0164403,
+    "fuente": "OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público",
+    "sinConfirmar": "el mapa no confirma que el baño esté abierto al público"
+  },
+  {
+    "id": "terminal-del-cerro-bano",
+    "nombre": "Terminal del Cerro (baño)",
+    "tipo": "Baño",
+    "direccion": "Doctor Pedro Castellino, Cerro",
+    "barrio": "Cerro",
+    "ciudad": "Montevideo",
+    "latitud": -34.873439,
+    "longitud": -56.2490217,
+    "fuente": "OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público",
+    "sinConfirmar": "el mapa no confirma que el baño esté abierto al público"
+  },
+  {
+    "id": "terminal-colon-bano",
+    "nombre": "Terminal Colón (baño)",
+    "tipo": "Baño",
+    "direccion": "Vehicular/ Peatonal, Colón",
+    "barrio": "Colón",
+    "ciudad": "Montevideo",
+    "latitud": -34.7995396,
+    "longitud": -56.2223665,
+    "fuente": "OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público",
+    "sinConfirmar": "el mapa no confirma que el baño esté abierto al público"
+  },
+  {
+    "id": "mall-del-lago-bano",
+    "nombre": "Mall del Lago (baño)",
+    "tipo": "Baño",
+    "direccion": "Río Santa Lucía, Lagomar, Ciudad de la Costa",
+    "barrio": "Lagomar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8387865,
+    "longitud": -55.9881339,
+    "fuente": "OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público",
+    "sinConfirmar": "el mapa no confirma que el baño esté abierto al público"
+  },
+  {
+    "id": "galeria-marquez-castro-bano",
+    "nombre": "Galería Márquez Castro (baño)",
+    "tipo": "Baño",
+    "direccion": "Avenida Eduardo Márquez Castro, Solymar, Ciudad de la Costa",
+    "barrio": "Solymar",
+    "ciudad": "Ciudad de la Costa",
+    "latitud": -34.8225928,
+    "longitud": -55.9582248,
+    "fuente": "OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público",
+    "sinConfirmar": "el mapa no confirma que el baño esté abierto al público"
+  },
+  {
+    "id": "terminal-baltasar-brum-bano",
+    "nombre": "Terminal Baltasar Brum (baño)",
+    "tipo": "Baño",
+    "direccion": "Andes, Barrio Sur",
+    "barrio": "Barrio Sur",
+    "ciudad": "Montevideo",
+    "latitud": -34.9001731,
+    "longitud": -56.1971876,
+    "fuente": "OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público",
+    "sinConfirmar": "el mapa no confirma que el baño esté abierto al público"
+  },
+  {
+    "id": "terminal-plaza-espana-bano",
+    "nombre": "Terminal Plaza España (baño)",
+    "tipo": "Baño",
+    "direccion": "Camacuá, Ciudad Vieja",
+    "barrio": "Ciudad Vieja",
+    "ciudad": "Montevideo",
+    "latitud": -34.9096369,
+    "longitud": -56.201515,
+    "fuente": "OpenStreetMap (shopping o terminal); el mapa no dice si el baño es público",
+    "sinConfirmar": "el mapa no confirma que el baño esté abierto al público"
   },
   {
     "id": "cementerio-del-norte",
@@ -8163,5 +12981,6 @@ export const QUEDARON_AFUERA: readonly string[] = [
   "Bar Los Yuyos: el mapa devolvió otro lugar (\"Los Yuyos\")",
   "Confitería La Americana: el mapa devolvió otro lugar (\"Edificio Confitería La Americana\")",
   "El Hacha: el mapa no lo encontró por su nombre",
-  "Café Las Misiones: el mapa devolvió otro lugar (\"Las Misiones\")"
+  "Café Las Misiones: el mapa devolvió otro lugar (\"Las Misiones\")",
+  "Géant (Jacinto Vera): revisado a mano: el mapa la pone en Gualeguay 3350 y no pudimos confirmar que sea un Géant"
 ]
