@@ -8,8 +8,9 @@ import { cambiarConfiguracion } from './guardar'
 
 /** Lo que se le cuenta al hijo cada vez que se guarda una matrícula (en la tarjeta y en la charla). */
 export const AVISO_REGISTRO_DEL_AUTO =
-  'Para que pueda pagar el estacionamiento desde su celular (con el WhatsApp de la Intendencia), el auto tiene que estar registrado en el sistema de estacionamiento ' +
-  'de la Intendencia (con la matrícula, el padrón y su celular). Eso lo hace la familia una sola vez.'
+  'Para que pueda pagar el estacionamiento desde su celular (con el WhatsApp de la Intendencia), hay que registrar el auto una sola vez, ' +
+  'desde el WhatsApp de su celular: mandar "estacionamiento" al 099 019 500, elegir la opción 1 (registrar un vehículo nuevo), poner la matrícula ' +
+  'y el padrón, y confirmar. Eso lo hace la familia.'
 
 export const HERRAMIENTA_GUARDAR_MATRICULA: Anthropic.Beta.BetaTool = {
   name: 'guardar_matricula',

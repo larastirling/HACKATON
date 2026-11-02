@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
 import type { FormaDeViajar } from '@/lib/datos'
 import { minutosDesde, pasoElTiempoDeAvisar, textoDeMinutos } from '@/lib/estacionamiento'
+import { ESTACIONAMIENTO_POR_WHATSAPP } from '@/lib/estacionamiento-config'
 import type { Emergencia, EsperaAprobacion, Estafa, MensajeCharla, Pedido, TarjetaDeEstacionamiento, Viaje } from '@/lib/ia'
 import { juntarNombres } from '@/lib/texto'
 import { consultarAprobacion, responderAlAbuelo, terminarEstacionamientoAhora } from './acciones'
@@ -403,7 +404,8 @@ function TarjetaEstacionamiento({ estacionamiento: e }: { estacionamiento: Tarje
       <p className="tarjeta-viaje-direccion">
         {empezar ? (
           <>
-            WhatsApp de la Intendencia, con <strong>“{e.whatsapp.texto}”</strong> escrito. {t('Si le piden la matrícula', 'Si te piden la matrícula')}: <strong>{e.matricula}</strong>.
+            WhatsApp de la Intendencia, con <strong>“{e.whatsapp.texto}”</strong> escrito.{' '}
+            {t('Cuando le contesten, elija', 'Cuando te contesten, elegí')} <strong>{ESTACIONAMIENTO_POR_WHATSAPP.opcionParaEmpezar}</strong>.
           </>
         ) : (
           <>
@@ -417,9 +419,18 @@ function TarjetaEstacionamiento({ estacionamiento: e }: { estacionamiento: Tarje
       </a>
       <p className="tarjeta-viaje-ayuda">{t('Después toque “Enviar”. El mensaje no se manda solo.', 'Después tocá “Enviar”. El mensaje no se manda solo.')}</p>
       {e.sms && (
-        <a className="boton boton-secundario boton-sms" href={e.sms.link}>
-          Si WhatsApp no anda: mandar SMS
-        </a>
+        <>
+          <a className="boton boton-secundario boton-sms" href={e.sms.link}>
+            Si WhatsApp no anda: mandar SMS
+          </a>
+          <p className="tarjeta-viaje-ayuda">
+            SMS al {e.sms.numero} con <strong>“{e.sms.texto}”</strong> ({textoDeMinutos(e.sms.minutos)}).{' '}
+            {t(
+              'Espere el mensaje que confirma la compra: si no le llega, no está pagado.',
+              'Esperá el mensaje que confirma la compra: si no te llega, no está pagado.',
+            )}
+          </p>
+        </>
       )}
     </section>
   )

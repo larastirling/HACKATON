@@ -257,12 +257,12 @@ export async function conversarConElAbuelo(
     abierto = nuevo
     estacionamiento = tarjetaParaEmpezar(nuevo)
     const respaldo = estacionamiento.sms
-      ? ` Abajo hay también un botón más chico "Mandar SMS" (por si WhatsApp no anda) con "${estacionamiento.sms.texto}".`
+      ? ` Abajo hay también un botón más chico "Mandar SMS" (por si WhatsApp no anda): SMS al ${estacionamiento.sms.numero} con "${estacionamiento.sms.texto}", que compra ${textoDeMinutos(estacionamiento.sms.minutos)}; tiene que esperar el mensaje que confirma la compra (si no llega, no está pagado).`
       : ''
     const nota = guardada
       ? ''
       : ' Como esa matrícula no está guardada, recordale que el auto tiene que estar registrado en el sistema de estacionamiento de la Intendencia (eso lo hace la familia una vez) y que puede pedirle a la familia que la cargue en la app.'
-    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con su matrícula (${estacionamiento.matricula}) y un botón grande "Abrir WhatsApp", que abre el WhatsApp de la Intendencia con la palabra "estacionamiento" escrita. NO está mandado: él aprieta Enviar y sigue lo que le contesten (si le piden la matrícula, está en la tarjeta).${respaldo} Quedó anotado que estacionó ahora: cuando se vaya, que te diga "ya me voy" para terminarlo.${nota} Contáselo en dos o tres frases cortas.`
+    return `Listo: debajo de tu respuesta, el abuelo ve una tarjeta con su matrícula (${estacionamiento.matricula}) y un botón grande "Abrir WhatsApp", que abre el WhatsApp de la Intendencia con la palabra "estacionamiento" escrita. NO está mandado: él aprieta Enviar, espera la respuesta y elige "Con matrícula asociada" (opción 1); su matrícula está en la tarjeta.${respaldo} Quedó anotado que estacionó ahora: cuando se vaya, que te diga "ya me voy" para terminarlo.${nota} Contáselo en dos o tres frases cortas.`
   }
 
   /** Irse: WhatsApp de la Intendencia con "fin" escrito, y se borra lo anotado. */
@@ -697,7 +697,7 @@ ${configuracion.abuelo.matricula ? `Matrícula guardada de su auto: ${mostrarMat
 Si ahora tiene el estacionamiento abierto, lo dice AHORA (al final).
 Si cuenta que estacionó (por ejemplo "estacioné en 18 de Julio, voy a estar una hora"):
 - Primero confirmale la matrícula en una pregunta (por ejemplo: "¿Es el auto SBA 1234?").
-- Cuando diga que sí, usá empezar_estacionamiento (con los minutos si los dijo; si no, 0). La pantalla le muestra su matrícula y un botón que abre el WhatsApp de la Intendencia con "estacionamiento" escrito; él aprieta Enviar y sigue lo que le contestan. Si le piden la matrícula, recordásela.
+- Cuando diga que sí, usá empezar_estacionamiento (con los minutos si los dijo; si no, 0). La pantalla le muestra su matrícula y un botón que abre el WhatsApp de la Intendencia con "estacionamiento" escrito; él aprieta Enviar, espera la respuesta y elige "Con matrícula asociada" (opción 1). Se paga por los minutos que esté.
 - Cuando diga que se va ("ya me voy", "saqué el auto"), usá terminar_estacionamiento: el botón abre el WhatsApp con "fin" escrito.
 - Si no hay matrícula guardada: pedile la matrícula y repetísela para que confirme, o sugerile que le pida a la familia que la cargue. Nunca la inventes.
 - Vos nunca mandás nada. No digas precios, horarios ni zonas: no los sabemos.
