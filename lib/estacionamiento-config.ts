@@ -44,6 +44,45 @@ export const ESTACIONAMIENTO_POR_SMS = {
 } as const
 
 /**
+ * Cuándo y dónde se paga. Fuera de eso es gratis: la app se lo dice al abuelo en vez de abrirle el WhatsApp.
+ * Los feriados cambian cada año: sin la lista oficial de ese año, no se da por gratis un feriado (sí el fin de semana).
+ * "Si el feriado se corre de día, la gratuidad se adecúa a ello" (dice la página): si se corre uno, cambiarlo acá.
+ */
+export const CUANDO_SE_PAGA = {
+  /** Lunes a viernes (getDay: 1 a 5), de 10 a 18 (hora de Uruguay). */
+  dias: [1, 2, 3, 4, 5],
+  desdeLas: 10,
+  hastaLas: 18,
+  zonas: 'Ciudad Vieja, Centro y Cordón',
+  /** Feriados con estacionamiento gratuito, por año (fecha de Uruguay → nombre). */
+  feriados: {
+    2026: {
+      '2026-01-01': 'Año Nuevo',
+      '2026-01-06': 'Día de Reyes',
+      '2026-02-16': 'Carnaval',
+      '2026-02-17': 'Carnaval',
+      '2026-04-02': 'Turismo',
+      '2026-04-03': 'Turismo',
+      '2026-04-19': 'Desembarco de los 33 Orientales',
+      '2026-05-01': 'Día de los Trabajadores',
+      '2026-05-18': 'Batalla de las Piedras',
+      '2026-06-19': 'Natalicio de Artigas',
+      '2026-07-18': 'Jura de la Constitución',
+      '2026-08-25': 'Declaratoria de la Independencia',
+      '2026-10-12': 'Día de la Raza',
+      '2026-11-02': 'Día de los Difuntos',
+      '2026-12-25': 'Navidad o Día de la Familia',
+    },
+  } as Record<number, Record<string, string>>,
+  fuente:
+    'https://montevideo.gub.uy/area-tematica/movilidad/estacionamiento-tarifado (días y horario: lunes a viernes de 10 a 18; ' +
+    'sábados, domingos y feriados no laborables gratis), ' +
+    'https://montevideo.gub.uy/area-tematica/movilidad/estacionamiento-tarifado/zona-de-estacionamiento-tarifado-0 (zonas) y ' +
+    'https://montevideo.gub.uy/area-tematica/movilidad/estacionamiento-tarifado/fechas-con-estacionamiento-gratuito ' +
+    '(feriados 2026, actualizada el 14/01/2026). Revisado el 2026-11-02.',
+}
+
+/**
  * A partir de cuántos minutos de estacionamiento abierto la APP le avisa al abuelo (por si se olvidó de terminarlo).
  * Es un aviso nuestro: el recordatorio de la Intendencia por WhatsApp es cada 120 minutos.
  */

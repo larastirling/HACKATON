@@ -30,6 +30,8 @@ import {
   tarjetaParaEmpezar,
   tarjetaParaTerminar,
   textoDeMinutos,
+  seCobraAhora,
+  TEXTO_CUANDO_SE_PAGA,
   type EstacionamientoAbierto,
   type TarjetaDeEstacionamiento,
 } from './estacionamiento'
@@ -240,8 +242,19 @@ export async function conversarConElAbuelo(
   }
 
   /** Estacionar: WhatsApp de la Intendencia con "estacionamiento" escrito, y se anota desde cuándo. */
-  async function empezarEstacionamiento(entrada: { minutos?: unknown; matricula?: unknown }): Promise<string> {
+  async function empezarEstacionamiento(entrada: { minutos?: unknown; matricula?: unknown; igual?: unknown }): Promise<string> {
     if (estacionamiento) return 'La tarjeta del estacionamiento ya se está mostrando.'
+    // Fuera del horario (fin de semana, feriado, antes de las 10 o después de las 18) no se paga: se le dice, sin WhatsApp.
+    const cobro = seCobraAhora()
+    if (!cobro.seCobra && entrada.igual !== true) {
+      return (
+        `NO se abrió nada: ahora no hace falta pagar el estacionamiento tarifado porque ${cobro.motivo}. ${TEXTO_CUANDO_SE_PAGA} ` +
+        (cobro.despuesSiSeCobra
+          ? 'Decíselo en dos frases y avisale que a partir de las 10 sí se paga: si va a seguir estacionado, que te diga a las 10 para pagarlo.'
+          : 'Decíselo con calma, en una o dos frases: no tiene que pagar.') +
+        ' Si igual quiere pagar, usá empezar_estacionamiento con igual en true.'
+      )
+    }
     if (abierto) {
       return `Ya tiene un estacionamiento abierto desde hace ${textoDeMinutos(minutosDesde(abierto.desde))}. Preguntale si se fue de ahí: si dice que sí, usá terminar_estacionamiento y después, si estacionó en otro lado, empezar_estacionamiento.`
     }
@@ -433,6 +446,7 @@ function herramientaEmpezarEstacionamiento(matriculaGuardada: string | undefined
       type: 'object',
       properties: {
         minutos: { type: 'integer', description: 'Cuántos minutos dijo que va a estar (una hora = 60). 0 si no lo dijo.' },
+        igual: { type: 'boolean', description: 'false. true solo si ya le dijiste que ahora no se paga y él igual quiere pagar.' },
         matricula: {
           type: 'string',
           description: matriculaGuardada
@@ -700,7 +714,9 @@ Si cuenta que estacionó (por ejemplo "estacioné en 18 de Julio, voy a estar un
 - Cuando diga que sí, usá empezar_estacionamiento (con los minutos si los dijo; si no, 0). La pantalla le muestra su matrícula y un botón que abre el WhatsApp de la Intendencia con "estacionamiento" escrito; él aprieta Enviar, espera la respuesta y elige "Con matrícula asociada" (opción 1). Se paga por los minutos que esté.
 - Cuando diga que se va ("ya me voy", "saqué el auto"), usá terminar_estacionamiento: el botón abre el WhatsApp con "fin" escrito.
 - Si no hay matrícula guardada: pedile la matrícula y repetísela para que confirme, o sugerile que le pida a la familia que la cargue. Nunca la inventes.
-- Vos nunca mandás nada. No digas precios, horarios ni zonas: no los sabemos.
+- Cuándo y dónde se paga (web de la Intendencia): ${TEXTO_CUANDO_SE_PAGA} Si ahora se paga o no, lo dice AHORA (al final). Fuera de eso no tiene que pagar: no hace falta abrir nada (empezar_estacionamiento igual lo revisa).
+- Si dice que estacionó en otro barrio (por ejemplo Pocitos, Malvín o el Prado), decile que ahí no se paga. Si no sabés si una calle está en la zona, no lo afirmes: preguntale en qué barrio está.
+- Vos nunca mandás nada. No digas precios: cambian (se ven en la web de la Intendencia).
 
 DUDAS DEL DÍA A DÍA
 Si pregunta algo práctico (la tele no anda, cómo sacar el silencio del celular, qué cocinar con lo que tiene), ayudalo vos:
@@ -758,6 +774,10 @@ ${JSON.stringify(configuracionParaLaIA)}`
       ? `TIENE EL ESTACIONAMIENTO ABIERTO desde hace ${textoDeMinutos(minutosDesde(abierto.desde))}${abierto.minutos ? ` (dijo que iba a estar ${textoDeMinutos(abierto.minutos)})` : ''}.${pasoElTiempoDeAvisar(abierto.desde) ? ' Ya pasó más de una hora: al principio de tu respuesta recordáselo con calma y preguntale si ya se va (si dice que sí, usá terminar_estacionamiento).' : ''}`
       : 'No tiene ningún estacionamiento abierto.'
   }
+- Estacionamiento tarifado: ${(() => {
+    const cobro = seCobraAhora()
+    return cobro.seCobra ? 'ahora SE PAGA (en Ciudad Vieja, Centro y Cordón).' : `ahora NO se paga: ${cobro.motivo}.`
+  })()}
 - ${agenda}`
 
   return [

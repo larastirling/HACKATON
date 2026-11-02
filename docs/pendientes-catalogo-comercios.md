@@ -107,8 +107,9 @@ Trabajo de las ramas `felipelyonnet/catalogo-comercios`, `confirmar-comercios` y
 4. ~~Confirmar con la web de la Intendencia~~ **Hecho el 2026-11-02** en montevideo.gub.uy: WhatsApp 099 019 500
    ("estacionamiento", opción 1 "Con matrícula asociada", "fin"), SMS al 466 ("E SZS1234 60") y el registro del auto.
    Links y fechas en `lib/estacionamiento-config.ts`; el SMS de respaldo ya se le muestra al abuelo.
-   Falta decidir si la app le dice al abuelo el horario (lunes a viernes de 10 a 18), las zonas (Ciudad Vieja, Centro
-   y Cordón) y cuándo es gratis (sábados, domingos y feriados): está confirmado, pero todavía no se agregó.
+   La app ya le dice cuándo y dónde se paga, y fuera de eso no le abre el WhatsApp (`seCobraAhora`).
+   **Cada enero:** copiar la lista oficial de feriados del año nuevo en `CUANDO_SE_PAGA.feriados`
+   (montevideo.gub.uy → "Fechas con estacionamiento gratuito"). Sin la lista, un feriado no se da por gratis.
 5. Probarlo en un celular de verdad: que el link abra WhatsApp con la palabra escrita y que el SMS abra los mensajes.
 
 **Catálogo y comercios**

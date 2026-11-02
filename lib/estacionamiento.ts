@@ -1,4 +1,4 @@
-import { ESTACIONAMIENTO_POR_SMS, ESTACIONAMIENTO_POR_WHATSAPP, MINUTOS_PARA_AVISAR } from './estacionamiento-config'
+import { CUANDO_SE_PAGA, ESTACIONAMIENTO_POR_SMS, ESTACIONAMIENTO_POR_WHATSAPP, MINUTOS_PARA_AVISAR } from './estacionamiento-config'
 
 // Pagar el estacionamiento tarifado (datos en lib/estacionamiento-config.ts):
 //   - Lo principal: el WhatsApp oficial de la Intendencia. Se abre WhatsApp con "estacionamiento" escrito (al empezar)
@@ -110,4 +110,35 @@ export function textoDeMinutos(minutos: number): string {
   const deHoras = horas === 0 ? '' : horas === 1 ? '1 hora' : `${horas} horas`
   const deMinutos = resto === 0 ? '' : resto === 1 ? '1 minuto' : `${resto} minutos`
   return [deHoras, deMinutos].filter(Boolean).join(' y ') || 'menos de un minuto'
+}
+
+// ── Cuándo se paga (CUANDO_SE_PAGA, de la web de la Intendencia) ──
+
+/** "El estacionamiento tarifado se paga de lunes a viernes de 10 a 18, solo en Ciudad Vieja, Centro y Cordón. …" */
+export const TEXTO_CUANDO_SE_PAGA =
+  `El estacionamiento tarifado se paga de lunes a viernes de ${CUANDO_SE_PAGA.desdeLas} a ${CUANDO_SE_PAGA.hastaLas}, ` +
+  `solo en ${CUANDO_SE_PAGA.zonas}. Sábados, domingos y feriados es gratis.`
+
+export type CobroAhora = { seCobra: true } | { seCobra: false; motivo: string; despuesSiSeCobra?: boolean }
+
+/**
+ * Si en este momento se paga (en la zona tarifada). Si no, por qué: "es domingo", "es feriado (Día de los Difuntos)",
+ * "ya pasaron las 18", o "todavía no son las 10" (despuesSiSeCobra: a las 10 empieza a cobrarse).
+ * Un feriado de un año sin la lista oficial no se da por gratis.
+ */
+export function seCobraAhora(ahora = Date.now()): CobroAhora {
+  const partes = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Montevideo', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+      .formatToParts(ahora)
+      .map((p) => [p.type, p.value]),
+  )
+  const fecha = `${partes.year}-${partes.month}-${partes.day}`
+  const diaDeLaSemana = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(partes.weekday)
+  const minutos = Number(partes.hour) * 60 + Number(partes.minute)
+  const feriado = CUANDO_SE_PAGA.feriados[Number(partes.year)]?.[fecha]
+  if (!CUANDO_SE_PAGA.dias.includes(diaDeLaSemana)) return { seCobra: false, motivo: diaDeLaSemana === 0 ? 'es domingo' : 'es sábado' }
+  if (feriado) return { seCobra: false, motivo: `es feriado (${feriado})` }
+  if (minutos >= CUANDO_SE_PAGA.hastaLas * 60) return { seCobra: false, motivo: `ya pasaron las ${CUANDO_SE_PAGA.hastaLas}` }
+  if (minutos < CUANDO_SE_PAGA.desdeLas * 60) return { seCobra: false, motivo: `todavía no son las ${CUANDO_SE_PAGA.desdeLas}`, despuesSiSeCobra: true }
+  return { seCobra: true }
 }
